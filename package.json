@@ -5,8 +5,9 @@
   "description": "Cities: Skylines I mod — trackpad multitouch camera control (pan, orbit, zoom); macOS backend first",
   "scripts": {
     "docs:compile": "mdcp compile --config docs/mdcp.config.json --docs-root docs",
-    "docs:check": "mdcp check --config docs/mdcp.config.json --docs-root docs --skip-vale",
+    "docs:check": "mdcp check --config docs/mdcp.config.json --docs-root docs --skip-vale --require-lint",
     "docs:fix": "mdcp fix --config docs/mdcp.config.json --docs-root docs",
+    "format:docs": "npm run docs:fix",
     "docs": "npm run docs:compile && npm run docs:check"
   },
   "devDependencies": {

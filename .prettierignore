@@ -1,0 +1,6 @@
+node_modules/
+docs/_build/
+.agents/
+.specstory/
+package-lock.json
+*.tgz

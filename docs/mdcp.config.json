@@ -36,6 +36,7 @@
       ".tmp/**",
       ".specstory/**",
       ".agents/**",
+      "docs/superpowers/**",
       "node_modules/**",
       "templates/**",
       "LICENSE",
