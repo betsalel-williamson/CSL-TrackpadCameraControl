@@ -71,6 +71,7 @@ namespace TrackpadCameraControl
                 DisconnectUnlocked();
                 if (dlopen(AppKitPath, 2) == IntPtr.Zero)
                 {
+                    GestureCaptureLog.Line("apple AppKit missing");
                     return;
                 }
 
@@ -118,7 +119,12 @@ namespace TrackpadCameraControl
                 _connected = _monitor != IntPtr.Zero;
                 if (!_connected)
                 {
+                    GestureCaptureLog.Line("apple monitor failed");
                     FreeHandlesUnlocked();
+                }
+                else
+                {
+                    GestureCaptureLog.Line("apple monitor started");
                 }
             }
         }
@@ -239,6 +245,8 @@ namespace TrackpadCameraControl
                         _queue.Enqueue(frame);
                     }
                 }
+
+                GestureCaptureLog.Frame("apple", frame);
             }
 
             return nsEvent;

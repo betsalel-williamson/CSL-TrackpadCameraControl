@@ -27,7 +27,7 @@ Applying a preset copies that preset’s defaults into editable fields (includin
 - Smoothing factor or off
 - Require game focus; ignore when cursor over UI
 - Backend enable / reconnect / debug overlay
-- Capture backend: Contacts (Multitouch / bridge) or AppleGestures (in-process AppKit); `TRACKPAD_CAPTURE_BACKEND` env overrides when set
+- Capture backend: AppleGestures (in-process AppKit, default) or Contacts (in-process Multitouch); `TRACKPAD_CAPTURE_BACKEND` env overrides when set
 
 ## Orbit latch (contract)
 

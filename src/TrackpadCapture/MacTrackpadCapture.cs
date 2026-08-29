@@ -12,14 +12,16 @@ namespace TrackpadCapture
         private readonly MultitouchGestureSession _session = new MultitouchGestureSession();
         private readonly object _gate = new object();
         private readonly bool _debug;
+        private readonly Action<string> _log;
         private MultitouchNative.MTContactCallback _callback;
         private IntPtr _devices;
         private Action<GestureFrame> _onFrame;
         private bool _started;
 
-        public MacTrackpadCapture(bool debug = false)
+        public MacTrackpadCapture(bool debug = false, Action<string> log = null)
         {
             _debug = debug;
+            _log = log;
         }
 
         public bool IsStarted
@@ -87,9 +89,7 @@ namespace TrackpadCapture
                 }
 
                 _started = true;
-                Console.Error.WriteLine(
-                    "TrackpadCapture: started " + count + " multitouch device(s)"
-                );
+                Log("TrackpadCapture: started " + count + " multitouch device(s)");
                 return true;
             }
         }
@@ -156,7 +156,7 @@ namespace TrackpadCapture
 
             if (_debug)
             {
-                Console.Error.WriteLine("TrackpadBridge: contacts=" + numTouches);
+                Log("TrackpadCapture: contacts=" + numTouches);
             }
 
             SampleTouches(
@@ -191,8 +191,8 @@ namespace TrackpadCapture
 
             if (emit)
             {
-                Console.Error.WriteLine(
-                    "TrackpadBridge: gesture fingers="
+                Log(
+                    "contacts fingers="
                         + outFrame.fingerCount
                         + " phase="
                         + outFrame.phase
@@ -209,6 +209,16 @@ namespace TrackpadCapture
                 );
                 sink(outFrame);
             }
+        }
+
+        private void Log(string line)
+        {
+            if (_log == null || line == null)
+            {
+                return;
+            }
+
+            _log(line);
         }
 
         private static void SampleTouches(

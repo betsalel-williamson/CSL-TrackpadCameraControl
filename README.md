@@ -2,9 +2,9 @@
 
 **Cities: Skylines I** mod for **trackpad** camera control — pan, orbit, and zoom via multitouch (pinch, two-finger, three-finger), with hot-configurable Options.
 
-> Status: **MVP — pinch → zoom proof** on macOS (TrackpadBridge IPC + C# camera path). Full presets / Options come later.
+> Status: **MVP — pinch → zoom proof** on macOS (in-process capture + C# camera path). Full presets / Options come later.
 >
-> **Implementation status:** macOS Multitouch first (dev: separate bridge; deploy target: in-process). Windows / Linux backends are stubs. High-level design and Options are platform-neutral.
+> **Implementation status:** macOS first (Contacts and AppleGestures interpreters in the mod DLL). Windows / Linux backends are stubs. High-level design and Options are platform-neutral.
 
 ## Why this exists
 
@@ -62,8 +62,8 @@ Coexists with [ACME](https://steamcommunity.com/sharedfiles/filedetails/?id=2778
 
 ## Platform
 
-- **Design / Options:** platform-neutral (shared IPC primitives + settings)
-- **v1 backend:** macOS trackpad (native multitouch bridge)
+- **Design / Options:** platform-neutral (shared gesture primitives + settings)
+- **v1 backend:** macOS trackpad (in-process capture in the mod DLL)
 - **Stubs:** Windows / Linux — same interface; contributions welcome
 
 ## License

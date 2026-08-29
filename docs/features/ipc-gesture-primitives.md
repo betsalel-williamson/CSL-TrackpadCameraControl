@@ -23,7 +23,7 @@ Each frame describes **raw gesture primitives**, not camera operations:
 - Backend does **not** decide pan vs orbit vs zoom.
 - Mod applies the live binding table from ModSettings.
 - Frames are dropped or coalesced under backpressure; never block the OS contact callback.
-- Transport is local to the user session (for example a Unix domain socket on macOS); no network.
+- Transport is in-process in the mod DLL (a queue from the OS callback to the simulation tick). No network. An optional local socket host remains in the repo for experiments; it is not the playtest path.
 
 ## Acceptance
 

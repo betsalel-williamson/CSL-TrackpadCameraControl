@@ -29,6 +29,9 @@ namespace TrackpadCameraControl
             try
             {
                 Settings = new ModSettings();
+                GestureCaptureLog.Line(
+                    "mod enabled backend=" + CaptureBackendFlags.Resolve(Settings)
+                );
                 IGestureSource source;
                 if (IsE2eInjectEnabled())
                 {

@@ -23,6 +23,5 @@ if [[ -f "${API_DLL}" ]]; then
 fi
 # CitiesHarmony.Harmony.dll is provided by the Cities Harmony workshop mod — do not copy it.
 echo "Installed → ${DEST}/TrackpadCameraControl.dll"
-echo "Start the bridge before playing:"
-echo "  export PATH=\"\$HOME/.dotnet:\$PATH\""
-echo "  dotnet run --project src/TrackpadBridge"
+echo "Restart Cities: Skylines. Capture runs in-process (no TrackpadBridge)."
+echo "Inspect: tail -f \"\${TMPDIR:-/tmp}/trackpad-camera-control.log\""

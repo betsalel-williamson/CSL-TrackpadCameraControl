@@ -52,12 +52,6 @@ namespace TrackpadCameraControl
                 EnsureCaptureSource();
             }
 
-            CaptureBackend backend = CaptureBackendFlags.Resolve(_settings);
-            if (backend == CaptureBackend.Contacts && !_settings.BridgeEnabled)
-            {
-                return;
-            }
-
             if (_source is InjectGestureSource inject)
             {
                 E2eInjectFileProtocol.Poll(inject, _camera);
@@ -155,34 +149,39 @@ namespace TrackpadCameraControl
                     return;
                 }
 
-                try
-                {
-                    var apple = new AppleGestureSource();
-                    apple.Connect();
-                    SetSource(apple);
-                }
-                catch
-                {
-                    // fail soft
-                }
-
+                SwapCaptureSource(new AppleGestureSource());
                 return;
             }
 
-            if (_source is AppleGestureSource)
+            if (_settings.BridgeEnabled)
             {
-                IGestureSource next = _settings.BridgeEnabled
-                    ? (IGestureSource)new IpcGestureSource()
-                    : new InProcessGestureSource();
-                try
+                if (_source is IpcGestureSource)
                 {
-                    next.Connect();
-                    SetSource(next);
+                    return;
                 }
-                catch
-                {
-                    SetSource(new InProcessGestureSource());
-                }
+
+                SwapCaptureSource(new IpcGestureSource());
+                return;
+            }
+
+            if (_source is InProcessGestureSource)
+            {
+                return;
+            }
+
+            SwapCaptureSource(new InProcessGestureSource());
+        }
+
+        private void SwapCaptureSource(IGestureSource next)
+        {
+            try
+            {
+                next.Connect();
+                SetSource(next);
+            }
+            catch
+            {
+                SetSource(new InProcessGestureSource());
             }
         }
     }

@@ -61,6 +61,7 @@ namespace AppleGestureProbe
 
             IntPtr title = AppKitNative.CreateCfString("Apple Gesture Probe");
             AppKitNative.MsgVoid(s_window, AppKitNative.Sel("setTitle:"), title);
+            AppKitNative.CFRelease(title);
             AppKitNative.MsgVoid(s_window, AppKitNative.Sel("center"));
             AppKitNative.MsgVoid(s_window, AppKitNative.Sel("makeKeyAndOrderFront:"), IntPtr.Zero);
 
@@ -101,6 +102,7 @@ namespace AppleGestureProbe
                 }
             }
 
+            AppKitNative.CFRelease(mode);
             Console.Error.WriteLine("AppleGestureProbe: stopped");
             return 0;
         }

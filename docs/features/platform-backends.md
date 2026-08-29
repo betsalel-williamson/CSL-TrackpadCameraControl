@@ -2,15 +2,15 @@
 
 ## Intent
 
-Keep product language and Options **platform-neutral**. Isolate OS capture behind a shared gesture-primitive contract and `IGestureSource` (IPC for development; in-process for deploy). Capture implementation is **C#** (shared TrackpadCapture library).
+Keep product language and Options **platform-neutral**. Isolate OS capture behind a shared gesture-primitive contract and `IGestureSource`. Capture runs **in-process** in the mod DLL (C#).
 
 ## Policy
 
-| Layer                                      | Stance                                                                                         |
-| ------------------------------------------ | ---------------------------------------------------------------------------------------------- |
-| Features, client Outcomes, settings schema | No required OS brand in the capability story                                                   |
-| First shipping backend                     | **macOS** trackpad Multitouch (dev: C# TrackpadBridge IPC; deploy: in-process TrackpadCapture) |
-| Windows / Linux                            | Stubs with the same interface; contributor implementations welcome                             |
+| Layer                                      | Stance                                                                  |
+| ------------------------------------------ | ----------------------------------------------------------------------- |
+| Features, client Outcomes, settings schema | No required OS brand in the capability story                            |
+| First shipping backend                     | **macOS** trackpad (in-process Contacts and AppleGestures interpreters) |
+| Windows / Linux                            | Stubs with the same interface; contributor implementations welcome      |
 
 ## Backend contract
 
@@ -22,8 +22,9 @@ A backend must:
 
 ## macOS (v1)
 
-- **Contacts (default):** TrackpadBridge loads Multitouch via TrackpadCapture and serves local IPC. Selected when `CaptureBackend` is Contacts.
-- **AppleGestures (spike flag):** in-process AppKit local monitor in the mod (scroll / magnify / rotate → same primitives). No Accessibility. Does not use the bridge. Selected when `CaptureBackend` is AppleGestures, or `TRACKPAD_CAPTURE_BACKEND=apple`.
+- **AppleGestures (default):** in-process AppKit local monitor (scroll / magnify / rotate → same primitives). No Accessibility. Selected when `CaptureBackend` is AppleGestures, or when the setting is unset.
+- **Contacts:** in-process MultitouchSupport contacts → primitives. Selected when `CaptureBackend` is Contacts, or `TRACKPAD_CAPTURE_BACKEND=contacts`.
+- Both interpreters log frames to a capture log file for inspection (path overridable with `TRACKPAD_CAPTURE_LOG`).
 - Maps+ orbit modifier defaults to Option.
 - Client notes for Mission Control live under the client guide’s platform conflicts shard.
 

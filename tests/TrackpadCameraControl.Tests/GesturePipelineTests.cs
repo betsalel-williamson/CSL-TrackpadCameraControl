@@ -525,7 +525,6 @@ namespace TrackpadCameraControl.Tests
         {
             var settings = new ModSettings
             {
-                BridgeEnabled = true,
                 ZoomEnabled = true,
                 ZoomSensitivity = 1f,
                 PinchEpsilon = 0.001f,
@@ -555,7 +554,6 @@ namespace TrackpadCameraControl.Tests
         {
             var settings = new ModSettings
             {
-                BridgeEnabled = true,
                 PanEnabled = true,
                 MotionDeadzone = 0.001f,
                 PanSensitivityX = 1f,

@@ -10,15 +10,15 @@ Learn whether Apple-classified trackpad events carry enough **movement data** fo
 
 ## Locked decisions
 
-| Concern          | Choice                                                                                                       |
-| ---------------- | ------------------------------------------------------------------------------------------------------------ |
-| Product contract | Unchanged. Contacts remain the cross-OS primitive stream.                                                    |
-| Spike shape      | C# probe (`src/AppleGestureProbe`) plus in-mod `AppleGestureSource`. Not Swift.                              |
-| Permissions      | In-game Apple path is a local NSEvent monitor on Cities' NSApp. No Accessibility.                            |
-| Feature flag     | `CaptureBackend` (default Contacts). Env `TRACKPAD_CAPTURE_BACKEND=apple\|contacts` overrides when set.      |
-| Binding          | AppleGestures maps scroll/magnify/rotate into the existing `GestureFrame` contract.                          |
-| Maps+ mapping    | Pan = two-finger scroll. Orbit = same scroll + Option (live orbit modifier). Zoom = magnify. Twist = rotate. |
-| CAD swipe        | Log only. Do not treat `swipeWithEvent:` as continuous orbit.                                                |
+| Concern          | Choice                                                                                                                                                                                                                   |
+| ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Product contract | Unchanged. Contacts remain the cross-OS primitive stream.                                                                                                                                                                |
+| Spike shape      | C# probe (`src/AppleGestureProbe`) plus in-mod `AppleGestureSource`. Not Swift.                                                                                                                                          |
+| Permissions      | In-game Apple path is a local NSEvent monitor on Cities' NSApp. No Accessibility.                                                                                                                                        |
+| Feature flag     | `CaptureBackend` (default AppleGestures / AppKit). Env `TRACKPAD_CAPTURE_BACKEND=apple\|contacts` overrides when set. Both interpreters run in-process in the mod DLL. File log for inspection (`TRACKPAD_CAPTURE_LOG`). |
+| Binding          | AppleGestures maps scroll/magnify/rotate into the existing `GestureFrame` contract.                                                                                                                                      |
+| Maps+ mapping    | Pan = two-finger scroll. Orbit = same scroll + Option (live orbit modifier). Zoom = magnify. Twist = rotate.                                                                                                             |
+| CAD swipe        | Log only. Do not treat `swipeWithEvent:` as continuous orbit.                                                                                                                                                            |
 
 ## Operations → Apple event
 
@@ -81,8 +81,8 @@ Spike is done when the log answers questions 1–7 with the probe focused (inclu
 
 ## Out of scope
 
-- `IGestureSource` / wire format / Options switch
-- In-process Unity `NSEvent` monitor inside the mod
+- Options UI for the capture-backend flag (env is enough for the spike)
 - Consuming or suppressing events (Harmony vanilla suppress unchanged)
 - Windows / Linux
 - Fluid `trackSwipeEvent` CAD orbit
+- Keeping TrackpadBridge IPC as the playtest path (in-process + file log instead)

@@ -1,7 +1,8 @@
 <!--
-  In-game DLL targets net35 (CS1 Unity Mono / mscorlib). Capture host stays
-  netstandard2.0. When ICities.dll is found (or CitiesManaged=), enables HAS_CITIES.
-  Tests pass EnableCitiesRefs=false so the test host does not need ICities.
+  In-game DLL targets net35 (CS1 Unity Mono / mscorlib). TrackpadCapture
+  sources compile into this assembly (in-process). When ICities.dll is found
+  (or CitiesManaged=), enables HAS_CITIES. Tests pass EnableCitiesRefs=false
+  so the test host does not need ICities.
 -->
 <Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
@@ -53,5 +54,10 @@
             <HintPath>$(CitiesManaged)/UnityEngine.dll</HintPath>
             <Private>false</Private>
         </Reference>
+    </ItemGroup>
+
+    <ItemGroup>
+        <Compile Include="..\src\TrackpadCapture\*.cs" Link="Capture\%(Filename).cs" />
+        <InternalsVisibleTo Include="TrackpadCameraControl.Tests" />
     </ItemGroup>
 </Project>

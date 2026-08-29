@@ -1,3 +1,5 @@
+using System;
+using System.IO;
 using TrackpadCameraControl;
 using Xunit;
 
@@ -6,10 +8,10 @@ namespace TrackpadCameraControl.Tests
     public class CaptureBackendFlagsTests
     {
         [Fact]
-        public void Resolve_DefaultSettings_IsContacts()
+        public void Resolve_DefaultSettings_IsAppleGestures()
         {
             Assert.Equal(
-                CaptureBackend.Contacts,
+                CaptureBackend.AppleGestures,
                 CaptureBackendFlags.Resolve(new ModSettings(), null)
             );
         }
@@ -140,6 +142,76 @@ namespace TrackpadCameraControl.Tests
                     out _
                 )
             );
+        }
+    }
+
+    public class InProcessCaptureTests
+    {
+        [Fact]
+        public void DefaultSettings_BridgeDisabled()
+        {
+            Assert.False(new ModSettings().BridgeEnabled);
+        }
+
+        [Fact]
+        public void CreateCaptureSource_Default_IsAppleGestureSource()
+        {
+            Assert.IsType<AppleGestureSource>(Mod.CreateCaptureSource(new ModSettings()));
+        }
+
+        [Fact]
+        public void CreateCaptureSource_BridgeEnabled_IsIpc()
+        {
+            Assert.IsType<IpcGestureSource>(
+                Mod.CreateCaptureSource(
+                    new ModSettings
+                    {
+                        CaptureBackend = CaptureBackend.Contacts,
+                        BridgeEnabled = true,
+                    }
+                )
+            );
+        }
+
+        [Fact]
+        public void CreateCaptureSource_Contacts_IsInProcess()
+        {
+            Assert.IsType<InProcessGestureSource>(
+                Mod.CreateCaptureSource(
+                    new ModSettings { CaptureBackend = CaptureBackend.Contacts }
+                )
+            );
+        }
+    }
+
+    public class GestureCaptureLogTests
+    {
+        [Fact]
+        public void Line_WritesToConfiguredPath()
+        {
+            string path = Path.Combine(
+                Path.GetTempPath(),
+                "trackpad-capture-log-test-" + Guid.NewGuid().ToString("N") + ".log"
+            );
+            GestureCaptureLog.PathOverride = path;
+            GestureCaptureLog.ResetForTests();
+            try
+            {
+                GestureCaptureLog.Line("hello-capture");
+                GestureCaptureLog.ResetForTests();
+                string text = File.ReadAllText(path);
+                Assert.Contains("hello-capture", text);
+                Assert.Contains("capture log opened", text);
+            }
+            finally
+            {
+                GestureCaptureLog.ResetForTests();
+                GestureCaptureLog.PathOverride = null;
+                if (File.Exists(path))
+                {
+                    File.Delete(path);
+                }
+            }
         }
     }
 }

@@ -3,8 +3,8 @@ using System;
 namespace TrackpadCameraControl
 {
     /// <summary>
-    /// Selects how trackpad primitives are captured. Contacts is MultitouchSupport
-    /// via the bridge; AppleGestures is in-process AppKit (no Accessibility).
+    /// Selects how trackpad primitives are captured. Both interpreters run in-process.
+    /// Contacts is MultitouchSupport; AppleGestures is AppKit (no Accessibility).
     /// </summary>
     public enum CaptureBackend
     {
@@ -52,7 +52,7 @@ namespace TrackpadCameraControl
 
             if (settings == null)
             {
-                return CaptureBackend.Contacts;
+                return CaptureBackend.AppleGestures;
             }
 
             return settings.CaptureBackend;

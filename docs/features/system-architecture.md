@@ -35,7 +35,7 @@ flowchart LR
 | Component               | Responsibility                                                                                                                                                            |
 | ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Platform backend        | Capture OS trackpad contacts / gestures; emit raw primitives while the game is focused                                                                                    |
-| Gesture source          | Deliver primitives into the mod — IPC helper (**dev**) or in-process capture (**deploy**); see ADR 0001                                                                   |
+| Gesture source          | Deliver primitives into the mod from in-process capture (Contacts or AppleGestures); see ADR 0001                                                                         |
 | Gesture session         | Orbit latch and resolve-mode state across frames                                                                                                                          |
 | Binding resolver        | Map primitives + session state to a camera **op set** (pan / zoom / yaw / orbit flags)                                                                                    |
 | Camera applicator       | Apply each enabled op to size, target position, and angles using live settings                                                                                            |

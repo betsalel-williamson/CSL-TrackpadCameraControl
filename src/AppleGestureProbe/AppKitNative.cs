@@ -110,7 +110,17 @@ namespace AppleGestureProbe
 
         public static IntPtr CreateCfString(string value)
         {
-            return CFStringCreateWithCString(IntPtr.Zero, value, 0x08000100);
+            return CFStringCreateWithCString(IntPtr.Zero, value, 0x08000100); // native-leak-ok: caller CFRelease
+        }
+
+        public static void CFRelease(IntPtr cf)
+        {
+            if (cf == IntPtr.Zero)
+            {
+                return;
+            }
+
+            CFReleaseNative(cf);
         }
 
         [DllImport(LibObjC)]
@@ -188,5 +198,8 @@ namespace AppleGestureProbe
             string str,
             uint encoding
         );
+
+        [DllImport(CoreFoundationPath, EntryPoint = "CFRelease")]
+        private static extern void CFReleaseNative(IntPtr cf);
     }
 }

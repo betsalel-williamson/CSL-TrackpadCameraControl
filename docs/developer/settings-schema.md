@@ -70,17 +70,17 @@ Exact default numbers are tuned during implementation; change them only in the d
 | FingerCountHysteresis | float            | small positive | yes |
 | Smoothing             | float 0–1 or off | off / 0        | yes |
 
-## Gates and bridge
+## Gates and capture
 
-| Field            | Type                          | Default  | Hot |
-| ---------------- | ----------------------------- | -------- | --- |
-| RequireGameFocus | bool                          | true     | yes |
-| IgnoreOverUi     | bool                          | true     | yes |
-| BridgeEnabled    | bool                          | true     | yes |
-| CaptureBackend   | enum: Contacts, AppleGestures | Contacts | yes |
-| DebugOverlay     | bool                          | false    | yes |
+| Field            | Type                          | Default       | Hot |
+| ---------------- | ----------------------------- | ------------- | --- |
+| RequireGameFocus | bool                          | true          | yes |
+| IgnoreOverUi     | bool                          | true          | yes |
+| BridgeEnabled    | bool                          | false         | yes |
+| CaptureBackend   | enum: Contacts, AppleGestures | AppleGestures | yes |
+| DebugOverlay     | bool                          | false         | yes |
 
-`CaptureBackend` selects the interpreter: **Contacts** is MultitouchSupport via TrackpadBridge (current path). **AppleGestures** is in-process AppKit scroll/magnify/rotate (no Accessibility). Launch override: `TRACKPAD_CAPTURE_BACKEND=apple` or `contacts` (env wins when set).
+`CaptureBackend` selects the in-process interpreter: **AppleGestures** (default) is AppKit scroll/magnify/rotate (no Accessibility). **Contacts** is MultitouchSupport contacts. Launch override: `TRACKPAD_CAPTURE_BACKEND=apple` or `contacts` (env wins when set). `BridgeEnabled` is an optional experiment (out-of-process socket host); playtest leaves it off. Capture frames append to a log file (`TRACKPAD_CAPTURE_LOG` overrides the path; default is `trackpad-camera-control.log` under the process temp directory).
 
 ## Validation rule
 
