@@ -1,0 +1,22 @@
+{
+  "name": "csl-trackpad-camera-control",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Cities: Skylines I mod — trackpad multitouch camera control (pan, orbit, zoom); macOS backend first",
+  "scripts": {
+    "docs:compile": "mdcp compile --config docs/mdcp.config.json --docs-root docs",
+    "docs:check": "mdcp check --config docs/mdcp.config.json --docs-root docs --skip-vale",
+    "docs:fix": "mdcp fix --config docs/mdcp.config.json --docs-root docs",
+    "docs": "npm run docs:compile && npm run docs:check"
+  },
+  "devDependencies": {
+    "@bwilliamson/mdcp-cli": "^0.7.4",
+    "@bwilliamson/mdcp-presets": "^0.7.0",
+    "markdownlint-cli2": "^0.18.1",
+    "prettier": "^3.6.2"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "license": "MIT"
+}
