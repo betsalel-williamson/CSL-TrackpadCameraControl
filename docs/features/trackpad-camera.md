@@ -8,12 +8,12 @@ Give trackpad players the same camera fluency mouse users get from middle-mouse 
 
 - [Pan](../glossary/pan.md), [orbit](../glossary/orbit.md), [zoom](../glossary/zoom.md), and [yaw](../glossary/yaw.md) without attaching a mouse.
 - One-finger click and drag still drive build tools and UI.
-- Choose [Maps+](../glossary/maps-plus-preset.md) or [CAD](../glossary/cad-preset.md) presets in Options, then tune every binding and feel value hot (no restart).
-- Optionally enable [Assist UI](../glossary/assist-ui.md) chrome for the same camera ops (and to validate that path without Multitouch).
+- Choose [Maps+](../glossary/maps-plus-preset.md) or [CAD](../glossary/cad-preset.md) presets (seeds via `ApplyPreset` today; Options UI later), then tune every binding and feel value hot (no restart).
+- Optionally enable [Assist UI](../glossary/assist-ui.md) chrome for the same camera ops (and to validate that path without Multitouch) — Assist UI wiring ships in a later phase.
 
 ## Gesture contract (preset seeds)
 
-Presets seed Options. Users may override any row; that becomes Custom. Modifier keys are described in platform-neutral terms; OS-specific key names appear in the client platform notes.
+Presets seed bindings. Users may override any row; that becomes Custom. Modifier keys are described in platform-neutral terms; OS-specific key names appear in the client platform notes.
 
 ### Maps+ (default seed)
 
@@ -35,24 +35,27 @@ Presets seed Options. Users may override any row; that becomes Custom. Modifier 
 | Two-finger rotate       | Yaw                 |
 | Three-finger drag       | Orbit (yaw + pitch) |
 
-## Acceptance criteria (MVP)
+## Resolve mode and orbit latch
 
-Proof slice before full v1 presets and Options:
+- [Gesture resolve mode](../glossary/gesture-resolve-mode.md) controls whether multiple camera ops can apply from one frame (default: Concurrent).
+- [Orbit latch](../glossary/orbit-latch.md): once orbit engages, it holds until touch-up even if the modifier is released. While latched, orbit and yaw rotate apply; pan and zoom do not.
 
-- On macOS with the TrackpadBridge (dev path) connected, trackpad **pinch** changes camera **zoom** in-game.
-- One-finger building tools remain usable.
-- Without a backend or if the bridge is missing/disconnected, the mod enables cleanly and does not break vanilla input.
-- No Options UI required for this slice (in-memory settings defaults).
-
-## Acceptance criteria (v1)
+## Acceptance criteria (current)
 
 - With a supported trackpad backend and Maps+ defaults, pan, zoom, yaw, and modifier+two-finger orbit work in-game.
-- Switching to CAD in Options makes three-finger orbit take effect on the next gesture (no restart).
-- Changing any sensitivity, invert, enable, deadzone, or orbit trigger applies hot.
-- With Assist UI enabled, corner chrome can drive the same pan / zoom / yaw / orbit ops through the shared apply path.
+- Calling `ApplyPreset(CAD)` (or switching preset when Options UI lands) makes three-finger orbit take effect on the next gesture (no restart).
+- Changing any sensitivity, invert, enable, deadzone, orbit trigger, or resolve mode applies hot via live ModSettings.
+- Orbit latch continues orbit after modifier release until fingers lift; pan and zoom stay suppressed while latched.
+- Concurrent resolve allows pan + zoom + yaw in the same frame when not orbit-latched.
 - One-finger building tools remain usable.
 - Without a platform backend (unsupported OS or missing bridge), the mod enables cleanly and does not break vanilla input.
-- Does not reimplement ACME camera-suite features (saved positions, zoom limits, free-cam).
+- No Options UI required for this slice (in-memory settings defaults and `ApplyPreset`).
+
+## Acceptance criteria (later phases)
+
+- Options UI exposes preset, resolve mode, and all tunables.
+- With Assist UI enabled, corner chrome can drive the same pan / zoom / yaw / orbit ops through the shared apply path.
+- Optional Harmony gate: single checkbox to enable or disable vanilla in-game camera controls so trackpad and vanilla do not fight.
 
 ## Non-goals (v1)
 

@@ -20,4 +20,4 @@
 
 ## Current phase
 
-**MVP — pinch → zoom proof** on macOS (TrackpadBridge IPC + C# mod). Full presets / Options and in-process deploy capture come next.
+**Full gesture camera ops** — pan, zoom, yaw, orbit with resolve modes and orbit latch (in-memory settings / `ApplyPreset`). Next: Options UI, then Assist UI wiring, then Harmony vanilla-camera checkbox; in-process deploy capture remains later.
