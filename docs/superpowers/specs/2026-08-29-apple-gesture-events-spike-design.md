@@ -1,7 +1,7 @@
 # Apple native gesture events — Spike
 
-**Date:** 2026-08-29  
-**Status:** Spike (not a shipping backend)  
+**Date:** 2026-08-29
+**Status:** Spike (not a shipping backend)
 **Scope:** Log AppKit gesture payloads beside the existing contact interpreter. Do not bind camera ops.
 
 ## Goal
@@ -13,8 +13,8 @@ Learn whether Apple-classified trackpad events carry enough **movement data** fo
 | Concern          | Choice                                                                                                       |
 | ---------------- | ------------------------------------------------------------------------------------------------------------ |
 | Product contract | Unchanged. Contacts remain the cross-OS primitive stream.                                                    |
-| Spike shape      | Standalone AppKit probe under `native/mac/` (not in-mod, not TrackpadBridge).                                |
-| Permissions      | Default run is **window-local** (`src=view` / `src=local`). No Accessibility.                                |
+| Spike shape      | C# net8 console (`src/AppleGestureProbe`), same stack as TrackpadBridge. P/Invoke AppKit. Not Swift.         |
+| Permissions      | Window-local NSApplication event pump. No Accessibility.                                                     |
 | Maps+ mapping    | Pan = two-finger scroll. Orbit = same scroll + Option (live orbit modifier). Zoom = magnify. Twist = rotate. |
 | CAD swipe        | Log only. Do not treat `swipeWithEvent:` as continuous orbit.                                                |
 | Binding          | Probe does not emit `GestureFrame` or call the resolver.                                                     |
@@ -37,15 +37,14 @@ Learn whether Apple-classified trackpad events carry enough **movement data** fo
 4. **Rotate:** Is `rotation` continuous degrees during two-finger twist?
 5. **Swipe:** Are `deltaX` / `deltaY` only −1 / 0 / +1? Does swipe fire at all with default Mission Control settings?
 6. **Separation:** During two-finger pan, do magnify/rotate stay quiet, or do they chatter beside scroll?
-7. **Delivery (default):** With the probe focused, do `src=view` and `src=local` fire? (Enough to judge payload quality.)
-8. **Delivery (optional):** `APPLE_GESTURE_PROBE_TAP=1` plus Accessibility: with Cities focused, does `src=tap` still see the same types? Not required for this spike.
+7. **Delivery:** With the probe window focused, do `src=local` lines fire for scroll / magnify / rotate?
 
 ## Log line
 
 One stderr line per event, fields only when valid for that type:
 
 ```text
-apple src=view|local|tap type=scroll|magnify|rotate|swipe|begin|end|gesture|smart
+apple src=local type=scroll|magnify|rotate|swipe|begin|end|gesture|smart
       phase=… momentum=… sdx=… sdy=… dx=… dy=… mag=… rot=… mods=opt,shift,cmd,ctrl precise=0|1
 ```
 
@@ -59,6 +58,12 @@ From the spike worktree (or this branch):
 ./scripts/apple-gesture-probe.sh
 ```
 
+or:
+
+```bash
+dotnet run --project src/AppleGestureProbe
+```
+
 Keep that terminal visible. A window titled **Apple Gesture Probe** appears.
 
 1. Click the probe window so it is frontmost.
@@ -68,9 +73,7 @@ Keep that terminal visible. A window titled **Apple Gesture Probe** appears.
    - pinch
    - two-finger twist
    - three-finger swipe
-3. Read stderr. Expect `src=view` and `src=local` on the same gesture. No Accessibility prompt.
-
-Optional (not needed for questions 1–7): `APPLE_GESTURE_PROBE_TAP=1 ./scripts/apple-gesture-probe.sh` listens while another app is focused; that path may ask for Accessibility.
+3. Read stderr. Expect `src=local` lines. No Accessibility prompt. Ctrl-C or close the window to quit.
 
 ## Pass bar
 

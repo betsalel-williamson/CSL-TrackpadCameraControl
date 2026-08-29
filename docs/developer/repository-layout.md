@@ -8,6 +8,7 @@ CSL-TrackpadCameraControl/
   mod/                  # C# Cities: Skylines I mod (CitiesHarmony Patcher for vanilla camera suppress)
   src/TrackpadCapture/  # Shared Multitouch → GestureFrame (netstandard2.0)
   src/TrackpadBridge/   # Dev IPC console host (dotnet run)
+  src/AppleGestureProbe/ # Spike: C# AppKit gesture logger (macOS, not a backend)
   tests/                # xUnit unit + headless e2e
   native/               # Retired C helper notes / stubs (no shipping bridge)
   shared/protocol/      # GestureFrame wire layout

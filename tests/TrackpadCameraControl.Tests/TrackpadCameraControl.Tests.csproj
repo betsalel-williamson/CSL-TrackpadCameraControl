@@ -20,5 +20,6 @@
             <AdditionalProperties>EnableCitiesRefs=false</AdditionalProperties>
         </ProjectReference>
         <ProjectReference Include="..\..\src\TrackpadCapture\TrackpadCapture.csproj" />
+        <ProjectReference Include="..\..\src\AppleGestureProbe\AppleGestureProbe.csproj" />
     </ItemGroup>
 </Project>
