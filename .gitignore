@@ -5,6 +5,7 @@ docs/_build/
 *.csproj.user
 bin/
 obj/
+native/mac/TrackpadBridge
 .vs/
 *.dll
 *.pdb
