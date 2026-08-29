@@ -2,7 +2,7 @@
 
 ## Intent
 
-No feel or binding parameter is hardcoded in camera or gesture logic. Defaults exist only in the settings schema. Players and developers experiment mid-session; Options UI will expose the same fields later.
+No feel or binding parameter is hardcoded in camera or gesture logic. Defaults exist only in the settings schema. Players and developers experiment mid-session from in-game Options (capture backend and sensitivities in this slice) or via in-memory `ApplyPreset`.
 
 ## Presets
 
@@ -27,7 +27,7 @@ Applying a preset copies that preset’s defaults into editable fields (includin
 - Smoothing factor or off
 - Require game focus; ignore when cursor over UI
 - Backend enable / reconnect / debug overlay
-- Capture backend: AppleGestures (in-process AppKit, default) or Contacts (in-process Multitouch); `TRACKPAD_CAPTURE_BACKEND` env overrides when set
+- Capture backend: **AppleGestures** (in-process AppKit, **current default**) or **Contacts** (legacy in-process Multitouch). Options can switch them; `TRACKPAD_CAPTURE_BACKEND` env overrides when set.
 
 ## Orbit latch (contract)
 
@@ -35,13 +35,14 @@ Once orbit engages from the configured trigger, the session stays in orbit until
 
 ## Hot-apply contract
 
-- Settings updates (Options later, or in-memory / `ApplyPreset` now) take effect immediately.
+- Settings updates from Options (this slice: capture backend and sensitivities) or in-memory / `ApplyPreset` take effect immediately.
 - Binding resolver, gesture session, and camera applicator read live settings each frame or via change callbacks.
 - No mod disable/enable cycle required for tuning.
 - Prefer raw primitive streaming from the backend so feel changes never need a native restart.
 
 ## Acceptance
 
-- Change pan sensitivity mid-drag (or between drags) and observe the new scale without restart.
-- Switch Maps+ → CAD via `ApplyPreset` (or Options when shipped) and have three-finger orbit work on the next gesture.
+- Change pan sensitivity in Options (or mid-drag via live settings) and observe the new scale without restart.
+- Switch capture backend in Options between AppKit and Contacts; the next gesture uses the selected interpreter (`TRACKPAD_CAPTURE_BACKEND` still wins when set).
+- Switch Maps+ → CAD via `ApplyPreset` and have three-finger orbit work on the next gesture.
 - Grep of camera/gesture logic finds no numeric feel literals outside the settings defaults factory.

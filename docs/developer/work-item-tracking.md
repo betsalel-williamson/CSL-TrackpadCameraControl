@@ -20,4 +20,4 @@
 
 ## Current phase
 
-**Vanilla camera suppress** — while the mod is enabled, Harmony skips vanilla scroll-zoom and mouse-drag rotate; edge pan, keyboard, and gamepad stay. Cities Harmony is required. Next: Options UI, then Assist UI wiring; in-process deploy capture remains later. An Options checkbox to leave vanilla camera on is deferred.
+**Options UI (sensitivities + capture backend)** — in-game Options expose AppKit vs Contacts (legacy) and per-op sensitivities so feel can be tuned without restart. Next: remaining Options fields, then Assist UI wiring. An Options checkbox to leave vanilla camera on is deferred.

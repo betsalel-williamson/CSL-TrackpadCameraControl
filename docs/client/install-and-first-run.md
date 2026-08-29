@@ -18,24 +18,16 @@ Disable the mod in Content Manager to restore full vanilla camera input. There i
 
 ## First run (current)
 
-Maps+ / CAD gestures work in-memory (`ApplyPreset`); Options UI arrives later.
+Capture uses in-process **AppKit** by default (no Accessibility, no companion bridge). Contacts (legacy Multitouch) stays available from Options.
 
 1. Subscribe and enable **Cities Harmony**.
 2. Enable **Trackpad Camera Control** in Content Manager.
 3. Load a city or start a new game.
 4. With the game focused, try two-finger drag (pan), pinch (zoom), two-finger rotate (yaw), and modifier+two-finger drag (orbit — Option on macOS). Pan should not also vanilla-scroll-zoom.
-5. Confirm edge pan (cursor at screen edge) and keyboard camera keys still move the camera.
+5. Open Options → Trackpad Camera Control to change sensitivities or switch to Contacts (legacy).
+6. Confirm edge pan (cursor at screen edge) and keyboard camera keys still move the camera.
 
 If gestures do nothing, check that the game is focused and the OS is not consuming the gesture (see [OS gesture conflicts](./os-gesture-conflicts.md)). Contributors can inspect the capture log under the process temp directory.
-
-## First run (when Options UI ships)
-
-1. Enable the mod in Content Manager.
-2. Load a city or start a new game.
-3. Open Options → Trackpad Camera Control.
-4. Confirm the gesture preset is **Maps+** (default).
-5. Try the same gestures as above.
-6. Optionally enable [Assist UI](./assist-ui-camera-chrome.md) to nudge the same axes from on-screen chrome (handy when validating without a working backend).
 
 ## Companion mods
 
