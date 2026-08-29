@@ -6,6 +6,7 @@ docs/_build/
 bin/
 obj/
 native/mac/TrackpadBridge
+native/mac/AppleGestureProbe
 .vs/
 *.dll
 *.pdb

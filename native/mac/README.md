@@ -15,3 +15,16 @@ Optional: `TRACKPAD_BRIDGE_DEBUG=1` logs contact counts.
 Pinch with two fingers while a client is connected to emit frames. Ctrl-C stops the bridge.
 
 Capture logic lives in `src/TrackpadCapture/` (shared with the eventual in-process mod path).
+
+## Apple gesture probe (spike)
+
+Standalone AppKit logger for scroll / magnify / rotate / swipe payloads. Not a camera backend. Spec: `docs/superpowers/specs/2026-08-29-apple-gesture-events-spike-design.md`.
+
+```bash
+chmod +x scripts/apple-gesture-probe.sh
+./scripts/apple-gesture-probe.sh
+```
+
+Default is **window-local**: click the probe window and gesture on it. Stderr lines are `src=view` / `src=local`. No Accessibility permission.
+
+`APPLE_GESTURE_PROBE_TAP=1` is optional and may prompt for Accessibility so the probe can log while Cities is focused.

@@ -12,6 +12,8 @@ How contributors validate Trackpad Camera Control without (and with) Cities: Sky
 
 Real Multitouch / trackpad hardware is **not** required for CI. Hardware gestures remain a manual check on macOS with the bridge host running (see [local MVP install](./local-mvp-install.md)).
 
+To inspect Apple-classified events (scroll, magnify, rotate, swipe) without the mod, run `./scripts/apple-gesture-probe.sh` and gesture on the probe window — see `native/mac/README.md`. Default needs no Accessibility. That probe does not emit `GestureFrame` values.
+
 ## Coverage blind spot (learned 2026-08-29)
 
 Unit and headless e2e tests **construct `GestureFrame` values in memory** (or inject them). They prove resolver + applicator behavior when centroid / rotate / modifiers are already correct.
