@@ -14,5 +14,6 @@ obj/
 !.env.example
 .tmp/
 .caches/
+.worktrees/
 .specstory/
 *.tgz
