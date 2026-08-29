@@ -1,0 +1,26 @@
+// Map IPC primitives → camera ops using live ModSettings (hot).
+
+namespace TrackpadCameraControl
+{
+    public enum CameraOp
+    {
+        None,
+        Pan,
+        Zoom,
+        Yaw,
+        Orbit,
+    }
+
+    public static class GestureBindingResolver
+    {
+        public static CameraOp Resolve( /* GestureFrame frame, */
+            ModSettings settings
+        )
+        {
+            // Read settings every call — no cached hardcoded binding table.
+            // Maps+: Modifier+2 finger → Orbit; CAD: 3 finger → Orbit; etc.
+            _ = settings;
+            return CameraOp.None;
+        }
+    }
+}

@@ -1,0 +1,23 @@
+// CitiesHarmony: do NOT reference HarmonyLib from IUserMod.
+
+namespace TrackpadCameraControl
+{
+    public class Mod // : IUserMod
+    {
+        public string Name => "Trackpad Camera Control";
+        public string Description =>
+            "Trackpad multitouch camera — pan, orbit, zoom. Hot-configurable Options.";
+
+        public void OnEnabled()
+        {
+            // HarmonyHelper.DoOnHarmonyReady(Patcher.PatchAll);
+            // Start or connect TrackpadBridge when settings.BridgeEnabled
+        }
+
+        public void OnDisabled()
+        {
+            // Patcher.UnpatchAll();
+            // Stop bridge
+        }
+    }
+}

@@ -1,0 +1,4 @@
+# Leave templates and generated output alone
+templates/
+**/bin/
+**/obj/

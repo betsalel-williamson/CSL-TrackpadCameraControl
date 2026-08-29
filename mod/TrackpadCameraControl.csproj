@@ -1,0 +1,15 @@
+<!--
+  Phase-1 scaffold: format/check only. No Cities: Skylines or CitiesHarmony
+  assembly references yet — those land when gameplay implementation starts.
+-->
+<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <TargetFramework>netstandard2.0</TargetFramework>
+        <LangVersion>latest</LangVersion>
+        <Nullable>disable</Nullable>
+        <ImplicitUsings>disable</ImplicitUsings>
+        <RootNamespace>TrackpadCameraControl</RootNamespace>
+        <AssemblyName>TrackpadCameraControl</AssemblyName>
+        <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
+    </PropertyGroup>
+</Project>
