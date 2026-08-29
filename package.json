@@ -1,9 +1,21 @@
 {
   "name": "csl-trackpad-camera-control",
   "version": "0.1.0",
-  "private": true,
   "description": "Cities: Skylines I mod — trackpad multitouch camera control (pan, orbit, zoom); macOS backend first",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/betsalel-williamson/CSL-TrackpadCameraControl.git"
+  },
+  "bugs": {
+    "url": "https://github.com/betsalel-williamson/CSL-TrackpadCameraControl/issues"
+  },
+  "homepage": "https://github.com/betsalel-williamson/CSL-TrackpadCameraControl#readme",
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
+    "prepare": "husky",
     "docs:compile": "mdcp compile --config docs/mdcp.config.json --docs-root docs",
     "docs:check": "mdcp check --config docs/mdcp.config.json --docs-root docs --skip-vale --require-lint",
     "docs:fix": "mdcp fix --config docs/mdcp.config.json --docs-root docs",
@@ -14,16 +26,23 @@
     "format:native:check": "bash scripts/format-native.sh check",
     "format": "npm run format:docs && npm run format:csharp && npm run format:native",
     "format:check": "npm run format:csharp:check && npm run format:native:check",
-    "docs": "npm run docs:compile && npm run docs:check"
+    "docs": "npm run docs:compile && npm run docs:check",
+    "changeset": "changeset",
+    "changeset:status": "changeset status",
+    "version-packages": "changeset version",
+    "commitlint": "commitlint --from HEAD~1 --to HEAD --verbose"
   },
   "devDependencies": {
     "@bwilliamson/mdcp-cli": "^0.7.4",
     "@bwilliamson/mdcp-presets": "^0.7.0",
+    "@changesets/cli": "^2.31.1",
+    "@commitlint/cli": "^21.2.1",
+    "@commitlint/config-conventional": "^21.0.2",
+    "husky": "^9.1.7",
     "markdownlint-cli2": "^0.18.1",
     "prettier": "^3.6.2"
   },
   "engines": {
     "node": ">=18"
-  },
-  "license": "MIT"
+  }
 }

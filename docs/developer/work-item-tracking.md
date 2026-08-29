@@ -14,6 +14,8 @@
 - One focused work item per branch.
 - Docs-first for capability changes: update shards, `npm run docs:check`, then code.
 - Atomic commits: one concern per commit (docs bootstrap, feature shard, template, etc.).
+- Conventional commit subjects (`feat:`, `fix:`, `docs:`, …) — see [commits and releases](./commits-and-releases.md).
+- Add a changeset for releasable changes (`npm run changeset`).
 - Do not commit secrets, Steam API keys, or local game paths with usernames if avoidable.
 
 ## Current phase

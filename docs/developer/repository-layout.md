@@ -12,7 +12,8 @@ CSL-TrackpadCameraControl/
   shared/protocol/      # IPC frame schema (later)
   templates/            # Copy-paste scaffolds for quick development
   scripts/              # Contributor helpers (e.g. clang-format)
-  .github/workflows/    # Docs + code-format CI
+  .changeset/           # Pending release notes (Changesets)
+  .github/workflows/    # Docs, format, commitlint, release CI
   TrackpadCameraControl.sln
   README.md
   LICENSE

@@ -35,3 +35,5 @@ GitHub Actions (`.github/workflows/ci.yml`) on push/PR to `main`:
 2. **Code format** — CSharpier check on `mod/`, clang-format dry-run on `native/**/*.{c,h}`
 
 Format before opening a PR; CI will fail if style drifts.
+
+Commit messages and releases: see [commits and releases](./commits-and-releases.md).
