@@ -5,7 +5,7 @@ namespace TrackpadCameraControl
         private static readonly CameraControllerZoom DefaultCamera = new CameraControllerZoom();
 
         public static void Apply(
-            CameraOp op,
+            CameraOp ops,
             float dx,
             float dy,
             float pinchDelta,
@@ -13,11 +13,11 @@ namespace TrackpadCameraControl
             ModSettings settings
         )
         {
-            Apply(op, dx, dy, pinchDelta, rotateDelta, settings, DefaultCamera);
+            Apply(ops, dx, dy, pinchDelta, rotateDelta, settings, DefaultCamera);
         }
 
         public static void Apply(
-            CameraOp op,
+            CameraOp ops,
             float dx,
             float dy,
             float pinchDelta,
@@ -26,15 +26,24 @@ namespace TrackpadCameraControl
             ICameraZoom camera
         )
         {
-            _ = dx;
-            _ = dy;
-            _ = rotateDelta;
-
-            if (op != CameraOp.Zoom || settings == null || camera == null)
+            if (ops == CameraOp.None || settings == null || camera == null)
             {
                 return;
             }
 
+            if ((ops & CameraOp.Zoom) != 0)
+            {
+                ApplyZoom(pinchDelta, settings, camera);
+            }
+
+            // Pan / yaw / orbit applied once ICameraController lands.
+            _ = dx;
+            _ = dy;
+            _ = rotateDelta;
+        }
+
+        private static void ApplyZoom(float pinchDelta, ModSettings settings, ICameraZoom camera)
+        {
             float size = camera.Size;
             if (float.IsNaN(size))
             {

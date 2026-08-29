@@ -1,4 +1,4 @@
-// Defaults only here / factory — never in CameraApplicator.
+using System;
 
 namespace TrackpadCameraControl
 {
@@ -17,9 +17,18 @@ namespace TrackpadCameraControl
         Off,
     }
 
+    public enum GestureResolveMode
+    {
+        Concurrent,
+        SessionLock,
+        PrimaryOnly,
+    }
+
     public class ModSettings
     {
         public GesturePreset GesturePreset { get; set; } = GesturePreset.MapsPlus;
+        public GestureResolveMode GestureResolveMode { get; set; } = GestureResolveMode.Concurrent;
+
         public bool PanEnabled { get; set; } = true;
         public bool ZoomEnabled { get; set; } = true;
         public bool YawEnabled { get; set; } = true;
@@ -51,9 +60,25 @@ namespace TrackpadCameraControl
         public bool BridgeEnabled { get; set; } = true;
         public bool DebugOverlay { get; set; }
 
+        /// <summary>
+        /// Seeds orbit trigger (and related defaults) from Maps+ or CAD. Custom is a no-op.
+        /// </summary>
         public void ApplyPreset(GesturePreset preset)
         {
-            // seed OrbitTrigger + flags; see docs
+            if (preset == GesturePreset.Custom)
+            {
+                return;
+            }
+
+            GesturePreset = preset;
+            if (preset == GesturePreset.MapsPlus)
+            {
+                OrbitTrigger = OrbitTrigger.ModifierPlusTwoFinger;
+            }
+            else if (preset == GesturePreset.CAD)
+            {
+                OrbitTrigger = OrbitTrigger.ThreeFinger;
+            }
         }
     }
 }

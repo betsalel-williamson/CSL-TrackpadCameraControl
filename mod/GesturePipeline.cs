@@ -5,6 +5,7 @@ namespace TrackpadCameraControl
     {
         private readonly ModSettings _settings;
         private readonly ICameraZoom _camera;
+        private readonly GestureSession _session = new GestureSession();
         private IGestureSource _source;
         private int _reconnectCooldown;
 
@@ -68,14 +69,14 @@ namespace TrackpadCameraControl
             bool applied = false;
             while (safety-- > 0 && _source.TryDequeue(out GestureFrame frame))
             {
-                CameraOp op = GestureBindingResolver.Resolve(frame, _settings);
-                if (op == CameraOp.None)
+                CameraOp ops = _session.Process(frame, _settings);
+                if (ops == CameraOp.None)
                 {
                     continue;
                 }
 
                 CameraApplicator.Apply(
-                    op,
+                    ops,
                     frame.centroidDeltaX,
                     frame.centroidDeltaY,
                     frame.pinchScaleDelta,
