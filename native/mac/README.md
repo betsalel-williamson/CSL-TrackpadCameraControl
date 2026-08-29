@@ -1,25 +1,37 @@
-# TrackpadBridge (macOS)
+# macOS capture
 
-Optional experiment: MultitouchSupport → [GestureFrame](../../shared/protocol/gesture-frame.md) over a Unix socket. Playtest uses **in-process capture in the mod DLL** (see [local MVP install](../../docs/developer/local-mvp-install.md)); this host is not required.
+Playtest uses **in-process AppKit** in the mod DLL (scroll / magnify / rotate → gesture primitives). There is no companion process.
 
-The prior C helper (`TrackpadBridge.c` + `make`) is **retired**. To run this host:
+```bash
+./scripts/install-mod-local.sh
+```
+
+Restart Cities. Inspect:
+
+```bash
+tail -f "${TMPDIR:-/tmp}/trackpad-camera-control.log"
+```
+
+Default interpreter is AppKit. Contacts (legacy MultitouchSupport) is flag-gated — Options → Trackpad Camera Control, or `TRACKPAD_CAPTURE_BACKEND=contacts` when launching the game.
+
+See [local MVP install](../../docs/developer/local-mvp-install.md).
+
+## Optional: TrackpadBridge IPC host
+
+Out-of-process MultitouchSupport over a Unix socket. Not the playtest path (`BridgeEnabled` stays off). The prior C helper (`TrackpadBridge.c` + `make`) is retired.
 
 ```bash
 dotnet run --project src/TrackpadBridge
 ```
 
-Default socket: `$TMPDIR/trackpad-camera-control.sock` (override with `TRACKPAD_BRIDGE_SOCKET`).
+Default socket: `$TMPDIR/trackpad-camera-control.sock` (override with `TRACKPAD_BRIDGE_SOCKET`). Optional: `TRACKPAD_BRIDGE_DEBUG=1`.
 
-Optional: `TRACKPAD_BRIDGE_DEBUG=1` logs contact counts.
+## AppKit probe (headless, not the game)
 
-Capture logic lives in `src/TrackpadCapture/` (compiled into the mod DLL; this host still references the same sources).
-
-## Apple gesture probe (spike)
-
-C# net8 logger (`src/AppleGestureProbe`) for scroll / magnify / rotate / swipe payloads via AppKit. Not a camera backend. Spec: `docs/superpowers/specs/2026-08-29-apple-gesture-events-spike-design.md`.
+Logs scroll / magnify / rotate / swipe to stderr. Not a camera backend.
 
 ```bash
 ./scripts/apple-gesture-probe.sh
 ```
 
-Click the probe window and gesture on it. Stderr lines are `src=local`. No Accessibility permission.
+Click the probe window and gesture on it. No Accessibility permission.

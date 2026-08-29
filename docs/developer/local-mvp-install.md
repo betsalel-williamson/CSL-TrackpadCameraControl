@@ -17,7 +17,7 @@ chmod +x scripts/install-mod-local.sh
 
 Requires Cities: Skylines Managed assemblies (default Steam macOS path). Override with `CitiesManaged=…` or `CITIES_MODS=…`.
 
-Restart the game after install. Capture runs inside the mod DLL — there is no companion process to start.
+Restart the game after install. Capture uses **in-process AppKit** inside the mod DLL — there is no companion process to start. Switch to Contacts (legacy) from Options, or `TRACKPAD_CAPTURE_BACKEND=contacts`.
 
 ## Capture log
 
