@@ -45,7 +45,9 @@ namespace TrackpadBridge
                         return 1;
                     }
 
-                    Console.Error.WriteLine("TrackpadBridge: ready (pinch frames only for MVP)");
+                    Console.Error.WriteLine(
+                        "TrackpadBridge: ready (centroid / pinch / rotate / modifiers)"
+                    );
 
                     while (s_running)
                     {

@@ -20,13 +20,21 @@ Logical schema for ModSettings. Field names in source may differ; this shard is 
 
 `AssistUiEnabled` shows or hides the optional [Assist UI](../glossary/assist-ui.md) chrome. Chrome style follows `GesturePreset` (no separate style field). Development defaults keep Assist UI on for easier camera-path validation; shipping defaults turn it off.
 
+## Gesture resolve mode
+
+| Field              | Type                                       | Default    | Hot |
+| ------------------ | ------------------------------------------ | ---------- | --- |
+| GestureResolveMode | enum: Concurrent, SessionLock, PrimaryOnly | Concurrent | yes |
+
+See [gesture resolve mode](../glossary/gesture-resolve-mode.md). PrimaryOnly priority when multiple candidates exist: Orbit > Zoom > Yaw > Pan.
+
 ## Orbit trigger
 
 | Field        | Type                                                | Default               | Hot |
 | ------------ | --------------------------------------------------- | --------------------- | --- |
 | OrbitTrigger | enum: ModifierPlusTwoFinger, ThreeFinger, Both, Off | ModifierPlusTwoFinger | yes |
 
-Maps+ seeds ModifierPlusTwoFinger (Option on macOS). CAD seeds ThreeFinger.
+Maps+ seeds ModifierPlusTwoFinger (Option on macOS). CAD seeds ThreeFinger. [Orbit latch](../glossary/orbit-latch.md) always applies when orbit engages.
 
 ## Sensitivities
 

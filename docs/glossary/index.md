@@ -6,10 +6,12 @@ Shared terms for Trackpad Camera Control.
 
 - [Glossary](#table-of-contents)
   - [Orbit](./orbit.md)
+  - [Orbit latch](./orbit-latch.md)
   - [Pan](./pan.md)
   - [Zoom](./zoom.md)
   - [Yaw](./yaw.md)
   - [Roll](./roll.md)
+  - [Gesture resolve mode](./gesture-resolve-mode.md)
   - [Maps+ preset](./maps-plus-preset.md)
   - [CAD preset](./cad-preset.md)
   - [Hot configuration](./hot-configuration.md)

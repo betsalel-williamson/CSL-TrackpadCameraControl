@@ -10,7 +10,23 @@ How contributors validate Trackpad Camera Control without (and with) Cities: Sky
 | **Headless e2e**         | Gesture source → resolve → apply pipeline end-to-end with fake camera | No          | Local + CI    |
 | **In-game inject smoke** | Synthetic frames into the loaded mod change camera zoom               | Yes         | Local only    |
 
-Real Multitouch / trackpad hardware is **not** required for CI. Hardware pinch remains a manual check on macOS with the bridge host running (see [local MVP install](./local-mvp-install.md)).
+Real Multitouch / trackpad hardware is **not** required for CI. Hardware gestures remain a manual check on macOS with the bridge host running (see [local MVP install](./local-mvp-install.md)).
+
+## Coverage blind spot (learned 2026-08-29)
+
+Unit and headless e2e tests **construct `GestureFrame` values in memory** (or inject them). They prove resolver + applicator behavior when centroid / rotate / modifiers are already correct.
+
+They do **not** prove that `MacTrackpadCapture` / Multitouch sampling **fills** those fields. A pinch-only capture backend made pan / yaw / orbit look “implemented” in tests while production frames still had `centroidDelta* = 0`, `rotateDelta = 0`, and `modifiers = 0`.
+
+| Layer under test                         | Would catch missing pan/yaw/orbit in capture? |
+| ---------------------------------------- | --------------------------------------------- |
+| Resolver / `GestureSession` / applicator | No — frames are hand-built                    |
+| Headless inject e2e                      | No — inject bypasses Multitouch               |
+| In-game inject smoke                     | No — request protocol is pinch-only today     |
+| `MultitouchGestureSession` unit tests    | Yes — contact samples → full primitives       |
+| Manual bridge + in-game trackpad         | Yes — end-to-end hardware path                |
+
+When adding camera ops, require a capture-session (or Multitouch→frame) test for every new primitive the mod consumes — not only pipeline tests with pre-filled frames.
 
 ## Unit tests
 

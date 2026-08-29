@@ -7,13 +7,17 @@ using UnityEngine;
 namespace TrackpadCameraControl
 {
     /// <summary>
-    /// Production <see cref="ICameraZoom"/> for CS1. CameraController is a MonoBehaviour with
-    /// no static instance — resolve via FindObjectOfType, then read/write m_targetSize.
+    /// Production <see cref="ICameraController"/> for CS1. CameraController is a MonoBehaviour with
+    /// no static instance — resolve via FindObjectOfType, then read/write target size/position/angle.
     /// </summary>
-    public sealed class CameraControllerZoom : ICameraZoom
+    public sealed class CameraControllerZoom : ICameraController
     {
         private static FieldInfo _targetSizeField;
         private static FieldInfo _currentSizeField;
+        private static FieldInfo _targetPositionField;
+        private static FieldInfo _currentPositionField;
+        private static FieldInfo _targetAngleField;
+        private static FieldInfo _currentAngleField;
 #if !HAS_CITIES
         private static MethodInfo _findObjectOfType;
 #endif
@@ -59,6 +63,136 @@ namespace TrackpadCameraControl
                     _currentSizeField.SetValue(cam, value);
                 }
             }
+        }
+
+        public float TargetX
+        {
+            get { return GetPositionComponent(0); }
+            set { SetPositionComponent(0, value); }
+        }
+
+        public float TargetY
+        {
+            get { return GetPositionComponent(1); }
+            set { SetPositionComponent(1, value); }
+        }
+
+        public float TargetZ
+        {
+            get { return GetPositionComponent(2); }
+            set { SetPositionComponent(2, value); }
+        }
+
+        public float AngleX
+        {
+            get { return GetAngleComponent(0); }
+            set { SetAngleComponent(0, value); }
+        }
+
+        public float AngleY
+        {
+            get { return GetAngleComponent(1); }
+            set { SetAngleComponent(1, value); }
+        }
+
+        private float GetPositionComponent(int index)
+        {
+            if (!TryGetController(out object cam) || _targetPositionField == null)
+            {
+                return float.NaN;
+            }
+
+            return GetVectorComponent(_targetPositionField.GetValue(cam), index);
+        }
+
+        private void SetPositionComponent(int index, float value)
+        {
+            if (!TryGetController(out object cam) || _targetPositionField == null)
+            {
+                return;
+            }
+
+            object vec = _targetPositionField.GetValue(cam);
+            vec = SetVectorComponent(vec, _targetPositionField.FieldType, index, value);
+            _targetPositionField.SetValue(cam, vec);
+            if (_currentPositionField != null)
+            {
+                _currentPositionField.SetValue(cam, vec);
+            }
+        }
+
+        private float GetAngleComponent(int index)
+        {
+            if (!TryGetController(out object cam) || _targetAngleField == null)
+            {
+                return float.NaN;
+            }
+
+            return GetVectorComponent(_targetAngleField.GetValue(cam), index);
+        }
+
+        private void SetAngleComponent(int index, float value)
+        {
+            if (!TryGetController(out object cam) || _targetAngleField == null)
+            {
+                return;
+            }
+
+            object vec = _targetAngleField.GetValue(cam);
+            vec = SetVectorComponent(vec, _targetAngleField.FieldType, index, value);
+            _targetAngleField.SetValue(cam, vec);
+            if (_currentAngleField != null)
+            {
+                _currentAngleField.SetValue(cam, vec);
+            }
+        }
+
+        private static float GetVectorComponent(object vector, int index)
+        {
+            if (vector == null)
+            {
+                return float.NaN;
+            }
+
+            string name =
+                index == 0 ? "x"
+                : index == 1 ? "y"
+                : "z";
+            FieldInfo f = vector.GetType().GetField(name);
+            if (f == null)
+            {
+                return float.NaN;
+            }
+
+            return (float)f.GetValue(vector);
+        }
+
+        private static object SetVectorComponent(
+            object vector,
+            Type vectorType,
+            int index,
+            float value
+        )
+        {
+            if (vector == null)
+            {
+                vector = Activator.CreateInstance(vectorType);
+            }
+
+            string name =
+                index == 0 ? "x"
+                : index == 1 ? "y"
+                : "z";
+            FieldInfo f = vectorType.GetField(name);
+            if (f == null)
+            {
+                return vector;
+            }
+
+            // Structs: mutate boxed copy then return for SetValue.
+            object boxed = vector;
+            f.SetValue(boxed, value);
+            return boxed;
         }
 
         private bool TryGetController(out object cam)
@@ -107,7 +241,7 @@ namespace TrackpadCameraControl
             if (!_loggedOk)
             {
                 _loggedOk = true;
-                WriteDiag("CameraController resolved; pinch zoom armed");
+                WriteDiag("CameraController resolved; gesture camera armed");
             }
 
             return true;
@@ -183,14 +317,15 @@ namespace TrackpadCameraControl
                 }
 #endif
 
-                _targetSizeField = _camType.GetField(
-                    "m_targetSize",
-                    BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic
-                );
-                _currentSizeField = _camType.GetField(
-                    "m_currentSize",
-                    BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic
-                );
+                BindingFlags bf =
+                    BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
+
+                _targetSizeField = _camType.GetField("m_targetSize", bf);
+                _currentSizeField = _camType.GetField("m_currentSize", bf);
+                _targetPositionField = _camType.GetField("m_targetPosition", bf);
+                _currentPositionField = _camType.GetField("m_currentPosition", bf);
+                _targetAngleField = _camType.GetField("m_targetAngle", bf);
+                _currentAngleField = _camType.GetField("m_currentAngle", bf);
 
                 _available = _targetSizeField != null;
             }

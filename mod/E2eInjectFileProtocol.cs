@@ -28,7 +28,7 @@ namespace TrackpadCameraControl
             }
         }
 
-        public static void Poll(InjectGestureSource inject, ICameraZoom camera)
+        public static void Poll(InjectGestureSource inject, ICameraController camera)
         {
             if (inject == null)
             {
@@ -80,7 +80,7 @@ namespace TrackpadCameraControl
             }
         }
 
-        public static void WriteResult(ICameraZoom camera)
+        public static void WriteResult(ICameraController camera)
         {
             if (camera == null)
             {
