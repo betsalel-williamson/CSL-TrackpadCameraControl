@@ -36,7 +36,7 @@ Both: two-finger drag = pan, pinch = zoom, two-finger rotate = yaw. Every sensit
 Sharded docs via [MDCP](https://github.com/betsalel-williamson/mdcp):
 
 ```bash
-npm install
+./scripts/bootstrap-dev.sh --install-tools   # Node, .NET tools, clang-format, npm, smoke checks
 npm run docs          # compile + check (lint required)
 npm run format:check  # csharpier + clang-format (see docs/developer/lint-and-format.md)
 ```

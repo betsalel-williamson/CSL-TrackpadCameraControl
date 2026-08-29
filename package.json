@@ -16,6 +16,9 @@
   },
   "scripts": {
     "prepare": "husky",
+    "bootstrap": "bash scripts/bootstrap-dev.sh",
+    "bootstrap:install": "bash scripts/bootstrap-dev.sh --install-tools",
+    "bootstrap:check": "bash scripts/bootstrap-dev.sh --check",
     "docs:compile": "mdcp compile --config docs/mdcp.config.json --docs-root docs",
     "docs:check": "mdcp check --config docs/mdcp.config.json --docs-root docs --skip-vale --require-lint",
     "docs:fix": "mdcp fix --config docs/mdcp.config.json --docs-root docs",

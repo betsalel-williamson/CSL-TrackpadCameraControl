@@ -4,6 +4,12 @@ Phase-1 contributor tooling keeps **C#**, **native C**, and **docs** consistent.
 
 ## Prerequisites
 
+Use the automated bootstrap when possible — see [contributor setup](./contributor-setup.md):
+
+```bash
+./scripts/bootstrap-dev.sh --install-tools
+```
+
 | Tool | Purpose |
 | --- | --- |
 | Node.js 18+ | MDCP docs compile / check / fix |

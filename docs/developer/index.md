@@ -4,6 +4,7 @@ How to work on **Trackpad Camera Control** — docs, layout, validation, and imp
 
 - [Developer guide](#table-of-contents)
   - [About this guide](./about-this-guide.md)
+  - [Contributor setup](./contributor-setup.md)
   - [Repository layout](./repository-layout.md)
   - [Documentation workflow](./documentation-workflow.md)
   - [Lint and format](./lint-and-format.md)

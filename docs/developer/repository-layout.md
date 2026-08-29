@@ -11,7 +11,7 @@ CSL-TrackpadCameraControl/
   native/linux/         # stub
   shared/protocol/      # IPC frame schema (later)
   templates/            # Copy-paste scaffolds for quick development
-  scripts/              # Contributor helpers (e.g. clang-format)
+  scripts/              # bootstrap-dev.sh, clang-format helper
   .changeset/           # Pending release notes (Changesets)
   .github/workflows/    # Docs, format, commitlint, release CI
   TrackpadCameraControl.sln
