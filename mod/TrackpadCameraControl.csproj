@@ -26,6 +26,12 @@
         />
     </ItemGroup>
 
+    <ItemGroup Condition="Exists('$(CitiesManaged)/ICities.dll') And '$(EnableCitiesRefs)' != 'false'">
+        <PackageReference Include="CitiesHarmony.API" Version="2.2.0">
+            <PrivateAssets>all</PrivateAssets>
+        </PackageReference>
+    </ItemGroup>
+
     <PropertyGroup Condition="Exists('$(CitiesManaged)/ICities.dll') And '$(EnableCitiesRefs)' != 'false'">
         <DefineConstants>$(DefineConstants);HAS_CITIES</DefineConstants>
     </PropertyGroup>

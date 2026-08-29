@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 #if HAS_CITIES
+using CitiesHarmony.API;
 using ICities;
 #endif
 
@@ -16,7 +17,7 @@ namespace TrackpadCameraControl
 
         public string Name => "Trackpad Camera Control";
         public string Description =>
-            "Trackpad multitouch camera — pinch zoom MVP. Hot-configurable Options later.";
+            "Trackpad multitouch camera — pan, orbit, zoom. Vanilla scroll-zoom suppressed while enabled.";
 
         public static ModSettings Settings { get; private set; }
         public static GesturePipeline Pipeline { get; private set; }
@@ -24,6 +25,7 @@ namespace TrackpadCameraControl
 
         public void OnEnabled()
         {
+            VanillaCameraSuppress.Enabled = true;
             try
             {
                 Settings = new ModSettings();
@@ -46,15 +48,44 @@ namespace TrackpadCameraControl
             }
             catch
             {
-                // Fail soft: leave vanilla input alone.
+                // Fail soft: gestures may be unavailable; suppress stays on while the mod is enabled.
                 Settings = new ModSettings();
                 InjectSource = null;
                 Pipeline = new GesturePipeline(Settings, new InProcessGestureSource());
             }
+
+#if HAS_CITIES
+            try
+            {
+                HarmonyHelper.DoOnHarmonyReady(Patcher.PatchAll);
+                if (!HarmonyHelper.IsHarmonyInstalled)
+                {
+                    Patcher.LogHarmonyMissingOnce();
+                }
+            }
+            catch
+            {
+                Patcher.LogHarmonyMissingOnce();
+            }
+#endif
         }
 
         public void OnDisabled()
         {
+#if HAS_CITIES
+            try
+            {
+                if (HarmonyHelper.IsHarmonyInstalled)
+                {
+                    Patcher.UnpatchAll();
+                }
+            }
+            catch
+            {
+                // ignore
+            }
+#endif
+            VanillaCameraSuppress.Enabled = false;
             try
             {
                 Pipeline?.Shutdown();
