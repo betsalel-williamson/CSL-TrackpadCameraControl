@@ -10,27 +10,27 @@ Players feel map-app-like or CAD-like trackpad control inside Cities: Skylines I
 flowchart LR
   trackpad[TrackpadHardware]
   backend[PlatformBackend]
-  ipc[LocalIPC]
+  source[IGestureSource]
   mod[CS1Mod]
   settings[ModSettings]
   cam[CameraController]
 
   trackpad --> backend
-  backend -->|"raw primitives"| ipc
-  ipc --> mod
+  backend -->|"raw primitives"| source
+  source --> mod
   settings -->|"hot bindings"| mod
   mod --> cam
 ```
 
 ## Components
 
-| Component | Responsibility |
-| --- | --- |
-| Platform backend | Capture OS trackpad contacts / gestures; stream raw primitives while the game is focused |
-| IPC | Bounded local transport of primitives (not camera ops) |
-| CS1 mod | CitiesHarmony-hosted C#; resolve primitives through live settings; write camera targets |
-| ModSettings | Single source of truth for presets, bindings, and feel; hot-applied |
-| Unsupported backends | Same interface; report unsupported |
+| Component            | Responsibility                                                                                          |
+| -------------------- | ------------------------------------------------------------------------------------------------------- |
+| Platform backend     | Capture OS trackpad contacts / gestures; emit raw primitives while the game is focused                  |
+| Gesture source       | Deliver primitives into the mod — IPC helper (**dev**) or in-process capture (**deploy**); see ADR 0001 |
+| CS1 mod              | CitiesHarmony-hosted C#; resolve primitives through live settings; write camera targets                 |
+| ModSettings          | Single source of truth for presets, bindings, and feel; hot-applied                                     |
+| Unsupported backends | Same interface; report unsupported                                                                      |
 
 Platform-specific capture details (for example the first macOS backend) live in [platform backends](./platform-backends.md) and ADR 0001 — not in this high-level picture.
 

@@ -16,23 +16,32 @@ Presets seed Options. Users may override any row; that becomes Custom. Modifier 
 
 ### Maps+ (default seed)
 
-| Gesture | Camera op |
-| --- | --- |
-| One-finger click / drag | Unchanged (tools / UI) |
-| Two-finger drag | Pan |
-| Pinch | Zoom |
-| Two-finger rotate | Yaw |
-| Modifier + two-finger drag | Orbit (yaw + pitch) |
+| Gesture                    | Camera op              |
+| -------------------------- | ---------------------- |
+| One-finger click / drag    | Unchanged (tools / UI) |
+| Two-finger drag            | Pan                    |
+| Pinch                      | Zoom                   |
+| Two-finger rotate          | Yaw                    |
+| Modifier + two-finger drag | Orbit (yaw + pitch)    |
 
 ### CAD seed
 
-| Gesture | Camera op |
-| --- | --- |
-| One-finger click / drag | Unchanged |
-| Two-finger drag | Pan |
-| Pinch | Zoom |
-| Two-finger rotate | Yaw |
-| Three-finger drag | Orbit (yaw + pitch) |
+| Gesture                 | Camera op           |
+| ----------------------- | ------------------- |
+| One-finger click / drag | Unchanged           |
+| Two-finger drag         | Pan                 |
+| Pinch                   | Zoom                |
+| Two-finger rotate       | Yaw                 |
+| Three-finger drag       | Orbit (yaw + pitch) |
+
+## Acceptance criteria (MVP)
+
+Proof slice before full v1 presets and Options:
+
+- On macOS with the TrackpadBridge (dev path) connected, trackpad **pinch** changes camera **zoom** in-game.
+- One-finger building tools remain usable.
+- Without a backend or if the bridge is missing/disconnected, the mod enables cleanly and does not break vanilla input.
+- No Options UI required for this slice (in-memory settings defaults).
 
 ## Acceptance criteria (v1)
 
