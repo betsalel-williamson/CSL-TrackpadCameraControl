@@ -19,7 +19,7 @@ You can tune Trackpad Camera Control from **two places**. They share the same se
 
 If `TRACKPAD_CAPTURE_BACKEND` is set in the environment that launched the game, that value wins over the interpreter dropdown until you unset it.
 
-**Drag scale** vs **button step:** drag scale multiplies continuous deltas (trackpad and pads). Button step is the size of one chrome click. Use both when comparing how the same axis feels as a drag versus a tap.
+**Drag scale** vs **button step:** [drag scale](../glossary/drag-scale.md) (also called [sensitivity](../glossary/sensitivity.md) in field names) multiplies continuous deltas from the trackpad and chrome pads. [Button step](../glossary/button-step.md) is the size of one chrome click and is **not** multiplied by drag scale. Optional [low-pass](../glossary/low-pass.md) smooths drag only.
 
 ## How to experiment
 

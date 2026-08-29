@@ -38,7 +38,7 @@ Maps+ seeds ModifierPlusTwoFinger (Option on macOS). CAD seeds ThreeFinger. [Orb
 
 ## Drag scales
 
-Used by trackpad gestures and Assist chrome drag pads. UI label: **drag scale**.
+Used by trackpad gestures and Assist chrome drag pads. UI / docs label: **drag scale** (glossary). Field names use **sensitivity** (`*Sensitivity*`) — same multiplier, synonym.
 
 | Field                 | Type  | Default seed | Hot |
 | --------------------- | ----- | ------------ | --- |
@@ -51,18 +51,48 @@ Used by trackpad gestures and Assist chrome drag pads. UI label: **drag scale**.
 
 ## Button steps
 
-Used by Assist chrome nudge buttons only. Not multiplied by drag scale. UI label: **button step**.
+Used by Assist chrome nudge buttons only. UI / docs label: **button step** (glossary). Field names use `*ButtonScale*` — same value, synonym. **Not** multiplied by drag scale / sensitivity.
 
-| Field                | Type  | Default seed | Hot |
-| -------------------- | ----- | ------------ | --- |
-| PanButtonScaleX      | float | 0.05         | yes |
-| PanButtonScaleY      | float | 0.05         | yes |
-| OrbitYawButtonScale  | float | 2.0          | yes |
-| OrbitPitchButtonScale| float | 2.0          | yes |
-| ZoomButtonScale      | float | 0.05         | yes |
-| YawRotateButtonScale | float | 2.0          | yes |
+| Field                 | Type  | Default seed | Hot |
+| --------------------- | ----- | ------------ | --- |
+| PanButtonScaleX       | float | 0.05         | yes |
+| PanButtonScaleY       | float | 0.05         | yes |
+| OrbitYawButtonScale   | float | 2.0          | yes |
+| OrbitPitchButtonScale | float | 2.0          | yes |
+| ZoomButtonScale       | float | 0.05         | yes |
+| YawRotateButtonScale  | float | 2.0          | yes |
 
 Exact default numbers are tuned during implementation; change them only in the defaults factory and document the new seeds here.
+
+## Apply math (contract)
+
+Let `raw` be the resolved gesture delta for that axis (centroid, pinch, or rotate). Optional [low-pass](../glossary/low-pass.md) may replace `raw` with an EMA-smoothed value on the **drag** path only.
+
+**Invert:** if the matching invert flag is on, multiply the signed delta by `-1` after scaling.
+
+### Drag path (trackpad + chrome pads)
+
+| Op    | After drag scale                                                                 | Camera write                                              |
+| ----- | -------------------------------------------------------------------------------- | --------------------------------------------------------- |
+| Pan   | `mx = dx * PanSensitivityX`, `my = dy * PanSensitivityY`, then `mx,my *= Size`   | Camera-relative XZ: `target += right*mx + forward*my`     |
+| Zoom  | `delta = pinch * ZoomSensitivity`                                                | `Size' = Size * (1 - delta)` (clamped)                    |
+| Yaw   | `delta = rotate * YawRotateSensitivity`                                          | `AngleX' = AngleX + delta`                                |
+| Orbit | `dyaw = dx * OrbitYawSensitivity`, `dpitch = dy * OrbitPitchSensitivity`         | `AngleX' += dyaw`, `AngleY' += dpitch`                    |
+
+### Button path (chrome nudges only)
+
+Build a one-shot delta from the button step and a sign (`±1`), then apply invert and the same camera write as above. **Do not** multiply by `*Sensitivity*`.
+
+| Op    | One-shot input before invert                                      |
+| ----- | ----------------------------------------------------------------- |
+| Pan   | `dx = signX * PanButtonScaleX`, `dy = signY * PanButtonScaleY`    |
+| Zoom  | `pinch = sign * ZoomButtonScale`                                  |
+| Yaw   | `rotate = sign * YawRotateButtonScale`                            |
+| Orbit | `dx = signYaw * OrbitYawButtonScale`, `dy = signPitch * OrbitPitchButtonScale` |
+
+### Low-pass (drag only)
+
+When enabled for an op: first sample seeds state; later `smoothed += alpha * (raw - smoothed)`. Reset on touch-up. Buttons skip this stage.
 
 ## Inverts
 
@@ -86,7 +116,7 @@ Exact default numbers are tuned during implementation; change them only in the d
 
 ## Per-op low-pass (drag only)
 
-EMA on drag deltas after resolve, before apply. Buttons skip low-pass. The former single `Smoothing` field is retired.
+EMA on drag deltas after resolve, before apply — see glossary **low-pass**. Buttons skip low-pass. The former single `Smoothing` field is retired.
 
 | Field               | Type      | Default | Hot |
 | ------------------- | --------- | ------- | --- |

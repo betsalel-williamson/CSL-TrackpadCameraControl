@@ -53,7 +53,7 @@ Platform-specific capture details (for example the first macOS backend) live in 
 2. Gesture session updates [orbit latch](../glossary/orbit-latch.md) and resolve-mode session state.
 3. Binding resolver maps primitives to a camera **op set** using the live binding table and session.
 4. Optional [Assist UI](./assist-ui-camera-chrome.md) emits the same camera ops from chrome controls (later phase).
-5. Applicator applies each op in the set to camera target position, angle, and size with settings-driven sensitivity, invert, deadzone, and smoothing.
+5. Applicator applies each op in the set to camera target position, angle, and size with settings-driven [drag scale](../glossary/drag-scale.md) / [sensitivity](../glossary/sensitivity.md), [button step](../glossary/button-step.md) for chrome nudges, invert, deadzone, and optional [low-pass](../glossary/low-pass.md) (see [apply math](./settings-and-hot-configuration.md#apply-math-contract)).
 6. While the mod is enabled, [vanilla camera suppress](./vanilla-camera-suppress.md) skips vanilla scroll-zoom and mouse-drag rotate so those paths do not fight gesture writes. Edge pan, keyboard, and gamepad still reach the camera.
 7. One-finger pointer path is left to the game (outside Assist UI chrome).
 
