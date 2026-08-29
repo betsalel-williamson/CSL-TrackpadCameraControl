@@ -14,10 +14,10 @@ Emergency skip: `HUSKY=0 git commit …` or `HUSKY=0 git push …`. Prefer fixin
 
 ## CI: PR subset vs main full suite
 
-| Event                        | Behavior                                                                                                                                     |
-| ---------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Pull request** into `main` | **commitlint** always; one **validate** job runs only the gates touched by the PR (docs / C# / native), or all gates if tooling paths change |
-| **Push to `main`**           | Full docs + C# + native format                                                                                                               |
+| Event                        | Behavior                                                                                                                                                                                 |
+| ---------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Pull request** into `main` | **commitlint** always; one **validate** job runs only the gates touched by the PR (docs / C# / native / infra), or all gates if tooling paths change. **Fail closed** if no scopes match |
+| **Push to `main`**           | Full docs + C# + native format                                                                                                                                                           |
 
 ## Conventional commits
 
@@ -48,4 +48,15 @@ npm run changeset:status    # list pending changesets
 npm run version-packages    # apply changesets → version + CHANGELOG (maintainers)
 ```
 
-This package is **public** (`publishConfig.access` / changesets `access: public`). Publish when maintainers run a release; Workshop/mod DLL shipping is separate from the npm package version.
+This package uses Changesets for **version + CHANGELOG** and **GitHub Releases** (source archives for beta testers). Players will eventually install from **Steam Workshop**. This project does **not** publish to the npm registry.
+
+## Release workflow
+
+On push to `main`, `.github/workflows/release.yml`:
+
+1. **Version** — opens/updates the Changesets version PR when changesets are pending.
+2. **GitHub Release** — when there is nothing left to version, runs `changeset tag` and creates a GitHub Release (source zip/tar only).
+
+Beta install from a release: [Local MVP install](./local-mvp-install.md).
+
+Branch protection and merge policy: [GitHub project controls](./github-project-controls.md).

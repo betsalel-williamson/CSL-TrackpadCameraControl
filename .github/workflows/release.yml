@@ -15,14 +15,17 @@ env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 permissions:
-  contents: write
-  pull-requests: write
-  id-token: write
+  contents: read
 
 jobs:
-  release:
-    name: Release
+  version:
+    name: Version
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    outputs:
+      hasChangesets: ${{ steps.changesets.outputs.hasChangesets }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -32,18 +35,44 @@ jobs:
         with:
           node-version: "22"
           cache: npm
-          registry-url: https://registry.npmjs.org
 
       - run: npm ci
 
-      - name: Create release PR or publish
+      - name: Create version PR when changesets are pending
+        id: changesets
         uses: changesets/action@8488615a623b1b9c987934bb89eae8af6a946ac1 # v2.1.1
         with:
           version-script: npm run version-packages
-          publish-script: npm publish --access public
           pr-title: "chore: version packages"
           commit-message: "chore: version packages"
           github-token: ${{ secrets.GITHUB_TOKEN }}
-        env:
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+  # Tag + GitHub Release (source archive). No npm registry. Workshop later.
+  github-release:
+    name: GitHub Release
+    needs: version
+    if: needs.version.outputs.hasChangesets == 'false'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          # Tags must be pushable; action uses github-token for the push/release API.
+          fetch-depth: 0
+          persist-credentials: false
+
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: "22"
+          cache: npm
+
+      - run: npm ci
+
+      - name: Tag and create GitHub Release
+        uses: changesets/action@8488615a623b1b9c987934bb89eae8af6a946ac1 # v2.1.1
+        with:
+          # Tag only — does not publish to npm. GitHub attaches source zip/tar to the release.
+          publish-script: npx changeset tag
+          create-github-releases: true
+          github-token: ${{ secrets.GITHUB_TOKEN }}

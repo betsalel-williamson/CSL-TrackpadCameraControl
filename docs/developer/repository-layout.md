@@ -13,6 +13,7 @@ CSL-TrackpadCameraControl/
   shared/protocol/      # GestureFrame wire layout
   templates/            # Copy-paste scaffolds for quick development
   scripts/              # bootstrap-dev, install, e2e smoke helpers
+  infra/github/         # OpenTofu + Makefile for GitHub project controls
   .changeset/           # Pending release notes (Changesets)
   .github/workflows/    # Docs, format, commitlint, release CI
   TrackpadCameraControl.sln
@@ -23,10 +24,10 @@ CSL-TrackpadCameraControl/
 
 ## Naming
 
-| Surface            | Name                        |
-| ------------------ | --------------------------- |
-| Display / Workshop | Trackpad Camera Control     |
-| GitHub repo        | CSL-TrackpadCameraControl   |
-| npm package (docs) | csl-trackpad-camera-control |
+| Surface            | Name                                                            |
+| ------------------ | --------------------------------------------------------------- |
+| Display / Workshop | Trackpad Camera Control                                         |
+| GitHub repo        | CSL-TrackpadCameraControl                                       |
+| npm workspace name | csl-trackpad-camera-control (local tooling only; not published) |
 
 Search keywords: trackpad, touchpad, multitouch, pinch, camera, Cities Skylines, orbit, pan, zoom (plus Mac/Windows as backend tags, not product identity).
