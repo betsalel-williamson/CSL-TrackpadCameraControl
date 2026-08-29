@@ -2,7 +2,7 @@
 
 ## End-user value
 
-Players feel map-app-like or CAD-like trackpad control inside Cities: Skylines I without buying a mouse, while Options stay fully tunable for experimentation.
+Players feel map-app-like or CAD-like trackpad control inside Cities: Skylines I without buying a mouse, while Options stay fully tunable for experimentation. Optional Assist UI chrome can drive the same camera ops for assist and pipeline validation.
 
 ## Context
 
@@ -11,6 +11,7 @@ flowchart LR
   trackpad[TrackpadHardware]
   backend[PlatformBackend]
   source[IGestureSource]
+  assist[AssistUI]
   mod[CS1Mod]
   settings[ModSettings]
   cam[CameraController]
@@ -18,7 +19,9 @@ flowchart LR
   trackpad --> backend
   backend -->|"raw primitives"| source
   source --> mod
+  assist -->|"camera ops"| mod
   settings -->|"hot bindings"| mod
+  settings --> assist
   mod --> cam
 ```
 
@@ -28,8 +31,9 @@ flowchart LR
 | -------------------- | ------------------------------------------------------------------------------------------------------- |
 | Platform backend     | Capture OS trackpad contacts / gestures; emit raw primitives while the game is focused                  |
 | Gesture source       | Deliver primitives into the mod — IPC helper (**dev**) or in-process capture (**deploy**); see ADR 0001 |
+| Assist UI            | Optional on-screen chrome; emits the same camera ops as gestures; style follows Gesture preset          |
 | CS1 mod              | CitiesHarmony-hosted C#; resolve primitives through live settings; write camera targets                 |
-| ModSettings          | Single source of truth for presets, bindings, and feel; hot-applied                                     |
+| ModSettings          | Single source of truth for presets, bindings, Assist UI enable, and feel; hot-applied                   |
 | Unsupported backends | Same interface; report unsupported                                                                      |
 
 Platform-specific capture details (for example the first macOS backend) live in [platform backends](./platform-backends.md) and ADR 0001 — not in this high-level picture.
@@ -38,8 +42,9 @@ Platform-specific capture details (for example the first macOS backend) live in 
 
 1. Backend emits finger count, centroid delta, pinch scale, rotate delta, and modifier flags.
 2. Mod maps primitives to camera ops using the live binding table.
-3. Mod applies deltas to camera target position, angle, and size with settings-driven sensitivity, invert, deadzone, and smoothing.
-4. One-finger pointer path is left to the game.
+3. Optional [Assist UI](./assist-ui-camera-chrome.md) emits the same camera ops from chrome controls.
+4. Mod applies deltas to camera target position, angle, and size with settings-driven sensitivity, invert, deadzone, and smoothing.
+5. One-finger pointer path is left to the game (outside Assist UI chrome).
 
 ## Constraints
 

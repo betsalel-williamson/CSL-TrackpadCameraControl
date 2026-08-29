@@ -6,17 +6,18 @@ No feel or binding parameter is hardcoded in camera or gesture logic. Defaults e
 
 ## Presets
 
-| Preset | Role |
-| --- | --- |
-| Maps+ | Default seed — map-app-aligned; modifier+two-finger orbit |
-| CAD | Seed — three-finger orbit |
-| Custom | Any manual override after editing a seeded field |
+| Preset | Role                                                      |
+| ------ | --------------------------------------------------------- |
+| Maps+  | Default seed — map-app-aligned; modifier+two-finger orbit |
+| CAD    | Seed — three-finger orbit                                 |
+| Custom | Any manual override after editing a seeded field          |
 
 Applying a preset copies that preset’s defaults into editable fields. Reset restores the selected preset or factory defaults.
 
 ## Tunables (all hot)
 
 - Gesture preset
+- [Assist UI](./assist-ui-camera-chrome.md) enabled (chrome master switch; style follows Gesture preset)
 - Per-op enable: pan, zoom, yaw, orbit
 - Orbit trigger: modifier+two-finger / three-finger / both / off
 - Per-op sensitivity and invert

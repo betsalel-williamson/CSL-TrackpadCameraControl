@@ -9,6 +9,7 @@ Capability design for **Trackpad Camera Control** — Cities: Skylines I trackpa
   - [Platform backends](./platform-backends.md)
   - [IPC gesture primitives](./ipc-gesture-primitives.md)
   - [Settings and hot configuration](./settings-and-hot-configuration.md)
+  - [Assist UI camera chrome](./assist-ui-camera-chrome.md)
   - [Prior art and scope](./prior-art-and-scope.md)
   - [Architecture decision records](./adr/index.md)
     - [ADR 0001 — OS trackpad bridge](./adr/0001-native-multitouch-bridge.md)

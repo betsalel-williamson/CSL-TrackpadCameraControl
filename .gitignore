@@ -15,5 +15,6 @@ native/mac/TrackpadBridge
 !.env.example
 .tmp/
 .caches/
+.worktrees/
 .specstory/
 *.tgz

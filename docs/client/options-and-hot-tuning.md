@@ -5,6 +5,7 @@ Every binding and feel value is editable in Options and applies **without restar
 ## What you can change
 
 - Gesture preset (Maps+ / CAD / Custom)
+- [Assist UI](./assist-ui-camera-chrome.md) on or off (chrome for pan / zoom / yaw / orbit; style follows the preset)
 - Enable or disable pan, zoom, yaw, orbit
 - Orbit trigger (modifier+two-finger, three-finger, both, off)
 - Sensitivity and invert per axis / op
