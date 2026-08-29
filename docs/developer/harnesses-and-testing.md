@@ -34,15 +34,28 @@ Same `dotnet test` invocation; headless cases live in the test project and exerc
 
 ## In-game inject smoke
 
-Local-only. Assumes Cities: Skylines is running, the mod is installed and enabled, and inject mode is enabled (environment or file flag such as `TRACKPAD_E2E_INJECT=1`).
+Local-only. Assumes Cities: Skylines is running, the mod is installed and enabled, a city is loaded, and inject mode is on.
 
-Forward-looking kickoff:
+Enable inject with any of:
+
+- `TRACKPAD_E2E_INJECT=1` in the environment that launched the game
+- `$TMPDIR/e2e-inject.flag`
+- `e2e-inject.flag` beside the mod DLL
+
+Kickoff (runs headless e2e first, then waits for an in-game result file):
 
 ```bash
+chmod +x scripts/e2e-ingame-smoke.sh
 ./scripts/e2e-ingame-smoke.sh
 ```
 
-The smoke path queues synthetic pinch frames through an inject gesture source and checks that camera zoom moved. It does not synthesize OS Multitouch events.
+Protocol (mod directory under Addons/Mods/TrackpadCameraControl):
+
+1. Script writes `e2e-inject-request` (text float = pinchScaleDelta).
+2. Mod enqueues a pinch frame, applies zoom, writes `e2e-inject-result` (camera size).
+3. Script passes when the result file appears within `E2E_INGAME_TIMEOUT` (default 90s).
+
+This does not synthesize OS Multitouch events.
 
 ## Language and BCL pin
 

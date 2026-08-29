@@ -41,6 +41,11 @@ namespace TrackpadCameraControl
                 return;
             }
 
+            if (_source is InjectGestureSource inject)
+            {
+                E2eInjectFileProtocol.Poll(inject, _camera);
+            }
+
             if (!_source.IsConnected)
             {
                 if (_reconnectCooldown > 0)
@@ -58,6 +63,7 @@ namespace TrackpadCameraControl
             }
 
             int safety = 32;
+            bool applied = false;
             while (safety-- > 0 && _source.TryDequeue(out GestureFrame frame))
             {
                 CameraOp op = GestureBindingResolver.Resolve(frame, _settings);
@@ -75,6 +81,12 @@ namespace TrackpadCameraControl
                     _settings,
                     _camera
                 );
+                applied = true;
+            }
+
+            if (applied && _source is InjectGestureSource)
+            {
+                E2eInjectFileProtocol.WriteResult(_camera);
             }
         }
 

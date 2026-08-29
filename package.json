@@ -30,6 +30,7 @@
     "format": "npm run format:docs && npm run format:csharp && npm run format:native",
     "format:check": "npm run format:csharp:check && npm run format:native:check",
     "docs": "npm run docs:compile && npm run docs:check",
+    "test": "dotnet test TrackpadCameraControl.sln --nologo --verbosity minimal",
     "hooks:pre-commit": "bash scripts/hooks-pre-commit.sh",
     "hooks:pre-push": "bash scripts/hooks-pre-push.sh",
     "changeset": "changeset",

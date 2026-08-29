@@ -122,6 +122,8 @@ fi
 if [[ "$CSHARP" -eq 1 ]]; then
   echo "==> csharpier check"
   npm run format:csharp:check
+  echo "==> dotnet test"
+  dotnet test TrackpadCameraControl.sln --nologo --verbosity minimal
 fi
 
 if [[ "$NATIVE" -eq 1 ]]; then
