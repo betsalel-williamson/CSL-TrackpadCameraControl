@@ -3,9 +3,14 @@ using Xunit;
 
 namespace TrackpadCameraControl.Tests
 {
-    public sealed class FakeCameraZoom : ICameraZoom
+    public sealed class FakeCameraController : ICameraController
     {
         public float Size { get; set; } = 100f;
+        public float TargetX { get; set; }
+        public float TargetY { get; set; }
+        public float TargetZ { get; set; }
+        public float AngleX { get; set; }
+        public float AngleY { get; set; }
     }
 
     public class ModSettingsPresetTests
@@ -386,7 +391,7 @@ namespace TrackpadCameraControl.Tests
         [Fact]
         public void Apply_PositivePinch_DecreasesSize()
         {
-            var cam = new FakeCameraZoom { Size = 100f };
+            var cam = new FakeCameraController { Size = 100f };
             var settings = new ModSettings { ZoomSensitivity = 1f, InvertZoom = false };
 
             CameraApplicator.Apply(CameraOp.Zoom, 0, 0, 0.1f, 0, settings, cam);
@@ -398,12 +403,75 @@ namespace TrackpadCameraControl.Tests
         [Fact]
         public void Apply_ClampsMinimumSize()
         {
-            var cam = new FakeCameraZoom { Size = 11f };
+            var cam = new FakeCameraController { Size = 11f };
             var settings = new ModSettings { ZoomSensitivity = 1f };
 
             CameraApplicator.Apply(CameraOp.Zoom, 0, 0, 0.9f, 0, settings, cam);
 
             Assert.Equal(10f, cam.Size);
+        }
+
+        [Fact]
+        public void Apply_Pan_MovesTargetOnXZ()
+        {
+            var cam = new FakeCameraController
+            {
+                Size = 1f,
+                TargetX = 0f,
+                TargetZ = 0f,
+                AngleX = 0f,
+            };
+            var settings = new ModSettings { PanSensitivityX = 1f, PanSensitivityY = 1f };
+
+            CameraApplicator.Apply(CameraOp.Pan, 0.1f, 0f, 0, 0, settings, cam);
+
+            Assert.True(cam.TargetX != 0f || cam.TargetZ != 0f);
+        }
+
+        [Fact]
+        public void Apply_Orbit_ChangesAngles()
+        {
+            var cam = new FakeCameraController { AngleX = 10f, AngleY = 20f };
+            var settings = new ModSettings { OrbitYawSensitivity = 1f, OrbitPitchSensitivity = 1f };
+
+            CameraApplicator.Apply(CameraOp.Orbit, 5f, -2f, 0, 0, settings, cam);
+
+            Assert.Equal(15f, cam.AngleX, 3);
+            Assert.Equal(18f, cam.AngleY, 3);
+        }
+
+        [Fact]
+        public void Apply_YawRotate_ChangesAngleX()
+        {
+            var cam = new FakeCameraController { AngleX = 0f };
+            var settings = new ModSettings { YawRotateSensitivity = 2f };
+
+            CameraApplicator.Apply(CameraOp.Yaw, 0, 0, 0, 0.5f, settings, cam);
+
+            Assert.Equal(1f, cam.AngleX, 3);
+        }
+
+        [Fact]
+        public void Apply_ConcurrentZoomAndPan_BothApply()
+        {
+            var cam = new FakeCameraController
+            {
+                Size = 100f,
+                TargetX = 0f,
+                TargetZ = 0f,
+                AngleX = 0f,
+            };
+            var settings = new ModSettings
+            {
+                ZoomSensitivity = 1f,
+                PanSensitivityX = 1f,
+                PanSensitivityY = 1f,
+            };
+
+            CameraApplicator.Apply(CameraOp.Zoom | CameraOp.Pan, 0.1f, 0f, 0.1f, 0, settings, cam);
+
+            Assert.Equal(90f, cam.Size, 3);
+            Assert.True(cam.TargetX != 0f || cam.TargetZ != 0f);
         }
     }
 
@@ -420,7 +488,7 @@ namespace TrackpadCameraControl.Tests
                 PinchEpsilon = 0.001f,
             };
             var inject = new InjectGestureSource();
-            var cam = new FakeCameraZoom { Size = 200f };
+            var cam = new FakeCameraController { Size = 200f };
             var pipeline = new GesturePipeline(settings, inject, cam);
 
             inject.Enqueue(
@@ -437,6 +505,42 @@ namespace TrackpadCameraControl.Tests
             pipeline.Tick();
 
             Assert.Equal(180f, cam.Size, 3);
+        }
+
+        [Fact]
+        public void InjectedTwoFingerDrag_PansFakeCamera()
+        {
+            var settings = new ModSettings
+            {
+                BridgeEnabled = true,
+                PanEnabled = true,
+                MotionDeadzone = 0.001f,
+                PanSensitivityX = 1f,
+                PanSensitivityY = 1f,
+            };
+            var inject = new InjectGestureSource();
+            var cam = new FakeCameraController
+            {
+                Size = 1f,
+                TargetX = 0f,
+                TargetZ = 0f,
+            };
+            var pipeline = new GesturePipeline(settings, inject, cam);
+
+            inject.Enqueue(
+                new GestureFrame
+                {
+                    magic = GestureFrame.Magic,
+                    version = GestureFrame.Version,
+                    fingerCount = 2,
+                    phase = (int)GesturePhase.Changed,
+                    centroidDeltaX = 0.2f,
+                }
+            );
+
+            pipeline.Tick();
+
+            Assert.True(cam.TargetX != 0f || cam.TargetZ != 0f);
         }
     }
 }
