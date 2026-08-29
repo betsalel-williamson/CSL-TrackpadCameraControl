@@ -9,8 +9,8 @@ Give trackpad players the same camera fluency mouse users get from middle-mouse 
 - [Pan](../glossary/pan.md), [orbit](../glossary/orbit.md), [zoom](../glossary/zoom.md), and [yaw](../glossary/yaw.md) without attaching a mouse.
 - One-finger click and drag still drive build tools and UI.
 - While the mod is on, [vanilla camera suppress](./vanilla-camera-suppress.md) stops vanilla scroll-zoom and mouse-drag rotate from fighting pan; edge pan, keyboard, and gamepad stay. Disable the mod to restore full vanilla camera input.
-- Choose [Maps+](../glossary/maps-plus-preset.md) or [CAD](../glossary/cad-preset.md) presets (seeds via `ApplyPreset` today; Options UI later), then tune every binding and feel value hot (no restart).
-- Optionally enable [Assist UI](../glossary/assist-ui.md) chrome for the same camera ops (and to validate that path without Multitouch) — Assist UI wiring ships in a later phase.
+- Choose [Maps+](../glossary/maps-plus-preset.md) or [CAD](../glossary/cad-preset.md) presets from the in-game panel or Options, then tune drag scales, button steps, inverts, and low-pass hot (no restart); values persist across quit.
+- Optionally enable [Assist UI](../glossary/assist-ui.md) chrome in the floating panel for the same camera ops (and to validate that path without Multitouch).
 
 ## Gesture contract (preset seeds)
 
@@ -44,20 +44,21 @@ Presets seed bindings. Users may override any row; that becomes Custom. Modifier
 ## Acceptance criteria (current)
 
 - With a supported trackpad backend and Maps+ defaults, pan, zoom, yaw, and modifier+two-finger orbit work in-game.
-- Calling `ApplyPreset(CAD)` makes three-finger orbit take effect on the next gesture (no restart).
-- Changing sensitivities or capture backend in Options applies hot via live ModSettings (other tunables stay in-memory until later Options slices).
+- Switching Maps+ → CAD in the panel or Options makes three-finger orbit take effect on the next gesture (no restart) without wiping custom scales.
+- Changing drag scales, button steps, inverts, low-pass, or capture backend in Options or the in-game panel applies hot via live ModSettings and persists across quit.
 - Orbit latch continues orbit after modifier release until fingers lift; pan and zoom stay suppressed while latched.
 - Concurrent resolve allows pan + zoom + yaw in the same frame when not orbit-latched.
 - One-finger building tools remain usable.
 - [Vanilla camera suppress](./vanilla-camera-suppress.md) is on whenever the mod is enabled (Cities Harmony required): two-finger pan does not also vanilla-scroll-zoom; mouse-drag camera rotate is skipped while the rotate-camera binding is held; edge pan, keyboard, and gamepad still move the camera.
 - Without a platform backend (unsupported OS or missing bridge), the mod enables cleanly. Keyboard, edge pan, and gamepad stay; vanilla scroll-zoom and mouse-rotate stay suppressed until the mod is disabled.
 - If Cities Harmony is missing, the mod enables without crashing; gestures may still apply; pan may fight vanilla scroll-zoom.
+- With Assist UI on, the floating panel chrome drives the same pan / zoom / yaw / orbit ops through the shared apply path.
 - Disable the mod to restore full vanilla camera input.
 
 ## Acceptance criteria (later phases)
 
-- Options UI exposes preset, resolve mode, inverts, deadzones, and remaining tunables.
-- With Assist UI enabled, corner chrome can drive the same pan / zoom / yaw / orbit ops through the shared apply path.
+- Named Save as… / Load user presets on the reserved persist envelope.
+- Corner auto-hide Assist chrome refinement.
 
 ## Non-goals (v1)
 

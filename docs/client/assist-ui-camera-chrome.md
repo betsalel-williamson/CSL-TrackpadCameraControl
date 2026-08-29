@@ -1,36 +1,31 @@
 # Assist UI camera chrome
 
-Optional on-screen [Assist UI](../glossary/assist-ui.md) nudges the camera with the same controls as trackpad gestures — useful when you want map- or CAD-style buttons, or when you need to confirm pan / zoom / yaw / orbit work without a working trackpad backend.
+The in-game **Assist / tuning panel** nudges the camera with the same controls as trackpad gestures — useful when you want map- or CAD-style pads and buttons, or when you need to confirm pan / zoom / yaw / orbit work without a working trackpad backend. Tunables in that panel are mirrored in Options (without the chrome).
 
 ## Turn it on or off
 
-1. Open Options → Trackpad Camera Control.
-2. Toggle **Assist UI**.
+1. Open Options → Trackpad Camera Control, or use the floating panel itself.
+2. Toggle **Assist UI** (panel visibility).
 3. Return to the city view — no restart required.
 
 Development builds may default Assist UI **on**. Shipping defaults turn it **off** so gesture-only players keep a clean viewport unless they opt in.
 
 ## How to use it
 
-1. Move the cursor toward the assist chrome corner — the compact controls appear.
-2. Use **zoom + / −** and the **yaw / compass** nudge.
-3. Expand for the **pan** pad and **orbit** control.
-4. Move away and idle — chrome auto-hides again.
+1. Load a city — the floating panel appears when Assist UI is on.
+2. Pick **Maps+** or **CAD** (see [gesture presets](./gesture-presets.md)); read the short description.
+3. For each op (pan, zoom, rotate, orbit): use the **drag pad** for continuous motion, or the **buttons** for one-shot steps.
+4. Type **drag scale** and **button step** numbers; toggle reverse and low-pass as needed.
+5. Close the panel if you want a clean view; reopen from the remaining control.
 
-Chrome style follows your [Gesture preset](./gesture-presets.md):
-
-- **Maps+** — map-app style (zoom stack, compass).
-- **CAD** — viewport / viewcube-style orbit.
-- **Custom** — keeps the last preset’s chrome until you re-apply Maps+ or CAD.
-
-If you disable an axis in Options (for example orbit), that chrome control is unavailable.
+If you disable an axis (for example orbit), that chrome control is unavailable.
 
 ## Validate camera controls
 
 With Assist UI on:
 
-1. Expand the chrome (or use compact zoom / yaw).
-2. Nudge each enabled axis and confirm the camera moves.
-3. If chrome moves the camera but trackpad gestures do not, the apply path is fine — check the backend / bridge and [OS gesture conflicts](./os-gesture-conflicts.md).
+1. Nudge each enabled axis from a pad and from a button.
+2. Confirm the camera moves.
+3. If chrome moves the camera but trackpad gestures do not, the apply path is fine — check the backend and [OS gesture conflicts](./os-gesture-conflicts.md).
 
 Assist UI does not replace installing or connecting a trackpad backend for gesture play.

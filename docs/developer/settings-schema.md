@@ -18,7 +18,7 @@ Logical schema for ModSettings. Field names in source may differ; this shard is 
 | YawEnabled      | bool | true                             | yes |
 | OrbitEnabled    | bool | true                             | yes |
 
-`AssistUiEnabled` shows or hides the optional [Assist UI](../glossary/assist-ui.md) chrome. Chrome style follows `GesturePreset` (no separate style field). Development defaults keep Assist UI on for easier camera-path validation; shipping defaults turn it off.
+`AssistUiEnabled` shows or hides the in-game Assist / tuning panel (chrome + tunables). Development defaults keep it on for easier camera-path validation; shipping defaults turn it off.
 
 ## Gesture resolve mode
 
@@ -36,7 +36,9 @@ See [gesture resolve mode](../glossary/gesture-resolve-mode.md). PrimaryOnly pri
 
 Maps+ seeds ModifierPlusTwoFinger (Option on macOS). CAD seeds ThreeFinger. [Orbit latch](../glossary/orbit-latch.md) always applies when orbit engages.
 
-## Sensitivities
+## Drag scales
+
+Used by trackpad gestures and Assist chrome drag pads. UI label: **drag scale**.
 
 | Field                 | Type  | Default seed | Hot |
 | --------------------- | ----- | ------------ | --- |
@@ -46,6 +48,19 @@ Maps+ seeds ModifierPlusTwoFinger (Option on macOS). CAD seeds ThreeFinger. [Orb
 | OrbitPitchSensitivity | float | 1.0          | yes |
 | ZoomSensitivity       | float | 1.0          | yes |
 | YawRotateSensitivity  | float | 1.0          | yes |
+
+## Button steps
+
+Used by Assist chrome nudge buttons only. Not multiplied by drag scale. UI label: **button step**.
+
+| Field                | Type  | Default seed | Hot |
+| -------------------- | ----- | ------------ | --- |
+| PanButtonScaleX      | float | 0.05         | yes |
+| PanButtonScaleY      | float | 0.05         | yes |
+| OrbitYawButtonScale  | float | 2.0          | yes |
+| OrbitPitchButtonScale| float | 2.0          | yes |
+| ZoomButtonScale      | float | 0.05         | yes |
+| YawRotateButtonScale | float | 2.0          | yes |
 
 Exact default numbers are tuned during implementation; change them only in the defaults factory and document the new seeds here.
 
@@ -60,15 +75,29 @@ Exact default numbers are tuned during implementation; change them only in the d
 | InvertZoom       | bool | false   | yes |
 | InvertYawRotate  | bool | false   | yes |
 
-## Thresholds and smoothing
+## Thresholds
 
-| Field                 | Type             | Default seed   | Hot |
-| --------------------- | ---------------- | -------------- | --- |
-| MotionDeadzone        | float            | small positive | yes |
-| PinchEpsilon          | float            | small positive | yes |
-| RotateEpsilon         | float            | small positive | yes |
-| FingerCountHysteresis | float            | small positive | yes |
-| Smoothing             | float 0–1 or off | off / 0        | yes |
+| Field                 | Type  | Default seed   | Hot |
+| --------------------- | ----- | -------------- | --- |
+| MotionDeadzone        | float | small positive | yes |
+| PinchEpsilon          | float | small positive | yes |
+| RotateEpsilon         | float | small positive | yes |
+| FingerCountHysteresis | float | small positive | yes |
+
+## Per-op low-pass (drag only)
+
+EMA on drag deltas after resolve, before apply. Buttons skip low-pass. The former single `Smoothing` field is retired.
+
+| Field               | Type      | Default | Hot |
+| ------------------- | --------- | ------- | --- |
+| PanLowPassEnabled   | bool      | false   | yes |
+| PanLowPassAlpha     | float 0–1 | 0.3     | yes |
+| ZoomLowPassEnabled  | bool      | false   | yes |
+| ZoomLowPassAlpha    | float 0–1 | 0.3     | yes |
+| YawLowPassEnabled   | bool      | false   | yes |
+| YawLowPassAlpha     | float 0–1 | 0.3     | yes |
+| OrbitLowPassEnabled | bool      | false   | yes |
+| OrbitLowPassAlpha   | float 0–1 | 0.3     | yes |
 
 ## Gates and capture
 
@@ -80,9 +109,21 @@ Exact default numbers are tuned during implementation; change them only in the d
 | CaptureBackend   | enum: Contacts, AppleGestures | AppleGestures | yes |
 | DebugOverlay     | bool                          | false         | yes |
 
-`CaptureBackend` selects the in-process interpreter: **AppleGestures** (default, **current**) is AppKit scroll/magnify/rotate (no Accessibility). **Contacts** is the legacy MultitouchSupport path, gated behind this flag (and the Options interpreter dropdown). Launch override: `TRACKPAD_CAPTURE_BACKEND=apple` or `contacts` (env wins when set). `BridgeEnabled` is an optional experiment (out-of-process socket host); playtest leaves it off. Capture frames append to a log file (`TRACKPAD_CAPTURE_LOG` overrides the path; default is `trackpad-camera-control.log` under the process temp directory).
+`CaptureBackend` selects the in-process interpreter: **AppleGestures** (default, **current**) is AppKit scroll/magnify/rotate (no Accessibility). **Contacts** is the legacy MultitouchSupport path. Launch override: `TRACKPAD_CAPTURE_BACKEND=apple` or `contacts` (env wins when set).
 
-Options (this slice) bind `CaptureBackend` and the six sensitivity fields. Other schema fields remain defaults until later Options slices.
+## Persist envelope
+
+Live settings load and save through a versioned XML file under the Cities user-data tree (`…/TrackpadCameraControl/settings.xml`). Document shape:
+
+| Element        | Role                                                         |
+| -------------- | ------------------------------------------------------------ |
+| schemaVersion  | Envelope version                                             |
+| current        | Full ModSettings blob (what the mod reads and writes today)  |
+| userPresets[]  | Reserved empty; Save as… / Load named presets later          |
+
+Missing or corrupt file → factory defaults (no crash), then persist the recovered blob. **Reset to factory** restores schema defaults into `current` and writes the file. Built-in Maps+ / CAD stay in-code seeds (`ApplyPreset`), not rows in `userPresets`.
+
+Options and the in-game Assist / tuning panel both bind the same fields through one apply layer; number fields (not sliders) edit drag scales, button steps, and low-pass params.
 
 ## Validation rule
 

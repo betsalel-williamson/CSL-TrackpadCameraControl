@@ -20,4 +20,4 @@
 
 ## Current phase
 
-**Options UI (sensitivities + capture backend)** — in-game Options expose AppKit vs Contacts (legacy) and per-op sensitivities so feel can be tuned without restart. Next: remaining Options fields, then Assist UI wiring. An Options checkbox to leave vanilla camera on is deferred.
+**In-game Assist / tuning panel** — floating city-view panel with Assist chrome and number-field tunables; Options mirrors the same tunables (no sliders); settings persist across quit. Next: named Save as… / Load user presets on the reserved envelope. An Options checkbox to leave vanilla camera on is deferred.

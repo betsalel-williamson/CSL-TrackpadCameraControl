@@ -1,6 +1,8 @@
 # Gesture presets
 
-Presets seed bindings for [pan](../glossary/pan.md), [zoom](../glossary/zoom.md), [yaw](../glossary/yaw.md), and [orbit](../glossary/orbit.md). Options UI will expose a **Gesture preset** dropdown later; until then, Maps+ is the default seed and CAD is applied via preset seed (`ApplyPreset`).
+Presets seed bindings for [pan](../glossary/pan.md), [zoom](../glossary/zoom.md), [yaw](../glossary/yaw.md), and [orbit](../glossary/orbit.md). Choose **Maps+** or **CAD** in the in-game Assist / tuning panel or in Options → Trackpad Camera Control.
+
+Applying a built-in seed sets the orbit trigger for that style. It does **not** wipe your custom drag scales, button steps, or low-pass settings. Use **Reset to factory default** to restore schema defaults. Named Save as… / Load user presets come later.
 
 ## Maps+ (default)
 
@@ -24,4 +26,4 @@ Three-finger orbit may fight OS system gestures. See [OS gesture conflicts](./os
 
 ## Custom
 
-Any manual change after applying a preset. Use **Reset** (when Options UI ships) to restore preset or factory defaults.
+Any manual change after applying a preset. Reset to factory restores defaults; re-apply Maps+ or CAD only to re-seed the orbit trigger.
