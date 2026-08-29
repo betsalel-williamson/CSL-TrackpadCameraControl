@@ -2,6 +2,14 @@
 
 Automated bootstrap for docs, format, and commit tooling. **macOS is the primary path**; Linux is supported for CI-like machines; Windows is documented but not fully automated yet.
 
+## Project status
+
+This project is **solo-developed**. Outside help is welcome:
+
+1. **Open an issue first** — bugs, feature ideas, questions, or “I’d like to work on X”: [Issues](https://github.com/betsalel-williamson/CSL-TrackpadCameraControl/issues).
+2. Discuss non-trivial work in the issue before investing in a large PR.
+3. Open PRs from a **fork** (no Write collaborator access). Squash-merge after CI. See [GitHub project controls](./github-project-controls.md) and root [CONTRIBUTING.md](../../CONTRIBUTING.md).
+
 ## One command (macOS / Linux)
 
 From the repository root:
@@ -40,10 +48,6 @@ Check only (no package install):
 | clang-format   | Xcode toolchain or `brew install clang-format`       | `apt install clang-format` | LLVM/clang-format, or WSL                                     |
 
 Game / Cities: Skylines assemblies are **not** required for Phase 1 contributor tooling.
-
-## Contributing via pull request
-
-This is a **public** repo with a solo maintainer. Open PRs from a **fork** — do not request Write access. Maintainers squash-merge after CI. See [GitHub project controls](./github-project-controls.md).
 
 ## C# language pin
 

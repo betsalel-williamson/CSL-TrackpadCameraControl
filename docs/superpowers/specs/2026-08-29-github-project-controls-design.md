@@ -22,29 +22,30 @@ Encode durable GitHub project controls so a maintainer can run one idempotent co
 
 ## Decisions
 
-| Concern          | Choice                                                  | Rationale                                                 |
-| ---------------- | ------------------------------------------------------- | --------------------------------------------------------- |
-| Approach         | Hybrid OpenTofu + `infra/github/Makefile`               | IaC + idempotent operator surface                         |
-| Who can merge    | Fork contributors; no casual Write collaborators        | Solo self-merge without a second reviewer                 |
-| Collaborators    | Authoritative intended set in OpenTofu                  | Personal repo collaborator ≈ Write                        |
-| Reviews          | `required_approving_review_count = 0`                   | Solo-maintainer compatible                                |
-| Merge methods    | Squash only                                             | Linear history                                            |
-| Up to date       | Strict required checks + `allow_update_branch`          | Must merge/`update` from `main` before land               |
-| Required checks  | `Commitlint`, `Validate`                                | Existing CI names                                         |
-| Validate gate    | Fail closed + `infra/**` in scopes                      | Status check must mean something                          |
-| Ruleset          | Active on `~DEFAULT_BRANCH`; no force-push              | Protect `main`                                            |
-| Actions defaults | `read` + `can_approve_pull_request_reviews = true`      | Least privilege; Changesets can still open version PRs    |
-| Publish          | Changesets version PR only; **no** npm registry publish | Steam Workshop is the player install path; automation TBD |
-| State            | Local tfstate gitignored                                | Solo v1                                                   |
-| Auth             | `gh auth token` → `GH_TOKEN`                            | Admin required for apply                                  |
+| Concern          | Choice                                                                  | Rationale                                                        |
+| ---------------- | ----------------------------------------------------------------------- | ---------------------------------------------------------------- |
+| Approach         | Hybrid OpenTofu + `infra/github/Makefile`                               | IaC + idempotent operator surface                                |
+| Who can merge    | Fork contributors; no casual Write collaborators                        | Solo self-merge without a second reviewer                        |
+| Collaborators    | Authoritative intended set in OpenTofu                                  | Personal repo collaborator ≈ Write                               |
+| Reviews          | `required_approving_review_count = 0`                                   | Solo-maintainer compatible                                       |
+| Merge methods    | Squash only                                                             | Linear history                                                   |
+| Up to date       | Strict required checks + `allow_update_branch`                          | Must merge/`update` from `main` before land                      |
+| Required checks  | `Commitlint`, `Validate`                                                | Existing CI names                                                |
+| Validate gate    | Fail closed + `infra/**` in scopes                                      | Status check must mean something                                 |
+| Ruleset          | Active on `~DEFAULT_BRANCH`; no force-push                              | Protect `main`                                                   |
+| Actions defaults | `read` + `can_approve_pull_request_reviews = true`                      | Least privilege; Changesets can still open version PRs           |
+| Publish          | Changesets version PR + `changeset tag` GitHub Release (source); no npm | Beta testers use Release source + install script; Workshop later |
+| State            | Local tfstate gitignored                                                | Solo v1                                                          |
+| Auth             | `gh auth token` → `GH_TOKEN`                                            | Admin required for apply                                         |
 
 ## Access model (contributor check)
 
 ```text
 Outside contributor  →  fork + PR  →  no repo Write  →  cannot merge
 Maintainer (owner)   →  squash-merge after Commitlint + Validate (strict)
-Version PR           →  Release “version” job (Changesets; no registry publish)
-Player installs      →  Steam Workshop (upload/automation out of scope for this controls work)
+Version PR           →  Release “version” job (Changesets)
+GitHub Release       →  tag + source archive for beta (`changeset tag`)
+Player installs      →  Release source + install-mod-local.sh (Workshop later)
 ```
 
 ## Layout
@@ -78,10 +79,13 @@ Variables: owner, repo, check contexts, `maintainer_usernames`.
 
 `.github/workflows/release.yml`:
 
-1. Workflow-level `permissions: contents: read`; Version job elevates to `contents: write` + `pull-requests: write`.
-2. **Job `version`** — `changesets/action` with `version-script` only (no `publish-script`, no npm credentials, no Environment).
+1. Workflow-level `permissions: contents: read`; jobs elevate as needed.
+2. **Job `version`** — `changesets/action` with `version-script` only.
+3. **Job `github-release`** — when no pending changesets: `publish-script: npx changeset tag`, `create-github-releases: true` (source zip/tar on the Release; no npm).
 
-Player distribution via Steam Workshop is a separate future effort (not part of GitHub project controls).
+Package is `"private": true` with Changesets `privatePackages.version/tag` enabled so tagging works without a registry.
+
+Beta install docs: download Release source → `./scripts/install-mod-local.sh`. Steam Workshop upload is a separate future effort.
 
 ## CI companion
 

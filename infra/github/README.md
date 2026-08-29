@@ -25,4 +25,4 @@ State files are gitignored. Provider lockfile (`.terraform.lock.hcl`) is committ
 
 ## Distribution note
 
-Changesets + the Release workflow manage **version + CHANGELOG** only. Players get the mod via **Steam Workshop** (automation TBD). This repo does **not** publish to npm.
+Changesets manage **version + CHANGELOG** and CI creates **GitHub Releases** (source archives for beta testers via `changeset tag`). Players will eventually use **Steam Workshop**. This repo does **not** publish to npm.

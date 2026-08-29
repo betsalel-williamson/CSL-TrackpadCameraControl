@@ -58,7 +58,7 @@ stacks-side-checks: preflight
 	  else \
 	    echo "==> gh-stack extension: present"; \
 	  fi
-	@echo "==> reminder: player distribution is Steam Workshop (not npm); Changesets only bumps version + CHANGELOG"
+	@echo "==> reminder: GitHub Releases ship source for beta install; Steam Workshop later; no npm publish"
 
 
 check: plan stacks-side-checks

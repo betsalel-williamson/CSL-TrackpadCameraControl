@@ -48,10 +48,15 @@ npm run changeset:status    # list pending changesets
 npm run version-packages    # apply changesets → version + CHANGELOG (maintainers)
 ```
 
-This package uses Changesets for **version + CHANGELOG** only. Players install the mod from **Steam Workshop** (upload/automation TBD). This project does **not** publish to the npm registry.
+This package uses Changesets for **version + CHANGELOG** and **GitHub Releases** (source archives for beta testers). Players will eventually install from **Steam Workshop**. This project does **not** publish to the npm registry.
 
 ## Release workflow
 
-On push to `main`, `.github/workflows/release.yml` opens/updates the Changesets **version PR** only (no registry publish).
+On push to `main`, `.github/workflows/release.yml`:
+
+1. **Version** — opens/updates the Changesets version PR when changesets are pending.
+2. **GitHub Release** — when there is nothing left to version, runs `changeset tag` and creates a GitHub Release (source zip/tar only).
+
+Beta install from a release: [Local MVP install](./local-mvp-install.md).
 
 Branch protection and merge policy: [GitHub project controls](./github-project-controls.md).

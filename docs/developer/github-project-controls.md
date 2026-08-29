@@ -34,13 +34,16 @@ See [infra/github/README.md](../../infra/github/README.md).
 
 ## Versioning vs player distribution
 
-| Path                                 | Role                                                           |
-| ------------------------------------ | -------------------------------------------------------------- |
-| Changesets + Release **Version** job | Semver + `CHANGELOG.md` via version PR                         |
-| **Steam Workshop**                   | How the mod community installs the mod (upload/automation TBD) |
-| npm registry                         | **Not used** — no CI publish                                   |
+| Path                                 | Role                                                   |
+| ------------------------------------ | ------------------------------------------------------ |
+| Changesets + Release **Version** job | Semver + `CHANGELOG.md` via version PR                 |
+| Release **GitHub Release** job       | Tag + GitHub Release (source archive for beta testers) |
+| **Steam Workshop**                   | Future community install path (upload automation TBD)  |
+| npm registry                         | **Not used**                                           |
 
-`.github/workflows/release.yml` only opens/updates the Changesets version PR. It does not publish packages.
+`.github/workflows/release.yml` versions via Changesets, then tags and creates a GitHub Release. It does not publish to npm.
+
+Beta install: [Local MVP install](./local-mvp-install.md). Contributing: [CONTRIBUTING.md](../../CONTRIBUTING.md).
 
 ## Stacked PRs
 

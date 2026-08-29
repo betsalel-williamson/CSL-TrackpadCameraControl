@@ -2,6 +2,12 @@
 
 Prove pinch → zoom with the TrackpadBridge **dev path** (C# console host) and a local mod DLL.
 
+## Beta from a GitHub Release
+
+1. Open the latest [GitHub Release](https://github.com/betsalel-williamson/CSL-TrackpadCameraControl/releases) and download the **Source code** zip/tarball (or `git clone` and `git checkout` the release tag).
+2. Follow **Build and install the mod** and **Run the bridge** below.
+3. You need your own Cities: Skylines install (Managed assemblies). Steam Workshop packaging comes later.
+
 ## Build and install the mod
 
 ```bash
