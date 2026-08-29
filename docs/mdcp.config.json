@@ -27,7 +27,7 @@
       "compile": {}
     }
   ],
-  "standaloneGuides": ["README.md"],
+  "standaloneGuides": ["README.md", "CONTRIBUTING.md"],
   "scan": {
     "strict": true,
     "ignore": [
@@ -46,6 +46,8 @@
       "scripts/**",
       ".github/**",
       ".changeset/**",
+      "infra/**",
+      ".superpowers/**",
       "CHANGELOG.md",
       "LICENSE",
       "package.json",

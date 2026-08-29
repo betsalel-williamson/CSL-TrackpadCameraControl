@@ -48,6 +48,14 @@ npm run format:check  # csharpier + clang-format (see docs/developer/lint-and-fo
 | Contributor guide       | [`docs/developer/`](docs/developer/) |
 | Glossary                | [`docs/glossary/`](docs/glossary/)   |
 
+## Contributing
+
+Solo-developed for now — please **[open an issue](https://github.com/betsalel-williamson/CSL-TrackpadCameraControl/issues)** before large PRs. See [CONTRIBUTING.md](CONTRIBUTING.md).
+
+## Beta install
+
+Download a [GitHub Release](https://github.com/betsalel-williamson/CSL-TrackpadCameraControl/releases) source archive, then [local MVP install](docs/developer/local-mvp-install.md) (`./scripts/install-mod-local.sh`).
+
 ## Prior art
 
 Coexists with [ACME](https://steamcommunity.com/sharedfiles/filedetails/?id=2778750497) (camera suite). Learns continuous-input patterns from Joystick Camera Control. Does **not** reimplement ACME features.

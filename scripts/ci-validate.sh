@@ -61,13 +61,15 @@ select_scopes() {
     if path_is "$path" \
       ".github/*" \
       ".husky/*" \
+      "infra/*" \
       "scripts/bootstrap-dev.*" \
       "scripts/hooks-*" \
       "scripts/ci-validate.sh" \
       "scripts/ensure-tool-path.sh" \
       "commitlint.config.mjs" \
       "package.json" \
-      "package-lock.json"; then
+      "package-lock.json" \
+      "Makefile"; then
       mark_all
       return
     fi
@@ -115,6 +117,13 @@ fi
 printf '==> validate scopes docs=%s csharp=%s native=%s\n' "$DOCS" "$CSHARP" "$NATIVE"
 
 if [[ "$DOCS" -eq 0 && "$CSHARP" -eq 0 && "$NATIVE" -eq 0 ]]; then
+  # Fail closed on PRs / feature branches so required status checks cannot go green with no gates.
+  # Full runs on main (or FORCE_FULL) already mark_all above.
+  if [[ "${FORCE_FULL:-0}" != "1" && "${GITHUB_REF:-}" != "refs/heads/main" ]]; then
+    echo "==> error: no validate scopes matched this change set (fail closed)"
+    echo "    Add a path scope in scripts/ci-validate.sh or touch a known docs/mod/native/infra path."
+    exit 1
+  fi
   echo "==> nothing to validate for this change set"
   exit 0
 fi

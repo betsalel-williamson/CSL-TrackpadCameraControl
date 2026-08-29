@@ -2,6 +2,14 @@
 
 Automated bootstrap for docs, format, and commit tooling. **macOS is the primary path**; Linux is supported for CI-like machines; Windows is documented but not fully automated yet.
 
+## Project status
+
+This project is **solo-developed**. Outside help is welcome:
+
+1. **Open an issue first** — bugs, feature ideas, questions, or “I’d like to work on X”: [Issues](https://github.com/betsalel-williamson/CSL-TrackpadCameraControl/issues).
+2. Discuss non-trivial work in the issue before investing in a large PR.
+3. Open PRs from a **fork** (no Write collaborator access). Squash-merge after CI. See [GitHub project controls](./github-project-controls.md) and root [CONTRIBUTING.md](../../CONTRIBUTING.md).
+
 ## One command (macOS / Linux)
 
 From the repository root:
