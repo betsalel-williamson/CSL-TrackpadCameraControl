@@ -51,6 +51,19 @@ namespace TrackpadCapture
             float pinchScaleDelta
         )
         {
+            return Create(fingerCount, phase, 0f, 0f, pinchScaleDelta, 0f, 0u);
+        }
+
+        public static GestureFrame Create(
+            int fingerCount,
+            GesturePhase phase,
+            float centroidDeltaX,
+            float centroidDeltaY,
+            float pinchScaleDelta,
+            float rotateDelta,
+            uint modifiers
+        )
+        {
             return new GestureFrame
             {
                 magic = Magic,
@@ -59,11 +72,11 @@ namespace TrackpadCapture
                 timestampNs = MonotonicTimestamp.NowNs(),
                 fingerCount = fingerCount,
                 phase = (int)phase,
-                centroidDeltaX = 0f,
-                centroidDeltaY = 0f,
+                centroidDeltaX = centroidDeltaX,
+                centroidDeltaY = centroidDeltaY,
                 pinchScaleDelta = pinchScaleDelta,
-                rotateDelta = 0f,
-                modifiers = 0,
+                rotateDelta = rotateDelta,
+                modifiers = modifiers,
                 reserved = 0,
             };
         }

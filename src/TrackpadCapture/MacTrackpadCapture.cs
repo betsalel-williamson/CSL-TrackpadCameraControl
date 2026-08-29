@@ -4,12 +4,12 @@ using System.Runtime.InteropServices;
 namespace TrackpadCapture
 {
     /// <summary>
-    /// macOS MultitouchSupport → pinch GestureFrames. Keep a CFRunLoop pumping while started
-    /// so contact callbacks fire (same requirement as the retired C bridge).
+    /// macOS MultitouchSupport → GestureFrames (centroid, pinch, rotate, modifiers).
+    /// Keep a CFRunLoop pumping while started so contact callbacks fire.
     /// </summary>
     public sealed class MacTrackpadCapture : IDisposable
     {
-        private readonly PinchSession _pinch = new PinchSession();
+        private readonly MultitouchGestureSession _session = new MultitouchGestureSession();
         private readonly object _gate = new object();
         private readonly bool _debug;
         private MultitouchNative.MTContactCallback _callback;
@@ -104,7 +104,7 @@ namespace TrackpadCapture
                 }
 
                 _started = false;
-                _pinch.Reset();
+                _session.Reset();
                 _onFrame = null;
                 _callback = null;
 
@@ -159,37 +159,118 @@ namespace TrackpadCapture
                 Console.Error.WriteLine("TrackpadBridge: contacts=" + numTouches);
             }
 
-            float distance = 0f;
-            if (numTouches >= 2 && touches != IntPtr.Zero)
-            {
-                var a = Marshal.PtrToStructure<MultitouchNative.MTTouch>(touches);
-                var b = Marshal.PtrToStructure<MultitouchNative.MTTouch>(
-                    IntPtr.Add(touches, Marshal.SizeOf(typeof(MultitouchNative.MTTouch)))
-                );
-                float dx = a.normalized.pos.x - b.normalized.pos.x;
-                float dy = a.normalized.pos.y - b.normalized.pos.y;
-                distance = (float)Math.Sqrt(dx * dx + dy * dy);
-            }
+            SampleTouches(
+                touches,
+                numTouches,
+                out bool haveCentroid,
+                out float cx,
+                out float cy,
+                out bool havePair,
+                out float distance,
+                out float angle
+            );
+
+            uint modifiers = MacModifierKeys.ReadModifiers();
 
             GestureFrame outFrame;
             bool emit;
             lock (_gate)
             {
-                emit = _pinch.TryUpdate(numTouches, distance, out outFrame);
+                emit = _session.TryUpdate(
+                    numTouches,
+                    haveCentroid,
+                    cx,
+                    cy,
+                    havePair,
+                    distance,
+                    angle,
+                    modifiers,
+                    out outFrame
+                );
             }
 
             if (emit)
             {
-                // Always log pinch emits so a silent terminal is a real signal (no Multitouch).
                 Console.Error.WriteLine(
-                    "TrackpadBridge: pinch phase="
-                        + outFrame.phase
-                        + " delta="
-                        + outFrame.pinchScaleDelta.ToString("0.####")
-                        + " fingers="
+                    "TrackpadBridge: gesture fingers="
                         + outFrame.fingerCount
+                        + " phase="
+                        + outFrame.phase
+                        + " dC=("
+                        + outFrame.centroidDeltaX.ToString("0.####")
+                        + ","
+                        + outFrame.centroidDeltaY.ToString("0.####")
+                        + ") pinch="
+                        + outFrame.pinchScaleDelta.ToString("0.####")
+                        + " rot="
+                        + outFrame.rotateDelta.ToString("0.####")
+                        + " mods="
+                        + outFrame.modifiers
                 );
                 sink(outFrame);
+            }
+        }
+
+        private static void SampleTouches(
+            IntPtr touches,
+            int numTouches,
+            out bool haveCentroid,
+            out float centroidX,
+            out float centroidY,
+            out bool havePair,
+            out float distance,
+            out float angle
+        )
+        {
+            haveCentroid = false;
+            centroidX = 0f;
+            centroidY = 0f;
+            havePair = false;
+            distance = 0f;
+            angle = 0f;
+
+            if (numTouches < 1 || touches == IntPtr.Zero)
+            {
+                return;
+            }
+
+            int n = numTouches > 5 ? 5 : numTouches;
+            int stride = Marshal.SizeOf(typeof(MultitouchNative.MTTouch));
+            float sumX = 0f;
+            float sumY = 0f;
+            MultitouchNative.MTTouch first = default;
+            MultitouchNative.MTTouch second = default;
+
+            for (int i = 0; i < n; i++)
+            {
+                var t = (MultitouchNative.MTTouch)
+                    Marshal.PtrToStructure(
+                        new IntPtr(touches.ToInt64() + (long)i * stride),
+                        typeof(MultitouchNative.MTTouch)
+                    );
+                sumX += t.normalized.pos.x;
+                sumY += t.normalized.pos.y;
+                if (i == 0)
+                {
+                    first = t;
+                }
+                else if (i == 1)
+                {
+                    second = t;
+                }
+            }
+
+            haveCentroid = true;
+            centroidX = sumX / n;
+            centroidY = sumY / n;
+
+            if (n >= 2)
+            {
+                float dx = second.normalized.pos.x - first.normalized.pos.x;
+                float dy = second.normalized.pos.y - first.normalized.pos.y;
+                distance = (float)Math.Sqrt(dx * dx + dy * dy);
+                angle = (float)Math.Atan2(dy, dx);
+                havePair = true;
             }
         }
     }
