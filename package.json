@@ -10,6 +10,10 @@
     "format:docs": "npm run docs:fix",
     "format:csharp": "dotnet tool restore && dotnet tool run csharpier format mod/",
     "format:csharp:check": "dotnet tool restore && dotnet tool run csharpier check mod/",
+    "format:native": "bash scripts/format-native.sh format",
+    "format:native:check": "bash scripts/format-native.sh check",
+    "format": "npm run format:docs && npm run format:csharp && npm run format:native",
+    "format:check": "npm run format:csharp:check && npm run format:native:check",
     "docs": "npm run docs:compile && npm run docs:check"
   },
   "devDependencies": {
