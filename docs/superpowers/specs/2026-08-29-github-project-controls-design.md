@@ -1,7 +1,7 @@
 # GitHub project controls — Design
 
-**Date:** 2026-08-29  
-**Status:** Approved (revised: OSS access model + full security-review remediations)  
+**Date:** 2026-08-29
+**Status:** Approved (revised: OSS access model + full security-review remediations)
 **Scope:** Declarative GitHub controls (OpenTofu + Makefile), Release/publish hardening, CI Validate gate hardening, stacked PR verification for `betsalel-williamson/CSL-TrackpadCameraControl`
 
 ## Goal

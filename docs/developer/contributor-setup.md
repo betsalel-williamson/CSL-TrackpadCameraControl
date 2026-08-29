@@ -41,6 +41,10 @@ Check only (no package install):
 
 Game / Cities: Skylines assemblies are **not** required for Phase 1 contributor tooling.
 
+## Contributing via pull request
+
+This is a **public** repo with a solo maintainer. Open PRs from a **fork** — do not request Write access. Maintainers squash-merge after CI. See [GitHub project controls](./github-project-controls.md).
+
 ## C# language pin
 
 Mod-loaded assemblies target **net35** (Cities: Skylines / Unity Mono) with **`LangVersion` 9**. Shared **TrackpadCapture** stays **netstandard2.0**. Prefer **Mono-safe BCL** in the mod (mscorlib-era APIs). Test and bridge **host** projects may use `net8.0`.

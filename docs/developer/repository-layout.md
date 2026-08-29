@@ -13,6 +13,7 @@ CSL-TrackpadCameraControl/
   shared/protocol/      # GestureFrame wire layout
   templates/            # Copy-paste scaffolds for quick development
   scripts/              # bootstrap-dev, install, e2e smoke helpers
+  infra/github/         # OpenTofu + Makefile for GitHub project controls
   .changeset/           # Pending release notes (Changesets)
   .github/workflows/    # Docs, format, commitlint, release CI
   TrackpadCameraControl.sln
