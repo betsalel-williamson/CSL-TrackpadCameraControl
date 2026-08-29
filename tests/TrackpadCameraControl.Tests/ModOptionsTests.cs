@@ -1,5 +1,7 @@
 using TrackpadCameraControl;
 using Xunit;
+using System;
+using System.IO;
 
 namespace TrackpadCameraControl.Tests
 {
@@ -55,6 +57,12 @@ namespace TrackpadCameraControl.Tests
             Mod.ClearSettingsForTests();
             try
             {
+                string dir = Path.Combine(
+                    Path.GetTempPath(),
+                    "tcc-ensure-" + Guid.NewGuid().ToString("N")
+                );
+                Directory.CreateDirectory(dir);
+                ModOptions.Store = new ModSettingsStore(Path.Combine(dir, "settings.xml"));
                 ModSettings first = Mod.EnsureSettings();
                 first.PanSensitivityX = 2.25f;
                 ModSettings second = Mod.EnsureSettings();
