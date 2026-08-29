@@ -1,13 +1,14 @@
 # Gesture frame (human template)
 
-Aligns with `docs/features/ipc-gesture-primitives.md`. Implement binary layout under `shared/protocol/` later.
+Aligns with `docs/features/ipc-gesture-primitives.md` and `shared/protocol/gesture-frame.md`.
 
-| Field | Notes |
-| --- | --- |
-| timestamp | monotonic |
-| fingerCount | int |
-| centroidDeltaX / Y | normalized |
-| pinchScaleDelta | relative |
-| rotateDelta | radians or degrees — pick one in protocol and document |
-| modifiers | Option, Shift, Command, Control bits |
-| phase | began / changed / ended / cancelled |
+| Field              | Notes                                |
+| ------------------ | ------------------------------------ |
+| magic / version    | `TCPF` / `1`                         |
+| timestampNs        | monotonic nanoseconds                |
+| fingerCount        | int                                  |
+| phase              | began / changed / ended / cancelled  |
+| centroidDeltaX / Y | normalized                           |
+| pinchScaleDelta    | relative distance change             |
+| rotateDelta        | radians                              |
+| modifiers          | Option, Shift, Command, Control bits |

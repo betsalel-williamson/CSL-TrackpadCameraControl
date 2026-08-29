@@ -9,7 +9,7 @@ CSL-TrackpadCameraControl/
   native/mac/           # TrackpadBridge (format-ready C seed)
   native/win/           # stub
   native/linux/         # stub
-  shared/protocol/      # IPC frame schema (later)
+  shared/protocol/      # GestureFrame wire layout (C header + markdown)
   templates/            # Copy-paste scaffolds for quick development
   scripts/              # bootstrap-dev.sh, clang-format helper
   .changeset/           # Pending release notes (Changesets)
@@ -22,10 +22,10 @@ CSL-TrackpadCameraControl/
 
 ## Naming
 
-| Surface | Name |
-| --- | --- |
-| Display / Workshop | Trackpad Camera Control |
-| GitHub repo | CSL-TrackpadCameraControl |
+| Surface            | Name                        |
+| ------------------ | --------------------------- |
+| Display / Workshop | Trackpad Camera Control     |
+| GitHub repo        | CSL-TrackpadCameraControl   |
 | npm package (docs) | csl-trackpad-camera-control |
 
 Search keywords: trackpad, touchpad, multitouch, pinch, camera, Cities Skylines, orbit, pan, zoom (plus Mac/Windows as backend tags, not product identity).
