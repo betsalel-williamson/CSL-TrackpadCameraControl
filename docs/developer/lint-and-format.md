@@ -35,9 +35,10 @@ Individual targets: `format:docs`, `format:csharp`, `format:native` (and matchin
 
 ## What CI runs
 
-GitHub Actions (`.github/workflows/ci.yml`) on push/PR to `main`:
+GitHub Actions (`.github/workflows/ci.yml`) on push/PR to `main`. Third-party actions are **pinned by commit SHA** (with a version comment), not floating tags.
 
 1. **Docs** — `npm ci` then `npm run docs` (`--require-lint`)
 2. **Code format** — CSharpier check on `mod/`, clang-format dry-run on `native/**/*.{c,h}`
+3. **Commitlint** (PRs only) — conventional commits on the PR range
 
 Format before opening a PR; CI will fail if style drifts. Locally, husky **pre-commit** formats staged files and **pre-push** runs the same format + docs gates — see [commits and releases](./commits-and-releases.md).
