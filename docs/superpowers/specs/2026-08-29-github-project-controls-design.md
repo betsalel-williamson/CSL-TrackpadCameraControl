@@ -1,134 +1,137 @@
 # GitHub project controls — Design
 
 **Date:** 2026-08-29  
-**Status:** Approved (revised for OSS single-maintainer access model)  
-**Scope:** Declarative repo controls for `betsalel-williamson/CSL-TrackpadCameraControl` via OpenTofu + a Makefile; stacked PR tooling verification
+**Status:** Approved (revised: OSS access model + full security-review remediations)  
+**Scope:** Declarative GitHub controls (OpenTofu + Makefile), Release/publish hardening, CI Validate gate hardening, stacked PR verification for `betsalel-williamson/CSL-TrackpadCameraControl`
 
 ## Goal
 
-Encode durable GitHub project controls so a maintainer can run one idempotent command anytime: initialize if needed, detect drift from desired state, and (optionally) converge — without recreating the repository or requiring careful “did I already set this?” bookkeeping.
+Encode durable GitHub project controls so a maintainer can run one idempotent command anytime: initialize if needed, detect drift, and converge — without recreating the repository.
 
-**Maintainer-only merge (OSS, single maintainer):** Do **not** use required PR approvals (incompatible with solo self-merge). Rely on GitHub’s **contributor / fork model**: outside contributors open PRs from forks and never receive repository **Write**. Only the maintainer (repo owner / trusted Write) can merge to `main`. Accidental Write collaborators are treated as control drift.
+**Maintainer-only merge (OSS, single maintainer):** Do **not** use required PR approvals. Rely on the **contributor / fork model**: outsiders open PRs from forks and never receive repository **Write**. Only the maintainer can merge to `main`. Accidental Write collaborators are control drift.
+
+## Security review → remediation map
+
+| Finding                                       | Severity | Remediation in this design                                                                                                                               |
+| --------------------------------------------- | -------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Zero reviews → any Write user can merge       | High     | Access model: no Write for outsiders; authoritative collaborator inventory; document forks                                                               |
+| Actions default `write` + create/approve PRs  | Medium   | Repo default **`read`**; keep create-PR flag for Changesets; Release elevates only via job `permissions`                                                 |
+| Merge to `main` ≈ npm publish via `NPM_TOKEN` | Medium   | Split Release: version-PR job (no npm secret) vs publish job on Environment `npm-publish`; prefer OIDC Trusted Publishing; remove repo-level `NPM_TOKEN` |
+| Validate can exit 0 with no scopes            | Medium   | Fail closed on PRs when no scopes match; add `infra/**` (+ related) to scopes                                                                            |
+| Controls docs-only / local state              | Medium   | Land `infra/github/` + Makefile `check`/`apply`; gitignore state; commit provider lockfile                                                               |
 
 ## Decisions
 
-| Concern                | Choice                                                                                        | Rationale                                                                                                              |
-| ---------------------- | --------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
-| Approach               | Hybrid: OpenTofu owns durable settings; Makefile is the only operator entrypoint              | IaC for drift; Make for init/auth/status                                                                               |
-| Who can merge          | **Access model**, not reviews: no Write for outside contributors; fork-based PRs only         | Solo maintainer can self-merge; strangers cannot                                                                       |
-| Collaborator inventory | Authoritative empty (or owner-only) collaborator set + `make check` alert on unexpected Write | Personal repos: adding a collaborator ≈ granting Write                                                                 |
-| Reviews                | `required_approving_review_count = 0`                                                         | Required; second reviewer unavailable                                                                                  |
-| Merge methods          | Squash only (repo + ruleset); disable merge commit and rebase                                 | Linear history; Conventional Commits + Changesets                                                                      |
-| Up to date with `main` | `strict_required_status_checks_policy = true` + `allow_update_branch = true`                  | PR must include latest `main` before merge                                                                             |
-| Required checks        | `Commitlint`, `Validate`                                                                      | Existing CI job names                                                                                                  |
-| Validate as a gate     | Fail closed on PRs when no path scopes match; include `infra/**` in scopes                    | Prevent “green” merges that skipped all gates                                                                          |
-| Branch protection      | Repository **ruleset** on `~DEFAULT_BRANCH`                                                   | Supports merge-method allowlist                                                                                        |
-| Force push             | `non_fast_forward = true`                                                                     | Protect `main` history                                                                                                 |
-| Actions defaults       | `default_workflow_permissions = "read"`; `can_approve_pull_request_reviews = true`            | Least privilege by default; still allow Changesets to **create** version PRs (Release job elevates via `permissions:`) |
-| Stacked PRs            | Verify Stacks API + ensure `gh-stack` extension                                               | Platform preview; no repo toggle                                                                                       |
-| State                  | Local `infra/github/*.tfstate` (gitignored)                                                   | Solo maintainer; no remote backend in v1                                                                               |
-| Auth                   | `GH_TOKEN` from `gh auth token` in Makefile                                                   | Fail fast if missing admin                                                                                             |
-| npm publish secrets    | Document environment / Trusted Publishing as follow-up; not required for v1 IaC               | Merge≈publish remains a residual risk until env gate lands                                                             |
+| Concern          | Choice                                                                                                  | Rationale                                                   |
+| ---------------- | ------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------- |
+| Approach         | Hybrid OpenTofu + `infra/github/Makefile`                                                               | IaC + idempotent operator surface                           |
+| Who can merge    | Fork contributors; no casual Write collaborators                                                        | Solo self-merge without a second reviewer                   |
+| Collaborators    | Authoritative intended set in OpenTofu                                                                  | Personal repo collaborator ≈ Write                          |
+| Reviews          | `required_approving_review_count = 0`                                                                   | Solo-maintainer compatible                                  |
+| Merge methods    | Squash only                                                                                             | Linear history                                              |
+| Up to date       | Strict required checks + `allow_update_branch`                                                          | Must merge/`update` from `main` before land                 |
+| Required checks  | `Commitlint`, `Validate`                                                                                | Existing CI names                                           |
+| Validate gate    | Fail closed + `infra/**` in scopes                                                                      | Status check must mean something                            |
+| Ruleset          | Active on `~DEFAULT_BRANCH`; no force-push                                                              | Protect `main`                                              |
+| Actions defaults | `read` + `can_approve_pull_request_reviews = true`                                                      | Least privilege; Changesets can still open version PRs      |
+| Publish          | Environment `npm-publish` + split Release jobs; OIDC Trusted Publishing preferred over long-lived token | Breaks automatic “any main push publishes with repo secret” |
+| State            | Local tfstate gitignored                                                                                | Solo v1                                                     |
+| Auth             | `gh auth token` → `GH_TOKEN`                                                                            | Admin required for apply                                    |
 
 ## Access model (contributor check)
 
 ```text
 Outside contributor  →  fork + PR  →  no repo Write  →  cannot merge
-Maintainer (owner)   →  merge squash to main after Commitlint + Validate (strict)
+Maintainer (owner)   →  squash-merge after Commitlint + Validate (strict)
+Version PR           →  Release “version” job (no npm credentials)
+Publish              →  Release “publish” job on Environment npm-publish (OIDC and/or env secret)
 ```
-
-- Do **not** add casual collaborators on this personal repository (GitHub only offers Write/`push` for non-owners).
-- Document in `docs/developer/github-project-controls.md` and contributor setup: use forks.
-- OpenTofu: `github_repository_collaborators` asserts the intended set (empty of non-owner users, or explicitly listed maintainers). `make check` / `make status` fail or warn if live collaborators diverge.
 
 ## Layout
 
 ```text
 infra/github/
-  Makefile              # check (default), apply, status, import helpers
+  Makefile
   versions.tf
   providers.tf
   variables.tf
   main.tf
   outputs.tf
   README.md
+.github/workflows/release.yml   # split version vs publish (see below)
 docs/developer/
   github-project-controls.md
 ```
-
-Update `docs/developer/repository-layout.md` to mention `infra/github/`.
 
 Gitignore: `.terraform/`, `*.tfstate`, `*.tfstate.*`. Commit `.terraform.lock.hcl`.
 
 ## OpenTofu resources
 
-1. **`github_repository` (imported)** — merge-related attrs only; `lifecycle { prevent_destroy = true }`:
-   - `allow_squash_merge = true`
-   - `allow_merge_commit = false`
-   - `allow_rebase_merge = false`
-   - `allow_update_branch = true`
-   - `delete_branch_on_merge = true`
-   - `squash_merge_commit_title = "PR_TITLE"`
-   - `squash_merge_commit_message = "PR_BODY"`
-2. **`github_repository_ruleset`** — `main-protection`; `~DEFAULT_BRANCH`; `enforcement = active`:
-   - `pull_request`: `allowed_merge_methods = ["squash"]`, `required_approving_review_count = 0`
-   - `required_status_checks`: `Commitlint`, `Validate`; `strict_required_status_checks_policy = true`
-   - `non_fast_forward = true`
-3. **`github_workflow_repository_permissions`** — `default_workflow_permissions = "read"`, `can_approve_pull_request_reviews = true`
-4. **`github_repository_collaborators`** — authoritative intended collaborators (no unexpected Write)
+1. **`github_repository` (imported)** — `prevent_destroy`; squash-only; `allow_update_branch`; `delete_branch_on_merge`; squash title `PR_TITLE` / message `PR_BODY`.
+2. **`github_repository_ruleset` `main-protection`** — PR + squash-only; 0 approvals; required `Commitlint` + `Validate` with `strict_required_status_checks_policy`; `non_fast_forward`.
+3. **`github_workflow_repository_permissions`** — `default_workflow_permissions = "read"`; `can_approve_pull_request_reviews = true`.
+4. **`github_repository_collaborators`** — authoritative intended users (no unexpected Write).
+5. **`github_repository_environment` `npm-publish`** — deployment branch policy restricted to `main` (and tags if needed later). **No** required reviewers (solo-maintainer incompatible). Optional wait timer (e.g. 5 minutes) for a cancel window. Environment is the only place that may hold `NPM_TOKEN` if OIDC is not yet configured.
 
-Variables: `github_owner`, `github_repository`, check context names, optional `maintainer_usernames` list.
+Variables: owner, repo, check contexts, `maintainer_usernames`, environment wait minutes.
 
-## CI companion change (same effort)
+**Manual one-time (documented, not fully automatable):** On npmjs.com, configure Trusted Publisher for this repo + workflow file `release.yml` + environment `npm-publish`. After OIDC works, delete any leftover repo/Environment `NPM_TOKEN`. `make status` can remind if repo-level `NPM_TOKEN` still exists (API may not list secret values; document checklist).
 
-`scripts/ci-validate.sh` (and docs): treat zero matched scopes on `pull_request` as failure; add `infra/**` to path scopes so IaC edits always run a gate.
+## Release workflow hardening
+
+Rewrite `.github/workflows/release.yml`:
+
+1. **Workflow-level `permissions`:** default to least privilege (`contents: read` at top if possible); elevate per job.
+2. **Job `version`** (push to `main` / `workflow_dispatch`):
+   - Permissions: `contents: write`, `pull-requests: write`
+   - **No** `environment`; **no** npm credentials
+   - Runs `changesets/action` in a mode that creates/updates the version PR when changesets are pending (same action; publish script omitted or publish job separated — implementation chooses the cleanest changesets/action pattern that never exposes npm auth on this job)
+3. **Job `publish`**:
+   - `environment: npm-publish`
+   - Permissions: `contents: write`, `id-token: write` (and `pull-requests: write` only if the action still needs it)
+   - Uses OIDC Trusted Publishing (`id-token: write`); fallback `NPM_TOKEN` from **environment** secrets only if OIDC not ready
+   - Runs only when there is something to publish (e.g. after version PR merge / action `published` conditions — exact `if:` settled in implementation plan)
+
+Keep action SHA pins and `persist-credentials: false`.
+
+## CI companion
+
+`scripts/ci-validate.sh`:
+
+- On `pull_request` (or when not `main` / not `FORCE_FULL`): if docs/csharp/native all 0 after scoping → **exit 1** with a clear message (fail closed).
+- Add path scopes that mark tooling/full or at least run a gate: `infra/**` (and ensure `.github/**` continues to force full validate).
 
 ## Makefile operator model (idempotent)
 
-**Default: `make check`**
+**`make check` (default):** preflight → init → auto-import if needed → `tofu plan -detailed-exitcode` (0 sync / 2 drift / 1 error) → stacks + `gh-stack` → collaborator inventory match → remind publish Environment / Trusted Publishing checklist.
 
-1. Preflight: `tofu`, `gh`; `gh auth status`; `GH_TOKEN=$(gh auth token)`.
-2. `tofu init` when needed (safe to re-run).
-3. Auto-import missing state objects (repo, workflow permissions); skip if present.
-4. `tofu plan -detailed-exitcode` → 0 in sync / 2 drift (tell operator `make apply`) / 1 error.
-5. Side checks: Stacks API OK; `gh-stack` installed if missing; collaborator list matches intended set.
+**`make apply`:** converge OpenTofu (idempotent).
 
-**`make apply`** — same preflight; `tofu apply` (`APPLY_AUTO=1` for non-interactive). Idempotent.
+**`make status`:** raw `gh api` for merge settings, rulesets, Actions perms, collaborators, environments, stacks.
 
-**`make status`** — raw `gh api` snapshot (merge, rulesets, Actions perms, collaborators, stacks).
-
-**Invariant:** Never destroy the GitHub repository.
-
-Loop: `make check` → drift → `make apply` → `make check`.
-
-## Stacked PRs
-
-Document `gh stack` / UI; Makefile only verifies availability. Branch rules still govern `main`.
+Never destroy the GitHub repository.
 
 ## Docs
 
-`docs/developer/github-project-controls.md`: access model (forks vs Write), Make targets, Actions create-PR permission, stacks, residual publish risk.
+`docs/developer/github-project-controls.md`: access model, Make targets, Actions create-PR flag, Environment + Trusted Publishing setup checklist, stacks.
 
-Cross-link from `commits-and-releases.md`, `contributor-setup.md`, `repository-layout.md`.
+Update: `commits-and-releases.md`, `contributor-setup.md` (forks), `repository-layout.md`.
 
-## Out of scope (v1)
+## Out of scope
 
-- Required PR approvals / CODEOWNERS (solo-maintainer incompatible)
+- Required PR approvals / CODEOWNERS-as-merge-gate (solo incompatible)
+- Environment required reviewers / forbid self-review (needs a second human)
 - Merge queue
 - Remote OpenTofu state
-- Wiring npm Environment / OIDC Trusted Publishing (document only; follow-up)
-- Classic branch protection API
 - Org-level policies
 - Automating stack creation
-
-## Security review notes (2026-08-29)
-
-Addressed in this revision: maintainer-only via access model; Actions default **read**; Validate fail-closed + `infra/**`. Residual: merge to `main` still triggers Release/`NPM_TOKEN` until an Environment or Trusted Publishing follow-up.
+- Automating npmjs.com Trusted Publisher UI (document checklist only)
 
 ## References
 
-- [GitHub repository rulesets](https://registry.terraform.io/providers/integrations/github/latest/docs/resources/repository_ruleset)
-- [github_workflow_repository_permissions](https://registry.terraform.io/providers/integrations/github/latest/docs/resources/workflow_repository_permissions)
-- [github_repository_collaborators](https://registry.terraform.io/providers/integrations/github/latest/docs/resources/repository_collaborators)
+- [repository_ruleset](https://registry.terraform.io/providers/integrations/github/latest/docs/resources/repository_ruleset)
+- [workflow_repository_permissions](https://registry.terraform.io/providers/integrations/github/latest/docs/resources/workflow_repository_permissions)
+- [repository_collaborators](https://registry.terraform.io/providers/integrations/github/latest/docs/resources/repository_collaborators)
+- [repository_environment](https://registry.terraform.io/providers/integrations/github/latest/docs/resources/repository_environment)
+- [npm Trusted Publishers](https://docs.npmjs.com/trusted-publishers)
 - [Stacked PRs preview](https://github.blog/changelog/2026-07-30-stacked-pull-requests-are-now-in-public-preview/)
-- `.github/workflows/ci.yml` job names: `Commitlint`, `Validate`
