@@ -51,8 +51,8 @@ typedef struct {
 } MTTouch;
 
 typedef void *MTDeviceRef;
-typedef int (*MTContactCallbackFunction)(MTDeviceRef device, MTTouch *touches, int numTouches,
-                                         double timestamp, int frame);
+typedef void (*MTContactCallbackFunction)(MTDeviceRef device, MTTouch *touches, int numTouches,
+                                          double timestamp, int frame);
 
 typedef CFMutableArrayRef (*MTDeviceCreateListFn)(void);
 typedef void (*MTRegisterContactFrameCallbackFn)(MTDeviceRef, MTContactCallbackFunction);
@@ -63,6 +63,7 @@ static MTDeviceCreateListFn g_MTDeviceCreateList;
 static MTRegisterContactFrameCallbackFn g_MTRegisterContactFrameCallback;
 static MTDeviceStartFn g_MTDeviceStart;
 static MTDeviceStopFn g_MTDeviceStop;
+static int g_debug;
 
 static pthread_mutex_t g_client_mu = PTHREAD_MUTEX_INITIALIZER;
 static int g_client_fd = -1;
@@ -103,11 +104,15 @@ static float touch_distance(const MTTouch *a, const MTTouch *b) {
     return sqrtf(dx * dx + dy * dy);
 }
 
-static int contact_callback(MTDeviceRef device, MTTouch *touches, int numTouches, double timestamp,
-                            int frame) {
+static void contact_callback(MTDeviceRef device, MTTouch *touches, int numTouches, double timestamp,
+                             int frame) {
     (void)device;
     (void)timestamp;
     (void)frame;
+
+    if (g_debug) {
+        fprintf(stderr, "TrackpadBridge: contacts=%d\n", numTouches);
+    }
 
     GestureFrame out;
     memset(&out, 0, sizeof(out));
@@ -124,7 +129,7 @@ static int contact_callback(MTDeviceRef device, MTTouch *touches, int numTouches
             g_pinch_active = 0;
             g_last_distance = -1.f;
         }
-        return 0;
+        return;
     }
 
     float dist = touch_distance(&touches[0], &touches[1]);
@@ -134,7 +139,7 @@ static int contact_callback(MTDeviceRef device, MTTouch *touches, int numTouches
         g_pinch_active = 1;
         g_last_distance = dist;
         send_frame(&out);
-        return 0;
+        return;
     }
 
     float delta = 0.f;
@@ -146,7 +151,6 @@ static int contact_callback(MTDeviceRef device, MTTouch *touches, int numTouches
     out.phase = GesturePhase_Changed;
     out.pinchScaleDelta = delta;
     send_frame(&out);
-    return 0;
 }
 
 static int load_multitouch(void) {
@@ -277,6 +281,7 @@ int main(int argc, char **argv) {
 
     signal(SIGINT, on_signal);
     signal(SIGTERM, on_signal);
+    g_debug = getenv("TRACKPAD_BRIDGE_DEBUG") != NULL;
 
     if (load_multitouch() != 0) {
         return 1;

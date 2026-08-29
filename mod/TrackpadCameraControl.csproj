@@ -1,6 +1,7 @@
 <!--
-  Phase-1 scaffold: format/check only. No Cities: Skylines or CitiesHarmony
-  assembly references yet — those land when gameplay implementation starts.
+  Builds without Cities: Skylines when Managed DLLs are absent (CI / docs tooling).
+  When ICities.dll is found (macOS Steam default or CitiesManaged=), enables
+  HAS_CITIES and references game assemblies for in-game load.
 -->
 <Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
@@ -11,5 +12,30 @@
         <RootNamespace>TrackpadCameraControl</RootNamespace>
         <AssemblyName>TrackpadCameraControl</AssemblyName>
         <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
+        <CitiesManaged Condition="'$(CitiesManaged)' == '' and '$(HOME)' != ''"
+            >$(HOME)/Library/Application Support/Steam/steamapps/common/Cities_Skylines/Cities.app/Contents/Resources/Data/Managed</CitiesManaged>
     </PropertyGroup>
+
+    <PropertyGroup Condition="Exists('$(CitiesManaged)/ICities.dll')">
+        <DefineConstants>$(DefineConstants);HAS_CITIES</DefineConstants>
+    </PropertyGroup>
+
+    <ItemGroup Condition="Exists('$(CitiesManaged)/ICities.dll')">
+        <Reference Include="ICities">
+            <HintPath>$(CitiesManaged)/ICities.dll</HintPath>
+            <Private>false</Private>
+        </Reference>
+        <Reference Include="Assembly-CSharp">
+            <HintPath>$(CitiesManaged)/Assembly-CSharp.dll</HintPath>
+            <Private>false</Private>
+        </Reference>
+        <Reference Include="ColossalManaged">
+            <HintPath>$(CitiesManaged)/ColossalManaged.dll</HintPath>
+            <Private>false</Private>
+        </Reference>
+        <Reference Include="UnityEngine">
+            <HintPath>$(CitiesManaged)/UnityEngine.dll</HintPath>
+            <Private>false</Private>
+        </Reference>
+    </ItemGroup>
 </Project>

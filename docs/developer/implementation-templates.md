@@ -4,23 +4,22 @@ Phase 1 ships docs plus format-ready scaffolds under `mod/` and `native/mac/`. T
 
 ## Template index
 
-| Template | Purpose |
-| --- | --- |
-| `templates/mod/IUserMod.cs.template` | CitiesHarmony-safe mod entry (no HarmonyLib in IUserMod) |
-| `templates/mod/ModSettings.cs.template` | Settings object matching [settings schema](./settings-schema.md) |
-| `templates/mod/GestureBindingResolver.cs.template` | Map IPC primitives → camera ops from live settings |
-| `templates/mod/CameraApplicator.cs.template` | Apply deltas to CameraController targets |
+| Template                                              | Purpose                                                          |
+| ----------------------------------------------------- | ---------------------------------------------------------------- |
+| `templates/mod/IUserMod.cs.template`                  | CitiesHarmony-safe mod entry (no HarmonyLib in IUserMod)         |
+| `templates/mod/ModSettings.cs.template`               | Settings object matching [settings schema](./settings-schema.md) |
+| `templates/mod/GestureBindingResolver.cs.template`    | Map IPC primitives → camera ops from live settings               |
+| `templates/mod/CameraApplicator.cs.template`          | Apply deltas to CameraController targets                         |
 | `templates/native/mac/TrackpadBridge.main.c.template` | First backend (macOS) — native multitouch + socket loop skeleton |
-| `templates/native/stub/README.md` | Win/Linux unsupported backend notes |
-| `templates/shared/gesture-frame.md` | Human-readable wire field list aligned with IPC shard |
+| `templates/native/stub/README.md`                     | Win/Linux unsupported backend notes                              |
+| `templates/shared/gesture-frame.md`                   | Human-readable wire field list aligned with IPC shard            |
 
-## Quick-start order (later phases)
+## Quick-start order (MVP+)
 
-1. Copy mod templates into `mod/`; wire CitiesHarmony.API.
-2. Implement ModSettings + Options UI bound to every schema field.
-3. Spike TrackpadBridge logging primitives to stdout.
-4. Connect IPC; show debug overlay.
-5. Fill CameraApplicator; tune default seeds; update settings-schema defaults.
+1. `cd native/mac && make && ./TrackpadBridge` — Multitouch → Unix socket.
+2. `./scripts/install-mod-local.sh` — build + copy DLL to Addons/Mods (see [local MVP install](./local-mvp-install.md)).
+3. Enable mod in Content Manager; pinch zooms when the bridge is running.
+4. Later: Options UI, more gestures, in-process deploy backend.
 
 ## Do not
 

@@ -2,12 +2,12 @@
 
 ## Where scope lives
 
-| Kind | Location |
-| --- | --- |
-| Durable contracts | `docs/features/`, `docs/client/`, `docs/developer/` |
-| Architecture decisions | `docs/features/adr/` |
-| Temporary tasks / bugs | GitHub Issues on this repository |
-| Session plan | Cursor plan / issue body — not durable shards |
+| Kind                   | Location                                            |
+| ---------------------- | --------------------------------------------------- |
+| Durable contracts      | `docs/features/`, `docs/client/`, `docs/developer/` |
+| Architecture decisions | `docs/features/adr/`                                |
+| Temporary tasks / bugs | GitHub Issues on this repository                    |
+| Session plan           | Cursor plan / issue body — not durable shards       |
 
 ## Delivery conventions
 
@@ -20,4 +20,4 @@
 
 ## Current phase
 
-**Phase 1 — Docs and high-level design** (this tree). Implementation templates are placeholders for phase 2+.
+**MVP — pinch → zoom proof** on macOS (TrackpadBridge IPC + C# mod). Full presets / Options and in-process deploy capture come next.

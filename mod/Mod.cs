@@ -1,23 +1,56 @@
-// CitiesHarmony: do NOT reference HarmonyLib from IUserMod.
+#if HAS_CITIES
+using ICities;
+#endif
 
 namespace TrackpadCameraControl
 {
-    public class Mod // : IUserMod
+    public class Mod
+#if HAS_CITIES
+        : IUserMod
+#endif
     {
         public string Name => "Trackpad Camera Control";
         public string Description =>
-            "Trackpad multitouch camera — pan, orbit, zoom. Hot-configurable Options.";
+            "Trackpad multitouch camera — pinch zoom MVP. Hot-configurable Options later.";
+
+        public static ModSettings Settings { get; private set; }
+        public static GesturePipeline Pipeline { get; private set; }
 
         public void OnEnabled()
         {
-            // HarmonyHelper.DoOnHarmonyReady(Patcher.PatchAll);
-            // Start or connect TrackpadBridge when settings.BridgeEnabled
+            try
+            {
+                Settings = new ModSettings();
+                IGestureSource source = Settings.BridgeEnabled
+                    ? (IGestureSource)new IpcGestureSource()
+                    : new InProcessGestureSource();
+                Pipeline = new GesturePipeline(Settings, source);
+                if (Settings.BridgeEnabled)
+                {
+                    source.Connect(); // fail soft if bridge not running
+                }
+            }
+            catch
+            {
+                // Fail soft: leave vanilla input alone.
+                Settings = new ModSettings();
+                Pipeline = new GesturePipeline(Settings, new InProcessGestureSource());
+            }
         }
 
         public void OnDisabled()
         {
-            // Patcher.UnpatchAll();
-            // Stop bridge
+            try
+            {
+                Pipeline?.Shutdown();
+            }
+            catch
+            {
+                // ignore
+            }
+
+            Pipeline = null;
+            Settings = null;
         }
     }
 }

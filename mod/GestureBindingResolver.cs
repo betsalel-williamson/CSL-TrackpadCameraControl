@@ -1,5 +1,3 @@
-// Map IPC primitives → camera ops using live ModSettings (hot).
-
 namespace TrackpadCameraControl
 {
     public enum CameraOp
@@ -13,13 +11,30 @@ namespace TrackpadCameraControl
 
     public static class GestureBindingResolver
     {
-        public static CameraOp Resolve( /* GestureFrame frame, */
-            ModSettings settings
-        )
+        public static CameraOp Resolve(GestureFrame frame, ModSettings settings)
         {
-            // Read settings every call — no cached hardcoded binding table.
-            // Maps+: Modifier+2 finger → Orbit; CAD: 3 finger → Orbit; etc.
-            _ = settings;
+            if (settings == null || !settings.ZoomEnabled)
+            {
+                return CameraOp.None;
+            }
+
+            float pinch = frame.pinchScaleDelta;
+            if (pinch < 0f)
+            {
+                pinch = -pinch;
+            }
+
+            if (pinch <= settings.PinchEpsilon)
+            {
+                return CameraOp.None;
+            }
+
+            // MVP: any significant pinch maps to zoom (Maps+ seed).
+            if (frame.fingerCount >= 2 || frame.phase == (int)GesturePhase.Changed)
+            {
+                return CameraOp.Zoom;
+            }
+
             return CameraOp.None;
         }
     }
