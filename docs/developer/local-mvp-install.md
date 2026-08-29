@@ -27,6 +27,14 @@ dotnet run --project src/TrackpadBridge
 
 Optional: `TRACKPAD_BRIDGE_DEBUG=1` logs contact counts; `TRACKPAD_BRIDGE_SOCKET=/path/to.sock` overrides the socket.
 
+To use Apple AppKit events instead of Multitouch contacts (in-process, no Accessibility), launch the **game** with:
+
+```bash
+TRACKPAD_CAPTURE_BACKEND=apple
+```
+
+Default is `contacts` (bridge Multitouch). You can also set `ModSettings.CaptureBackend` in memory. Env wins when set. Apple mode does not need TrackpadBridge.
+
 The prior native C `make` target under `native/mac/` is retired; do not use it for MVP install.
 
 ## In game
@@ -35,7 +43,7 @@ The prior native C `make` target under `native/mac/` is retired; do not use it f
 2. Enable **Trackpad Camera Control** in Content Manager.
 3. Load a city; keep the game focused; pinch and two-finger-drag on the trackpad.
 
-If the bridge is not running, the mod stays enabled and gestures do nothing (fail soft). Vanilla scroll-zoom and mouse-drag rotate stay suppressed until you disable the mod.
+If the bridge is not running and capture is Contacts, the mod stays enabled and gestures do nothing (fail soft). AppleGestures does not use the bridge. Vanilla scroll-zoom and mouse-drag rotate stay suppressed until you disable the mod.
 
 ### Content Manager version warning
 

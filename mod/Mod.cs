@@ -38,9 +38,7 @@ namespace TrackpadCameraControl
                 else
                 {
                     InjectSource = null;
-                    source = Settings.BridgeEnabled
-                        ? (IGestureSource)new IpcGestureSource()
-                        : new InProcessGestureSource();
+                    source = CreateCaptureSource(Settings);
                 }
 
                 Pipeline = new GesturePipeline(Settings, source);
@@ -143,6 +141,21 @@ namespace TrackpadCameraControl
             }
 
             return false;
+        }
+
+        internal static IGestureSource CreateCaptureSource(ModSettings settings)
+        {
+            if (CaptureBackendFlags.Resolve(settings) == CaptureBackend.AppleGestures)
+            {
+                return new AppleGestureSource();
+            }
+
+            if (settings != null && settings.BridgeEnabled)
+            {
+                return new IpcGestureSource();
+            }
+
+            return new InProcessGestureSource();
         }
     }
 }

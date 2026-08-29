@@ -61,6 +61,12 @@ namespace TrackpadCameraControl
         public bool DebugOverlay { get; set; }
 
         /// <summary>
+        /// Contacts = MultitouchSupport via TrackpadBridge. AppleGestures = in-process AppKit.
+        /// Overridden by TRACKPAD_CAPTURE_BACKEND when that env var is set.
+        /// </summary>
+        public CaptureBackend CaptureBackend { get; set; } = CaptureBackend.Contacts;
+
+        /// <summary>
         /// Seeds orbit trigger (and related defaults) from Maps+ or CAD. Custom is a no-op.
         /// </summary>
         public void ApplyPreset(GesturePreset preset)

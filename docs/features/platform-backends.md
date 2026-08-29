@@ -22,10 +22,10 @@ A backend must:
 
 ## macOS (v1)
 
-- **Dev:** TrackpadBridge console host loads Multitouch via TrackpadCapture and serves local IPC (same wire contract as before).
-- **Deploy:** same Capture library runs in-process behind the same primitives ([ADR 0001](./adr/0001-native-multitouch-bridge.md)).
+- **Contacts (default):** TrackpadBridge loads Multitouch via TrackpadCapture and serves local IPC. Selected when `CaptureBackend` is Contacts.
+- **AppleGestures (spike flag):** in-process AppKit local monitor in the mod (scroll / magnify / rotate → same primitives). No Accessibility. Does not use the bridge. Selected when `CaptureBackend` is AppleGestures, or `TRACKPAD_CAPTURE_BACKEND=apple`.
 - Maps+ orbit modifier defaults to Option.
-- Client notes for Mission Control / Accessibility live under the client guide’s platform conflicts shard.
+- Client notes for Mission Control live under the client guide’s platform conflicts shard.
 
 ## Windows / Linux (stubs)
 

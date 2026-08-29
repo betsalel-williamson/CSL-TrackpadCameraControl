@@ -72,12 +72,15 @@ Exact default numbers are tuned during implementation; change them only in the d
 
 ## Gates and bridge
 
-| Field            | Type | Default | Hot |
-| ---------------- | ---- | ------- | --- |
-| RequireGameFocus | bool | true    | yes |
-| IgnoreOverUi     | bool | true    | yes |
-| BridgeEnabled    | bool | true    | yes |
-| DebugOverlay     | bool | false   | yes |
+| Field            | Type                          | Default  | Hot |
+| ---------------- | ----------------------------- | -------- | --- |
+| RequireGameFocus | bool                          | true     | yes |
+| IgnoreOverUi     | bool                          | true     | yes |
+| BridgeEnabled    | bool                          | true     | yes |
+| CaptureBackend   | enum: Contacts, AppleGestures | Contacts | yes |
+| DebugOverlay     | bool                          | false    | yes |
+
+`CaptureBackend` selects the interpreter: **Contacts** is MultitouchSupport via TrackpadBridge (current path). **AppleGestures** is in-process AppKit scroll/magnify/rotate (no Accessibility). Launch override: `TRACKPAD_CAPTURE_BACKEND=apple` or `contacts` (env wins when set).
 
 ## Validation rule
 
