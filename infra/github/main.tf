@@ -104,20 +104,3 @@ resource "github_repository_collaborators" "this" {
     }
   }
 }
-
-resource "github_repository_environment" "npm_publish" {
-  repository  = github_repository.this.name
-  environment = "npm-publish"
-
-  wait_timer          = var.npm_publish_wait_timer_minutes > 0 ? var.npm_publish_wait_timer_minutes : null
-  can_admins_bypass   = true
-  prevent_self_review = false
-
-  # Require protected/ruleset-covered branches (main ruleset) for deploys.
-  deployment_branch_policy {
-    protected_branches     = true
-    custom_branch_policies = false
-  }
-
-  depends_on = [github_repository_ruleset.main]
-}

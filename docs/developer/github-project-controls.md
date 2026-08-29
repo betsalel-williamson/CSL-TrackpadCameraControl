@@ -1,6 +1,6 @@
 # GitHub project controls
 
-Declarative controls for this public repository: squash-only `main`, required CI, fork-based contributors, and a gated npm publish path.
+Declarative controls for this public repository: squash-only `main`, required CI, and fork-based contributors.
 
 ## Access model (who can merge)
 
@@ -31,20 +31,16 @@ See [infra/github/README.md](../../infra/github/README.md).
 - Ruleset `main-protection` on default branch: PR + squash; `Commitlint` + `Validate` with strict up-to-date; no force-push
 - Actions workflow defaults: `read`; allow Actions to create version PRs
 - Authoritative collaborator inventory
-- Environment `npm-publish` (wait timer; protected-branch deploys only)
 
-## Release / publish
+## Versioning vs player distribution
 
-`.github/workflows/release.yml`:
+| Path                                 | Role                                                           |
+| ------------------------------------ | -------------------------------------------------------------- |
+| Changesets + Release **Version** job | Semver + `CHANGELOG.md` via version PR                         |
+| **Steam Workshop**                   | How the mod community installs the mod (upload/automation TBD) |
+| npm registry                         | **Not used** — no CI publish                                   |
 
-1. **Version** job — creates the Changesets version PR; no npm credentials.
-2. **Publish** job — runs only when there are no pending changesets; uses Environment **`npm-publish`**. Prefer [npm Trusted Publishing (OIDC)](https://docs.npmjs.com/trusted-publishers) for workflow `release.yml` + environment `npm-publish`. Optional fallback: Environment secret `NPM_TOKEN` (not a repository secret).
-
-Checklist:
-
-1. `cd infra/github && make apply`
-2. On npmjs.com → package → Trusted Publisher → GitHub Actions → repo + `release.yml` + `npm-publish`
-3. Remove any leftover repository-level `NPM_TOKEN` after OIDC works
+`.github/workflows/release.yml` only opens/updates the Changesets version PR. It does not publish packages.
 
 ## Stacked PRs
 

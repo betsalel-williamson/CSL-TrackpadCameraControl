@@ -48,13 +48,10 @@ npm run changeset:status    # list pending changesets
 npm run version-packages    # apply changesets → version + CHANGELOG (maintainers)
 ```
 
-This package is **public** (`publishConfig.access` / changesets `access: public`). Publish when maintainers run a release; Workshop/mod DLL shipping is separate from the npm package version.
+This package uses Changesets for **version + CHANGELOG** only. Players install the mod from **Steam Workshop** (upload/automation TBD). This project does **not** publish to the npm registry.
 
 ## Release workflow
 
-On push to `main`, `.github/workflows/release.yml`:
+On push to `main`, `.github/workflows/release.yml` opens/updates the Changesets **version PR** only (no registry publish).
 
-1. **Version** — opens/updates the Changesets version PR (no npm credentials).
-2. **Publish** — runs only when there are no pending changesets; uses GitHub Environment **`npm-publish`** (OIDC Trusted Publishing preferred; optional Environment `NPM_TOKEN`).
-
-Branch protection, merge policy, and Environment setup: [GitHub project controls](./github-project-controls.md).
+Branch protection and merge policy: [GitHub project controls](./github-project-controls.md).

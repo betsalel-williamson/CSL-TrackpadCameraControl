@@ -23,7 +23,6 @@ make check
 
 State files are gitignored. Provider lockfile (`.terraform.lock.hcl`) is committed after first `tofu init`.
 
-## Manual follow-ups
+## Distribution note
 
-1. Move any repo-level `NPM_TOKEN` to Environment secret `npm-publish` / `NPM_TOKEN`, or prefer [npm Trusted Publishing](https://docs.npmjs.com/trusted-publishers) for `release.yml` + environment `npm-publish`.
-2. Outside contributors must use **forks** — do not grant Write collaborators on this personal repo.
+Changesets + the Release workflow manage **version + CHANGELOG** only. Players get the mod via **Steam Workshop** (automation TBD). This repo does **not** publish to npm.

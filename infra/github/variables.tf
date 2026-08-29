@@ -21,9 +21,3 @@ variable "maintainer_usernames" {
   description = "Non-owner users allowed Write (personal repos: permission push). Prefer empty — use forks."
   default     = []
 }
-
-variable "npm_publish_wait_timer_minutes" {
-  type        = number
-  description = "Optional delay before npm-publish environment jobs start (cancel window). 0 disables."
-  default     = 5
-}

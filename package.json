@@ -11,9 +11,6 @@
     "url": "https://github.com/betsalel-williamson/CSL-TrackpadCameraControl/issues"
   },
   "homepage": "https://github.com/betsalel-williamson/CSL-TrackpadCameraControl#readme",
-  "publishConfig": {
-    "access": "public"
-  },
   "scripts": {
     "prepare": "husky",
     "bootstrap": "bash scripts/bootstrap-dev.sh",

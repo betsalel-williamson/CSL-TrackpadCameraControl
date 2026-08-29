@@ -24,10 +24,10 @@ CSL-TrackpadCameraControl/
 
 ## Naming
 
-| Surface            | Name                        |
-| ------------------ | --------------------------- |
-| Display / Workshop | Trackpad Camera Control     |
-| GitHub repo        | CSL-TrackpadCameraControl   |
-| npm package (docs) | csl-trackpad-camera-control |
+| Surface            | Name                                                            |
+| ------------------ | --------------------------------------------------------------- |
+| Display / Workshop | Trackpad Camera Control                                         |
+| GitHub repo        | CSL-TrackpadCameraControl                                       |
+| npm workspace name | csl-trackpad-camera-control (local tooling only; not published) |
 
 Search keywords: trackpad, touchpad, multitouch, pinch, camera, Cities Skylines, orbit, pan, zoom (plus Mac/Windows as backend tags, not product identity).

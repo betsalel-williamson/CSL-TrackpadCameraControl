@@ -36,10 +36,6 @@ import-if-needed: init
 	  if ! tofu state list 2>/dev/null | grep -qx 'github_repository_collaborators.this'; then \
 	    echo "==> importing github_repository_collaborators.this"; \
 	    tofu import -input=false github_repository_collaborators.this "$(REPO_NAME)" || true; \
-	  fi && \
-	  if ! tofu state list 2>/dev/null | grep -qx 'github_repository_environment.npm_publish'; then \
-	    echo "==> importing github_repository_environment.npm_publish (if exists)"; \
-	    tofu import -input=false 'github_repository_environment.npm_publish' "$(REPO_NAME):npm-publish" 2>/dev/null || true; \
 	  fi
 
 plan: import-if-needed
@@ -62,7 +58,8 @@ stacks-side-checks: preflight
 	  else \
 	    echo "==> gh-stack extension: present"; \
 	  fi
-	@echo "==> reminder: configure npm Trusted Publisher for workflow release.yml + environment npm-publish; store NPM_TOKEN only as an Environment secret if OIDC is not yet ready"
+	@echo "==> reminder: player distribution is Steam Workshop (not npm); Changesets only bumps version + CHANGELOG"
+
 
 check: plan stacks-side-checks
 	@echo "==> check ok"
