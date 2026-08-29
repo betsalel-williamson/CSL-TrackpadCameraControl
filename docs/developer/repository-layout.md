@@ -5,15 +5,18 @@ Target layout (phase 1 has docs only; later phases fill code trees):
 ```text
 CSL-TrackpadCameraControl/
   docs/                 # MDCP shards (source of truth for intent)
-  mod/                  # C# Cities: Skylines I mod (CitiesHarmony)
-  native/mac/           # TrackpadBridge
+  mod/                  # C# Cities: Skylines I mod scaffold (CitiesHarmony later)
+  native/mac/           # TrackpadBridge (format-ready C seed)
   native/win/           # stub
   native/linux/         # stub
-  shared/protocol/      # IPC frame schema
+  shared/protocol/      # IPC frame schema (later)
   templates/            # Copy-paste scaffolds for quick development
+  scripts/              # Contributor helpers (e.g. clang-format)
+  .github/workflows/    # Docs + code-format CI
+  TrackpadCameraControl.sln
   README.md
   LICENSE
-  package.json          # docs tooling (mdcp)
+  package.json          # docs + format orchestration
 ```
 
 ## Naming

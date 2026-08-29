@@ -10,8 +10,11 @@ From the repository root:
 npm install
 npm run docs:compile
 npm run docs:check
-npm run docs          # compile then check
+npm run docs          # compile then check (markdownlint required via --require-lint)
+npm run format:docs   # prettier / markdownlint auto-fix via mdcp fix
 ```
+
+For C# and native format tooling, see [lint and format](./lint-and-format.md).
 
 ## Rules
 

@@ -37,7 +37,8 @@ Sharded docs via [MDCP](https://github.com/betsalel-williamson/mdcp):
 
 ```bash
 npm install
-npm run docs          # compile + check
+npm run docs          # compile + check (lint required)
+npm run format:check  # csharpier + clang-format (see docs/developer/lint-and-format.md)
 ```
 
 | Guide | Path |

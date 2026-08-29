@@ -1,6 +1,6 @@
 # Implementation templates
 
-Phase 1 is docs-only. When coding starts, copy scaffolds from `templates/` at the repo root. Templates are **starting points**, not durable product docs — keep contracts in `docs/features/`.
+Phase 1 ships docs plus format-ready scaffolds under `mod/` and `native/mac/`. Templates under `templates/` remain the copy-paste source of truth for new files — keep contracts in `docs/features/`.
 
 ## Template index
 
