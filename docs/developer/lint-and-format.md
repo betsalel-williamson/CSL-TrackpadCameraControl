@@ -10,10 +10,10 @@ Use the automated bootstrap when possible — see [contributor setup](./contribu
 ./scripts/bootstrap-dev.sh --install-tools
 ```
 
-| Tool | Purpose |
-| --- | --- |
-| Node.js 18+ | MDCP docs compile / check / fix |
-| .NET SDK 8+ | Local CSharpier tool (`dotnet tool restore`) |
+| Tool         | Purpose                                                   |
+| ------------ | --------------------------------------------------------- |
+| Node.js 18+  | MDCP docs compile / check / fix                           |
+| .NET SDK 8+  | Local CSharpier tool (`dotnet tool restore`)              |
 | clang-format | Native C style (LLVM/Xcode or `apt install clang-format`) |
 
 On macOS, Xcode’s `clang-format` is enough if it is on `PATH` (the `format:native` script also probes the default Xcode toolchain path).
@@ -40,6 +40,4 @@ GitHub Actions (`.github/workflows/ci.yml`) on push/PR to `main`:
 1. **Docs** — `npm ci` then `npm run docs` (`--require-lint`)
 2. **Code format** — CSharpier check on `mod/`, clang-format dry-run on `native/**/*.{c,h}`
 
-Format before opening a PR; CI will fail if style drifts.
-
-Commit messages and releases: see [commits and releases](./commits-and-releases.md).
+Format before opening a PR; CI will fail if style drifts. Locally, husky **pre-commit** formats staged files and **pre-push** runs the same format + docs gates — see [commits and releases](./commits-and-releases.md).

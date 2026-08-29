@@ -2,18 +2,13 @@
 # Format or check native C sources with clang-format.
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+# shellcheck source=ensure-tool-path.sh
+source "$ROOT/scripts/ensure-tool-path.sh"
 cd "$ROOT"
 
 if ! command -v clang-format >/dev/null 2>&1; then
-  # Prefer Xcode toolchain on macOS when clang-format is not on PATH.
-  XCODE_CF="/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang-format"
-  if [[ -x "$XCODE_CF" ]]; then
-    PATH="$(dirname "$XCODE_CF"):$PATH"
-    export PATH
-  else
-    echo "clang-format not found on PATH (install LLVM or Xcode Command Line Tools)" >&2
-    exit 1
-  fi
+  echo "clang-format not found on PATH (install LLVM or Xcode Command Line Tools)" >&2
+  exit 1
 fi
 
 # Portable file list (macOS ships Bash 3 — no mapfile).

@@ -1,5 +1,17 @@
 # Commits and releases
 
+## Git hooks (husky)
+
+Hooks are installed by `npm install` / bootstrap (`prepare` → husky). Same entrypoints run from husky and npm so local and CI expectations stay aligned:
+
+| Hook         | Command                    | What it does                                                                                                                          |
+| ------------ | -------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
+| `pre-commit` | `npm run hooks:pre-commit` | **lint-staged**: Prettier on staged JSON/YAML/Markdown; CSharpier on staged `mod/**/*.cs`; clang-format on staged `native/**/*.{c,h}` |
+| `commit-msg` | commitlint                 | Conventional Commits subject                                                                                                          |
+| `pre-push`   | `npm run hooks:pre-push`   | Full `format:check` + `docs` (same gates as CI docs/format jobs)                                                                      |
+
+Emergency skip (local only): `HUSKY=0 git commit …` or `HUSKY=0 git push …`. Prefer fixing the failure over skipping.
+
 ## Conventional commits
 
 Commit messages must follow [Conventional Commits](https://www.conventionalcommits.org/) (enforced by commitlint + husky `commit-msg`):

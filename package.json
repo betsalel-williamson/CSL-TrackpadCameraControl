@@ -30,10 +30,23 @@
     "format": "npm run format:docs && npm run format:csharp && npm run format:native",
     "format:check": "npm run format:csharp:check && npm run format:native:check",
     "docs": "npm run docs:compile && npm run docs:check",
+    "hooks:pre-commit": "bash scripts/hooks-pre-commit.sh",
+    "hooks:pre-push": "bash scripts/hooks-pre-push.sh",
     "changeset": "changeset",
     "changeset:status": "changeset status",
     "version-packages": "changeset version",
     "commitlint": "commitlint --from HEAD~1 --to HEAD --verbose"
+  },
+  "lint-staged": {
+    "*.{json,jsonc,yml,yaml,md}": [
+      "prettier --write"
+    ],
+    "mod/**/*.cs": [
+      "bash scripts/lint-staged-csharpier.sh"
+    ],
+    "native/**/*.{c,h}": [
+      "bash scripts/lint-staged-clang-format.sh"
+    ]
   },
   "devDependencies": {
     "@bwilliamson/mdcp-cli": "^0.7.4",
@@ -42,6 +55,7 @@
     "@commitlint/cli": "^21.2.1",
     "@commitlint/config-conventional": "^21.0.2",
     "husky": "^9.1.7",
+    "lint-staged": "^17.4.1",
     "markdownlint-cli2": "^0.18.1",
     "prettier": "^3.6.2"
   },
