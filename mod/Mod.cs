@@ -20,7 +20,7 @@ namespace TrackpadCameraControl
 
         public static ModSettings Settings { get; private set; }
         public static GesturePipeline Pipeline { get; private set; }
-        public static InjectGestureSource InjectSource { get; private set; }
+        public static InjectGestureSource InjectSource { get; internal set; }
 
         public void OnEnabled()
         {
@@ -97,7 +97,7 @@ namespace TrackpadCameraControl
                     return true;
                 }
 
-                string asmDir = Path.GetDirectoryName(typeof(Mod).Assembly.Location);
+                string asmDir = Path.GetDirectoryName(typeof(GestureFrame).Assembly.Location);
                 if (
                     !string.IsNullOrEmpty(asmDir)
                     && File.Exists(Path.Combine(asmDir, E2eInjectFlagFileName))

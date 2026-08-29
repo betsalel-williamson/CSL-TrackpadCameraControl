@@ -16,7 +16,9 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\..\mod\TrackpadCameraControl.csproj" />
+        <ProjectReference Include="..\..\mod\TrackpadCameraControl.csproj">
+            <AdditionalProperties>EnableCitiesRefs=false</AdditionalProperties>
+        </ProjectReference>
         <ProjectReference Include="..\..\src\TrackpadCapture\TrackpadCapture.csproj" />
     </ItemGroup>
 </Project>

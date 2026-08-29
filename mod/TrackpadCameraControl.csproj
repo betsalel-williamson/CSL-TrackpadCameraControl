@@ -16,11 +16,11 @@
             >$(HOME)/Library/Application Support/Steam/steamapps/common/Cities_Skylines/Cities.app/Contents/Resources/Data/Managed</CitiesManaged>
     </PropertyGroup>
 
-    <PropertyGroup Condition="Exists('$(CitiesManaged)/ICities.dll')">
+    <PropertyGroup Condition="Exists('$(CitiesManaged)/ICities.dll') And '$(EnableCitiesRefs)' != 'false'">
         <DefineConstants>$(DefineConstants);HAS_CITIES</DefineConstants>
     </PropertyGroup>
 
-    <ItemGroup Condition="Exists('$(CitiesManaged)/ICities.dll')">
+    <ItemGroup Condition="Exists('$(CitiesManaged)/ICities.dll') And '$(EnableCitiesRefs)' != 'false'">
         <Reference Include="ICities">
             <HintPath>$(CitiesManaged)/ICities.dll</HintPath>
             <Private>false</Private>

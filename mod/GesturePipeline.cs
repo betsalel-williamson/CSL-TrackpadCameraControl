@@ -41,6 +41,8 @@ namespace TrackpadCameraControl
                 return;
             }
 
+            EnsureInjectSourceIfArmed();
+
             if (_source is InjectGestureSource inject)
             {
                 E2eInjectFileProtocol.Poll(inject, _camera);
@@ -95,6 +97,35 @@ namespace TrackpadCameraControl
             if (_source != null)
             {
                 _source.Disconnect();
+            }
+        }
+
+        /// <summary>
+        /// Hot-swap to inject when the e2e flag appears while the game is already running
+        /// (smoke script arms flags after the mod may already be enabled).
+        /// </summary>
+        private void EnsureInjectSourceIfArmed()
+        {
+            if (_source is InjectGestureSource)
+            {
+                return;
+            }
+
+            if (!Mod.IsE2eInjectEnabled())
+            {
+                return;
+            }
+
+            try
+            {
+                var inject = new InjectGestureSource();
+                inject.Connect();
+                SetSource(inject);
+                Mod.InjectSource = inject;
+            }
+            catch
+            {
+                // fail soft
             }
         }
     }

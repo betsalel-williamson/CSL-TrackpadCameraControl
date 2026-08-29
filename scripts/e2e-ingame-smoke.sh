@@ -25,8 +25,8 @@ rm -f "${DEST}/e2e-inject-result" "${DEST}/e2e-inject-request"
 TIMEOUT_SEC="${E2E_INGAME_TIMEOUT:-90}"
 PINCH="${E2E_INGAME_PINCH:-0.1}"
 
-echo "==> inject armed. Waiting up to ${TIMEOUT_SEC}s for game to consume request…"
-echo "==> Ensure CS1 is running with Trackpad Camera Control enabled and a city loaded."
+echo "==> inject armed. Waiting up to ${TIMEOUT_SEC}s for game to process request…"
+echo "==> CS1 must be running with a city loaded. Inject hot-swaps on the next Tick once the flag is present."
 
 echo -n "$PINCH" >"${DEST}/e2e-inject-request"
 
