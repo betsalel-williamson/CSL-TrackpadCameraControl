@@ -14,6 +14,7 @@
 3. Open Options → Trackpad Camera Control.
 4. Confirm the gesture preset is **Maps+** (default).
 5. Try two-finger drag (pan), pinch (zoom), two-finger rotate (yaw), and modifier+two-finger drag (orbit — Option on macOS).
+6. Optionally enable [Assist UI](./assist-ui-camera-chrome.md) to nudge the same axes from on-screen chrome (handy when validating without a working backend).
 
 If gestures do nothing, check that the game is focused, backend status in Options shows connected, and the OS is not consuming the gesture (see [OS gesture conflicts](./os-gesture-conflicts.md)).
 

@@ -13,3 +13,4 @@ Shared terms for Trackpad Camera Control.
   - [Maps+ preset](./maps-plus-preset.md)
   - [CAD preset](./cad-preset.md)
   - [Hot configuration](./hot-configuration.md)
+  - [Assist UI](./assist-ui.md)
