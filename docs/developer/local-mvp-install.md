@@ -31,4 +31,8 @@ The prior native C `make` target under `native/mac/` is retired; do not use it f
 
 If the bridge is not running, the mod stays enabled and does nothing (fail soft).
 
+### Content Manager version warning
+
+Cities: Skylines may show **“This mod was not made with the current game version…”**. That check only compares the mod’s **ICities** assembly reference to the game’s current `ICities.dll` — it does **not** mean the mod is broken. Rebuild/install with `./scripts/install-mod-local.sh` after game patches (it references your Steam Managed folder). Then disable and re-enable the mod (or restart the game).
+
 For automated inject smoke (no real pinch), see [harnesses and testing](./harnesses-and-testing.md).
