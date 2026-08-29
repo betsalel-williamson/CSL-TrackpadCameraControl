@@ -20,11 +20,10 @@ npm run bootstrap:install
 
 What it does:
 
-1. Checks **Node.js 18+**, **npm**, **.NET SDK 8+**, **clang-format**
+1. Checks **Node.js 22.12+**, **npm**, **.NET SDK 8+**, **clang-format**
 2. With `--install-tools`: installs missing pieces when possible (Homebrew Node / clang-format on macOS; official `dotnet-install` to `~/.dotnet`; apt clang-format on Linux)
-3. Runs `npm install` (or `npm ci` with `--ci`) and `dotnet tool restore` (CSharpier)
-4. Points git hooks at `.husky` (**pre-commit** lint-staged, **commit-msg** commitlint, **pre-push** format + docs)
-5. Smoke-runs `format:check` and `docs` (skip with `--skip-verify`)
+3. Runs `npm install` (or `npm ci` with `--ci`) and `dotnet tool restore` (CSharpier); husky `prepare` wires git hooks
+4. Smoke-runs `format:check` and `docs` (skip with `--skip-verify`)
 
 Check only (no package install):
 
@@ -34,11 +33,11 @@ Check only (no package install):
 
 ## Prerequisites (manual)
 
-| Tool         | macOS                                                | Linux                      | Windows                                                       |
-| ------------ | ---------------------------------------------------- | -------------------------- | ------------------------------------------------------------- |
-| Node.js 18+  | Homebrew `node`, or [nodejs.org](https://nodejs.org) | Distro / nvm               | [nodejs.org](https://nodejs.org) or WSL                       |
-| .NET SDK 8+  | `dotnet-install` → `~/.dotnet`, or Homebrew `dotnet` | Same install script        | [dotnet.microsoft.com](https://dotnet.microsoft.com/download) |
-| clang-format | Xcode toolchain or `brew install clang-format`       | `apt install clang-format` | LLVM/clang-format, or WSL                                     |
+| Tool           | macOS                                                | Linux                      | Windows                                                       |
+| -------------- | ---------------------------------------------------- | -------------------------- | ------------------------------------------------------------- |
+| Node.js 22.12+ | Homebrew `node`, or [nodejs.org](https://nodejs.org) | Distro / nvm               | [nodejs.org](https://nodejs.org) or WSL                       |
+| .NET SDK 8+    | `dotnet-install` → `~/.dotnet`, or Homebrew `dotnet` | Same install script        | [dotnet.microsoft.com](https://dotnet.microsoft.com/download) |
+| clang-format   | Xcode toolchain or `brew install clang-format`       | `apt install clang-format` | LLVM/clang-format, or WSL                                     |
 
 Game / Cities: Skylines assemblies are **not** required for Phase 1 contributor tooling.
 

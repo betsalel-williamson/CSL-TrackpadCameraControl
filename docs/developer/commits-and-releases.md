@@ -2,15 +2,22 @@
 
 ## Git hooks (husky)
 
-Hooks are installed by `npm install` / bootstrap (`prepare` → husky). Same entrypoints run from husky and npm so local and CI expectations stay aligned:
+Hooks are installed by `npm install` / bootstrap (`prepare` → husky). Same entrypoints run from husky and npm:
 
-| Hook         | Command                    | What it does                                                                                                                          |
-| ------------ | -------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
-| `pre-commit` | `npm run hooks:pre-commit` | **lint-staged**: Prettier on staged JSON/YAML/Markdown; CSharpier on staged `mod/**/*.cs`; clang-format on staged `native/**/*.{c,h}` |
-| `commit-msg` | commitlint                 | Conventional Commits subject                                                                                                          |
-| `pre-push`   | `npm run hooks:pre-push`   | Full `format:check` + `docs` (same gates as CI docs/format jobs)                                                                      |
+| Hook         | Command                    | What it does                                                                                         |
+| ------------ | -------------------------- | ---------------------------------------------------------------------------------------------------- |
+| `pre-commit` | `npm run hooks:pre-commit` | **lint-staged** (cheap): Prettier / CSharpier / clang-format on **staged** files                     |
+| `commit-msg` | commitlint                 | Conventional Commits subject                                                                         |
+| `pre-push`   | `npm run hooks:pre-push`   | On **`main`**: `format:check` + `docs`. On feature branches: skip expensive checks (PR CI validates) |
 
-Emergency skip (local only): `HUSKY=0 git commit …` or `HUSKY=0 git push …`. Prefer fixing the failure over skipping.
+Emergency skip: `HUSKY=0 git commit …` or `HUSKY=0 git push …`. Prefer fixing the failure over skipping.
+
+## CI: PR subset vs main full suite
+
+| Event                        | Behavior                                                                                                                                     |
+| ---------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Pull request** into `main` | **commitlint** always; one **validate** job runs only the gates touched by the PR (docs / C# / native), or all gates if tooling paths change |
+| **Push to `main`**           | Full docs + C# + native format                                                                                                               |
 
 ## Conventional commits
 

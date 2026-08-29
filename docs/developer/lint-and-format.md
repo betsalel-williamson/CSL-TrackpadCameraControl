@@ -10,11 +10,11 @@ Use the automated bootstrap when possible — see [contributor setup](./contribu
 ./scripts/bootstrap-dev.sh --install-tools
 ```
 
-| Tool         | Purpose                                                   |
-| ------------ | --------------------------------------------------------- |
-| Node.js 18+  | MDCP docs compile / check / fix                           |
-| .NET SDK 8+  | Local CSharpier tool (`dotnet tool restore`)              |
-| clang-format | Native C style (LLVM/Xcode or `apt install clang-format`) |
+| Tool           | Purpose                                                     |
+| -------------- | ----------------------------------------------------------- |
+| Node.js 22.12+ | MDCP docs compile / check / fix; commitlint and lint-staged |
+| .NET SDK 8+    | Local CSharpier tool (`dotnet tool restore`)                |
+| clang-format   | Native C style (LLVM/Xcode or `apt install clang-format`)   |
 
 On macOS, Xcode’s `clang-format` is enough if it is on `PATH` (the `format:native` script also probes the default Xcode toolchain path).
 
@@ -35,10 +35,11 @@ Individual targets: `format:docs`, `format:csharp`, `format:native` (and matchin
 
 ## What CI runs
 
-GitHub Actions (`.github/workflows/ci.yml`) on push/PR to `main`. Third-party actions are **pinned by commit SHA** (with a version comment), not floating tags.
+GitHub Actions (`.github/workflows/ci.yml`). Third-party actions are **pinned by commit SHA** (with a version comment), not floating tags.
 
-1. **Docs** — `npm ci` then `npm run docs` (`--require-lint`)
-2. **Code format** — CSharpier check on `mod/`, clang-format dry-run on `native/**/*.{c,h}`
-3. **Commitlint** (PRs only) — conventional commits on the PR range
+| Event            | Gates                                                                                                               |
+| ---------------- | ------------------------------------------------------------------------------------------------------------------- |
+| **PR → main**    | **commitlint**; one **validate** job runs docs and/or format gates for changed paths (tooling changes → full suite) |
+| **Push to main** | Full docs + C# + native format                                                                                      |
 
-Format before opening a PR; CI will fail if style drifts. Locally, husky **pre-commit** formats staged files and **pre-push** runs the same format + docs gates — see [commits and releases](./commits-and-releases.md).
+Locally, husky **pre-commit** formats staged files; **pre-push** runs the full format + docs gates only on `main` — see [commits and releases](./commits-and-releases.md).
