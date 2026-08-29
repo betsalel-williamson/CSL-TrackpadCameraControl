@@ -16,6 +16,8 @@ fi
 
 dotnet build "${ROOT}/mod/TrackpadCameraControl.csproj" -c Release -p:CitiesManaged="${MANAGED}"
 mkdir -p "${DEST}"
-cp -f "${ROOT}/mod/bin/Release/netstandard2.0/TrackpadCameraControl.dll" "${DEST}/"
+cp -f "${ROOT}/mod/bin/Release/net35/TrackpadCameraControl.dll" "${DEST}/"
 echo "Installed → ${DEST}/TrackpadCameraControl.dll"
-echo "Start the bridge before playing: dotnet run --project src/TrackpadBridge"
+echo "Start the bridge before playing:"
+echo "  export PATH=\"\$HOME/.dotnet:\$PATH\""
+echo "  dotnet run --project src/TrackpadBridge"

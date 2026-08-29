@@ -37,6 +37,7 @@
       ".specstory/**",
       ".agents/**",
       "docs/superpowers/**",
+      ".worktrees/**",
       "node_modules/**",
       "templates/**",
       "native/**",

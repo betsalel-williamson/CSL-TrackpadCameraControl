@@ -1,11 +1,11 @@
 <!--
-  Builds without Cities: Skylines when Managed DLLs are absent (CI / docs tooling).
-  When ICities.dll is found (macOS Steam default or CitiesManaged=), enables
-  HAS_CITIES and references game assemblies for in-game load.
+  In-game DLL targets net35 (CS1 Unity Mono / mscorlib). Capture host stays
+  netstandard2.0. When ICities.dll is found (or CitiesManaged=), enables HAS_CITIES.
+  Tests pass EnableCitiesRefs=false so the test host does not need ICities.
 -->
 <Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
-        <TargetFramework>netstandard2.0</TargetFramework>
+        <TargetFramework>net35</TargetFramework>
         <LangVersion>9.0</LangVersion>
         <Nullable>disable</Nullable>
         <ImplicitUsings>disable</ImplicitUsings>
@@ -14,7 +14,17 @@
         <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
         <CitiesManaged Condition="'$(CitiesManaged)' == '' and '$(HOME)' != ''"
             >$(HOME)/Library/Application Support/Steam/steamapps/common/Cities_Skylines/Cities.app/Contents/Resources/Data/Managed</CitiesManaged>
+        <!-- Needed so SDK can compile net35 on modern .NET SDK hosts -->
+        <DisableImplicitFrameworkReferences>false</DisableImplicitFrameworkReferences>
     </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference
+            Include="Microsoft.NETFramework.ReferenceAssemblies.net35"
+            Version="1.0.3"
+            PrivateAssets="all"
+        />
+    </ItemGroup>
 
     <PropertyGroup Condition="Exists('$(CitiesManaged)/ICities.dll') And '$(EnableCitiesRefs)' != 'false'">
         <DefineConstants>$(DefineConstants);HAS_CITIES</DefineConstants>

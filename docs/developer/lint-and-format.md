@@ -2,7 +2,7 @@
 
 Phase-1 contributor tooling keeps **C#**, **native C** (if present), and **docs** consistent. CI fails on format or docs-lint drift. Game assembly builds are out of scope until Harmony/CS1 refs land.
 
-**C# pin:** mod and TrackpadCapture libraries use **netstandard2.0** + **LangVersion 9** with Mono-safe BCL usage — see [contributor setup](./contributor-setup.md).
+**C# pin:** in-game mod is **net35** + **LangVersion 9**; TrackpadCapture is **netstandard2.0** + **LangVersion 9** — see [contributor setup](./contributor-setup.md).
 
 ## Prerequisites
 

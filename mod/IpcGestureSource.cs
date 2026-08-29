@@ -205,7 +205,8 @@ namespace TrackpadCameraControl
             var handle = GCHandle.Alloc(bytes, GCHandleType.Pinned);
             try
             {
-                return Marshal.PtrToStructure<GestureFrame>(handle.AddrOfPinnedObject());
+                return (GestureFrame)
+                    Marshal.PtrToStructure(handle.AddrOfPinnedObject(), typeof(GestureFrame));
             }
             finally
             {
@@ -218,7 +219,7 @@ namespace TrackpadCameraControl
             var handle = GCHandle.Alloc(buffer, GCHandleType.Pinned);
             try
             {
-                IntPtr ptr = IntPtr.Add(handle.AddrOfPinnedObject(), offset);
+                IntPtr ptr = new IntPtr(handle.AddrOfPinnedObject().ToInt64() + offset);
                 return read(fd, ptr, count);
             }
             finally

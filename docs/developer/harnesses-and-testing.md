@@ -59,7 +59,7 @@ This does not synthesize OS Multitouch events.
 
 ## Language and BCL pin
 
-Mod-loaded and shared capture libraries target **netstandard2.0** with **C# 9**. Prefer Mono-safe BCL surfaces that Unity/CS1 can load — see [contributor setup](./contributor-setup.md) and [lint and format](./lint-and-format.md).
+Mod-loaded DLL targets **net35** (Cities: Skylines Unity Mono / mscorlib). Shared capture library and bridge host use **netstandard2.0** / **net8** with **C# 9**. Prefer Mono-safe BCL surfaces in the mod — see [contributor setup](./contributor-setup.md) and [lint and format](./lint-and-format.md).
 
 ## Related
 
