@@ -73,6 +73,7 @@ namespace TrackpadCameraControl
             bool applied = false;
             while (safety-- > 0 && _source.TryDequeue(out GestureFrame frame))
             {
+                frame = GameModifierKeys.Enrich(frame);
                 CameraOp ops = _session.Process(frame, _settings);
                 if (ops == CameraOp.None)
                 {

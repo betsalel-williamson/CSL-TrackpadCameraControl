@@ -55,6 +55,9 @@ namespace TrackpadCameraControl
                 candidates &= CameraOp.Orbit | CameraOp.Yaw;
             }
 
+            // After latch masking: pinch vs twist stay exclusive when both remain.
+            candidates = GestureBindingResolver.ExclusiveZoomVersusYaw(candidates, frame, settings);
+
             return ApplyResolveMode(frame, settings, candidates);
         }
 

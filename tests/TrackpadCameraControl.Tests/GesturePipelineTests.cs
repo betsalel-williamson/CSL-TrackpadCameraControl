@@ -79,8 +79,51 @@ namespace TrackpadCameraControl.Tests
             var frame = Frame(fingers: 2, pinch: 0.05f, dx: 0.02f, dy: 0f);
 
             CameraOp ops = GestureBindingResolver.ResolveCandidates(frame, settings, false);
+            ops = GestureBindingResolver.ExclusiveZoomVersusYaw(ops, frame, settings);
             Assert.True((ops & CameraOp.Zoom) != 0);
             Assert.True((ops & CameraOp.Pan) != 0);
+        }
+
+        [Fact]
+        public void ExclusiveZoomVersusYaw_KeepsDominantPinch()
+        {
+            var settings = new ModSettings { PinchEpsilon = 0.001f, RotateEpsilon = 0.001f };
+            var frame = Frame(pinch: 0.05f, rotate: 0.01f);
+            CameraOp ops = CameraOp.Zoom | CameraOp.Yaw;
+            Assert.Equal(
+                CameraOp.Zoom,
+                GestureBindingResolver.ExclusiveZoomVersusYaw(ops, frame, settings)
+            );
+        }
+
+        [Fact]
+        public void ExclusiveZoomVersusYaw_KeepsDominantRotate()
+        {
+            var settings = new ModSettings { PinchEpsilon = 0.001f, RotateEpsilon = 0.001f };
+            var frame = Frame(pinch: 0.002f, rotate: 0.5f);
+            CameraOp ops = CameraOp.Zoom | CameraOp.Yaw;
+            Assert.Equal(
+                CameraOp.Yaw,
+                GestureBindingResolver.ExclusiveZoomVersusYaw(ops, frame, settings)
+            );
+        }
+
+        [Fact]
+        public void OptionTwoFinger_EngagesOrbitNotPan()
+        {
+            var settings = new ModSettings
+            {
+                OrbitTrigger = OrbitTrigger.ModifierPlusTwoFinger,
+                MotionDeadzone = 0.001f,
+            };
+            var session = new GestureSession();
+            CameraOp ops = session.Process(
+                Frame(dx: 0.02f, modifiers: (uint)GestureModifiers.Option),
+                settings
+            );
+            Assert.True(session.OrbitLatched);
+            Assert.True((ops & CameraOp.Orbit) != 0);
+            Assert.Equal(CameraOp.None, ops & CameraOp.Pan);
         }
 
         [Fact]

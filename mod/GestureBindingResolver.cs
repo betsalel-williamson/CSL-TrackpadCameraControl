@@ -64,6 +64,35 @@ namespace TrackpadCameraControl
             return ops;
         }
 
+        /// <summary>
+        /// When both zoom and yaw qualify, keep the stronger signal so they never apply together.
+        /// </summary>
+        public static CameraOp ExclusiveZoomVersusYaw(
+            CameraOp ops,
+            GestureFrame frame,
+            ModSettings settings
+        )
+        {
+            bool zoom = (ops & CameraOp.Zoom) != 0;
+            bool yaw = (ops & CameraOp.Yaw) != 0;
+            if (!zoom || !yaw || settings == null)
+            {
+                return ops;
+            }
+
+            float pinchEps = settings.PinchEpsilon > 1e-8f ? settings.PinchEpsilon : 0.001f;
+            float rotEps = settings.RotateEpsilon > 1e-8f ? settings.RotateEpsilon : 0.001f;
+            float zoomScore = Abs(frame.pinchScaleDelta) / pinchEps;
+            float yawScore = Abs(frame.rotateDelta) / rotEps;
+
+            if (zoomScore >= yawScore)
+            {
+                return ops & ~CameraOp.Yaw;
+            }
+
+            return ops & ~CameraOp.Zoom;
+        }
+
         public static bool IsOrbitTriggerActive(GestureFrame frame, ModSettings settings)
         {
             if (settings == null || !settings.OrbitEnabled)
