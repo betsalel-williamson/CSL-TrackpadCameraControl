@@ -180,6 +180,15 @@ namespace TrackpadCapture
 
             if (emit)
             {
+                // Always log pinch emits so a silent terminal is a real signal (no Multitouch).
+                Console.Error.WriteLine(
+                    "TrackpadBridge: pinch phase="
+                        + outFrame.phase
+                        + " delta="
+                        + outFrame.pinchScaleDelta.ToString("0.####")
+                        + " fingers="
+                        + outFrame.fingerCount
+                );
                 sink(outFrame);
             }
         }
