@@ -15,7 +15,9 @@ If Pointer Control → Trackpad Options enables three-finger drag for moving win
 
 ## Two-finger scroll
 
-Two-finger drag is also the system scroll gesture. While the game is focused, the mod intends to own two-finger motion for pan. If you see double motion (pan plus zoom/scroll), enable the mod’s focus gating and report it — event swallowing may need tuning per OS version.
+Two-finger drag is also the system scroll gesture. While the mod is enabled and [Cities Harmony](https://steamcommunity.com/sharedfiles/filedetails/?id=2040656402) is present, [vanilla camera suppress](../glossary/vanilla-camera-suppress.md) turns off vanilla scroll-zoom so two-finger pan does not also zoom. Edge pan and keyboard camera stay.
+
+If pan still zooms, confirm Cities Harmony is subscribed and the mod is enabled. macOS Mission Control / Spaces (below) are separate OS reservations this mod cannot override.
 
 ## Force click and secondary click
 

@@ -18,7 +18,7 @@ A backend must:
 
 - Emit [gesture primitives](./ipc-gesture-primitives.md) while the game is focused (when configured).
 - Avoid deciding pan vs orbit vs zoom (C# bindings own that).
-- Fail soft and leave vanilla input alone when unsupported or disconnected.
+- Fail soft when unsupported or disconnected (do not crash the game). Vanilla scroll-zoom and mouse-rotate stay gated by [vanilla camera suppress](./vanilla-camera-suppress.md) while the mod is on.
 
 ## macOS (v1)
 

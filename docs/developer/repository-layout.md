@@ -5,7 +5,7 @@ Target layout (phase 1 has docs only; later phases fill code trees):
 ```text
 CSL-TrackpadCameraControl/
   docs/                 # MDCP shards (source of truth for intent)
-  mod/                  # C# Cities: Skylines I mod (CitiesHarmony later)
+  mod/                  # C# Cities: Skylines I mod (CitiesHarmony Patcher for vanilla camera suppress)
   src/TrackpadCapture/  # Shared Multitouch → GestureFrame (netstandard2.0)
   src/TrackpadBridge/   # Dev IPC console host (dotnet run)
   tests/                # xUnit unit + headless e2e

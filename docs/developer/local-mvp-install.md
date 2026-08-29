@@ -31,11 +31,11 @@ The prior native C `make` target under `native/mac/` is retired; do not use it f
 
 ## In game
 
-1. Enable **Cities Harmony** (optional for this MVP — not required for pinch zoom).
+1. Enable **Cities Harmony** (**required** for [vanilla camera suppress](../glossary/vanilla-camera-suppress.md) — without it, two-finger pan may still fight vanilla scroll-zoom).
 2. Enable **Trackpad Camera Control** in Content Manager.
-3. Load a city; keep the game focused; pinch on the trackpad.
+3. Load a city; keep the game focused; pinch and two-finger-drag on the trackpad.
 
-If the bridge is not running, the mod stays enabled and does nothing (fail soft).
+If the bridge is not running, the mod stays enabled and gestures do nothing (fail soft). Vanilla scroll-zoom and mouse-drag rotate stay suppressed until you disable the mod.
 
 ### Content Manager version warning
 
