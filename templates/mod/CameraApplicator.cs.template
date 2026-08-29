@@ -12,7 +12,7 @@ namespace TrackpadCameraControl
             float rotateDelta,
             ModSettings settings)
         {
-            // var cam = CameraController.instance;
+            // var cam = UnityEngine.Object.FindObjectOfType<CameraController>();
             // Use settings.*Sensitivity / Invert* only — never magic numbers here.
         }
     }

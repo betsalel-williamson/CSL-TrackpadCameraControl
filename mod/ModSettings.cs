@@ -1,0 +1,59 @@
+// Defaults only here / factory — never in CameraApplicator.
+
+namespace TrackpadCameraControl
+{
+    public enum GesturePreset
+    {
+        MapsPlus,
+        CAD,
+        Custom,
+    }
+
+    public enum OrbitTrigger
+    {
+        ModifierPlusTwoFinger,
+        ThreeFinger,
+        Both,
+        Off,
+    }
+
+    public class ModSettings
+    {
+        public GesturePreset GesturePreset { get; set; } = GesturePreset.MapsPlus;
+        public bool PanEnabled { get; set; } = true;
+        public bool ZoomEnabled { get; set; } = true;
+        public bool YawEnabled { get; set; } = true;
+        public bool OrbitEnabled { get; set; } = true;
+        public OrbitTrigger OrbitTrigger { get; set; } = OrbitTrigger.ModifierPlusTwoFinger;
+
+        public float PanSensitivityX { get; set; } = 1f;
+        public float PanSensitivityY { get; set; } = 1f;
+        public float OrbitYawSensitivity { get; set; } = 1f;
+        public float OrbitPitchSensitivity { get; set; } = 1f;
+        public float ZoomSensitivity { get; set; } = 1f;
+        public float YawRotateSensitivity { get; set; } = 1f;
+
+        public bool InvertPanX { get; set; }
+        public bool InvertPanY { get; set; }
+        public bool InvertOrbitYaw { get; set; }
+        public bool InvertOrbitPitch { get; set; }
+        public bool InvertZoom { get; set; }
+        public bool InvertYawRotate { get; set; }
+
+        public float MotionDeadzone { get; set; } = 0.001f;
+        public float PinchEpsilon { get; set; } = 0.001f;
+        public float RotateEpsilon { get; set; } = 0.001f;
+        public float FingerCountHysteresis { get; set; } = 0.05f;
+        public float Smoothing { get; set; } // 0 = off
+
+        public bool RequireGameFocus { get; set; } = true;
+        public bool IgnoreOverUi { get; set; } = true;
+        public bool BridgeEnabled { get; set; } = true;
+        public bool DebugOverlay { get; set; }
+
+        public void ApplyPreset(GesturePreset preset)
+        {
+            // seed OrbitTrigger + flags; see docs
+        }
+    }
+}

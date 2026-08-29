@@ -2,9 +2,9 @@
 
 **Cities: Skylines I** mod for **trackpad** camera control — pan, orbit, and zoom via multitouch (pinch, two-finger, three-finger), with hot-configurable Options.
 
-> Status: **Phase 1 — documentation and design.** No gameplay DLL yet.
+> Status: **MVP — pinch → zoom proof** on macOS (TrackpadBridge IPC + C# camera path). Full presets / Options come later.
 >
-> **Implementation status:** macOS trackpad backend first; Windows / Linux backends are stubs for contributors. High-level design and Options are platform-neutral.
+> **Implementation status:** macOS Multitouch first (dev: separate bridge; deploy target: in-process). Windows / Linux backends are stubs. High-level design and Options are platform-neutral.
 
 ## Why this exists
 
@@ -16,18 +16,18 @@ CS1 camera orbit expects a middle mouse button. Trackpad players have asked for 
 
 ## Naming
 
-| Surface | Name |
-| --- | --- |
-| Display | **Trackpad Camera Control** |
+| Surface    | Name                                                                                            |
+| ---------- | ----------------------------------------------------------------------------------------------- |
+| Display    | **Trackpad Camera Control**                                                                     |
 | Repository | [`CSL-TrackpadCameraControl`](https://github.com/betsalel-williamson/CSL-TrackpadCameraControl) |
-| Parallel | Named like [Joystick Camera Control](https://github.com/RenaKunisaki/CSL-JoystickCameraControl) |
+| Parallel   | Named like [Joystick Camera Control](https://github.com/RenaKunisaki/CSL-JoystickCameraControl) |
 
 ## Gesture presets (Options)
 
-| Preset | Orbit |
-| --- | --- |
+| Preset              | Orbit                                        |
+| ------------------- | -------------------------------------------- |
 | **Maps+** (default) | Modifier + two-finger drag (Option on macOS) |
-| **CAD** | Three-finger drag |
+| **CAD**             | Three-finger drag                            |
 
 Both: two-finger drag = pan, pinch = zoom, two-finger rotate = yaw. Every sensitivity and binding is hot-editable — nothing is hardcoded.
 
@@ -36,16 +36,17 @@ Both: two-finger drag = pan, pinch = zoom, two-finger rotate = yaw. Every sensit
 Sharded docs via [MDCP](https://github.com/betsalel-williamson/mdcp):
 
 ```bash
-npm install
-npm run docs          # compile + check
+./scripts/bootstrap-dev.sh --install-tools   # Node, .NET tools, clang-format, npm, smoke checks
+npm run docs          # compile + check (lint required)
+npm run format:check  # csharpier + clang-format (see docs/developer/lint-and-format.md)
 ```
 
-| Guide | Path |
-| --- | --- |
-| Features / architecture | [`docs/features/`](docs/features/) |
-| Player guide | [`docs/client/`](docs/client/) |
-| Contributor guide | [`docs/developer/`](docs/developer/) |
-| Glossary | [`docs/glossary/`](docs/glossary/) |
+| Guide                   | Path                                 |
+| ----------------------- | ------------------------------------ |
+| Features / architecture | [`docs/features/`](docs/features/)   |
+| Player guide            | [`docs/client/`](docs/client/)       |
+| Contributor guide       | [`docs/developer/`](docs/developer/) |
+| Glossary                | [`docs/glossary/`](docs/glossary/)   |
 
 ## Prior art
 

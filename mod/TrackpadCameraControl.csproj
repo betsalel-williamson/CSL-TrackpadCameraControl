@@ -1,0 +1,51 @@
+<!--
+  In-game DLL targets net35 (CS1 Unity Mono / mscorlib). Capture host stays
+  netstandard2.0. When ICities.dll is found (or CitiesManaged=), enables HAS_CITIES.
+  Tests pass EnableCitiesRefs=false so the test host does not need ICities.
+-->
+<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <TargetFramework>net35</TargetFramework>
+        <LangVersion>9.0</LangVersion>
+        <Nullable>disable</Nullable>
+        <ImplicitUsings>disable</ImplicitUsings>
+        <RootNamespace>TrackpadCameraControl</RootNamespace>
+        <AssemblyName>TrackpadCameraControl</AssemblyName>
+        <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
+        <CitiesManaged Condition="'$(CitiesManaged)' == '' and '$(HOME)' != ''"
+            >$(HOME)/Library/Application Support/Steam/steamapps/common/Cities_Skylines/Cities.app/Contents/Resources/Data/Managed</CitiesManaged>
+        <!-- Needed so SDK can compile net35 on modern .NET SDK hosts -->
+        <DisableImplicitFrameworkReferences>false</DisableImplicitFrameworkReferences>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference
+            Include="Microsoft.NETFramework.ReferenceAssemblies.net35"
+            Version="1.0.3"
+            PrivateAssets="all"
+        />
+    </ItemGroup>
+
+    <PropertyGroup Condition="Exists('$(CitiesManaged)/ICities.dll') And '$(EnableCitiesRefs)' != 'false'">
+        <DefineConstants>$(DefineConstants);HAS_CITIES</DefineConstants>
+    </PropertyGroup>
+
+    <ItemGroup Condition="Exists('$(CitiesManaged)/ICities.dll') And '$(EnableCitiesRefs)' != 'false'">
+        <Reference Include="ICities">
+            <HintPath>$(CitiesManaged)/ICities.dll</HintPath>
+            <Private>false</Private>
+        </Reference>
+        <Reference Include="Assembly-CSharp">
+            <HintPath>$(CitiesManaged)/Assembly-CSharp.dll</HintPath>
+            <Private>false</Private>
+        </Reference>
+        <Reference Include="ColossalManaged">
+            <HintPath>$(CitiesManaged)/ColossalManaged.dll</HintPath>
+            <Private>false</Private>
+        </Reference>
+        <Reference Include="UnityEngine">
+            <HintPath>$(CitiesManaged)/UnityEngine.dll</HintPath>
+            <Private>false</Private>
+        </Reference>
+    </ItemGroup>
+</Project>

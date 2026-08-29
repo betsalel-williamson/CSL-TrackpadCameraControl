@@ -8,15 +8,15 @@ Define the contract between a platform backend and the CS1 mod so camera binding
 
 Each frame describes **raw gesture primitives**, not camera operations:
 
-| Field | Meaning |
-| --- | --- |
-| Timestamp | Monotonic time for delta integration |
-| Finger count | Active contacts in the gesture |
-| Centroid delta | Normalized 2D motion of the contact centroid |
+| Field             | Meaning                                               |
+| ----------------- | ----------------------------------------------------- |
+| Timestamp         | Monotonic time for delta integration                  |
+| Finger count      | Active contacts in the gesture                        |
+| Centroid delta    | Normalized 2D motion of the contact centroid          |
 | Pinch scale delta | Relative distance change between two primary contacts |
-| Rotate delta | Relative angle change between two primary contacts |
-| Modifier flags | Primary / secondary / meta / control (OS-mapped) |
-| Gesture phase | Began / changed / ended / cancelled |
+| Rotate delta      | Relative angle change between two primary contacts    |
+| Modifier flags    | Primary / secondary / meta / control (OS-mapped)      |
+| Gesture phase     | Began / changed / ended / cancelled                   |
 
 ## Rules
 
@@ -31,6 +31,6 @@ Each frame describes **raw gesture primitives**, not camera operations:
 - Changing orbit trigger in Options changes resolved ops without backend restart.
 - Missing backend yields disconnected state, not exceptions that disable the mod.
 
-## Template note
+## Wire layout
 
-Concrete binary layout and enum names live in `shared/protocol/` when implementation starts. This shard is the durable contract; update it when the wire format changes.
+Concrete binary layout and enum names live in `shared/protocol/`. This shard is the durable contract; update it when the wire format changes.
