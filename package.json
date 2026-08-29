@@ -32,6 +32,7 @@
     "docs": "npm run docs:compile && npm run docs:check",
     "hooks:pre-commit": "bash scripts/hooks-pre-commit.sh",
     "hooks:pre-push": "bash scripts/hooks-pre-push.sh",
+    "scopes": "bash scripts/detect-scopes.sh --names",
     "changeset": "changeset",
     "changeset:status": "changeset status",
     "version-packages": "changeset version",
@@ -60,6 +61,6 @@
     "prettier": "^3.6.2"
   },
   "engines": {
-    "node": ">=18"
+    "node": ">=22.12.0"
   }
 }

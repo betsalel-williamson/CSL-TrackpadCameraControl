@@ -19,8 +19,84 @@ permissions:
   contents: read
 
 jobs:
+  # main → full suite. PRs → path-filtered subset (tooling changes still force all).
+  changes:
+    name: Detect changes
+    runs-on: ubuntu-latest
+    outputs:
+      docs: ${{ steps.set.outputs.docs }}
+      csharp: ${{ steps.set.outputs.csharp }}
+      native: ${{ steps.set.outputs.native }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: dorny/paths-filter@ceb8a2b8f2d89434be7ff52d3de7ec3738c5cc9d # v4.0.3
+        id: filter
+        if: github.event_name == 'pull_request'
+        with:
+          filters: |
+            docs:
+              - 'docs/**'
+              - 'README.md'
+              - 'docs/mdcp.config.json'
+              - '.prettierrc.json'
+              - '.prettierignore'
+              - '.changeset/**'
+            csharp:
+              - 'mod/**'
+              - '.csharpierignore'
+              - '.config/dotnet-tools.json'
+              - 'TrackpadCameraControl.sln'
+              - 'scripts/lint-staged-csharpier.sh'
+            native:
+              - 'native/**'
+              - '.clang-format'
+              - 'scripts/format-native.sh'
+              - 'scripts/lint-staged-clang-format.sh'
+            tooling:
+              - '.github/**'
+              - '.husky/**'
+              - 'scripts/bootstrap-dev.*'
+              - 'scripts/hooks-*.sh'
+              - 'scripts/detect-scopes.sh'
+              - 'scripts/ensure-tool-path.sh'
+              - 'commitlint.config.mjs'
+              - 'package.json'
+              - 'package-lock.json'
+
+      - name: Set job outputs
+        id: set
+        run: |
+          set -euo pipefail
+          if [ "${{ github.event_name }}" = "push" ] && [ "${{ github.ref }}" = "refs/heads/main" ]; then
+            echo "docs=true" >> "$GITHUB_OUTPUT"
+            echo "csharp=true" >> "$GITHUB_OUTPUT"
+            echo "native=true" >> "$GITHUB_OUTPUT"
+            echo "Suite: full (main)"
+            exit 0
+          fi
+          docs="${{ steps.filter.outputs.docs }}"
+          csharp="${{ steps.filter.outputs.csharp }}"
+          native="${{ steps.filter.outputs.native }}"
+          tooling="${{ steps.filter.outputs.tooling }}"
+          if [ "$tooling" = "true" ]; then
+            docs=true
+            csharp=true
+            native=true
+            echo "Suite: full (tooling paths changed)"
+          else
+            echo "Suite: PR subset docs=$docs csharp=$csharp native=$native"
+          fi
+          echo "docs=$docs" >> "$GITHUB_OUTPUT"
+          echo "csharp=$csharp" >> "$GITHUB_OUTPUT"
+          echo "native=$native" >> "$GITHUB_OUTPUT"
+
   docs:
     name: Docs
+    needs: changes
+    if: needs.changes.outputs.docs == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -29,7 +105,7 @@ jobs:
 
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
-          node-version: "18"
+          node-version: "22"
           cache: npm
 
       - run: npm ci
@@ -37,8 +113,10 @@ jobs:
       - name: Compile and check docs (lint required)
         run: npm run docs
 
-  code-format:
-    name: Code format
+  csharp-format:
+    name: C# format
+    needs: changes
+    if: needs.changes.outputs.csharp == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -49,13 +127,23 @@ jobs:
         with:
           dotnet-version: "8.0.x"
 
-      - name: Install clang-format
-        run: sudo apt-get update && sudo apt-get install -y clang-format
-
       - name: CSharpier check
         run: |
           dotnet tool restore
           dotnet tool run csharpier check mod/
+
+  native-format:
+    name: Native format
+    needs: changes
+    if: needs.changes.outputs.native == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Install clang-format
+        run: sudo apt-get update && sudo apt-get install -y clang-format
 
       - name: clang-format check
         run: bash scripts/format-native.sh check
@@ -72,10 +160,44 @@ jobs:
 
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
-          node-version: "18"
+          node-version: "22"
           cache: npm
 
       - run: npm ci
 
       - name: Lint PR commits
         run: npx commitlint --from ${{ github.event.pull_request.base.sha }} --to ${{ github.event.pull_request.head.sha }} --verbose
+
+  # Single required check for branch protection when path-filtered jobs are skipped.
+  ci-success:
+    name: CI success
+    if: always()
+    needs:
+      - changes
+      - docs
+      - csharp-format
+      - native-format
+      - commitlint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Verify job results
+        run: |
+          set -euo pipefail
+          fail=0
+          check() {
+            local name="$1" result="$2"
+            echo "${name}=${result}"
+            case "$result" in
+              failure|cancelled) fail=1 ;;
+            esac
+          }
+          check changes "${{ needs.changes.result }}"
+          check docs "${{ needs.docs.result }}"
+          check csharp-format "${{ needs.csharp-format.result }}"
+          check native-format "${{ needs.native-format.result }}"
+          check commitlint "${{ needs.commitlint.result }}"
+          if [ "$fail" -ne 0 ]; then
+            echo "One or more required CI jobs failed"
+            exit 1
+          fi
+          echo "CI gates satisfied (skipped path-filtered jobs are OK)"

@@ -72,13 +72,13 @@ node_major() {
 
 check_node() {
   if ! have node; then
-    echo "missing: Node.js 18+"
+    echo "missing: Node.js 22.12+"
     return 1
   fi
   local major
   major="$(node_major)"
-  if [[ "$major" -lt 18 ]]; then
-    echo "missing: Node.js 18+ (found $(node -v))"
+  if [[ "$major" -lt 22 ]]; then
+    echo "missing: Node.js 22.12+ (found $(node -v))"
     return 1
   fi
   echo "ok: Node $(node -v)"
@@ -175,7 +175,7 @@ install_missing_tools() {
       ;;
     linux)
       if ! check_node || ! check_npm; then
-        die "Install Node.js 18+ (e.g. NodeSource, nvm, or distro package), then re-run."
+        die "Install Node.js 22.12+ (e.g. NodeSource, nvm, or distro package), then re-run."
       fi
       check_dotnet || install_dotnet
       check_clang_format || install_clang_format_linux
@@ -214,11 +214,7 @@ install_project_deps() {
 
   log "dotnet tool restore (csharpier)"
   dotnet tool restore
-
-  if [[ -d .git ]]; then
-    log "Ensuring husky hooks path"
-    git config core.hooksPath .husky || warn "could not set core.hooksPath (non-fatal)"
-  fi
+  # husky prepare (from npm install) owns core.hooksPath — do not overwrite
 }
 
 verify_smoke() {
