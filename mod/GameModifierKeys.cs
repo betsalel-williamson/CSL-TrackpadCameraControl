@@ -5,8 +5,9 @@ using UnityEngine;
 namespace TrackpadCameraControl
 {
     /// <summary>
-    /// Merge keyboard modifiers from the game process. The TrackpadBridge host often cannot
-    /// see Option/Shift while Cities has focus (mods stay 0 on the wire).
+    /// Merge keyboard modifiers from the game process. Out-of-process capture cannot
+    /// see Option/Shift while Cities has focus (mods stay 0 on the wire). In-process
+    /// Contacts still benefit when HID reads miss a key.
     /// </summary>
     public static class GameModifierKeys
     {

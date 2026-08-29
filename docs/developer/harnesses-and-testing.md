@@ -4,13 +4,16 @@ How contributors validate Trackpad Camera Control without (and with) Cities: Sky
 
 ## Tiers
 
-| Tier                     | What it proves                                                        | Needs game? | Where it runs |
-| ------------------------ | --------------------------------------------------------------------- | ----------- | ------------- |
-| **Unit** (xUnit)         | Frame layout, binding resolver, camera apply with fakes               | No          | Local + CI    |
-| **Headless e2e**         | Gesture source → resolve → apply pipeline end-to-end with fake camera | No          | Local + CI    |
-| **In-game inject smoke** | Synthetic frames into the loaded mod change camera zoom               | Yes         | Local only    |
+| Tier                     | What it proves                                                             | Needs game? | Where it runs |
+| ------------------------ | -------------------------------------------------------------------------- | ----------- | ------------- |
+| **Unit** (xUnit)         | Frame layout, binding resolver, camera apply with fakes                    | No          | Local + CI    |
+| **Native leak static**   | Pair native acquires with releases (GCHandle, CFString, devices, monitors) | No          | Local + CI    |
+| **Headless e2e**         | Gesture source → resolve → apply pipeline end-to-end with fake camera      | No          | Local + CI    |
+| **In-game inject smoke** | Synthetic frames into the loaded mod change camera zoom                    | Yes         | Local only    |
 
-Real Multitouch / trackpad hardware is **not** required for CI. Hardware gestures remain a manual check on macOS with the bridge host running (see [local MVP install](./local-mvp-install.md)).
+Real Multitouch / trackpad hardware is **not** required for CI. Hardware gestures remain a manual check on macOS with the in-process mod (see [local MVP install](./local-mvp-install.md)).
+
+To inspect Apple-classified events (scroll, magnify, rotate, swipe) without the mod, run `./scripts/apple-gesture-probe.sh` (C# `src/AppleGestureProbe`) and gesture on the probe window — see `native/mac/README.md`. No Accessibility. That probe does not emit `GestureFrame` values.
 
 ## Coverage blind spot (learned 2026-08-29)
 
@@ -24,7 +27,7 @@ They do **not** prove that `MacTrackpadCapture` / Multitouch sampling **fills** 
 | Headless inject e2e                      | No — inject bypasses Multitouch               |
 | In-game inject smoke                     | No — request protocol is pinch-only today     |
 | `MultitouchGestureSession` unit tests    | Yes — contact samples → full primitives       |
-| Manual bridge + in-game trackpad         | Yes — end-to-end hardware path                |
+| Manual in-process mod + in-game trackpad | Yes — end-to-end hardware path                |
 
 When adding camera ops, require a capture-session (or Multitouch→frame) test for every new primitive the mod consumes — not only pipeline tests with pre-filled frames.
 
@@ -42,7 +45,22 @@ Or the whole solution:
 dotnet test
 ```
 
-Expect coverage of resolver rules, wire/`GestureFrame` layout assumptions, and applicator behavior against a fake zoom seam — no Cities assemblies.
+Expect coverage of resolver rules, wire/`GestureFrame` layout assumptions, applicator behavior against a fake zoom seam, and **native-resource pairing** (unmanaged leaks) — no Cities assemblies.
+
+## Native leak static analysis
+
+In-process capture pins GCHandles, may create CoreFoundation objects, and registers AppKit monitors and Multitouch devices. Those are not garbage-collected. `dotnet test` includes a source scan of `mod/` and `src/` that fails when an acquire has no matching release in the same file:
+
+| Acquire                                        | Must also appear                                                                |
+| ---------------------------------------------- | ------------------------------------------------------------------------------- |
+| `GCHandle.Alloc`                               | `.Free()` at least as often; types with `GCHandle` fields must be `IDisposable` |
+| `CFStringCreateWithCString` / `CreateCfString` | `CFRelease`                                                                     |
+| `.DeviceStart(`                                | `.DeviceStop(`                                                                  |
+| `addLocalMonitorForEventsMatchingMask`         | `removeMonitor:`                                                                |
+
+A line may include `native-leak-ok:` plus a reason to skip that acquire (process-lifetime cache or ownership transferred to a caller that releases). Add that marker only with a reason; do not use it to silence a real leak.
+
+This is pairing analysis, not a runtime leak detector. It will not catch a missing `Free` on one early-return path if another path in the same file calls `Free`.
 
 ## Headless e2e
 
@@ -79,5 +97,5 @@ Mod-loaded DLL targets **net35** (Cities: Skylines Unity Mono / mscorlib). Share
 
 ## Related
 
-- [Local MVP install](./local-mvp-install.md) — bridge host + local mod DLL
+- [Local MVP install](./local-mvp-install.md) — in-process capture + local mod DLL
 - Design decisions: `docs/superpowers/specs/2026-08-29-csharp-capture-tests-design.md`

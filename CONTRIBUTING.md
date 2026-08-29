@@ -14,7 +14,7 @@ See **[Contributor setup](docs/developer/contributor-setup.md)** (`./scripts/boo
 
 ## Beta installs (testers)
 
-Use a **GitHub Release** source archive (or clone the release tag), then follow **[Local MVP install](docs/developer/local-mvp-install.md)** (`./scripts/install-mod-local.sh` + TrackpadBridge). Steam Workshop shipping comes later.
+Use a **GitHub Release** source archive (or clone the release tag), then follow **[Local MVP install](docs/developer/local-mvp-install.md)** (`./scripts/install-mod-local.sh`). Steam Workshop shipping comes later.
 
 ## Project controls
 

@@ -11,6 +11,11 @@ namespace TrackpadCapture
         public static void RunInDefaultMode(double seconds, bool returnAfterSourceHandled)
         {
             IntPtr mode = GetDefaultMode();
+            if (mode == IntPtr.Zero)
+            {
+                return;
+            }
+
             MultitouchNative.CFRunLoopRunInMode(mode, seconds, returnAfterSourceHandled);
         }
 

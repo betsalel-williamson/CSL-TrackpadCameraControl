@@ -161,28 +161,24 @@ namespace TrackpadCapture
         public static extern void CFRelease(IntPtr cf);
 
         [DllImport(CoreFoundationPath)]
-        public static extern IntPtr CFStringCreateWithCString(
-            IntPtr alloc,
-            string str,
-            uint encoding
-        );
-
-        [DllImport(CoreFoundationPath)]
         public static extern int CFRunLoopRunInMode(
             IntPtr mode,
             double seconds,
             [MarshalAs(UnmanagedType.I1)] bool returnAfterSourceHandled
         );
 
-        public const uint kCFStringEncodingUTF8 = 0x08000100;
-
+        /// <summary>
+        /// CFStringRef for default run-loop mode (exported symbol, not a created string).
+        /// </summary>
         public static IntPtr CreateDefaultRunLoopMode()
         {
-            return CFStringCreateWithCString(
-                IntPtr.Zero,
-                "kCFRunLoopDefaultMode",
-                kCFStringEncodingUTF8
-            );
+            IntPtr sym = dlsym((IntPtr)(-2), "kCFRunLoopDefaultMode");
+            if (sym == IntPtr.Zero)
+            {
+                return IntPtr.Zero;
+            }
+
+            return Marshal.ReadIntPtr(sym);
         }
     }
 }

@@ -41,12 +41,16 @@ namespace TrackpadCameraControl
 
         public void Tick()
         {
-            if (_settings == null || !_settings.BridgeEnabled)
+            if (_settings == null)
             {
                 return;
             }
 
             EnsureInjectSourceIfArmed();
+            if (!(_source is InjectGestureSource))
+            {
+                EnsureCaptureSource();
+            }
 
             if (_source is InjectGestureSource inject)
             {
@@ -132,6 +136,52 @@ namespace TrackpadCameraControl
             catch
             {
                 // fail soft
+            }
+        }
+
+        private void EnsureCaptureSource()
+        {
+            CaptureBackend backend = CaptureBackendFlags.Resolve(_settings);
+            if (backend == CaptureBackend.AppleGestures)
+            {
+                if (_source is AppleGestureSource)
+                {
+                    return;
+                }
+
+                SwapCaptureSource(new AppleGestureSource());
+                return;
+            }
+
+            if (_settings.BridgeEnabled)
+            {
+                if (_source is IpcGestureSource)
+                {
+                    return;
+                }
+
+                SwapCaptureSource(new IpcGestureSource());
+                return;
+            }
+
+            if (_source is InProcessGestureSource)
+            {
+                return;
+            }
+
+            SwapCaptureSource(new InProcessGestureSource());
+        }
+
+        private void SwapCaptureSource(IGestureSource next)
+        {
+            try
+            {
+                next.Connect();
+                SetSource(next);
+            }
+            catch
+            {
+                SetSource(new InProcessGestureSource());
             }
         }
     }

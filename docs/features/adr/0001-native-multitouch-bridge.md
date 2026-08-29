@@ -2,33 +2,33 @@
 
 ## Status
 
-Accepted (amended for C# capture dual-path)
+Accepted (amended: in-process capture in the mod DLL)
 
 ## Context
 
 Cities: Skylines I does not expose multi-finger trackpad gestures to mods. Synthetic middle-mouse injection loses pinch and rotate fidelity and fights UI. Each OS needs its own capture path, but the mod should share one primitive stream and binding layer.
 
-CS1 Workshop norms ship a managed C# DLL. True multitouch on macOS needs private MultitouchSupport-style APIs that can crash or break across OS updates. During development, isolating that capture outside the game process is valuable; for shipping, the preferred shape is in-process so packaging matches other mods.
+CS1 Workshop norms ship a managed C# DLL. True multitouch on macOS needs private MultitouchSupport-style APIs that can break across OS updates. An out-of-process TrackpadBridge host was useful while capture was untrusted, but playtesting already requires rebuilding the mod and restarting the game. A companion process plus IPC is extra latency and an extra moving part without a shorter iteration loop.
 
-A separate C helper duplicated Multitouch and wire logic beside the mod. Capture now lives in managed C# so one library serves both the isolation host and the eventual in-process path.
+A separate C helper duplicated Multitouch and wire logic beside the mod. Capture lives in managed C# compiled into the mod DLL.
 
 ## Decision
 
-Capture OS contacts in a shared **C#** TrackpadCapture library behind a shared **gesture primitive** contract and a single `IGestureSource` seam. Two backends:
+Capture OS contacts and Apple-classified gestures **in-process** in the mod DLL behind a shared **gesture primitive** contract and a single `IGestureSource` seam. Two macOS interpreters (flag-selected):
 
-| Path                    | Role                                                                                                                                                                             |
-| ----------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Dev / isolation**     | Thin TrackpadBridge **console host** (references TrackpadCapture) streams primitives over local IPC. Prefer this while validating capture, for crash isolation and easy restart. |
-| **Deploy / in-process** | Same TrackpadCapture logic loaded in-process into the mod DLL. Target Workshop-shaped packaging once capture is trusted.                                                         |
+| Interpreter       | Role                                                                                      |
+| ----------------- | ----------------------------------------------------------------------------------------- |
+| **Contacts**      | MultitouchSupport contacts → primitives (portable template for other OSes).               |
+| **AppleGestures** | AppKit local monitor (scroll / magnify / rotate) → the same primitives. No Accessibility. |
 
-The prior **C** TrackpadBridge helper is **retired**. Binding and camera writes always stay in C#. Ship the **macOS** Multitouch path first; Windows and Linux remain stubs behind the same interface.
+Inspect capture with a **file log** (not a companion process). The C# TrackpadBridge console host remains in the repo as an optional experiment; it is not the playtest path. The prior **C** helper is **retired**. Binding and camera writes always stay in C#. Ship the **macOS** path first; Windows and Linux remain stubs behind the same interface.
 
-Language surface for mod-loaded assemblies: **netstandard2.0** with **C# 9**, using Mono-safe BCL APIs only.
+Language surface for the mod DLL: **net35** with **C# 9**, using Mono-safe BCL APIs only.
 
 ## Consequences
 
 - True pinch / multi-finger gestures become possible where a backend exists.
-- Dev builds may run a companion C# bridge host beside the mod; deploy builds aim for in-process only.
+- Playtest loop is rebuild mod → restart game. Capture logs append to a session file for inspection.
 - Private or unstable OS APIs can break — isolate per backend and fail soft.
 - Product docs stay platform-neutral; backend specifics stay in [platform backends](../platform-backends.md).
 - Contributors validate capture and bindings with xUnit and harnesses documented under the developer guide.

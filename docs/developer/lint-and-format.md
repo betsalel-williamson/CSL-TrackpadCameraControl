@@ -44,4 +44,6 @@ GitHub Actions (`.github/workflows/ci.yml`). Third-party actions are **pinned by
 | **PR → main**    | **commitlint**; one **validate** job runs docs and/or format gates for changed paths (tooling changes → full suite) |
 | **Push to main** | Full docs + C# + native format                                                                                      |
 
+`dotnet test` (CI csharp scope) includes native-resource leak pairing — see [harnesses and testing](./harnesses-and-testing.md).
+
 Locally, husky **pre-commit** formats staged files; **pre-push** runs the full format + docs gates only on `main` — see [commits and releases](./commits-and-releases.md).

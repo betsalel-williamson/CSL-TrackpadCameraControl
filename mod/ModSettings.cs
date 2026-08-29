@@ -57,8 +57,14 @@ namespace TrackpadCameraControl
 
         public bool RequireGameFocus { get; set; } = true;
         public bool IgnoreOverUi { get; set; } = true;
-        public bool BridgeEnabled { get; set; } = true;
+        public bool BridgeEnabled { get; set; }
         public bool DebugOverlay { get; set; }
+
+        /// <summary>
+        /// AppleGestures = in-process AppKit (default). Contacts = in-process MultitouchSupport.
+        /// Overridden by TRACKPAD_CAPTURE_BACKEND when that env var is set.
+        /// </summary>
+        public CaptureBackend CaptureBackend { get; set; } = CaptureBackend.AppleGestures;
 
         /// <summary>
         /// Seeds orbit trigger (and related defaults) from Maps+ or CAD. Custom is a no-op.

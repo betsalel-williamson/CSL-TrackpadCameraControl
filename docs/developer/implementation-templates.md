@@ -1,6 +1,6 @@
 # Implementation templates
 
-Templates under `templates/` remain the copy-paste source of truth for new files — keep contracts in `docs/features/`. Capture and the dev bridge live under `src/` (C#); see [local MVP install](./local-mvp-install.md).
+Templates under `templates/` remain the copy-paste source of truth for new files — keep contracts in `docs/features/`. Capture sources live under `src/TrackpadCapture/` and compile into the mod DLL; see [local MVP install](./local-mvp-install.md).
 
 ## Template index
 
@@ -15,10 +15,10 @@ Templates under `templates/` remain the copy-paste source of truth for new files
 
 ## Quick-start order (MVP+)
 
-1. `dotnet run --project src/TrackpadBridge` — Multitouch → Unix socket (dev path).
-2. `./scripts/install-mod-local.sh` — build + copy DLL to Addons/Mods (see [local MVP install](./local-mvp-install.md)).
-3. Enable mod in Content Manager; pinch zooms when the bridge is running.
-4. Later: Options UI, more gestures, in-process deploy backend.
+1. `./scripts/install-mod-local.sh` — build + copy DLL to Addons/Mods (see [local MVP install](./local-mvp-install.md)).
+2. Restart the game; enable the mod in Content Manager; pinch zooms via in-process capture.
+3. Inspect `${TMPDIR}/trackpad-camera-control.log` while gesturing.
+4. Later: Options UI, more gestures, other OS backends.
 
 ## Do not
 

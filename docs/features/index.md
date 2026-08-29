@@ -5,6 +5,7 @@ Capability design for **Trackpad Camera Control** — Cities: Skylines I trackpa
 - [Feature guide](#table-of-contents)
   - [About this guide](./about-this-guide.md)
   - [Trackpad camera](./trackpad-camera.md)
+  - [Suppress vanilla camera input](./vanilla-camera-suppress.md)
   - [System architecture](./system-architecture.md)
   - [Platform backends](./platform-backends.md)
   - [IPC gesture primitives](./ipc-gesture-primitives.md)

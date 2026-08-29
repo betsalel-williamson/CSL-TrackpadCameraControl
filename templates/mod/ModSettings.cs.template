@@ -36,7 +36,7 @@ namespace TrackpadCameraControl
 
         public bool RequireGameFocus { get; set; } = true;
         public bool IgnoreOverUi { get; set; } = true;
-        public bool BridgeEnabled { get; set; } = true;
+        public bool BridgeEnabled { get; set; }
         public bool DebugOverlay { get; set; }
 
         public void ApplyPreset(GesturePreset preset) { /* seed OrbitTrigger + flags; see docs */ }

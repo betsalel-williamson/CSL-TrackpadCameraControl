@@ -30,7 +30,7 @@ GestureFrame → GestureSession → BindingResolver (op set)
 
 1. **Options UI** — Maps+/CAD dropdown, resolve mode, all tunables.
 2. **Assist UI chrome** — existing assist-ui design/shards; not wired in this slice.
-3. **Harmony** — single checkbox for vanilla in-game camera controls on/off so trackpad and vanilla do not fight.
+3. **Harmony Options checkbox** — deferred. Vanilla scroll-zoom and mouse-drag rotate are suppressed whenever the mod is on; see `2026-08-29-vanilla-camera-suppress-design.md`.
 
 ## Acceptance
 

@@ -20,4 +20,4 @@
 
 ## Current phase
 
-**Full gesture camera ops** — pan, zoom, yaw, orbit with resolve modes and orbit latch (in-memory settings / `ApplyPreset`). Next: Options UI, then Assist UI wiring, then Harmony vanilla-camera checkbox; in-process deploy capture remains later.
+**Vanilla camera suppress** — while the mod is enabled, Harmony skips vanilla scroll-zoom and mouse-drag rotate; edge pan, keyboard, and gamepad stay. Cities Harmony is required. Next: Options UI, then Assist UI wiring; in-process deploy capture remains later. An Options checkbox to leave vanilla camera on is deferred.

@@ -17,7 +17,11 @@ fi
 dotnet build "${ROOT}/mod/TrackpadCameraControl.csproj" -c Release -p:CitiesManaged="${MANAGED}"
 mkdir -p "${DEST}"
 cp -f "${ROOT}/mod/bin/Release/net35/TrackpadCameraControl.dll" "${DEST}/"
+API_DLL="${ROOT}/mod/bin/Release/net35/CitiesHarmony.API.dll"
+if [[ -f "${API_DLL}" ]]; then
+  cp -f "${API_DLL}" "${DEST}/"
+fi
+# CitiesHarmony.Harmony.dll is provided by the Cities Harmony workshop mod — do not copy it.
 echo "Installed → ${DEST}/TrackpadCameraControl.dll"
-echo "Start the bridge before playing:"
-echo "  export PATH=\"\$HOME/.dotnet:\$PATH\""
-echo "  dotnet run --project src/TrackpadBridge"
+echo "Restart Cities: Skylines. Capture runs in-process (no TrackpadBridge)."
+echo "Inspect: tail -f \"\${TMPDIR:-/tmp}/trackpad-camera-control.log\""

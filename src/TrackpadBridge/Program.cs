@@ -37,7 +37,7 @@ namespace TrackpadBridge
                     return 1;
                 }
 
-                using (var capture = new MacTrackpadCapture(debug))
+                using (var capture = new MacTrackpadCapture(debug, Console.Error.WriteLine))
                 {
                     if (!capture.TryStart(server.Send, out string capErr))
                     {
