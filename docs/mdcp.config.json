@@ -46,6 +46,8 @@
       "scripts/**",
       ".github/**",
       ".changeset/**",
+      "infra/**",
+      ".superpowers/**",
       "CHANGELOG.md",
       "LICENSE",
       "package.json",
