@@ -1,10 +1,10 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
-    <LangVersion>9.0</LangVersion>
-    <Nullable>disable</Nullable>
-    <ImplicitUsings>disable</ImplicitUsings>
-    <RootNamespace>TrackpadCapture</RootNamespace>
-    <AssemblyName>TrackpadCapture</AssemblyName>
-  </PropertyGroup>
+    <PropertyGroup>
+        <TargetFramework>netstandard2.0</TargetFramework>
+        <LangVersion>9.0</LangVersion>
+        <Nullable>disable</Nullable>
+        <ImplicitUsings>disable</ImplicitUsings>
+        <RootNamespace>TrackpadCapture</RootNamespace>
+        <AssemblyName>TrackpadCapture</AssemblyName>
+    </PropertyGroup>
 </Project>

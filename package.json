@@ -23,8 +23,8 @@
     "docs:check": "mdcp check --config docs/mdcp.config.json --docs-root docs --skip-vale --require-lint",
     "docs:fix": "mdcp fix --config docs/mdcp.config.json --docs-root docs",
     "format:docs": "npm run docs:fix",
-    "format:csharp": "dotnet tool restore && dotnet tool run csharpier format mod/",
-    "format:csharp:check": "dotnet tool restore && dotnet tool run csharpier check mod/",
+    "format:csharp": "dotnet tool restore && dotnet tool run csharpier format mod/ src/ tests/",
+    "format:csharp:check": "dotnet tool restore && dotnet tool run csharpier check mod/ src/ tests/",
     "format:native": "bash scripts/format-native.sh format",
     "format:native:check": "bash scripts/format-native.sh check",
     "format": "npm run format:docs && npm run format:csharp && npm run format:native",
@@ -42,6 +42,12 @@
       "prettier --write"
     ],
     "mod/**/*.cs": [
+      "bash scripts/lint-staged-csharpier.sh"
+    ],
+    "src/**/*.cs": [
+      "bash scripts/lint-staged-csharpier.sh"
+    ],
+    "tests/**/*.cs": [
       "bash scripts/lint-staged-csharpier.sh"
     ],
     "native/**/*.{c,h}": [

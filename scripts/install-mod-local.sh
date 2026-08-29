@@ -18,4 +18,4 @@ dotnet build "${ROOT}/mod/TrackpadCameraControl.csproj" -c Release -p:CitiesMana
 mkdir -p "${DEST}"
 cp -f "${ROOT}/mod/bin/Release/netstandard2.0/TrackpadCameraControl.dll" "${DEST}/"
 echo "Installed → ${DEST}/TrackpadCameraControl.dll"
-echo "Start native/mac/TrackpadBridge before playing (pinch → zoom MVP)."
+echo "Start the bridge before playing: dotnet run --project src/TrackpadBridge"

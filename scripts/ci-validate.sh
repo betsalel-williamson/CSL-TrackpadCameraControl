@@ -82,6 +82,8 @@ select_scopes() {
     fi
     if path_is "$path" \
       "mod/*" \
+      "src/*" \
+      "tests/*" \
       ".csharpierignore" \
       ".config/dotnet-tools.json" \
       "TrackpadCameraControl.sln" \

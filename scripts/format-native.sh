@@ -12,11 +12,13 @@ if ! command -v clang-format >/dev/null 2>&1; then
 fi
 
 # Portable file list (macOS ships Bash 3 — no mapfile).
+# Skip blank lines so an empty `find` does not yield a spurious "" entry.
 files=()
 while IFS= read -r line; do
+  [[ -n "$line" ]] || continue
   files+=("$line")
 done <<EOF
-$(find native -type f \( -name '*.c' -o -name '*.h' \) | sort)
+$(find native -type f \( -name '*.c' -o -name '*.h' \) 2>/dev/null | sort)
 EOF
 
 if [[ ${#files[@]} -eq 0 ]]; then
