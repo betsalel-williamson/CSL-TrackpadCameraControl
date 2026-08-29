@@ -41,6 +41,12 @@ Check only (no package install):
 
 Game / Cities: Skylines assemblies are **not** required for Phase 1 contributor tooling.
 
+## C# language pin
+
+Mod-loaded and shared capture libraries target **netstandard2.0** with **`LangVersion` 9** (not `latest`). Prefer **Mono-safe BCL** APIs that Cities: Skylines / Unity can load — avoid APIs that exist only on modern desktop runtimes when those assemblies ship into the game process. Test and bridge **host** projects may use a modern TFM (for example `net8.0`) while referencing the shared capture library.
+
+Related: [lint and format](./lint-and-format.md), [harnesses and testing](./harnesses-and-testing.md).
+
 ## Windows notes
 
 - Preferred: **WSL2 (Ubuntu)** and the same `./scripts/bootstrap-dev.sh --install-tools` flow.

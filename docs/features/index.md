@@ -11,5 +11,5 @@ Capability design for **Trackpad Camera Control** — Cities: Skylines I trackpa
   - [Settings and hot configuration](./settings-and-hot-configuration.md)
   - [Prior art and scope](./prior-art-and-scope.md)
   - [Architecture decision records](./adr/index.md)
-    - [ADR 0001 — Native OS trackpad bridge](./adr/0001-native-multitouch-bridge.md)
+    - [ADR 0001 — OS trackpad bridge](./adr/0001-native-multitouch-bridge.md)
     - [ADR 0002 — Gesture presets as seeds](./adr/0002-gesture-presets-as-seeds.md)
