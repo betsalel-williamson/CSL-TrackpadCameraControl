@@ -44,19 +44,19 @@ Presets seed bindings. Users may override any row; that becomes Custom. Modifier
 ## Acceptance criteria (current)
 
 - With a supported trackpad backend and Maps+ defaults, pan, zoom, yaw, and modifier+two-finger orbit work in-game.
-- Calling `ApplyPreset(CAD)` (or switching preset when Options UI lands) makes three-finger orbit take effect on the next gesture (no restart).
-- Changing any sensitivity, invert, enable, deadzone, orbit trigger, or resolve mode applies hot via live ModSettings.
+- Calling `ApplyPreset(CAD)` makes three-finger orbit take effect on the next gesture (no restart).
+- Changing sensitivities or capture backend in Options applies hot via live ModSettings (other tunables stay in-memory until later Options slices).
 - Orbit latch continues orbit after modifier release until fingers lift; pan and zoom stay suppressed while latched.
 - Concurrent resolve allows pan + zoom + yaw in the same frame when not orbit-latched.
 - One-finger building tools remain usable.
 - [Vanilla camera suppress](./vanilla-camera-suppress.md) is on whenever the mod is enabled (Cities Harmony required): two-finger pan does not also vanilla-scroll-zoom; mouse-drag camera rotate is skipped while the rotate-camera binding is held; edge pan, keyboard, and gamepad still move the camera.
 - Without a platform backend (unsupported OS or missing bridge), the mod enables cleanly. Keyboard, edge pan, and gamepad stay; vanilla scroll-zoom and mouse-rotate stay suppressed until the mod is disabled.
 - If Cities Harmony is missing, the mod enables without crashing; gestures may still apply; pan may fight vanilla scroll-zoom.
-- No Options UI required for this slice (in-memory settings defaults and `ApplyPreset`). Disable the mod to restore full vanilla camera input.
+- Disable the mod to restore full vanilla camera input.
 
 ## Acceptance criteria (later phases)
 
-- Options UI exposes preset, resolve mode, and all tunables.
+- Options UI exposes preset, resolve mode, inverts, deadzones, and remaining tunables.
 - With Assist UI enabled, corner chrome can drive the same pan / zoom / yaw / orbit ops through the shared apply path.
 
 ## Non-goals (v1)

@@ -80,7 +80,9 @@ Exact default numbers are tuned during implementation; change them only in the d
 | CaptureBackend   | enum: Contacts, AppleGestures | AppleGestures | yes |
 | DebugOverlay     | bool                          | false         | yes |
 
-`CaptureBackend` selects the in-process interpreter: **AppleGestures** (default) is AppKit scroll/magnify/rotate (no Accessibility). **Contacts** is MultitouchSupport contacts. Launch override: `TRACKPAD_CAPTURE_BACKEND=apple` or `contacts` (env wins when set). `BridgeEnabled` is an optional experiment (out-of-process socket host); playtest leaves it off. Capture frames append to a log file (`TRACKPAD_CAPTURE_LOG` overrides the path; default is `trackpad-camera-control.log` under the process temp directory).
+`CaptureBackend` selects the in-process interpreter: **AppleGestures** (default, **current**) is AppKit scroll/magnify/rotate (no Accessibility). **Contacts** is the legacy MultitouchSupport path, gated behind this flag (and the Options interpreter dropdown). Launch override: `TRACKPAD_CAPTURE_BACKEND=apple` or `contacts` (env wins when set). `BridgeEnabled` is an optional experiment (out-of-process socket host); playtest leaves it off. Capture frames append to a log file (`TRACKPAD_CAPTURE_LOG` overrides the path; default is `trackpad-camera-control.log` under the process temp directory).
+
+Options (this slice) bind `CaptureBackend` and the six sensitivity fields. Other schema fields remain defaults until later Options slices.
 
 ## Validation rule
 

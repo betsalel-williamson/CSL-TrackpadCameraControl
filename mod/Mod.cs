@@ -23,12 +23,27 @@ namespace TrackpadCameraControl
         public static GesturePipeline Pipeline { get; private set; }
         public static InjectGestureSource InjectSource { get; internal set; }
 
+        internal static ModSettings EnsureSettings()
+        {
+            if (Settings == null)
+            {
+                Settings = new ModSettings();
+            }
+
+            return Settings;
+        }
+
+        internal static void ClearSettingsForTests()
+        {
+            Settings = null;
+        }
+
         public void OnEnabled()
         {
             VanillaCameraSuppress.Enabled = true;
             try
             {
-                Settings = new ModSettings();
+                EnsureSettings();
                 GestureCaptureLog.Line(
                     "mod enabled backend=" + CaptureBackendFlags.Resolve(Settings)
                 );
@@ -50,7 +65,7 @@ namespace TrackpadCameraControl
             catch
             {
                 // Fail soft: gestures may be unavailable; suppress stays on while the mod is enabled.
-                Settings = new ModSettings();
+                EnsureSettings();
                 InjectSource = null;
                 Pipeline = new GesturePipeline(Settings, new InProcessGestureSource());
             }
@@ -145,6 +160,75 @@ namespace TrackpadCameraControl
 
             return false;
         }
+
+#if HAS_CITIES
+        public void OnSettingsUI(UIHelperBase helper)
+        {
+            if (helper == null)
+            {
+                return;
+            }
+
+            ModSettings s = EnsureSettings();
+            helper.AddGroup("Capture");
+            helper.AddDropdown(
+                "Interpreter",
+                ModOptions.CaptureBackendLabels,
+                ModOptions.CaptureBackendToIndex(s.CaptureBackend),
+                sel => ModOptions.ApplyCaptureBackendIndex(s, sel)
+            );
+
+            helper.AddGroup("Sensitivity");
+            helper.AddSlider(
+                "Pan X",
+                ModOptions.SensitivityMin,
+                ModOptions.SensitivityMax,
+                ModOptions.SensitivityStep,
+                s.PanSensitivityX,
+                v => ModOptions.ApplyPanSensitivityX(s, v)
+            );
+            helper.AddSlider(
+                "Pan Y",
+                ModOptions.SensitivityMin,
+                ModOptions.SensitivityMax,
+                ModOptions.SensitivityStep,
+                s.PanSensitivityY,
+                v => ModOptions.ApplyPanSensitivityY(s, v)
+            );
+            helper.AddSlider(
+                "Orbit yaw",
+                ModOptions.SensitivityMin,
+                ModOptions.SensitivityMax,
+                ModOptions.SensitivityStep,
+                s.OrbitYawSensitivity,
+                v => ModOptions.ApplyOrbitYawSensitivity(s, v)
+            );
+            helper.AddSlider(
+                "Orbit pitch",
+                ModOptions.SensitivityMin,
+                ModOptions.SensitivityMax,
+                ModOptions.SensitivityStep,
+                s.OrbitPitchSensitivity,
+                v => ModOptions.ApplyOrbitPitchSensitivity(s, v)
+            );
+            helper.AddSlider(
+                "Zoom",
+                ModOptions.SensitivityMin,
+                ModOptions.SensitivityMax,
+                ModOptions.SensitivityStep,
+                s.ZoomSensitivity,
+                v => ModOptions.ApplyZoomSensitivity(s, v)
+            );
+            helper.AddSlider(
+                "Yaw rotate",
+                ModOptions.SensitivityMin,
+                ModOptions.SensitivityMax,
+                ModOptions.SensitivityStep,
+                s.YawRotateSensitivity,
+                v => ModOptions.ApplyYawRotateSensitivity(s, v)
+            );
+        }
+#endif
 
         internal static IGestureSource CreateCaptureSource(ModSettings settings)
         {
