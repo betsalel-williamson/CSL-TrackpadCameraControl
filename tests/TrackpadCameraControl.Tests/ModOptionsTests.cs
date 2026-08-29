@@ -37,7 +37,7 @@ namespace TrackpadCameraControl.Tests
         public void ClampSensitivity_PinsToRange()
         {
             Assert.Equal(ModOptions.SensitivityMin, ModOptions.ClampSensitivity(-1f));
-            Assert.Equal(ModOptions.SensitivityMax, ModOptions.ClampSensitivity(99f));
+            Assert.Equal(ModOptions.SensitivityMax, ModOptions.ClampSensitivity(999f));
             Assert.Equal(1.5f, ModOptions.ClampSensitivity(1.5f));
         }
 
@@ -45,7 +45,7 @@ namespace TrackpadCameraControl.Tests
         public void ApplyPanSensitivityX_ClampsAndStores()
         {
             var settings = new ModSettings();
-            ModOptions.ApplyPanSensitivityX(settings, 99f);
+            ModOptions.ApplyPanSensitivityX(settings, 999f);
             Assert.Equal(ModOptions.SensitivityMax, settings.PanSensitivityX);
         }
 

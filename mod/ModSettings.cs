@@ -29,6 +29,7 @@ namespace TrackpadCameraControl
         public GesturePreset GesturePreset { get; set; } = GesturePreset.MapsPlus;
         public GestureResolveMode GestureResolveMode { get; set; } = GestureResolveMode.Concurrent;
 
+        public bool AssistUiEnabled { get; set; } = true;
         public bool PanEnabled { get; set; } = true;
         public bool ZoomEnabled { get; set; } = true;
         public bool YawEnabled { get; set; } = true;
@@ -42,6 +43,13 @@ namespace TrackpadCameraControl
         public float ZoomSensitivity { get; set; } = 1f;
         public float YawRotateSensitivity { get; set; } = 1f;
 
+        public float PanButtonScaleX { get; set; } = 0.05f;
+        public float PanButtonScaleY { get; set; } = 0.05f;
+        public float OrbitYawButtonScale { get; set; } = 2f;
+        public float OrbitPitchButtonScale { get; set; } = 2f;
+        public float ZoomButtonScale { get; set; } = 0.05f;
+        public float YawRotateButtonScale { get; set; } = 2f;
+
         public bool InvertPanX { get; set; }
         public bool InvertPanY { get; set; }
         public bool InvertOrbitYaw { get; set; }
@@ -53,7 +61,15 @@ namespace TrackpadCameraControl
         public float PinchEpsilon { get; set; } = 0.001f;
         public float RotateEpsilon { get; set; } = 0.001f;
         public float FingerCountHysteresis { get; set; } = 0.05f;
-        public float Smoothing { get; set; } // 0 = off
+
+        public bool PanLowPassEnabled { get; set; }
+        public float PanLowPassAlpha { get; set; } = 0.3f;
+        public bool ZoomLowPassEnabled { get; set; }
+        public float ZoomLowPassAlpha { get; set; } = 0.3f;
+        public bool YawLowPassEnabled { get; set; }
+        public float YawLowPassAlpha { get; set; } = 0.3f;
+        public bool OrbitLowPassEnabled { get; set; }
+        public float OrbitLowPassAlpha { get; set; } = 0.3f;
 
         public bool RequireGameFocus { get; set; } = true;
         public bool IgnoreOverUi { get; set; } = true;
@@ -68,6 +84,7 @@ namespace TrackpadCameraControl
 
         /// <summary>
         /// Seeds orbit trigger (and related defaults) from Maps+ or CAD. Custom is a no-op.
+        /// Does not wipe custom scales or low-pass settings.
         /// </summary>
         public void ApplyPreset(GesturePreset preset)
         {
@@ -85,6 +102,70 @@ namespace TrackpadCameraControl
             {
                 OrbitTrigger = OrbitTrigger.ThreeFinger;
             }
+        }
+
+        /// <summary>Copy all feel and binding fields from another settings instance.</summary>
+        public void CopyFrom(ModSettings other)
+        {
+            if (other == null)
+            {
+                return;
+            }
+
+            GesturePreset = other.GesturePreset;
+            GestureResolveMode = other.GestureResolveMode;
+            AssistUiEnabled = other.AssistUiEnabled;
+            PanEnabled = other.PanEnabled;
+            ZoomEnabled = other.ZoomEnabled;
+            YawEnabled = other.YawEnabled;
+            OrbitEnabled = other.OrbitEnabled;
+            OrbitTrigger = other.OrbitTrigger;
+
+            PanSensitivityX = other.PanSensitivityX;
+            PanSensitivityY = other.PanSensitivityY;
+            OrbitYawSensitivity = other.OrbitYawSensitivity;
+            OrbitPitchSensitivity = other.OrbitPitchSensitivity;
+            ZoomSensitivity = other.ZoomSensitivity;
+            YawRotateSensitivity = other.YawRotateSensitivity;
+
+            PanButtonScaleX = other.PanButtonScaleX;
+            PanButtonScaleY = other.PanButtonScaleY;
+            OrbitYawButtonScale = other.OrbitYawButtonScale;
+            OrbitPitchButtonScale = other.OrbitPitchButtonScale;
+            ZoomButtonScale = other.ZoomButtonScale;
+            YawRotateButtonScale = other.YawRotateButtonScale;
+
+            InvertPanX = other.InvertPanX;
+            InvertPanY = other.InvertPanY;
+            InvertOrbitYaw = other.InvertOrbitYaw;
+            InvertOrbitPitch = other.InvertOrbitPitch;
+            InvertZoom = other.InvertZoom;
+            InvertYawRotate = other.InvertYawRotate;
+
+            MotionDeadzone = other.MotionDeadzone;
+            PinchEpsilon = other.PinchEpsilon;
+            RotateEpsilon = other.RotateEpsilon;
+            FingerCountHysteresis = other.FingerCountHysteresis;
+
+            PanLowPassEnabled = other.PanLowPassEnabled;
+            PanLowPassAlpha = other.PanLowPassAlpha;
+            ZoomLowPassEnabled = other.ZoomLowPassEnabled;
+            ZoomLowPassAlpha = other.ZoomLowPassAlpha;
+            YawLowPassEnabled = other.YawLowPassEnabled;
+            YawLowPassAlpha = other.YawLowPassAlpha;
+            OrbitLowPassEnabled = other.OrbitLowPassEnabled;
+            OrbitLowPassAlpha = other.OrbitLowPassAlpha;
+
+            RequireGameFocus = other.RequireGameFocus;
+            IgnoreOverUi = other.IgnoreOverUi;
+            BridgeEnabled = other.BridgeEnabled;
+            DebugOverlay = other.DebugOverlay;
+            CaptureBackend = other.CaptureBackend;
+        }
+
+        public static ModSettings CreateFactoryDefaults()
+        {
+            return new ModSettings();
         }
     }
 }

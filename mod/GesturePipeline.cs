@@ -6,6 +6,7 @@ namespace TrackpadCameraControl
         private readonly ModSettings _settings;
         private readonly ICameraController _camera;
         private readonly GestureSession _session = new GestureSession();
+        private readonly DragLowPass _lowPass = new DragLowPass();
         private IGestureSource _source;
         private int _reconnectCooldown;
 
@@ -78,21 +79,28 @@ namespace TrackpadCameraControl
             while (safety-- > 0 && _source.TryDequeue(out GestureFrame frame))
             {
                 frame = GameModifierKeys.Enrich(frame);
+                if (
+                    frame.fingerCount <= 0
+                    || frame.phase == (int)GesturePhase.Ended
+                    || frame.phase == (int)GesturePhase.Cancelled
+                )
+                {
+                    _lowPass.Reset();
+                }
+
                 CameraOp ops = _session.Process(frame, _settings);
                 if (ops == CameraOp.None)
                 {
                     continue;
                 }
 
-                CameraApplicator.Apply(
-                    ops,
-                    frame.centroidDeltaX,
-                    frame.centroidDeltaY,
-                    frame.pinchScaleDelta,
-                    frame.rotateDelta,
-                    _settings,
-                    _camera
-                );
+                float dx = frame.centroidDeltaX;
+                float dy = frame.centroidDeltaY;
+                float pinch = frame.pinchScaleDelta;
+                float rotate = frame.rotateDelta;
+                _lowPass.Filter(ops, _settings, ref dx, ref dy, ref pinch, ref rotate);
+
+                CameraApplicator.Apply(ops, dx, dy, pinch, rotate, _settings, _camera);
                 applied = true;
             }
 
