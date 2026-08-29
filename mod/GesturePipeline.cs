@@ -4,16 +4,23 @@ namespace TrackpadCameraControl
     public sealed class GesturePipeline
     {
         private readonly ModSettings _settings;
+        private readonly ICameraZoom _camera;
         private IGestureSource _source;
         private int _reconnectCooldown;
 
         public GesturePipeline(ModSettings settings, IGestureSource source)
+            : this(settings, source, new CameraControllerZoom()) { }
+
+        public GesturePipeline(ModSettings settings, IGestureSource source, ICameraZoom camera)
         {
             _settings = settings ?? new ModSettings();
             _source = source ?? new InProcessGestureSource();
+            _camera = camera ?? new CameraControllerZoom();
         }
 
         public IGestureSource Source => _source;
+
+        public ICameraZoom Camera => _camera;
 
         public bool IsConnected => _source != null && _source.IsConnected;
 
@@ -65,7 +72,8 @@ namespace TrackpadCameraControl
                     frame.centroidDeltaY,
                     frame.pinchScaleDelta,
                     frame.rotateDelta,
-                    _settings
+                    _settings,
+                    _camera
                 );
             }
         }
