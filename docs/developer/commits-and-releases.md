@@ -59,4 +59,6 @@ On push to `main`, `.github/workflows/release.yml`:
 
 Beta install from a release: [Local MVP install](./local-mvp-install.md).
 
+After a Release (or Workshop publish), follow [Community and marketing](./community-and-marketing.md) for soft vs public announcement — do not splash Reddit/Workshop until public-splash readiness there is met.
+
 Branch protection and merge policy: [GitHub project controls](./github-project-controls.md).

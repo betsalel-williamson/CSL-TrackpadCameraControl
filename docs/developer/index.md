@@ -10,6 +10,7 @@ How to work on **Trackpad Camera Control** — docs, layout, validation, and imp
   - [Lint and format](./lint-and-format.md)
   - [Commits and releases](./commits-and-releases.md)
   - [GitHub project controls](./github-project-controls.md)
+  - [Community and marketing](./community-and-marketing.md)
   - [Settings schema](./settings-schema.md)
   - [Implementation templates](./implementation-templates.md)
   - [Harnesses and testing](./harnesses-and-testing.md)

@@ -29,6 +29,6 @@ For C# and native format tooling, see [lint and format](./lint-and-format.md).
 | Guide | Holds |
 | --- | --- |
 | `docs/features/` | Capabilities, architecture, ADRs, settings contracts |
-| `docs/client/` | Player install, presets, Options, OS gesture conflicts |
-| `docs/developer/` | Layout, docs tooling, templates, work items |
+| `docs/client/` | Personas, player install, presets, Options, OS gesture conflicts |
+| `docs/developer/` | Layout, docs tooling, templates, work items, community/marketing, local deploy |
 | `docs/glossary/` | Shared terms |
