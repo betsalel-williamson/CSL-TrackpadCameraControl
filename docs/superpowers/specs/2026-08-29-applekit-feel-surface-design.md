@@ -1,7 +1,7 @@
 # AppleKit Maps+ feel surface — Design
 
 **Date:** 2026-08-29  
-**Status:** Approved — MDCP docs-first in progress; product code follows after durable shards + `docs:check`  
+**Status:** Approved — MDCP durable docs landed (G1–G6); product code next  
 **Scope:** Slim product surface (Maps+/AppleKit), feel presets, scroll/UI gating, Sensitivity naming, orbit pitch limits  
 **Approach:** Product-surface slim + feature flags (Option A)  
 **Planning location:** This file under `docs/superpowers/specs/` (not a durable product shard)
@@ -34,10 +34,10 @@
 | --- | --- | --- | --- | --- |
 | **G1** | Glossary: Sensitivity primary; feel-preset; gesture-style; op activation | `docs/glossary/*`, `docs/glossary/index.md` | `docs: glossary Sensitivity, feel preset, and gesture style` | Done (`a081ec0`) |
 | **G2** | Feature contracts | `docs/features/settings-and-hot-configuration.md`, `vanilla-camera-suppress.md`, `trackpad-camera.md`, `platform-backends.md`, `assist-ui-camera-chrome.md` | `docs: feature contracts for AppleKit feel surface` | Done (`a1895cb`) |
-| **G3** | Client workflows | `docs/client/feel-presets.md` (new), `options-and-hot-tuning.md`, `gesture-presets.md`, `install-and-first-run.md`, `macos-gesture-conflicts.md` / `os-gesture-conflicts.md` as needed, `docs/client/index.md` | `docs: client feel presets and Options workflows` | Pending — subagent |
-| **G4** | Developer schema + flags | `docs/developer/feature-flags.md` (new), `settings-schema.md`, `work-item-tracking.md`, `docs/developer/index.md` | `docs: feature flags and settings schema for feel surface` | Pending — subagent |
-| **G5** | ADR | `docs/features/adr/0003-feel-profiles-and-product-flags.md` (new), `docs/features/adr/index.md`, update ADR 0002 status/link if superseded in part | `docs: ADR feel profiles vs gesture style and product flags` | Pending — subagent |
-| **G6** | Docs validate | (no content edits unless fix link failures) | `docs: check AppleKit feel surface shards` if fixes needed | After G3–G5 — subagent |
+| **G3** | Client workflows | `docs/client/feel-presets.md` (new), `options-and-hot-tuning.md`, `gesture-presets.md`, `install-and-first-run.md`, `macos-gesture-conflicts.md` / `os-gesture-conflicts.md` as needed, `docs/client/index.md` | `docs: client feel presets and Options workflows` | Done (`3f8ac22`) |
+| **G4** | Developer schema + flags | `docs/developer/feature-flags.md` (new), `settings-schema.md`, `work-item-tracking.md`, `docs/developer/index.md` | `docs: feature flags and settings schema for feel surface` | Done (`d3ec102`) |
+| **G5** | ADR | `docs/features/adr/0003-feel-profiles-and-product-flags.md` (new), `docs/features/adr/index.md`, update ADR 0002 status/link if superseded in part | `docs: ADR feel profiles vs gesture style and product flags` | Done (`97e6150`) |
+| **G6** | Docs validate | (no content edits unless fix link failures) | `docs: check AppleKit feel surface shards` if fixes needed | Done (`e0e525d`) |
 
 Product **code** implementation is **out of scope for G1–G6**; a later plan/commit series implements flags, gates, presets, and UI against these shards.
 
