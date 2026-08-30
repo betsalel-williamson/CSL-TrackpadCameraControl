@@ -58,6 +58,17 @@ namespace TrackpadCameraControl
 
         public static ModSettingsStore Store { get; set; }
 
+        /// <summary>
+        /// Raised after settings apply + force flush so Options / Debug panel can refresh.
+        /// </summary>
+        public static event Action SettingsChanged;
+
+        /// <summary>Test helper: drop all SettingsChanged subscribers.</summary>
+        internal static void ClearSettingsChangedForTests()
+        {
+            SettingsChanged = null;
+        }
+
         public static int CaptureBackendToIndex(CaptureBackend backend)
         {
             return backend == CaptureBackend.Contacts ? 1 : 0;
@@ -76,7 +87,7 @@ namespace TrackpadCameraControl
             }
 
             settings.CaptureBackend = IndexToCaptureBackend(index);
-            NotifyChanged();
+            NotifyChanged(settings);
         }
 
         public static int GesturePresetToIndex(GesturePreset preset)
@@ -97,7 +108,7 @@ namespace TrackpadCameraControl
             }
 
             settings.ApplyPreset(IndexToGesturePreset(index));
-            NotifyChanged();
+            NotifyChanged(settings);
         }
 
         public static string PresetDescription(GesturePreset preset)
@@ -227,7 +238,21 @@ namespace TrackpadCameraControl
             }
 
             assign(settings, Round2(value));
-            NotifyChanged();
+            AfterFeelFieldChanged(settings);
+        }
+
+        /// <summary>
+        /// Feel-field apply path: dirty → New Preset autosave, then notify/sync.
+        /// </summary>
+        public static void AfterFeelFieldChanged(ModSettings settings)
+        {
+            if (settings == null)
+            {
+                return;
+            }
+
+            FeelProfiles.EnsureDirtyNewPreset(settings, Store);
+            NotifyChanged(settings);
         }
 
         public static void ApplyPanSensitivityX(ModSettings settings, float value)
@@ -258,7 +283,7 @@ namespace TrackpadCameraControl
             }
 
             settings.OrbitPitchMin = Round2(value);
-            NotifyChanged();
+            AfterFeelFieldChanged(settings);
         }
 
         public static void ApplyOrbitPitchMax(ModSettings settings, float value)
@@ -269,7 +294,7 @@ namespace TrackpadCameraControl
             }
 
             settings.OrbitPitchMax = Round2(value);
-            NotifyChanged();
+            AfterFeelFieldChanged(settings);
         }
 
         public static void ApplyZoomSensitivity(ModSettings settings, float value)
@@ -290,7 +315,7 @@ namespace TrackpadCameraControl
             }
 
             settings.PanButtonScaleX = ClampScale(value);
-            NotifyChanged();
+            NotifyChanged(settings);
         }
 
         public static void ApplyPanButtonScaleY(ModSettings settings, float value)
@@ -301,7 +326,7 @@ namespace TrackpadCameraControl
             }
 
             settings.PanButtonScaleY = ClampScale(value);
-            NotifyChanged();
+            NotifyChanged(settings);
         }
 
         public static void ApplyOrbitYawButtonScale(ModSettings settings, float value)
@@ -312,7 +337,7 @@ namespace TrackpadCameraControl
             }
 
             settings.OrbitYawButtonScale = ClampScale(value);
-            NotifyChanged();
+            NotifyChanged(settings);
         }
 
         public static void ApplyOrbitPitchButtonScale(ModSettings settings, float value)
@@ -323,7 +348,7 @@ namespace TrackpadCameraControl
             }
 
             settings.OrbitPitchButtonScale = ClampScale(value);
-            NotifyChanged();
+            NotifyChanged(settings);
         }
 
         public static void ApplyZoomButtonScale(ModSettings settings, float value)
@@ -334,7 +359,7 @@ namespace TrackpadCameraControl
             }
 
             settings.ZoomButtonScale = ClampScale(value);
-            NotifyChanged();
+            NotifyChanged(settings);
         }
 
         public static void ApplyYawRotateButtonScale(ModSettings settings, float value)
@@ -345,7 +370,7 @@ namespace TrackpadCameraControl
             }
 
             settings.YawRotateButtonScale = ClampScale(value);
-            NotifyChanged();
+            NotifyChanged(settings);
         }
 
         public static void ApplyPanLowPassAlpha(ModSettings settings, float value)
@@ -356,7 +381,7 @@ namespace TrackpadCameraControl
             }
 
             settings.PanLowPassAlpha = ClampAlpha(value);
-            NotifyChanged();
+            NotifyChanged(settings);
         }
 
         public static void ApplyZoomLowPassAlpha(ModSettings settings, float value)
@@ -367,7 +392,7 @@ namespace TrackpadCameraControl
             }
 
             settings.ZoomLowPassAlpha = ClampAlpha(value);
-            NotifyChanged();
+            NotifyChanged(settings);
         }
 
         public static void ApplyYawLowPassAlpha(ModSettings settings, float value)
@@ -378,7 +403,7 @@ namespace TrackpadCameraControl
             }
 
             settings.YawLowPassAlpha = ClampAlpha(value);
-            NotifyChanged();
+            NotifyChanged(settings);
         }
 
         public static void ApplyOrbitLowPassAlpha(ModSettings settings, float value)
@@ -389,7 +414,7 @@ namespace TrackpadCameraControl
             }
 
             settings.OrbitLowPassAlpha = ClampAlpha(value);
-            NotifyChanged();
+            NotifyChanged(settings);
         }
 
         public static void ApplyBool(ModSettings settings, Action<ModSettings> mutate)
@@ -400,7 +425,21 @@ namespace TrackpadCameraControl
             }
 
             mutate(settings);
-            NotifyChanged();
+            NotifyChanged(settings);
+        }
+
+        /// <summary>
+        /// Apply a feel-surface bool (enables / reverse). Dirties to New Preset.
+        /// </summary>
+        public static void ApplyFeelBool(ModSettings settings, Action<ModSettings> mutate)
+        {
+            if (settings == null || mutate == null)
+            {
+                return;
+            }
+
+            mutate(settings);
+            AfterFeelFieldChanged(settings);
         }
 
         public static void ResetToFactory(ModSettings settings)
@@ -411,14 +450,13 @@ namespace TrackpadCameraControl
             }
 
             settings.CopyFrom(ModSettings.CreateFactoryDefaults());
+            settings.ActiveFeelPresetName = FeelProfiles.NameDefault;
             if (Store != null)
             {
                 Store.SaveNow(settings);
             }
-            else
-            {
-                NotifyChanged();
-            }
+
+            RaiseSettingsChanged();
         }
 
         public static void ApplyFeelDefault(ModSettings settings)
@@ -429,7 +467,8 @@ namespace TrackpadCameraControl
             }
 
             FeelProfiles.ApplyDefault(settings);
-            NotifyChanged();
+            settings.ActiveFeelPresetName = FeelProfiles.NameDefault;
+            NotifyChanged(settings);
         }
 
         public static void ApplyFeelSlow(ModSettings settings)
@@ -440,7 +479,8 @@ namespace TrackpadCameraControl
             }
 
             FeelProfiles.ApplySlow(settings);
-            NotifyChanged();
+            settings.ActiveFeelPresetName = FeelProfiles.NameSlow;
+            NotifyChanged(settings);
         }
 
         public static void ApplyFeelFast(ModSettings settings)
@@ -451,10 +491,14 @@ namespace TrackpadCameraControl
             }
 
             FeelProfiles.ApplyFast(settings);
-            NotifyChanged();
+            settings.ActiveFeelPresetName = FeelProfiles.NameFast;
+            NotifyChanged(settings);
         }
 
-        /// <summary>Save named feel snapshot into the settings store <c>userPresets</c> envelope.</summary>
+        /// <summary>
+        /// Save as… — promotes current feel to a named preset. Cannot overwrite Slow/Default/Fast.
+        /// Removes the New Preset scratch slot when promoting to another name.
+        /// </summary>
         public static bool SaveNamedFeelPreset(ModSettings settings, string name)
         {
             if (settings == null || string.IsNullOrEmpty(name) || Store == null)
@@ -462,7 +506,25 @@ namespace TrackpadCameraControl
                 return false;
             }
 
-            return Store.SaveUserPreset(name, settings, settings);
+            if (FeelProfiles.IsBuiltInName(name))
+            {
+                return false;
+            }
+
+            if (!Store.SaveUserPreset(name, settings, settings))
+            {
+                return false;
+            }
+
+            settings.ActiveFeelPresetName = name;
+            if (!string.Equals(name, FeelProfiles.NameNewPreset, StringComparison.Ordinal))
+            {
+                Store.RemoveUserPreset(FeelProfiles.NameNewPreset);
+            }
+
+            Store.SaveNow(settings);
+            RaiseSettingsChanged();
+            return true;
         }
 
         /// <summary>Load a named feel preset into live settings.</summary>
@@ -480,7 +542,8 @@ namespace TrackpadCameraControl
             }
 
             FeelProfiles.CopyFeelFields(settings, snap);
-            NotifyChanged();
+            settings.ActiveFeelPresetName = name;
+            NotifyChanged(settings);
             return true;
         }
 
@@ -496,13 +559,27 @@ namespace TrackpadCameraControl
 
         public static void NotifyChanged()
         {
-            if (Store != null)
+            NotifyChanged(Mod.Settings);
+        }
+
+        /// <summary>Force-flush the given settings blob and raise <see cref="SettingsChanged"/>.</summary>
+        public static void NotifyChanged(ModSettings settings)
+        {
+            if (Store != null && settings != null)
             {
                 Store.MarkDirty();
-                if (Mod.Settings != null)
-                {
-                    Store.FlushIfNeeded(Mod.Settings, false);
-                }
+                Store.FlushIfNeeded(settings, true);
+            }
+
+            RaiseSettingsChanged();
+        }
+
+        private static void RaiseSettingsChanged()
+        {
+            Action handler = SettingsChanged;
+            if (handler != null)
+            {
+                handler();
             }
         }
 

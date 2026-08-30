@@ -86,6 +86,11 @@ namespace TrackpadCameraControl
         public CaptureBackend CaptureBackend { get; set; } = CaptureBackend.AppleGestures;
 
         /// <summary>
+        /// Active feel identity for the preset dropdown (Slow / Default / Fast / New Preset / named).
+        /// </summary>
+        public string ActiveFeelPresetName { get; set; } = FeelProfiles.NameDefault;
+
+        /// <summary>
         /// Seeds orbit trigger (and related defaults) from Maps+ or CAD. Custom is a no-op.
         /// Does not wipe custom scales or low-pass settings.
         /// </summary>
@@ -167,6 +172,7 @@ namespace TrackpadCameraControl
             BridgeEnabled = other.BridgeEnabled;
             DebugOverlay = other.DebugOverlay;
             CaptureBackend = other.CaptureBackend;
+            ActiveFeelPresetName = other.ActiveFeelPresetName;
         }
 
         public static ModSettings CreateFactoryDefaults()

@@ -184,6 +184,31 @@ namespace TrackpadCameraControl
             return false;
         }
 
+        /// <summary>Remove a named feel preset from the in-memory list (caller should SaveNow).</summary>
+        public bool RemoveUserPreset(string name)
+        {
+            if (string.IsNullOrEmpty(name))
+            {
+                return false;
+            }
+
+            EnsurePresetsLoaded();
+            for (int i = _userPresets.Count - 1; i >= 0; i--)
+            {
+                NamedPreset preset = _userPresets[i];
+                if (
+                    preset != null
+                    && string.Equals(preset.Name, name, StringComparison.Ordinal)
+                )
+                {
+                    _userPresets.RemoveAt(i);
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
         private void EnsurePresetsLoaded()
         {
             if (_presetsHydrated)

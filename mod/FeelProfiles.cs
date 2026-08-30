@@ -11,6 +11,43 @@ namespace TrackpadCameraControl
         public const float SlowMultiplier = 0.75f;
         public const float FastMultiplier = 1.25f;
 
+        public const string NameSlow = "Slow";
+        public const string NameDefault = "Default";
+        public const string NameFast = "Fast";
+        public const string NameNewPreset = "New Preset";
+
+        /// <summary>Built-in Slow / Default / Fast — never overwritten by Save as… or dirty autosave.</summary>
+        public static bool IsBuiltInName(string name)
+        {
+            if (string.IsNullOrEmpty(name))
+            {
+                return false;
+            }
+
+            return string.Equals(name, NameSlow, StringComparison.Ordinal)
+                || string.Equals(name, NameDefault, StringComparison.Ordinal)
+                || string.Equals(name, NameFast, StringComparison.Ordinal);
+        }
+
+        /// <summary>
+        /// Any feel-field edit while not already on New Preset switches identity to New Preset
+        /// and upserts the scratch slot in <paramref name="store"/> (when non-null).
+        /// Further edits while on New Preset keep autosaving into that slot.
+        /// </summary>
+        public static void EnsureDirtyNewPreset(ModSettings settings, ModSettingsStore store)
+        {
+            if (settings == null)
+            {
+                return;
+            }
+
+            settings.ActiveFeelPresetName = NameNewPreset;
+            if (store != null)
+            {
+                store.SaveUserPreset(NameNewPreset, settings, settings);
+            }
+        }
+
         /// <summary>Restore factory Default feel fields onto <paramref name="settings"/>.</summary>
         public static void ApplyDefault(ModSettings settings)
         {
