@@ -1,9 +1,45 @@
 # AppleKit Maps+ feel surface — Design
 
 **Date:** 2026-08-29  
-**Status:** Approved for implementation planning  
+**Status:** Approved — MDCP docs-first in progress; product code follows after durable shards + `docs:check`  
 **Scope:** Slim product surface (Maps+/AppleKit), feel presets, scroll/UI gating, Sensitivity naming, orbit pitch limits  
-**Approach:** Product-surface slim + feature flags (Option A)
+**Approach:** Product-surface slim + feature flags (Option A)  
+**Planning location:** This file under `docs/superpowers/specs/` (not a durable product shard)
+
+## MDCP work item
+
+| Field | Value |
+| --- | --- |
+| **WORK_ITEM** | Land this design into durable MDCP shards (docs-first), then implement product code against those contracts |
+| **WORK_ITEM_LOOKUP** | [`docs/developer/work-item-tracking.md`](../../developer/work-item-tracking.md) |
+| **Branch / worktree** | `feat/in-game-tuning-panel` — `.worktrees/feat-in-game-tuning-panel` |
+| **Helper** | `mdcp-feature-level` (docs → TDD → code); glossary + client + features + developer |
+| **Value** | Players get one clear Maps+/AppleKit feel surface; docs and UI share **Sensitivity**, feel presets, and scroll/UI gates |
+| **Validation** | `npm run docs:check` (or `mdcp compile` + `mdcp check`) after each docs group; `dotnet test` after code |
+
+### Shard placement (durable truth)
+
+| Audience / job | Guide | Examples for this work item |
+| --- | --- | --- |
+| Capability contracts / acceptance | `docs/features/` | settings-and-hot-configuration, vanilla-camera-suppress, trackpad-camera, platform-backends, assist-ui-camera-chrome, ADR |
+| End-user workflows | `docs/client/` | feel-presets, options-and-hot-tuning, gesture-presets → feel/style, install notes |
+| Maintainer schema / flags | `docs/developer/` | settings-schema, feature-flags, work-item-tracking |
+| Shared terms | `docs/glossary/` | Sensitivity, feel-preset, gesture-style, pan/zoom/yaw/orbit activation |
+
+**Rules:** No implementation code in durable shards. Current-docs-only (remove superseded product wording; history stays in git / changeset). Same `Enable*` flag names in docs, schema, and code. Design/spec stays here under `docs/superpowers/specs/`.
+
+### Atomic commit groups (one concern each; one subagent each)
+
+| Id | Concern | Exact files (primary) | Commit subject | Status |
+| --- | --- | --- | --- | --- |
+| **G1** | Glossary: Sensitivity primary; feel-preset; gesture-style; op activation | `docs/glossary/*`, `docs/glossary/index.md` | `docs: glossary Sensitivity, feel preset, and gesture style` | Done (`a081ec0`) |
+| **G2** | Feature contracts | `docs/features/settings-and-hot-configuration.md`, `vanilla-camera-suppress.md`, `trackpad-camera.md`, `platform-backends.md`, `assist-ui-camera-chrome.md` | `docs: feature contracts for AppleKit feel surface` | Done (`a1895cb`) |
+| **G3** | Client workflows | `docs/client/feel-presets.md` (new), `options-and-hot-tuning.md`, `gesture-presets.md`, `install-and-first-run.md`, `macos-gesture-conflicts.md` / `os-gesture-conflicts.md` as needed, `docs/client/index.md` | `docs: client feel presets and Options workflows` | Pending — subagent |
+| **G4** | Developer schema + flags | `docs/developer/feature-flags.md` (new), `settings-schema.md`, `work-item-tracking.md`, `docs/developer/index.md` | `docs: feature flags and settings schema for feel surface` | Pending — subagent |
+| **G5** | ADR | `docs/features/adr/0003-feel-profiles-and-product-flags.md` (new), `docs/features/adr/index.md`, update ADR 0002 status/link if superseded in part | `docs: ADR feel profiles vs gesture style and product flags` | Pending — subagent |
+| **G6** | Docs validate | (no content edits unless fix link failures) | `docs: check AppleKit feel surface shards` if fixes needed | After G3–G5 — subagent |
+
+Product **code** implementation is **out of scope for G1–G6**; a later plan/commit series implements flags, gates, presets, and UI against these shards.
 
 ## Goal
 
