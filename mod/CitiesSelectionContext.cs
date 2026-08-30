@@ -464,56 +464,6 @@ namespace TrackpadCameraControl
             return false;
         }
 
-        private static bool TryRotateInstance(InstanceID id, float deltaDegrees)
-        {
-            float deltaRad = deltaDegrees * ((float)Math.PI / 180f);
-
-            if (id.Building != 0)
-            {
-                BuildingManager buildings = BuildingManager.instance;
-                if (buildings == null)
-                {
-                    return false;
-                }
-
-                Building[] buffer = buildings.m_buildings.m_buffer;
-                Building b = buffer[id.Building];
-                b.m_angle += deltaRad;
-                buffer[id.Building] = b;
-                try
-                {
-                    buildings.UpdateBuildingRenderer(id.Building, true);
-                }
-                catch
-                {
-                    // angle write is enough
-                }
-
-                return true;
-            }
-
-            if (id.Prop != 0)
-            {
-                PropManager props = PropManager.instance;
-                if (props == null)
-                {
-                    return false;
-                }
-
-                PropInstance[] buffer = props.m_props.m_buffer;
-                PropInstance prop = buffer[id.Prop];
-                if (!TryApplyPropYaw(ref prop, deltaDegrees, deltaRad))
-                {
-                    return false;
-                }
-
-                buffer[id.Prop] = prop;
-                return true;
-            }
-
-            return false;
-        }
-
         private static bool TryReadPropPosition(PropInstance prop, out Vector3 position)
         {
             position = Vector3.zero;
@@ -542,56 +492,6 @@ namespace TrackpadCameraControl
             }
 
             return false;
-        }
-
-        private static bool TryApplyPropYaw(
-            ref PropInstance prop,
-            float deltaDegrees,
-            float deltaRad
-        )
-        {
-            BindingFlags flags =
-                BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
-            PropertyInfo angleProp = typeof(PropInstance).GetProperty("Angle", flags);
-            if (angleProp != null && angleProp.CanRead && angleProp.CanWrite)
-            {
-                object boxedProp = prop;
-                object current = angleProp.GetValue(boxedProp, null);
-                if (current is float f)
-                {
-                    // PropInstance.Angle is degrees in common CS1 builds.
-                    angleProp.SetValue(boxedProp, NormalizeDegrees(f + deltaDegrees), null);
-                    prop = (PropInstance)boxedProp;
-                    return true;
-                }
-            }
-
-            FieldInfo angleField = typeof(PropInstance).GetField("m_angle", flags);
-            if (angleField == null)
-            {
-                return false;
-            }
-
-            object boxed = prop;
-            object raw = angleField.GetValue(boxed);
-            if (raw is float fRad)
-            {
-                angleField.SetValue(boxed, fRad + deltaRad);
-            }
-            else if (raw is ushort u)
-            {
-                float deg = (u / 65536f) * 360f + deltaDegrees;
-                deg = NormalizeDegrees(deg);
-                ushort next = (ushort)((deg / 360f) * 65536f);
-                angleField.SetValue(boxed, next);
-            }
-            else
-            {
-                return false;
-            }
-
-            prop = (PropInstance)boxed;
-            return true;
         }
 
         private static ToolBase TryGetCurrentTool()
