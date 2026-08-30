@@ -9,7 +9,7 @@ namespace TrackpadCameraControl
     /// Floating in-game Debug / tuning panel host (ColossalUI).
     /// Product-surface feel controls; gated chrome / CAD / Contacts via ENABLE_* compile symbols.
     /// </summary>
-    internal static class TuningPanelHost
+    internal static partial class TuningPanelHost
     {
         private const float PanelWidth = 560f;
         private const float TitleBarHeight = 32f;
@@ -127,15 +127,17 @@ namespace TrackpadCameraControl
         public static void ApplyVisibility()
         {
             ModSettings s = Mod.Settings;
-            bool on = s != null && s.AssistUiEnabled;
+            bool assistEnabled = s != null && s.AssistUiEnabled;
+            bool showRoot = ShouldShowRoot(assistEnabled, _dismissedByUser);
+            bool showReopen = ShouldShowReopen(assistEnabled, _dismissedByUser);
             if (_root != null)
             {
-                _root.isVisible = on;
+                _root.isVisible = showRoot;
             }
 
             if (_reopen != null)
             {
-                _reopen.isVisible = !on || (_root != null && !_root.isVisible);
+                _reopen.isVisible = showReopen;
             }
         }
 
@@ -201,6 +203,7 @@ namespace TrackpadCameraControl
 
         private static void ShowPanel()
         {
+            _dismissedByUser = false;
             ModSettings s = Mod.EnsureSettings();
             s.AssistUiEnabled = true;
             ModOptions.NotifyChanged();
@@ -209,31 +212,14 @@ namespace TrackpadCameraControl
                 EnsureCreated();
             }
 
-            if (_root != null)
-            {
-                _root.isVisible = true;
-            }
-
-            if (_reopen != null)
-            {
-                _reopen.isVisible = false;
-            }
+            ApplyVisibility();
         }
 
         private static void HidePanel()
         {
             _dragging = false;
-
-            if (_root != null)
-            {
-                _root.isVisible = false;
-            }
-
-            if (_reopen != null)
-            {
-                _reopen.isVisible = true;
-            }
-
+            _dismissedByUser = true;
+            ApplyVisibility();
             ModOptions.FlushStore(true);
         }
 

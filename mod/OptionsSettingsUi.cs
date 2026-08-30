@@ -149,6 +149,11 @@ namespace TrackpadCameraControl
                         x =>
                         {
                             x.AssistUiEnabled = v;
+                            if (v)
+                            {
+                                TuningPanelHost.ClearUserDismiss();
+                            }
+
                             TuningPanelHost.ApplyVisibility();
                         }
                     )
