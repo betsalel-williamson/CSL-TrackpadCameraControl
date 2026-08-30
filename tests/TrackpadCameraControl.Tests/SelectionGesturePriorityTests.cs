@@ -19,6 +19,21 @@ namespace TrackpadCameraControl.Tests
         }
 
         [Fact]
+        public void Relocate_BeatsSelectedInstance_EvenWhenBothPresent()
+        {
+            // Ensures twist during relocate is classified as RelocateInstance (ghost angle),
+            // not SelectedInstance (which would spin the old-cell buffer building).
+            Assert.Equal(
+                SelectionGestureKind.RelocateInstance,
+                SelectionGesturePriority.Resolve(
+                    placementToolArmed: true,
+                    relocateBuildingId: 7,
+                    hasValidSelectedInstance: true
+                )
+            );
+        }
+
+        [Fact]
         public void SelectedInstance_BeatsPlacementGhost_WhenNotRelocating()
         {
             Assert.Equal(

@@ -8,7 +8,7 @@ namespace TrackpadCameraControl
     {
         None = 0,
 
-        /// <summary>Rotate / pivot the building being relocated (BuildingTool.m_relocate).</summary>
+        /// <summary>Relocate in progress: rotate / pivot the ghost preview, not the old-cell buffer.</summary>
         RelocateInstance = 1,
 
         /// <summary>Rotate / pivot an explicitly selected placed instance.</summary>

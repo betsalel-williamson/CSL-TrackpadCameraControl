@@ -96,16 +96,9 @@ namespace TrackpadCameraControl
 
                 if (kind == SelectionGestureKind.RelocateInstance)
                 {
-                    InstanceID relocate = default(InstanceID);
-                    relocate.Building = (ushort)relocateId;
-                    bool rotated = TryRotateInstance(relocate, deltaDegrees);
-                    // Keep ghost preview angle in sync with the live building.
-                    if (rotated)
-                    {
-                        TryRotatePlacementTool(deltaDegrees);
-                    }
-
-                    return rotated;
+                    // Ghost-only: the buffer building still sits at the old cell until place.
+                    // Rotating it makes Escape cancel leave a spun original behind.
+                    return TryRotatePlacementTool(deltaDegrees);
                 }
 
                 if (kind == SelectionGestureKind.SelectedInstance)

@@ -31,7 +31,7 @@ Base Maps+ pan / pinch zoom and [orbit latch](../glossary/orbit-latch.md) remain
 
 In-game detection lives in `CitiesSelectionContext` behind `ISelectionContext`, ordered by `SelectionGesturePriority`:
 
-1. **Relocate:** `BuildingTool.m_relocate != 0` → two-finger rotate turns that building (and keeps tool `m_angle` in sync); Option-orbit pivots on cursor preview when present, else the building buffer position.
+1. **Relocate:** `BuildingTool.m_relocate != 0` → two-finger rotate adjusts tool `m_angle` only (ghost preview). Do **not** mutate the buffer building at the old cell, so Escape cancel restores cleanly. Option-orbit pivots on cursor preview when present.
 2. **Selected instance:** `InstanceManager.m_selectedInstance` (validated when `IsValid` exists) → rotate / pivot on live `Building` / `PropInstance` buffer position (follows relocate commit).
 3. **Placement ghost:** `BuildingTool` / `PropTool` with prefab and no relocate → rotate tool `m_angle`; orbit pivots on `ToolBase.m_mousePosition`.
 4. **Fail soft / none:** missing fields or exceptions → Maps+ camera yaw / orbit.
