@@ -29,8 +29,8 @@ namespace TrackpadCameraControl.Tests
             Assert.Equal(2.00f, s.YawRotateSensitivity);
             Assert.Equal(10.00f, s.OrbitYawSensitivity);
             Assert.Equal(10.00f, s.OrbitPitchSensitivity);
-            Assert.Equal(-80f, s.OrbitPitchMin);
-            Assert.Equal(80f, s.OrbitPitchMax);
+            Assert.Equal(7f, s.OrbitPitchMin);
+            Assert.Equal(90f, s.OrbitPitchMax);
         }
 
         [Fact]
@@ -106,47 +106,146 @@ namespace TrackpadCameraControl.Tests
             {
                 OrbitYawSensitivity = 1f,
                 OrbitPitchSensitivity = 1f,
-                OrbitPitchMin = -80f,
-                OrbitPitchMax = 80f,
+                OrbitPitchMin = 7f,
+                OrbitPitchMax = 90f,
             };
 
-            CameraApplicator.Apply(CameraOp.Orbit, 0f, 20f, 0f, 0f, settings, cam);
+            CameraApplicator.Apply(CameraOp.Orbit, 0f, 30f, 0f, 0f, settings, cam);
 
-            Assert.Equal(80f, cam.AngleY, 3);
+            Assert.Equal(90f, cam.AngleY, 3);
         }
 
         [Fact]
         public void ApplyOrbit_ClampsPitchToMin()
         {
-            var cam = new FakeCameraController { AngleX = 0f, AngleY = -70f };
+            var cam = new FakeCameraController { AngleX = 0f, AngleY = 20f };
             var settings = new ModSettings
             {
                 OrbitYawSensitivity = 1f,
                 OrbitPitchSensitivity = 1f,
-                OrbitPitchMin = -80f,
-                OrbitPitchMax = 80f,
+                OrbitPitchMin = 7f,
+                OrbitPitchMax = 90f,
             };
 
             CameraApplicator.Apply(CameraOp.Orbit, 0f, -20f, 0f, 0f, settings, cam);
 
-            Assert.Equal(-80f, cam.AngleY, 3);
+            Assert.Equal(7f, cam.AngleY, 3);
         }
 
         [Fact]
         public void ApplyOrbit_SwapsMinMaxWhenInverted()
         {
-            var cam = new FakeCameraController { AngleX = 0f, AngleY = 0f };
+            var cam = new FakeCameraController { AngleX = 0f, AngleY = 10f };
             var settings = new ModSettings
             {
                 OrbitYawSensitivity = 1f,
                 OrbitPitchSensitivity = 1f,
-                OrbitPitchMin = 80f,
-                OrbitPitchMax = -80f,
+                OrbitPitchMin = 90f,
+                OrbitPitchMax = 7f,
             };
 
             CameraApplicator.Apply(CameraOp.Orbit, 0f, 100f, 0f, 0f, settings, cam);
 
-            Assert.Equal(80f, cam.AngleY, 3);
+            Assert.Equal(90f, cam.AngleY, 3);
+        }
+
+        [Fact]
+        public void ApplyOrbit_EnforcesPitchAboveZeroEvenIfSettingsNegative()
+        {
+            var cam = new FakeCameraController { AngleX = 0f, AngleY = 5f };
+            var settings = new ModSettings
+            {
+                OrbitYawSensitivity = 1f,
+                OrbitPitchSensitivity = 1f,
+                OrbitPitchMin = -80f,
+                OrbitPitchMax = 90f,
+            };
+
+            CameraApplicator.Apply(CameraOp.Orbit, 0f, -100f, 0f, 0f, settings, cam);
+
+            Assert.True(cam.AngleY > 0f);
+        }
+    }
+
+    public class PanCityBoundsClampTests
+    {
+        [Fact]
+        public void ApplyPan_ClampsTargetInsideFakeBounds()
+        {
+            var cam = new FakeCameraController
+            {
+                Size = 1f,
+                TargetX = 0f,
+                TargetZ = 0f,
+                AngleX = 0f,
+                MinX = -10f,
+                MaxX = 10f,
+                MinZ = -10f,
+                MaxZ = 10f,
+            };
+            var settings = new ModSettings
+            {
+                PanSensitivityX = 1f,
+                PanSensitivityY = 1f,
+                InvertPanX = false,
+                InvertPanY = false,
+            };
+
+            CameraApplicator.Apply(CameraOp.Pan, 100f, 0f, 0f, 0f, settings, cam);
+
+            Assert.Equal(10f, cam.TargetX, 3);
+            Assert.Equal(0f, cam.TargetZ, 3);
+        }
+
+        [Fact]
+        public void ApplyPan_ClampsTargetToMinBounds()
+        {
+            var cam = new FakeCameraController
+            {
+                Size = 1f,
+                TargetX = 0f,
+                TargetZ = 0f,
+                AngleX = 0f,
+                MinX = -10f,
+                MaxX = 10f,
+                MinZ = -5f,
+                MaxZ = 5f,
+            };
+            var settings = new ModSettings
+            {
+                PanSensitivityX = 1f,
+                PanSensitivityY = 1f,
+                InvertPanX = false,
+                InvertPanY = false,
+            };
+
+            CameraApplicator.Apply(CameraOp.Pan, -100f, -100f, 0f, 0f, settings, cam);
+
+            Assert.Equal(-10f, cam.TargetX, 3);
+            Assert.Equal(-5f, cam.TargetZ, 3);
+        }
+
+        [Fact]
+        public void ApplyPan_SkipsClampWhenBoundsUnavailable()
+        {
+            var cam = new FakeCameraController
+            {
+                Size = 1f,
+                TargetX = 0f,
+                TargetZ = 0f,
+                AngleX = 0f,
+            };
+            var settings = new ModSettings
+            {
+                PanSensitivityX = 1f,
+                PanSensitivityY = 1f,
+                InvertPanX = false,
+                InvertPanY = false,
+            };
+
+            CameraApplicator.Apply(CameraOp.Pan, 50f, 0f, 0f, 0f, settings, cam);
+
+            Assert.Equal(50f, cam.TargetX, 3);
         }
     }
 }

@@ -13,5 +13,14 @@ namespace TrackpadCameraControl
 
         /// <summary>Pitch degrees (CameraController m_targetAngle.y).</summary>
         float AngleY { get; set; }
+
+        /// <summary>
+        /// City pan bounds on XZ. <see cref="float.NaN"/> means unavailable — skip clamp.
+        /// </summary>
+        float MinX { get; }
+
+        float MaxX { get; }
+        float MinZ { get; }
+        float MaxZ { get; }
     }
 }

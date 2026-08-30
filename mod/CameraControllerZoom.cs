@@ -95,6 +95,80 @@ namespace TrackpadCameraControl
             set { SetAngleComponent(1, value); }
         }
 
+        public float MinX
+        {
+            get
+            {
+                return TryGetCityBounds(out float minX, out _, out _, out _) ? minX : float.NaN;
+            }
+        }
+
+        public float MaxX
+        {
+            get
+            {
+                return TryGetCityBounds(out _, out float maxX, out _, out _) ? maxX : float.NaN;
+            }
+        }
+
+        public float MinZ
+        {
+            get
+            {
+                return TryGetCityBounds(out _, out _, out float minZ, out _) ? minZ : float.NaN;
+            }
+        }
+
+        public float MaxZ
+        {
+            get
+            {
+                return TryGetCityBounds(out _, out _, out _, out float maxZ) ? maxZ : float.NaN;
+            }
+        }
+
+        /// <summary>
+        /// CS1 playable/game area on XZ is ±8640 (9×9 tiles). Prefer GameAreaManager when present.
+        /// </summary>
+        private const float GameAreaHalfExtent = 8640f;
+
+        private static bool TryGetCityBounds(
+            out float minX,
+            out float maxX,
+            out float minZ,
+            out float maxZ
+        )
+        {
+            minX = float.NaN;
+            maxX = float.NaN;
+            minZ = float.NaN;
+            maxZ = float.NaN;
+#if HAS_CITIES
+            try
+            {
+                // Prefer unlocked-area clamp via GameAreaManager when the singleton is alive;
+                // axis bounds still come from the fixed game-area half-extent so applicator
+                // can clamp without Unity-only APIs in tests.
+                if (GameAreaManager.instance == null)
+                {
+                    return false;
+                }
+
+                minX = -GameAreaHalfExtent;
+                maxX = GameAreaHalfExtent;
+                minZ = -GameAreaHalfExtent;
+                maxZ = GameAreaHalfExtent;
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+#else
+            return false;
+#endif
+        }
+
         private float GetPositionComponent(int index)
         {
             if (!TryGetController(out object cam) || _targetPositionField == null)
@@ -114,12 +188,40 @@ namespace TrackpadCameraControl
 
             object vec = _targetPositionField.GetValue(cam);
             vec = SetVectorComponent(vec, _targetPositionField.FieldType, index, value);
+#if HAS_CITIES
+            if (index == 0 || index == 2)
+            {
+                vec = ClampVectorToGameArea(vec);
+            }
+#endif
             _targetPositionField.SetValue(cam, vec);
             if (_currentPositionField != null)
             {
                 _currentPositionField.SetValue(cam, vec);
             }
         }
+
+#if HAS_CITIES
+        private static object ClampVectorToGameArea(object vec)
+        {
+            try
+            {
+                GameAreaManager areas = GameAreaManager.instance;
+                if (areas == null || vec == null || !(vec is Vector3))
+                {
+                    return vec;
+                }
+
+                Vector3 position = (Vector3)vec;
+                areas.ClampPoint(ref position);
+                return position;
+            }
+            catch
+            {
+                return vec;
+            }
+        }
+#endif
 
         private float GetAngleComponent(int index)
         {

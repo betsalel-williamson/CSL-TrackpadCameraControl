@@ -187,8 +187,8 @@ namespace TrackpadCameraControl.Tests
             ModSettings loaded = store.LoadOrFactory();
             Assert.Equal(0.50f, loaded.PanSensitivityX);
             Assert.True(loaded.InvertPanX);
-            Assert.Equal(-80f, loaded.OrbitPitchMin);
-            Assert.Equal(80f, loaded.OrbitPitchMax);
+            Assert.Equal(7f, loaded.OrbitPitchMin);
+            Assert.Equal(90f, loaded.OrbitPitchMax);
             Assert.True(File.Exists(_path));
         }
 

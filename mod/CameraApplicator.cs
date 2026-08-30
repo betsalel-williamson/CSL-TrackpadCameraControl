@@ -7,6 +7,9 @@ namespace TrackpadCameraControl
         private static readonly CameraControllerZoom DefaultCamera = new CameraControllerZoom();
         private const float Deg2Rad = (float)(Math.PI / 180.0);
 
+        /// <summary>Pitch must stay &gt; 0 even if settings allow non-positive mins.</summary>
+        private const float PitchEpsilon = 0.01f;
+
         public enum InputModality
         {
             Drag,
@@ -204,8 +207,64 @@ namespace TrackpadCameraControl
             float sin = (float)Math.Sin(rad);
 
             // Camera-relative XZ: right * mx + forward * my
-            camera.TargetX = x + cos * mx + sin * my;
-            camera.TargetZ = z + -sin * mx + cos * my;
+            float nextX = x + cos * mx + sin * my;
+            float nextZ = z + -sin * mx + cos * my;
+            ClampPanToCityBounds(camera, ref nextX, ref nextZ);
+            camera.TargetX = nextX;
+            camera.TargetZ = nextZ;
+        }
+
+        private static void ClampPanToCityBounds(
+            ICameraController camera,
+            ref float nextX,
+            ref float nextZ
+        )
+        {
+            float minX = camera.MinX;
+            float maxX = camera.MaxX;
+            float minZ = camera.MinZ;
+            float maxZ = camera.MaxZ;
+            if (
+                float.IsNaN(minX)
+                || float.IsNaN(maxX)
+                || float.IsNaN(minZ)
+                || float.IsNaN(maxZ)
+            )
+            {
+                return;
+            }
+
+            if (minX > maxX)
+            {
+                float swap = minX;
+                minX = maxX;
+                maxX = swap;
+            }
+
+            if (minZ > maxZ)
+            {
+                float swap = minZ;
+                minZ = maxZ;
+                maxZ = swap;
+            }
+
+            if (nextX < minX)
+            {
+                nextX = minX;
+            }
+            else if (nextX > maxX)
+            {
+                nextX = maxX;
+            }
+
+            if (nextZ < minZ)
+            {
+                nextZ = minZ;
+            }
+            else if (nextZ > maxZ)
+            {
+                nextZ = maxZ;
+            }
         }
 
         private static void ApplyOrbit(
@@ -247,6 +306,16 @@ namespace TrackpadCameraControl
                 float swap = min;
                 min = max;
                 max = swap;
+            }
+
+            if (min < PitchEpsilon)
+            {
+                min = PitchEpsilon;
+            }
+
+            if (max < min)
+            {
+                max = min;
             }
 
             if (nextPitch < min)

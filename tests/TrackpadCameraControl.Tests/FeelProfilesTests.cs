@@ -34,8 +34,8 @@ namespace TrackpadCameraControl.Tests
             Assert.Equal(7.50f, settings.OrbitPitchSensitivity);
             Assert.True(settings.InvertPanX);
             Assert.False(settings.InvertPanY);
-            Assert.Equal(-80f, settings.OrbitPitchMin);
-            Assert.Equal(80f, settings.OrbitPitchMax);
+            Assert.Equal(7f, settings.OrbitPitchMin);
+            Assert.Equal(90f, settings.OrbitPitchMax);
         }
 
         [Fact]
@@ -59,8 +59,8 @@ namespace TrackpadCameraControl.Tests
             Assert.Equal(12.50f, settings.OrbitPitchSensitivity);
             Assert.True(settings.InvertPanX);
             Assert.False(settings.InvertPanY);
-            Assert.Equal(-80f, settings.OrbitPitchMin);
-            Assert.Equal(80f, settings.OrbitPitchMax);
+            Assert.Equal(7f, settings.OrbitPitchMin);
+            Assert.Equal(90f, settings.OrbitPitchMax);
         }
 
         [Fact]
@@ -86,8 +86,8 @@ namespace TrackpadCameraControl.Tests
             Assert.Equal(10.00f, settings.OrbitPitchSensitivity);
             Assert.True(settings.InvertPanX);
             Assert.False(settings.InvertPanY);
-            Assert.Equal(-80f, settings.OrbitPitchMin);
-            Assert.Equal(80f, settings.OrbitPitchMax);
+            Assert.Equal(7f, settings.OrbitPitchMin);
+            Assert.Equal(90f, settings.OrbitPitchMax);
             Assert.True(settings.PanEnabled);
         }
     }
@@ -223,8 +223,8 @@ namespace TrackpadCameraControl.Tests
 
             Assert.Equal(0.50f, settings.PanSensitivityX);
             Assert.True(settings.InvertPanX);
-            Assert.Equal(-80f, settings.OrbitPitchMin);
-            Assert.Equal(80f, settings.OrbitPitchMax);
+            Assert.Equal(7f, settings.OrbitPitchMin);
+            Assert.Equal(90f, settings.OrbitPitchMax);
         }
     }
 }

@@ -43,8 +43,8 @@ namespace TrackpadCameraControl
         public float ZoomSensitivity { get; set; } = 1.00f;
         public float YawRotateSensitivity { get; set; } = 2.00f;
 
-        public float OrbitPitchMin { get; set; } = -80f;
-        public float OrbitPitchMax { get; set; } = 80f;
+        public float OrbitPitchMin { get; set; } = 7f;
+        public float OrbitPitchMax { get; set; } = 90f;
 
         public float PanButtonScaleX { get; set; } = 0.05f;
         public float PanButtonScaleY { get; set; } = 0.05f;

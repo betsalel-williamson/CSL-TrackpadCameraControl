@@ -11,6 +11,12 @@ namespace TrackpadCameraControl.Tests
         public float TargetZ { get; set; }
         public float AngleX { get; set; }
         public float AngleY { get; set; }
+
+        /// <summary>NaN = no pan clamp (default for existing tests).</summary>
+        public float MinX { get; set; } = float.NaN;
+        public float MaxX { get; set; } = float.NaN;
+        public float MinZ { get; set; } = float.NaN;
+        public float MaxZ { get; set; } = float.NaN;
     }
 
     public class ModSettingsPresetTests
