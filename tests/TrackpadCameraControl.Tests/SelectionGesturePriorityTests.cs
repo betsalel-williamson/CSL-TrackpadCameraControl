@@ -84,5 +84,15 @@ namespace TrackpadCameraControl.Tests
                 )
             );
         }
+
+        [Theory]
+        [InlineData(SelectionGestureKind.RelocateInstance, true)]
+        [InlineData(SelectionGestureKind.PlacementGhost, true)]
+        [InlineData(SelectionGestureKind.SelectedInstance, false)]
+        [InlineData(SelectionGestureKind.None, false)]
+        public void AllowsObjectYaw_OnlyGhostModes(SelectionGestureKind kind, bool expected)
+        {
+            Assert.Equal(expected, SelectionGesturePriority.AllowsObjectYaw(kind));
+        }
     }
 }

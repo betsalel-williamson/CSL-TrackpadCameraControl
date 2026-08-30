@@ -46,5 +46,15 @@ namespace TrackpadCameraControl
 
             return SelectionGestureKind.None;
         }
+
+        /// <summary>
+        /// Two-finger object yaw applies only while placing a new ghost or relocating.
+        /// A click-selected placed instance must not steal camera yaw.
+        /// </summary>
+        public static bool AllowsObjectYaw(SelectionGestureKind kind)
+        {
+            return kind == SelectionGestureKind.RelocateInstance
+                || kind == SelectionGestureKind.PlacementGhost;
+        }
     }
 }

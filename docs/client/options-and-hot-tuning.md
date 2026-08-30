@@ -23,12 +23,12 @@ For each camera op, a short heading states **what it means** and **what activate
 | --- | --- | --- |
 | Zoom | Change camera distance / size | Pinch (mouse wheel uses vanilla zoom) |
 | Pan | Slide the camera laterally | Two-finger drag (stays within city bounds) |
-| Rotate | Yaw the camera, or rotate a selected object | Two-finger rotate |
+| Rotate | Yaw the camera, or rotate a place/relocate ghost | Two-finger rotate |
 | Orbit | Pitch + yaw around the pivot (or around a selection) | Option (`⌥`)+two-finger drag |
 
 Product-surface Options controls: **Sensitivity** sliders only (about **0.1×–2×** factory default). Orbit **Pitch min / max** (angle limits, factory **7–90°**) are **Debug panel** develop controls, not Options. There is no Enable-per-op or Reverse UI. Labels say **Sensitivity** (not drag scale).
 
-With a **selection**: two-finger rotate turns the **selected object**; ⌥+two-finger **orbits the camera around** that object. With **no selection**, rotate is camera yaw and ⌥+two-finger is normal orbit.
+With a **new place or relocate** ghost: two-finger rotate turns the **ghost**; ⌥+two-finger **orbits the camera around** that pivot (or a click selection for orbit only). Clicking a placed object does **not** enable object rotate. With **no placement/relocate**, rotate is camera yaw and ⌥+two-finger is normal orbit.
 
 ## Menus, Options, and popups
 

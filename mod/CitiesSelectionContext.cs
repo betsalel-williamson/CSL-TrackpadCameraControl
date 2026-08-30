@@ -8,7 +8,8 @@ namespace TrackpadCameraControl
 {
     /// <summary>
     /// Best-effort CS1 selection context.
-    /// Priority: relocate building → selected instance → placement ghost (angle / mouse).
+    /// Orbit pivot: relocate → selected instance → placement ghost.
+    /// Object yaw: relocate ghost and new-placement ghost only (not click-selected props/buildings).
     /// Hover is not used. All paths fail soft.
     /// </summary>
     public sealed class CitiesSelectionContext : ISelectionContext
@@ -94,22 +95,13 @@ namespace TrackpadCameraControl
                     hasSelected
                 );
 
-                if (kind == SelectionGestureKind.RelocateInstance)
+                if (!SelectionGesturePriority.AllowsObjectYaw(kind))
                 {
-                    // Ghost-only: the buffer building still sits at the old cell until place.
-                    // Rotating it makes Escape cancel leave a spun original behind.
-                    return TryRotatePlacementTool(deltaDegrees);
+                    return false;
                 }
 
-                if (kind == SelectionGestureKind.SelectedInstance)
-                {
-                    return TryRotateInstance(selectedId, deltaDegrees);
-                }
-
-                if (kind == SelectionGestureKind.PlacementGhost)
-                {
-                    return TryRotatePlacementTool(deltaDegrees);
-                }
+                // Relocate and new-placement ghost: tool m_angle only.
+                return TryRotatePlacementTool(deltaDegrees);
             }
             catch
             {
