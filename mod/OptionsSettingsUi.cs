@@ -261,12 +261,20 @@ namespace TrackpadCameraControl
             OnTextSubmitted onSubmit
         )
         {
-            helper.AddTextfield(
+            object created = helper.AddTextfield(
                 label,
                 ModOptions.FormatFloat(value),
                 _ => { },
                 onSubmit
             );
+            UITextField field = created as UITextField;
+            if (field != null)
+            {
+                field.submitOnFocusLost = true;
+                field.selectOnFocus = true;
+                field.allowFloats = true;
+                field.numericalOnly = false;
+            }
         }
     }
 }

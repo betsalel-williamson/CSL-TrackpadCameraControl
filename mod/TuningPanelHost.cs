@@ -21,7 +21,11 @@ namespace TrackpadCameraControl
         private static UIPanel _root;
         private static UIButton _reopen;
         private static UILabel _presetDesc;
+        private static UILabel _title;
         private static float _nextY;
+        private static bool _dragging;
+        private static Vector3 _dragPanelStart;
+        private static Vector3 _dragMouseStart;
 
         public static void EnsureCreated()
         {
@@ -54,10 +58,14 @@ namespace TrackpadCameraControl
                 _root.BringToFront();
             };
 
-            MakeDraggable(_root);
-
             UILabel title = AddLabel(_root, "Trackpad Camera Control", Col0, 8f);
             title.textScale = 1.1f;
+            _title = title;
+            // Drag only from the title label so text fields keep focus and clicks.
+            title.eventMouseDown += OnTitleMouseDown;
+            title.eventMouseUp += OnTitleMouseUp;
+            title.eventMouseMove += OnTitleMouseMove;
+            _root.eventMouseUp += OnTitleMouseUp;
 
             UIButton close = _root.AddUIComponent<UIButton>();
             close.text = "X";
@@ -152,6 +160,8 @@ namespace TrackpadCameraControl
             }
 
             _presetDesc = null;
+            _title = null;
+            _dragging = false;
         }
 
         private static void ShowPanel()
@@ -503,6 +513,10 @@ namespace TrackpadCameraControl
             field.text = ModOptions.FormatFloat(get());
             field.numericalOnly = false;
             field.allowFloats = true;
+            field.selectOnFocus = true;
+            field.submitOnFocusLost = true;
+            field.isInteractive = true;
+            field.builtinKeyNavigation = true;
             field.eventTextSubmitted += (c, text) =>
             {
                 if (!ModOptions.TryApplyFloat(s, text, apply))
@@ -553,33 +567,34 @@ namespace TrackpadCameraControl
             return label;
         }
 
-        private static void MakeDraggable(UIPanel panel)
+        private static void OnTitleMouseDown(UIComponent c, UIMouseEventParameter e)
         {
-            bool dragging = false;
-            Vector3 panelStart = Vector3.zero;
-            Vector3 mouseStart = Vector3.zero;
+            _dragging = true;
+            if (_root != null)
+            {
+                _dragPanelStart = _root.absolutePosition;
+                _root.BringToFront();
+            }
 
-            panel.eventMouseDown += (c, e) =>
-            {
-                dragging = true;
-                panelStart = panel.absolutePosition;
-                mouseStart = Input.mousePosition;
-                panel.BringToFront();
-            };
-            panel.eventMouseUp += (c, e) =>
-            {
-                dragging = false;
-            };
-            panel.eventMouseMove += (c, e) =>
-            {
-                if (!dragging)
-                {
-                    return;
-                }
+            _dragMouseStart = Input.mousePosition;
+            e.Use();
+        }
 
-                Vector3 delta = Input.mousePosition - mouseStart;
-                panel.absolutePosition = panelStart + new Vector3(delta.x, -delta.y, 0f);
-            };
+        private static void OnTitleMouseUp(UIComponent c, UIMouseEventParameter e)
+        {
+            _dragging = false;
+        }
+
+        private static void OnTitleMouseMove(UIComponent c, UIMouseEventParameter e)
+        {
+            if (!_dragging || _root == null)
+            {
+                return;
+            }
+
+            Vector3 delta = Input.mousePosition - _dragMouseStart;
+            _root.absolutePosition = _dragPanelStart + new Vector3(delta.x, -delta.y, 0f);
+            e.Use();
         }
     }
 }

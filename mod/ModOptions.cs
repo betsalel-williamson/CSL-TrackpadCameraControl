@@ -132,10 +132,24 @@ namespace TrackpadCameraControl
                 return false;
             }
 
+            string trimmed = text.Trim();
+            if (
+                float.TryParse(
+                    trimmed,
+                    NumberStyles.Float,
+                    CultureInfo.InvariantCulture,
+                    out value
+                )
+            )
+            {
+                return true;
+            }
+
+            // Accept locale decimal separators (e.g. "1,5").
             return float.TryParse(
-                text.Trim(),
+                trimmed,
                 NumberStyles.Float,
-                CultureInfo.InvariantCulture,
+                CultureInfo.CurrentCulture,
                 out value
             );
         }
