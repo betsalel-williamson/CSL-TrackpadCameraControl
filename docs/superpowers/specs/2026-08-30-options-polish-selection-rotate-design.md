@@ -1,20 +1,20 @@
 # Options polish, New Preset, selection rotate — Design
 
 **Date:** 2026-08-30  
-**Status:** Approved — MDCP docs then code (see plan)  
+**Status:** Approved — MDCP docs then code (see plan). **Superseded (pitch):** locked min **7°** below — live clamp is vanilla **0°–90°** hardcoded in `CameraApplicator` (not product-tunable).  
 **Branch / worktree:** `feat/in-game-tuning-panel`  
 **Plan:** [`docs/superpowers/plans/2026-08-30-options-polish-selection-rotate-plan.md`](../plans/2026-08-30-options-polish-selection-rotate-plan.md)
 
 ## Goal
 
-Polish Options and the in-game debug panel for Maps+/AppleKit play: reliable sync and autosave, clearer layout, Sensitivity sliders, **New Preset** dirty workflow, pan clamped to city bounds, pitch 7–90°, and selection-aware rotate / ⌥-orbit.
+Polish Options and the in-game debug panel for Maps+/AppleKit play: reliable sync and autosave, clearer layout, Sensitivity sliders, **New Preset** dirty workflow, pan clamped to city bounds, pitch vanilla **0°–90°** (hardcoded apply), and selection-aware rotate / ⌥-orbit.
 
 ## Locked decisions
 
 | Concern | Choice |
 | --- | --- |
 | Pan vs city | Clamp so camera cannot fly too far outside city bounds |
-| Pitch | Min **7°**, max **90°**, always > 0; no yaw angle clamp |
+| Pitch | ~~Min **7°**~~ **Superseded:** vanilla **0°–90°** hardcoded in `CameraApplicator`; drag floors at **0°**; button clamp **0…90**; not Options/Debug-tunable; no yaw angle clamp |
 | Sync | Popup and Options share live ModSettings; every change autosaves |
 | Title drag | Entire title bar is the drag handle |
 | Assist naming | Product name **Debug** (debug menu / panel), not Assist |

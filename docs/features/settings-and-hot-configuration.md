@@ -8,7 +8,7 @@ No feel or binding parameter is hardcoded in camera or gesture logic. Defaults e
 
 | Surface                           | Product-surface tunables                                                                 |
 | --------------------------------- | ---------------------------------------------------------------------------------------- |
-| In-game Debug panel               | Feel presets (incl. **New Preset** dirty), Reset, Sensitivity, pitch angle limits (develop), Debug UI enable |
+| In-game Debug panel               | Feel presets (incl. **New Preset** dirty), Reset, Sensitivity, Debug UI enable |
 | Options → Trackpad Camera Control | Feel presets + Sensitivity sliders; window title is mod name + version; **no** pitch angle fields |
 
 One binding layer parses, rounds gains to three decimals (button steps to two), validates Options Sensitivity against the slider contract on player drag, and writes fields. A change on either surface updates live settings immediately and schedules a durable write (autosave).
@@ -113,6 +113,6 @@ Once orbit engages from the configured trigger, the session stays in orbit until
 - Save as… selects the named preset; further edits dirty to **New Preset** again.
 - Reset to factory and Slow / Default / Fast match the feel-profile contract.
 - Product UI shows no Enable-per-op or Reverse; section order is General → Zoom → Pan → Rotate → Orbit.
-- Pitch clamps to min **7** / max **90**; pan apply clamps the camera target to the unlocked game area; yaw has no angle clamp.
+- Pitch clamps to vanilla **0°–90°** (hardcoded in apply; not Options/Debug-tunable); pan apply clamps the camera target to the unlocked game area; yaw has no angle clamp.
 - While flags are off: no CAD switcher, no backend picker, no Btn fields, no low-pass.
 - Grep of camera/gesture logic finds no numeric feel literals outside the settings defaults factory.

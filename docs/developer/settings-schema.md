@@ -198,7 +198,7 @@ Missing or corrupt file → factory defaults (no crash), then persist the recove
 
 GesturePreset / CAD, CaptureBackend / Contacts, button steps, and low-pass remain in the schema for flagged surfaces; they are not the primary preset model.
 
-Options and the in-game Debug panel both bind the same fields through one apply layer; every change autosaves. Number fields edit Sensitivity (sliders), pitch limits, and (when flagged) button steps and low-pass params.
+Options and the in-game Debug panel both bind the same fields through one apply layer; every change autosaves. Number fields edit Sensitivity (sliders) and (when flagged) button steps and low-pass params. Orbit pitch min/max remain schema-only — not exposed on either product surface.
 
 ## Validation rule
 

@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development. One subagent per atomic group. Docs-first (MDCP), then TDD/code.
 
-**Goal:** Clamp pan to city bounds; sync + autosave Options ↔ debug popup; full title-bar drag; redesign Options (TM:PE section rhythm, Sensitivity sliders, preset dropdown with **New Preset** dirty autosave); rename Assist → Debug; remove Enable/Reverse from UI; pitch 7–90; selection-aware two-finger rotate (object) and ⌥-orbit around selection.
+**Goal:** Clamp pan to city bounds; sync + autosave Options ↔ debug popup; full title-bar drag; redesign Options (TM:PE section rhythm, Sensitivity sliders, preset dropdown with **New Preset** dirty autosave); rename Assist → Debug; remove Enable/Reverse from UI; pitch vanilla **0°–90°** (hardcoded apply, not tunable); selection-aware two-finger rotate (object) and ⌥-orbit around selection.
 
 **Architecture:** Shared `ModSettings` + store remain the single source of truth; UI surfaces notify each other on change. Feel identity tracks active preset name (`New Preset` scratch). Gesture pipeline branches yaw vs object-rotate and orbit pivot when a selection exists. Pan apply clamps target to city bounds.
 
@@ -16,7 +16,7 @@
 ## Global Constraints
 
 - Canonical UI: **Sensitivity** sliders (0.1×–2× factory default, step ≈ 10% of default).
-- Pitch min **7**, pitch max **90**, pitch always > 0; **no yaw angle clamp**.
+- Pitch vanilla **0°–90°** hardcoded in `CameraApplicator` (schema seeds 0/90; not product-tunable); drag floors at **0°**; **no yaw angle clamp**. *(Supersedes earlier min-7° note in the Aug-30 design spec.)*
 - Built-ins Slow/Default/Fast never overwritten; dirty edits → **New Preset** autosave.
 - Product UI: no Enable-per-op, no Reverse; Debug (not Assist) for floating panel.
 - Options title: mod name + version.
@@ -55,7 +55,7 @@
 
 ### C1 — Pan bounds + pitch factory
 
-**Subject:** `fix: clamp pan to city bounds and set pitch 7-90`
+**Subject:** `fix: clamp pan to city bounds and vanilla pitch 0-90` *(supersedes earlier `pitch 7-90` subject)*
 
 **Files:** `mod/CameraApplicator.cs`, `mod/ModSettings.cs`, `mod/ICameraController.cs` / camera zoom helper as needed, tests.
 
