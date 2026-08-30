@@ -20,10 +20,9 @@
 
 ## Current phase
 
-**AppleKit Maps+ feel surface** — slim product surface (Maps+/AppleKit), feel presets, scroll/UI gating, Sensitivity naming, orbit pitch limits, and feature flags.
+**Options polish + New Preset + selection rotate** — Debug panel naming, Options layout and Sensitivity sliders, **New Preset** dirty autosave, pitch 7–90°, pan city-bounds clamp, and selection-aware rotate / ⌥-orbit.
 
-Design: [AppleKit Maps+ feel surface](../superpowers/specs/2026-08-29-applekit-feel-surface-design.md).
+Design: [Options polish, New Preset, selection rotate](../superpowers/specs/2026-08-30-options-polish-selection-rotate-design.md).  
+Plan: [Options polish, New Preset, selection rotate](../superpowers/plans/2026-08-30-options-polish-selection-rotate-plan.md).
 
-**Docs (MDCP):** G1–G2 done (glossary + feature contracts). G3–G5 docs in flight (client workflows, developer schema/flags, ADR). G6 validates after those land.
-
-**Then product code:** feature flags, input gates (menu/popup + precise vs wheel), feel presets (Slow/Default/Fast + Save as…/Load), and UI against those shards.
+Prior foundation (shipped on this branch): [AppleKit Maps+ feel surface](../superpowers/specs/2026-08-29-applekit-feel-surface-design.md).

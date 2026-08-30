@@ -24,7 +24,7 @@ Schema-retained. With `EnableCadGestureStyle` off, product UI does not expose a 
 | YawEnabled      | bool | true                             | yes |
 | OrbitEnabled    | bool | true                             | yes |
 
-`AssistUiEnabled` shows or hides the in-game Assist / tuning panel (feel presets + tunables). Development defaults keep it on for easier camera-path validation; shipping defaults turn it off. Assist **chrome** (pads / nudge buttons) is separate and gated by `EnableAssistChrome`.
+Schema field `AssistUiEnabled` shows or hides the in-game **Debug** panel (feel presets + tunables). Product UI labels it Debug; the schema name stays `AssistUiEnabled`. Development defaults keep it on for easier camera-path validation; shipping defaults turn it off. Assist **chrome** (pads / nudge buttons) is separate and gated by `EnableAssistChrome`.
 
 ## Gesture resolve mode
 
@@ -57,14 +57,16 @@ Used by trackpad gestures (and Assist chrome pads when `EnableAssistChrome` is o
 
 **Numeric policy:** each Sensitivity must be **> 0**; parse/apply and display round to two decimals.
 
+**Product Sensitivity sliders:** for each axis, UI range is **0.1×–2×** that axis’s factory Default value, with step ≈ **10%** of the factory default (still rounded to two decimals; values must stay **> 0**).
+
 ## Orbit pitch limits
 
-| Field         | Type  | Factory Default (starter) | Hot |
-| ------------- | ----- | ------------------------- | --- |
-| OrbitPitchMin | float | −80.00                    | yes |
-| OrbitPitchMax | float | 80.00                     | yes |
+| Field         | Type  | Factory Default | Hot |
+| ------------- | ----- | --------------- | --- |
+| OrbitPitchMin | float | 7.00            | yes |
+| OrbitPitchMax | float | 90.00           | yes |
 
-Applied as a clamp after orbit pitch writes. Display/store at two decimals. Starter pair is playtest-tunable.
+Applied as a clamp after orbit pitch writes. Both limits and live pitch must stay **> 0** (no non-positive pitch). Display/store at two decimals. No yaw angle clamp in this contract.
 
 ## Button steps
 
@@ -170,24 +172,29 @@ Primary player model: **[feel presets](../glossary/feel-preset.md)** (sensitivit
 
 | Profile | Contract |
 | ------- | -------- |
-| Default / Reset to factory | Factory Default table above (InvertPanX true; Sensitivity seeds; OrbitPitchMin/Max starter) |
+| Default / Reset to factory | Factory Default table above (InvertPanX true; Sensitivity seeds; OrbitPitchMin/Max 7–90) |
 | Slow | Default Sensitivity fields × **0.75**; reverse and pitch limits unchanged; round to two decimals |
 | Fast | Default Sensitivity fields × **1.25**; reverse and pitch limits unchanged; round to two decimals |
-| Named Save as… / Load | Full feel set in `userPresets[]` |
+| **New Preset** | Scratch identity when the player dirties an active built-in or named preset; autosave writes here; built-ins Slow / Default / Fast are never overwritten |
+| Named Save as… / Load | Full feel set in `userPresets[]`; after Save as…, the named preset is selected; further edits dirty back to **New Preset** |
+
+| Field | Type | Role | Hot |
+| ----- | ---- | ---- | --- |
+| ActiveFeelPresetName | string | Active feel identity in the preset dropdown (built-in name, named user preset, or **New Preset**) | yes |
 
 Live settings load and save through a versioned XML file under the Cities user-data tree (`…/TrackpadCameraControl/settings.xml`):
 
 | Element        | Role                                                        |
 | -------------- | ----------------------------------------------------------- |
 | schemaVersion  | Envelope version                                            |
-| current        | Full ModSettings blob                                       |
+| current        | Full ModSettings blob (includes active feel preset name)    |
 | userPresets[]  | Named feel profiles for Save as… / Load                     |
 
 Missing or corrupt file → factory defaults (no crash), then persist the recovered blob. **Reset to factory** restores schema defaults into `current` and writes the file.
 
 GesturePreset / CAD, CaptureBackend / Contacts, button steps, and low-pass remain in the schema for flagged surfaces; they are not the primary preset model.
 
-Options and the in-game Assist / tuning panel both bind the same fields through one apply layer; number fields edit Sensitivity, pitch limits, and (when flagged) button steps and low-pass params.
+Options and the in-game Debug panel both bind the same fields through one apply layer; every change autosaves. Number fields edit Sensitivity (sliders), pitch limits, and (when flagged) button steps and low-pass params.
 
 ## Validation rule
 
