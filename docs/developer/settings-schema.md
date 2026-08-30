@@ -2,11 +2,17 @@
 
 Logical schema for ModSettings. Field names in source may differ; this shard is the contract. Defaults belong only in the settings defaults factory — not in camera update logic.
 
-## Identity
+Canonical UI term: **[Sensitivity](../glossary/sensitivity.md)**. Synonyms in older docs/code: drag scale, speed, scale. Product floats round to **two decimal places**; Sensitivity values must be **> 0**.
+
+Product-surface gates: [feature flags](./feature-flags.md). Planning: [AppleKit Maps+ feel surface design](../superpowers/specs/2026-08-29-applekit-feel-surface-design.md).
+
+## Identity / gesture style
 
 | Field         | Type                        | Default  | Hot |
 | ------------- | --------------------------- | -------- | --- |
 | GesturePreset | enum: MapsPlus, CAD, Custom | MapsPlus | yes |
+
+Schema-retained. With `EnableCadGestureStyle` off, product UI does not expose a Maps+/CAD switcher; shipped style is Maps+ (`⌥`+two-finger orbit). Gesture style is **not** a [feel preset](../glossary/feel-preset.md).
 
 ## Enables
 
@@ -18,7 +24,7 @@ Logical schema for ModSettings. Field names in source may differ; this shard is 
 | YawEnabled      | bool | true                             | yes |
 | OrbitEnabled    | bool | true                             | yes |
 
-`AssistUiEnabled` shows or hides the in-game Assist / tuning panel (chrome + tunables). Development defaults keep it on for easier camera-path validation; shipping defaults turn it off.
+`AssistUiEnabled` shows or hides the in-game Assist / tuning panel (feel presets + tunables). Development defaults keep it on for easier camera-path validation; shipping defaults turn it off. Assist **chrome** (pads / nudge buttons) is separate and gated by `EnableAssistChrome`.
 
 ## Gesture resolve mode
 
@@ -26,7 +32,7 @@ Logical schema for ModSettings. Field names in source may differ; this shard is 
 | ------------------ | ------------------------------------------ | ---------- | --- |
 | GestureResolveMode | enum: Concurrent, SessionLock, PrimaryOnly | Concurrent | yes |
 
-See [gesture resolve mode](../glossary/gesture-resolve-mode.md). PrimaryOnly priority when multiple candidates exist: Orbit > Zoom > Yaw > Pan.
+See [gesture resolve mode](../glossary/gesture-resolve-mode.md). PrimaryOnly priority when multiple candidates exist: Orbit > Zoom > Yaw > Pan. Schema-retained; not required on the slim product surface.
 
 ## Orbit trigger
 
@@ -34,54 +40,65 @@ See [gesture resolve mode](../glossary/gesture-resolve-mode.md). PrimaryOnly pri
 | ------------ | --------------------------------------------------- | --------------------- | --- |
 | OrbitTrigger | enum: ModifierPlusTwoFinger, ThreeFinger, Both, Off | ModifierPlusTwoFinger | yes |
 
-Maps+ seeds ModifierPlusTwoFinger (Option on macOS). CAD seeds ThreeFinger. [Orbit latch](../glossary/orbit-latch.md) always applies when orbit engages.
+Maps+ uses ModifierPlusTwoFinger (Option on macOS). CAD would use ThreeFinger when `EnableCadGestureStyle` is on. [Orbit latch](../glossary/orbit-latch.md) always applies when orbit engages.
 
-## Drag scales
+## Sensitivity (factory Default feel)
 
-Used by trackpad gestures and Assist chrome drag pads. UI / docs label: **drag scale** (glossary). Field names use **sensitivity** (`*Sensitivity*`) — same multiplier, synonym.
+Used by trackpad gestures (and Assist chrome pads when `EnableAssistChrome` is on). Field names use `*Sensitivity*`.
 
-| Field                 | Type  | Default seed | Hot |
-| --------------------- | ----- | ------------ | --- |
-| PanSensitivityX       | float | 1.0          | yes |
-| PanSensitivityY       | float | 1.0          | yes |
-| OrbitYawSensitivity   | float | 1.0          | yes |
-| OrbitPitchSensitivity | float | 1.0          | yes |
-| ZoomSensitivity       | float | 1.0          | yes |
-| YawRotateSensitivity  | float | 1.0          | yes |
+| Field                 | Type  | Factory Default | Hot |
+| --------------------- | ----- | --------------- | --- |
+| PanSensitivityX       | float | 0.50            | yes |
+| PanSensitivityY       | float | 0.50            | yes |
+| ZoomSensitivity       | float | 1.00            | yes |
+| YawRotateSensitivity  | float | 2.00            | yes |
+| OrbitYawSensitivity   | float | 10.00           | yes |
+| OrbitPitchSensitivity | float | 10.00           | yes |
+
+**Numeric policy:** each Sensitivity must be **> 0**; parse/apply and display round to two decimals.
+
+## Orbit pitch limits
+
+| Field         | Type  | Factory Default (starter) | Hot |
+| ------------- | ----- | ------------------------- | --- |
+| OrbitPitchMin | float | −80.00                    | yes |
+| OrbitPitchMax | float | 80.00                     | yes |
+
+Applied as a clamp after orbit pitch writes. Display/store at two decimals. Starter pair is playtest-tunable.
 
 ## Button steps
 
-Used by Assist chrome nudge buttons only. UI / docs label: **button step** (glossary). Field names use `*ButtonScale*` — same value, synonym. **Not** multiplied by drag scale / sensitivity.
+Used by Assist chrome nudge buttons only — product UI when `EnableAssistChrome` is on. Schema-retained while the flag is off. UI label: **button step**. Field names use `*ButtonScale*`. **Not** multiplied by Sensitivity.
 
 | Field                 | Type  | Default seed | Hot |
 | --------------------- | ----- | ------------ | --- |
 | PanButtonScaleX       | float | 0.05         | yes |
 | PanButtonScaleY       | float | 0.05         | yes |
-| OrbitYawButtonScale   | float | 2.0          | yes |
-| OrbitPitchButtonScale | float | 2.0          | yes |
+| OrbitYawButtonScale   | float | 2.00         | yes |
+| OrbitPitchButtonScale | float | 2.00         | yes |
 | ZoomButtonScale       | float | 0.05         | yes |
-| YawRotateButtonScale  | float | 2.0          | yes |
+| YawRotateButtonScale  | float | 2.00         | yes |
 
-Exact default numbers are tuned during implementation; change them only in the defaults factory and document the new seeds here.
+Exact button-step seeds may be tuned in the defaults factory; document new seeds here when they change. Product floats still round to two decimals.
 
 ## Apply math (contract)
 
-Let `raw` be the resolved gesture delta for that axis (centroid, pinch, or rotate). Optional [low-pass](../glossary/low-pass.md) may replace `raw` with an EMA-smoothed value on the **drag** path only.
+Let `raw` be the resolved gesture delta for that axis (centroid, pinch, or rotate). Optional [low-pass](../glossary/low-pass.md) may replace `raw` with an EMA-smoothed value on the continuous path only — and only when Contacts capture is enabled (`EnableContactsCapture`).
 
 **Invert:** if the matching invert flag is on, multiply the signed delta by `-1` after scaling.
 
-### Drag path (trackpad + chrome pads)
+### Continuous path (trackpad; chrome pads when flagged on)
 
-| Op    | After drag scale                                                                 | Camera write                                              |
-| ----- | -------------------------------------------------------------------------------- | --------------------------------------------------------- |
-| Pan   | `mx = dx * PanSensitivityX`, `my = dy * PanSensitivityY`, then `mx,my *= Size`   | Camera-relative XZ: `target += right*mx + forward*my`     |
-| Zoom  | `delta = pinch * ZoomSensitivity`                                                | `Size' = Size * (1 - delta)` (clamped)                    |
-| Yaw   | `delta = rotate * YawRotateSensitivity`                                          | `AngleX' = AngleX + delta`                                |
-| Orbit | `dyaw = dx * OrbitYawSensitivity`, `dpitch = dy * OrbitPitchSensitivity`         | `AngleX' += dyaw`, `AngleY' += dpitch`                    |
+| Op    | After Sensitivity                                                                                    | Camera write                                                              |
+| ----- | ---------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------- |
+| Pan   | `mx = dx * PanSensitivityX`, `my = dy * PanSensitivityY`, then `mx,my *= Size`                       | Camera-relative XZ: `target += right*mx + forward*my`                     |
+| Zoom  | `delta = pinch * ZoomSensitivity`                                                                    | `Size' = Size * (1 - delta)` (clamped)                                    |
+| Yaw   | `delta = rotate * YawRotateSensitivity`                                                              | `AngleX' = AngleX + delta`                                                |
+| Orbit | `dyaw = dx * OrbitYawSensitivity`, `dpitch = dy * OrbitPitchSensitivity`                             | `AngleX' += dyaw`, `AngleY' += dpitch`, then clamp pitch to min / max     |
 
-### Button path (chrome nudges only)
+### Button path (chrome nudges only; `EnableAssistChrome`)
 
-Build a one-shot delta from the button step and a sign (`±1`), then apply invert and the same camera write as above. **Do not** multiply by `*Sensitivity*`.
+Build a one-shot delta from the button step and a sign (`±1`), then apply invert and the same camera write as above. **Do not** multiply by Sensitivity. Skip low-pass.
 
 | Op    | One-shot input before invert                                      |
 | ----- | ----------------------------------------------------------------- |
@@ -90,20 +107,22 @@ Build a one-shot delta from the button step and a sign (`±1`), then apply inver
 | Yaw   | `rotate = sign * YawRotateButtonScale`                            |
 | Orbit | `dx = signYaw * OrbitYawButtonScale`, `dy = signPitch * OrbitPitchButtonScale` |
 
-### Low-pass (drag only)
+### Low-pass (continuous only; Contacts)
 
-When enabled for an op: first sample seeds state; later `smoothed += alpha * (raw - smoothed)`. Reset on touch-up. Buttons skip this stage.
+When enabled for an op under Contacts capture: first sample seeds state; later `smoothed += alpha * (raw - smoothed)`. Reset on touch-up. Buttons skip this stage.
 
 ## Inverts
 
-| Field            | Type | Default | Hot |
-| ---------------- | ---- | ------- | --- |
-| InvertPanX       | bool | false   | yes |
-| InvertPanY       | bool | false   | yes |
-| InvertOrbitYaw   | bool | false   | yes |
-| InvertOrbitPitch | bool | false   | yes |
-| InvertZoom       | bool | false   | yes |
-| InvertYawRotate  | bool | false   | yes |
+| Field            | Type | Factory Default | Hot |
+| ---------------- | ---- | --------------- | --- |
+| InvertPanX       | bool | true            | yes |
+| InvertPanY       | bool | false           | yes |
+| InvertOrbitYaw   | bool | false           | yes |
+| InvertOrbitPitch | bool | false           | yes |
+| InvertZoom       | bool | false           | yes |
+| InvertYawRotate  | bool | false           | yes |
+
+Factory Default feel: Pan Reverse X on, Y off (playtest Maps+).
 
 ## Thresholds
 
@@ -114,20 +133,22 @@ When enabled for an op: first sample seeds state; later `smoothed += alpha * (ra
 | RotateEpsilon         | float | small positive | yes |
 | FingerCountHysteresis | float | small positive | yes |
 
-## Per-op low-pass (drag only)
+Schema-retained; not required on the slim product surface.
 
-EMA on drag deltas after resolve, before apply — see glossary **low-pass**. Buttons skip low-pass. The former single `Smoothing` field is retired.
+## Per-op low-pass (Contacts only)
+
+EMA on continuous deltas after resolve, before apply — see glossary **low-pass**. Product UI and processing when `EnableContactsCapture` is on. Buttons skip low-pass. The former single `Smoothing` field is retired.
 
 | Field               | Type      | Default | Hot |
 | ------------------- | --------- | ------- | --- |
 | PanLowPassEnabled   | bool      | false   | yes |
-| PanLowPassAlpha     | float 0–1 | 0.3     | yes |
+| PanLowPassAlpha     | float 0–1 | 0.30    | yes |
 | ZoomLowPassEnabled  | bool      | false   | yes |
-| ZoomLowPassAlpha    | float 0–1 | 0.3     | yes |
+| ZoomLowPassAlpha    | float 0–1 | 0.30    | yes |
 | YawLowPassEnabled   | bool      | false   | yes |
-| YawLowPassAlpha     | float 0–1 | 0.3     | yes |
+| YawLowPassAlpha     | float 0–1 | 0.30    | yes |
 | OrbitLowPassEnabled | bool      | false   | yes |
-| OrbitLowPassAlpha   | float 0–1 | 0.3     | yes |
+| OrbitLowPassAlpha   | float 0–1 | 0.30    | yes |
 
 ## Gates and capture
 
@@ -139,21 +160,34 @@ EMA on drag deltas after resolve, before apply — see glossary **low-pass**. Bu
 | CaptureBackend   | enum: Contacts, AppleGestures | AppleGestures | yes |
 | DebugOverlay     | bool                          | false         | yes |
 
-`CaptureBackend` selects the in-process interpreter: **AppleGestures** (default, **current**) is AppKit scroll/magnify/rotate (no Accessibility). **Contacts** is the legacy MultitouchSupport path. Launch override: `TRACKPAD_CAPTURE_BACKEND=apple` or `contacts` (env wins when set).
+`CaptureBackend` selects the in-process interpreter: **AppleGestures** (default, shipped) is AppKit scroll/magnify/rotate (no Accessibility). **Contacts** is the legacy MultitouchSupport path — product UI when `EnableContactsCapture` is on. Launch override: `TRACKPAD_CAPTURE_BACKEND=apple` or `contacts` (env wins when set).
 
-## Persist envelope
+**IgnoreOverUi** (default on): when the pointer is over any active popup / HUD panel, skip mod camera ops from two-finger; leave scroll to UI. **Menu / Options open** is a separate, stronger gate (no mod camera; UI owns scroll). Precise trackpad vs mouse-wheel scroll split lives with [vanilla camera suppress](../features/vanilla-camera-suppress.md).
 
-Live settings load and save through a versioned XML file under the Cities user-data tree (`…/TrackpadCameraControl/settings.xml`). Document shape:
+## Feel presets and persist envelope
 
-| Element        | Role                                                         |
-| -------------- | ------------------------------------------------------------ |
-| schemaVersion  | Envelope version                                             |
-| current        | Full ModSettings blob (what the mod reads and writes today)  |
-| userPresets[]  | Reserved empty; Save as… / Load named presets later          |
+Primary player model: **[feel presets](../glossary/feel-preset.md)** (sensitivities, reverse, enables, pitch limits) — not gesture-style seeds.
 
-Missing or corrupt file → factory defaults (no crash), then persist the recovered blob. **Reset to factory** restores schema defaults into `current` and writes the file. Built-in Maps+ / CAD stay in-code seeds (`ApplyPreset`), not rows in `userPresets`.
+| Profile | Contract |
+| ------- | -------- |
+| Default / Reset to factory | Factory Default table above (InvertPanX true; Sensitivity seeds; OrbitPitchMin/Max starter) |
+| Slow | Default Sensitivity fields × **0.75**; reverse and pitch limits unchanged; round to two decimals |
+| Fast | Default Sensitivity fields × **1.25**; reverse and pitch limits unchanged; round to two decimals |
+| Named Save as… / Load | Full feel set in `userPresets[]` |
 
-Options and the in-game Assist / tuning panel both bind the same fields through one apply layer; number fields (not sliders) edit drag scales, button steps, and low-pass params.
+Live settings load and save through a versioned XML file under the Cities user-data tree (`…/TrackpadCameraControl/settings.xml`):
+
+| Element        | Role                                                        |
+| -------------- | ----------------------------------------------------------- |
+| schemaVersion  | Envelope version                                            |
+| current        | Full ModSettings blob                                       |
+| userPresets[]  | Named feel profiles for Save as… / Load                     |
+
+Missing or corrupt file → factory defaults (no crash), then persist the recovered blob. **Reset to factory** restores schema defaults into `current` and writes the file.
+
+GesturePreset / CAD, CaptureBackend / Contacts, button steps, and low-pass remain in the schema for flagged surfaces; they are not the primary preset model.
+
+Options and the in-game Assist / tuning panel both bind the same fields through one apply layer; number fields edit Sensitivity, pitch limits, and (when flagged) button steps and low-pass params.
 
 ## Validation rule
 

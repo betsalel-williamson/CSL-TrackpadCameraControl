@@ -11,6 +11,7 @@ How to work on **Trackpad Camera Control** — docs, layout, validation, and imp
   - [Commits and releases](./commits-and-releases.md)
   - [GitHub project controls](./github-project-controls.md)
   - [Settings schema](./settings-schema.md)
+  - [Feature flags](./feature-flags.md)
   - [Implementation templates](./implementation-templates.md)
   - [Harnesses and testing](./harnesses-and-testing.md)
   - [Local MVP install](./local-mvp-install.md)

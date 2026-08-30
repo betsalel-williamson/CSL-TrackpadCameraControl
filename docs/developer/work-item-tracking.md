@@ -20,4 +20,10 @@
 
 ## Current phase
 
-**In-game Assist / tuning panel** — floating city-view panel with Assist chrome and number-field tunables; Options mirrors the same tunables (no sliders); settings persist across quit. Next: named Save as… / Load user presets on the reserved envelope. An Options checkbox to leave vanilla camera on is deferred.
+**AppleKit Maps+ feel surface** — slim product surface (Maps+/AppleKit), feel presets, scroll/UI gating, Sensitivity naming, orbit pitch limits, and feature flags.
+
+Design: [AppleKit Maps+ feel surface](../superpowers/specs/2026-08-29-applekit-feel-surface-design.md).
+
+**Docs (MDCP):** G1–G2 done (glossary + feature contracts). G3–G5 docs in flight (client workflows, developer schema/flags, ADR). G6 validates after those land.
+
+**Then product code:** feature flags, input gates (menu/popup + precise vs wheel), feel presets (Slow/Default/Fast + Save as…/Load), and UI against those shards.
