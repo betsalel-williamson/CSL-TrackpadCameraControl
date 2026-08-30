@@ -26,3 +26,11 @@ Base Maps+ pan / pinch zoom and [orbit latch](../glossary/orbit-latch.md) remain
 
 - Perfect keyboard-vs-popup arbitration beyond existing input gates.
 - Changing pan or zoom semantics based on selection.
+
+## Production selection (best-effort)
+
+In-game detection lives in `CitiesSelectionContext` behind `ISelectionContext`:
+
+- **Placement tools:** `BuildingTool` / `PropTool` with a prefab → two-finger rotate adjusts tool `m_angle`; Option-orbit pivots on reflected `ToolBase.m_mousePosition` when present.
+- **Placed objects:** reflects `m_selectedInstance` or `m_hoverInstance` (`InstanceID`) from tool/manager types (owner varies by game build), then reads/writes `Building` / `PropInstance` buffers.
+- **Fail soft:** missing fields, null singletons, or exceptions → treat as no selection (Maps+ camera yaw / orbit). Unit tests use a fake; they do not need Unity.

@@ -5,28 +5,41 @@ namespace TrackpadCameraControl
     {
         private readonly ModSettings _settings;
         private readonly ICameraController _camera;
+        private readonly ISelectionContext _selection;
         private readonly GestureSession _session = new GestureSession();
         private readonly DragLowPass _lowPass = new DragLowPass();
         private IGestureSource _source;
         private int _reconnectCooldown;
 
         public GesturePipeline(ModSettings settings, IGestureSource source)
-            : this(settings, source, new CameraControllerZoom()) { }
+            : this(settings, source, new CameraControllerZoom(), CitiesSelectionContext.Instance)
+        { }
 
         public GesturePipeline(
             ModSettings settings,
             IGestureSource source,
             ICameraController camera
         )
+            : this(settings, source, camera, CitiesSelectionContext.Instance) { }
+
+        public GesturePipeline(
+            ModSettings settings,
+            IGestureSource source,
+            ICameraController camera,
+            ISelectionContext selection
+        )
         {
             _settings = settings ?? new ModSettings();
             _source = source ?? new InProcessGestureSource();
             _camera = camera ?? new CameraControllerZoom();
+            _selection = selection ?? CitiesSelectionContext.Instance;
         }
 
         public IGestureSource Source => _source;
 
         public ICameraController Camera => _camera;
+
+        public ISelectionContext Selection => _selection;
 
         public bool IsConnected => _source != null && _source.IsConnected;
 
@@ -110,7 +123,16 @@ namespace TrackpadCameraControl
                     continue;
                 }
 
-                CameraApplicator.Apply(ops, dx, dy, pinch, rotate, _settings, _camera);
+                CameraApplicator.Apply(
+                    ops,
+                    dx,
+                    dy,
+                    pinch,
+                    rotate,
+                    _settings,
+                    _camera,
+                    _selection
+                );
                 applied = true;
             }
 

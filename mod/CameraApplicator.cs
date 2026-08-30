@@ -38,7 +38,41 @@ namespace TrackpadCameraControl
             ICameraController camera
         )
         {
-            Apply(ops, dx, dy, pinchDelta, rotateDelta, settings, camera, InputModality.Drag);
+            Apply(
+                ops,
+                dx,
+                dy,
+                pinchDelta,
+                rotateDelta,
+                settings,
+                camera,
+                InputModality.Drag,
+                null
+            );
+        }
+
+        public static void Apply(
+            CameraOp ops,
+            float dx,
+            float dy,
+            float pinchDelta,
+            float rotateDelta,
+            ModSettings settings,
+            ICameraController camera,
+            ISelectionContext selection
+        )
+        {
+            Apply(
+                ops,
+                dx,
+                dy,
+                pinchDelta,
+                rotateDelta,
+                settings,
+                camera,
+                InputModality.Drag,
+                selection
+            );
         }
 
         public static void ApplyButton(
@@ -83,7 +117,7 @@ namespace TrackpadCameraControl
                 rotate = rotateSign * settings.YawRotateButtonScale;
             }
 
-            Apply(ops, dx, dy, pinch, rotate, settings, camera, InputModality.Button);
+            Apply(ops, dx, dy, pinch, rotate, settings, camera, InputModality.Button, null);
         }
 
         public static void Apply(
@@ -95,6 +129,21 @@ namespace TrackpadCameraControl
             ModSettings settings,
             ICameraController camera,
             InputModality modality
+        )
+        {
+            Apply(ops, dx, dy, pinchDelta, rotateDelta, settings, camera, modality, null);
+        }
+
+        public static void Apply(
+            CameraOp ops,
+            float dx,
+            float dy,
+            float pinchDelta,
+            float rotateDelta,
+            ModSettings settings,
+            ICameraController camera,
+            InputModality modality,
+            ISelectionContext selection
         )
         {
             if (ops == CameraOp.None || settings == null || camera == null)
@@ -114,12 +163,12 @@ namespace TrackpadCameraControl
 
             if ((ops & CameraOp.Orbit) != 0)
             {
-                ApplyOrbit(dx, dy, settings, camera, modality);
+                ApplyOrbit(dx, dy, settings, camera, modality, selection);
             }
 
             if ((ops & CameraOp.Yaw) != 0)
             {
-                ApplyYawRotate(rotateDelta, settings, camera, modality);
+                ApplyYawRotate(rotateDelta, settings, camera, modality, selection);
             }
         }
 
@@ -272,7 +321,8 @@ namespace TrackpadCameraControl
             float dy,
             ModSettings settings,
             ICameraController camera,
-            InputModality modality
+            InputModality modality,
+            ISelectionContext selection
         )
         {
             float yaw = camera.AngleX;
@@ -280,6 +330,27 @@ namespace TrackpadCameraControl
             if (float.IsNaN(yaw) || float.IsNaN(pitch))
             {
                 return;
+            }
+
+            if (
+                selection != null
+                && selection.TryGetSelectedWorldPosition(out float sx, out float sy, out float sz)
+            )
+            {
+                if (!float.IsNaN(sx))
+                {
+                    camera.TargetX = sx;
+                }
+
+                if (!float.IsNaN(sy))
+                {
+                    camera.TargetY = sy;
+                }
+
+                if (!float.IsNaN(sz))
+                {
+                    camera.TargetZ = sz;
+                }
             }
 
             float dyaw =
@@ -334,15 +405,10 @@ namespace TrackpadCameraControl
             float rotateDelta,
             ModSettings settings,
             ICameraController camera,
-            InputModality modality
+            InputModality modality,
+            ISelectionContext selection
         )
         {
-            float yaw = camera.AngleX;
-            if (float.IsNaN(yaw))
-            {
-                return;
-            }
-
             float delta =
                 modality == InputModality.Button
                     ? rotateDelta
@@ -350,6 +416,17 @@ namespace TrackpadCameraControl
             if (settings.InvertYawRotate)
             {
                 delta = -delta;
+            }
+
+            if (selection != null && selection.TryApplyObjectYawDelta(delta))
+            {
+                return;
+            }
+
+            float yaw = camera.AngleX;
+            if (float.IsNaN(yaw))
+            {
+                return;
             }
 
             camera.AngleX = yaw + delta;
