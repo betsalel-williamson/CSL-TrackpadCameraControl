@@ -294,12 +294,20 @@ namespace TrackpadCameraControl
                 return;
             }
 
-            object vec = _targetAngleField.GetValue(cam);
-            vec = SetVectorComponent(vec, _targetAngleField.FieldType, index, value);
-            _targetAngleField.SetValue(cam, vec);
+            Type vectorType = _targetAngleField.FieldType;
+            object target = _targetAngleField.GetValue(cam);
+            target = SetVectorComponent(target, vectorType, index, value);
+            _targetAngleField.SetValue(cam, target);
+
+            // Update only this axis on m_currentAngle. Copying the full target vector onto
+            // current (old behavior) snapped pitch whenever rotation wrote AngleX while
+            // current.y was still lerping — felt as pitch pops at twist start/end. Q/E
+            // keyboard rotate does not do that full-vector snap.
             if (_currentAngleField != null)
             {
-                _currentAngleField.SetValue(cam, vec);
+                object current = _currentAngleField.GetValue(cam);
+                current = SetVectorComponent(current, vectorType, index, value);
+                _currentAngleField.SetValue(cam, current);
             }
         }
 
