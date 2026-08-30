@@ -18,7 +18,7 @@ Give trackpad players the same camera fluency mouse users get from middle-mouse 
 | Gesture | Camera / selection op |
 | ------- | --------------------- |
 | One-finger click / drag | Unchanged (tools / UI) |
-| Two-finger drag | Pan (target clamped to city bounds) |
+| Two-finger drag | Pan (target clamped to unlocked game area) |
 | Pinch | Zoom |
 | Two-finger rotate | No selection: [yaw](../glossary/yaw.md). Selection: rotate selected object — see [selection-aware gestures](./selection-aware-gestures.md). |
 | Option (`⌥`)+two-finger drag | No selection: [orbit](../glossary/orbit.md) (yaw + pitch). Selection: orbit around selection. Pitch clamped to Pitch min / max (factory **7°**–**90°**). No yaw angle clamp. |
@@ -32,7 +32,7 @@ CAD three-finger orbit remains behind `EnableCadGestureStyle`.
 
 ## Acceptance criteria (current)
 
-- With AppleKit and Maps+ defaults, pan, zoom, yaw, and `⌥`+two-finger orbit work in-game; pan cannot fly too far outside city bounds; orbit pitch stays within **7°**–**90°**; yaw is not angle-clamped.
+- With AppleKit and Maps+ defaults, pan, zoom, yaw, and `⌥`+two-finger orbit work in-game; pan stays within the unlocked game area; orbit pitch stays within **7°**–**90°**; yaw is not angle-clamped.
 - Selection-aware rotate / Option-orbit match [selection-aware gestures](./selection-aware-gestures.md).
 - Slow / Default / Fast stay immutable; dirty edits use **New Preset** per [settings and hot configuration](./settings-and-hot-configuration.md); Sensitivity uses the slider contract (0.1×–2× factory default).
 - Changing Sensitivity or pitch limits in Options or the Debug panel applies hot, stays in sync, and autosaves across quit.

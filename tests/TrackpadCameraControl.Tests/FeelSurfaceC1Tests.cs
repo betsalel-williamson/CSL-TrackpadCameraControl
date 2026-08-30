@@ -247,5 +247,50 @@ namespace TrackpadCameraControl.Tests
 
             Assert.Equal(50f, cam.TargetX, 3);
         }
+
+        [Fact]
+        public void ApplyPan_UsesCustomClampInsteadOfAabb()
+        {
+            // L-shape: allow x in [-10,10] only when z >= 0; otherwise pull z to 0.
+            var cam = new FakeCameraController
+            {
+                Size = 1f,
+                TargetX = 0f,
+                TargetZ = 0f,
+                AngleX = 0f,
+                MinX = -100f,
+                MaxX = 100f,
+                MinZ = -100f,
+                MaxZ = 100f,
+                ClampPanCustom = (ref float x, ref float z) =>
+                {
+                    if (z < 0f)
+                    {
+                        z = 0f;
+                    }
+
+                    if (x < -10f)
+                    {
+                        x = -10f;
+                    }
+                    else if (x > 10f)
+                    {
+                        x = 10f;
+                    }
+                },
+            };
+            var settings = new ModSettings
+            {
+                PanSensitivityX = 1f,
+                PanSensitivityY = 1f,
+                InvertPanX = false,
+                InvertPanY = false,
+            };
+
+            CameraApplicator.Apply(CameraOp.Pan, 50f, -50f, 0f, 0f, settings, cam);
+
+            Assert.Equal(10f, cam.TargetX, 3);
+            Assert.Equal(0f, cam.TargetZ, 3);
+        }
     }
 }

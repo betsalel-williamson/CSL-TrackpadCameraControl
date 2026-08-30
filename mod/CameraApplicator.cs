@@ -258,62 +258,9 @@ namespace TrackpadCameraControl
             // Camera-relative XZ: right * mx + forward * my
             float nextX = x + cos * mx + sin * my;
             float nextZ = z + -sin * mx + cos * my;
-            ClampPanToCityBounds(camera, ref nextX, ref nextZ);
+            camera.ClampPanTarget(ref nextX, ref nextZ);
             camera.TargetX = nextX;
             camera.TargetZ = nextZ;
-        }
-
-        private static void ClampPanToCityBounds(
-            ICameraController camera,
-            ref float nextX,
-            ref float nextZ
-        )
-        {
-            float minX = camera.MinX;
-            float maxX = camera.MaxX;
-            float minZ = camera.MinZ;
-            float maxZ = camera.MaxZ;
-            if (
-                float.IsNaN(minX)
-                || float.IsNaN(maxX)
-                || float.IsNaN(minZ)
-                || float.IsNaN(maxZ)
-            )
-            {
-                return;
-            }
-
-            if (minX > maxX)
-            {
-                float swap = minX;
-                minX = maxX;
-                maxX = swap;
-            }
-
-            if (minZ > maxZ)
-            {
-                float swap = minZ;
-                minZ = maxZ;
-                maxZ = swap;
-            }
-
-            if (nextX < minX)
-            {
-                nextX = minX;
-            }
-            else if (nextX > maxX)
-            {
-                nextX = maxX;
-            }
-
-            if (nextZ < minZ)
-            {
-                nextZ = minZ;
-            }
-            else if (nextZ > maxZ)
-            {
-                nextZ = maxZ;
-            }
         }
 
         private static void ApplyOrbit(

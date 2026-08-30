@@ -69,7 +69,7 @@ Let `raw` be the resolved gesture delta for that axis. Optional [low-pass](../gl
 
 | Op    | After [Sensitivity](../glossary/sensitivity.md) | Camera write |
 | ----- | ----------------------------------------------- | ------------ |
-| Pan   | `mx = dx * PanSensitivityX`, `my = dy * PanSensitivityY`, then `mx,my *= Size` | Camera-relative XZ, then **clamp target to city bounds** |
+| Pan   | `mx = dx * PanSensitivityX`, `my = dy * PanSensitivityY`, then `mx,my *= Size` | Camera-relative XZ, then **clamp target via `ICameraController.ClampPanTarget`** (unlocked game area / `ClampPoint`) |
 | Zoom  | `delta = pinch * ZoomSensitivity` | `Size' = Size * (1 - delta)` (clamped) |
 | Yaw   | `delta = rotate * YawRotateSensitivity` | `AngleX' = AngleX + delta` (no yaw angle clamp). When a selection is active, two-finger rotate targets the object instead — see [selection-aware gestures](./selection-aware-gestures.md). |
 | Orbit | `dyaw = dx * OrbitYawSensitivity`, `dpitch = dy * OrbitPitchSensitivity` | `AngleX' += dyaw`, `AngleY' += dpitch` then clamp pitch to Pitch min / max. With a selection, orbit pivots around the selected object. |
@@ -111,6 +111,6 @@ Once orbit engages from the configured trigger, the session stays in orbit until
 - Save as… selects the named preset; further edits dirty to **New Preset** again.
 - Reset to factory and Slow / Default / Fast match the feel-profile contract.
 - Product UI shows no Enable-per-op or Reverse; section order is General → Zoom → Pan → Rotate → Orbit.
-- Pitch clamps to min **7** / max **90**; pan apply keeps the camera target within city bounds; yaw has no angle clamp.
+- Pitch clamps to min **7** / max **90**; pan apply clamps the camera target to the unlocked game area; yaw has no angle clamp.
 - While flags are off: no CAD switcher, no backend picker, no Btn fields, no low-pass.
 - Grep of camera/gesture logic finds no numeric feel literals outside the settings defaults factory.

@@ -3,6 +3,8 @@ using Xunit;
 
 namespace TrackpadCameraControl.Tests
 {
+    public delegate void PanClampAction(ref float x, ref float z);
+
     public sealed class FakeCameraController : ICameraController
     {
         public float Size { get; set; } = 100f;
@@ -12,11 +14,69 @@ namespace TrackpadCameraControl.Tests
         public float AngleX { get; set; }
         public float AngleY { get; set; }
 
-        /// <summary>NaN = no pan clamp (default for existing tests).</summary>
+        /// <summary>Optional AABB for tests. NaN = no AABB clamp.</summary>
         public float MinX { get; set; } = float.NaN;
         public float MaxX { get; set; } = float.NaN;
         public float MinZ { get; set; } = float.NaN;
         public float MaxZ { get; set; } = float.NaN;
+
+        /// <summary>Optional custom clamp (e.g. L-shape). Invoked instead of AABB when set.</summary>
+        public PanClampAction ClampPanCustom { get; set; }
+
+        public void ClampPanTarget(ref float x, ref float z)
+        {
+            if (ClampPanCustom != null)
+            {
+                ClampPanCustom(ref x, ref z);
+                return;
+            }
+
+            if (
+                float.IsNaN(MinX)
+                || float.IsNaN(MaxX)
+                || float.IsNaN(MinZ)
+                || float.IsNaN(MaxZ)
+            )
+            {
+                return;
+            }
+
+            float minX = MinX;
+            float maxX = MaxX;
+            float minZ = MinZ;
+            float maxZ = MaxZ;
+            if (minX > maxX)
+            {
+                float swap = minX;
+                minX = maxX;
+                maxX = swap;
+            }
+
+            if (minZ > maxZ)
+            {
+                float swap = minZ;
+                minZ = maxZ;
+                maxZ = swap;
+            }
+
+            if (x < minX)
+            {
+                x = minX;
+            }
+            else if (x > maxX)
+            {
+                x = maxX;
+            }
+
+            if (z < minZ)
+            {
+                z = minZ;
+            }
+            else if (z > maxZ)
+            {
+                z = maxZ;
+            }
+        }
     }
 
     public class ModSettingsPresetTests

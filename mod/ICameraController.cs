@@ -15,12 +15,10 @@ namespace TrackpadCameraControl
         float AngleY { get; set; }
 
         /// <summary>
-        /// City pan bounds on XZ. <see cref="float.NaN"/> means unavailable — skip clamp.
+        /// Clamp a proposed pan target to the playable / unlocked city area on XZ.
+        /// Production uses GameAreaManager.ClampPoint (grows with unlocks; non-rectangular).
+        /// Test fakes may use an AABB or a custom shape.
         /// </summary>
-        float MinX { get; }
-
-        float MaxX { get; }
-        float MinZ { get; }
-        float MaxZ { get; }
+        void ClampPanTarget(ref float x, ref float z);
     }
 }
