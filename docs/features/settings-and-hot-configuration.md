@@ -72,7 +72,7 @@ Let `raw` be the resolved gesture delta for that axis. Optional [low-pass](../gl
 | Pan   | `mx = dx * PanSensitivityX`, `my = dy * PanSensitivityY`, then `mx,my *= Size` | Camera-relative XZ, then **clamp target via `ICameraController.ClampPanTarget`** (unlocked game area / `ClampPoint`) |
 | Zoom  | `delta = pinch * ZoomSensitivity` | `Size' = Size * (1 - delta)` (clamped) |
 | Yaw   | `delta = rotate * YawRotateSensitivity` | `AngleX' = AngleX + delta` (no yaw angle clamp). When a selection is active, two-finger rotate targets the object instead — see [selection-aware gestures](./selection-aware-gestures.md). |
-| Orbit | `dyaw = dx * OrbitYawSensitivity`, `dpitch = dy * OrbitPitchSensitivity` | `AngleX' += dyaw`, `AngleY' += dpitch` then clamp pitch to Pitch min / max. With a selection, orbit pivots around the selected object. |
+| Orbit | `dyaw = dx * OrbitYawSensitivity`, `dpitch = dy * OrbitPitchSensitivity` | `AngleX' += dyaw`, `AngleY' += dpitch` then clamp pitch to Pitch min / max. Place/relocate ghost may re-home Target; otherwise orbit from current look-at. |
 
 ### Button path (only when `EnableAssistChrome`)
 

@@ -21,7 +21,7 @@ Give trackpad players the same camera fluency mouse users get from middle-mouse 
 | Two-finger drag | Pan (target clamped to unlocked game area) |
 | Pinch | Zoom |
 | Two-finger rotate | No placement/relocate: [yaw](../glossary/yaw.md). New place or relocate ghost: rotate ghost — see [selection-aware gestures](./selection-aware-gestures.md). |
-| Option (`⌥`)+two-finger drag | No selection: [orbit](../glossary/orbit.md) (yaw + pitch). Selection: orbit around selection. Pitch clamped to Pitch min / max (factory **7°**–**90°**). No yaw angle clamp. |
+| Option (`⌥`)+two-finger drag | Place/relocate ghost: orbit around ghost. Otherwise [orbit](../glossary/orbit.md) from current look-at. Pitch clamped to Pitch min / max (factory **7°**–**90°**). No yaw angle clamp. |
 
 CAD three-finger orbit remains behind `EnableCadGestureStyle`.
 

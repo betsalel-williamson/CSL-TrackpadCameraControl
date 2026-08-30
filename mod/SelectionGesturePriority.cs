@@ -54,6 +54,20 @@ namespace TrackpadCameraControl
         /// </summary>
         public static bool AllowsObjectYaw(SelectionGestureKind kind)
         {
+            return AllowsGhostBinding(kind);
+        }
+
+        /// <summary>
+        /// Option-orbit may re-home look-at only for place/relocate ghosts.
+        /// Otherwise orbit from the current camera Target (no snap to last pivot).
+        /// </summary>
+        public static bool AllowsOrbitPivot(SelectionGestureKind kind)
+        {
+            return AllowsGhostBinding(kind);
+        }
+
+        private static bool AllowsGhostBinding(SelectionGestureKind kind)
+        {
             return kind == SelectionGestureKind.RelocateInstance
                 || kind == SelectionGestureKind.PlacementGhost;
         }

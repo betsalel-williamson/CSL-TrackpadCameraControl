@@ -28,7 +28,7 @@ Polish Options and the in-game debug panel for Maps+/AppleKit play: reliable syn
 | After Save as… | Named preset selected; further edits dirties to **New Preset** again |
 | Preset dropdown | Load on select; **Save as…** last entry |
 | Selection + two-finger rotate | Rotate ghost when **placing new** or **relocating**; click-selected placed objects keep camera yaw |
-| Selection + ⌥+two-finger | Camera **orbit around** the selected object / ghost |
+| Selection + ⌥+two-finger | Place/relocate: orbit around ghost. Otherwise orbit from **current** look-at (no snap to last pivot) |
 | No selection | Prior Maps+ behavior (rotate = camera yaw; ⌥ = orbit) |
 
 ## Non-goals

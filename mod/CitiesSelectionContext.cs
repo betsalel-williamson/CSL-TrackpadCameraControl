@@ -8,8 +8,8 @@ namespace TrackpadCameraControl
 {
     /// <summary>
     /// Best-effort CS1 selection context.
-    /// Orbit pivot: relocate → selected instance → placement ghost.
-    /// Object yaw: relocate ghost and new-placement ghost only (not click-selected props/buildings).
+    /// Object yaw and orbit look-at re-home: relocate / new-placement ghosts only.
+    /// Click-selected instances do not steal yaw or snap orbit Target (orbit from current camera look-at).
     /// Hover is not used. All paths fail soft.
     /// </summary>
     public sealed class CitiesSelectionContext : ISelectionContext
@@ -42,10 +42,16 @@ namespace TrackpadCameraControl
                     hasSelected
                 );
 
+                // Only ghost modes may re-home the camera look-at. SelectedInstance would snap
+                // Option-orbit back to the last clicked/orbit pivot after the player has panned away.
+                if (!SelectionGesturePriority.AllowsOrbitPivot(kind))
+                {
+                    return false;
+                }
+
                 if (kind == SelectionGestureKind.RelocateInstance)
                 {
                     // Ghost sits at the cursor; buffer still holds the pre-commit cell.
-                    // Prefer mouse so Option-orbit follows the relocated preview, not the old site.
                     if (TryGetToolPlacementPosition(out x, out y, out z))
                     {
                         return true;
@@ -56,15 +62,8 @@ namespace TrackpadCameraControl
                     return TryGetInstancePosition(relocate, out x, out y, out z);
                 }
 
-                if (kind == SelectionGestureKind.SelectedInstance)
-                {
-                    return TryGetInstancePosition(selectedId, out x, out y, out z);
-                }
-
-                if (kind == SelectionGestureKind.PlacementGhost)
-                {
-                    return TryGetToolPlacementPosition(out x, out y, out z);
-                }
+                // PlacementGhost
+                return TryGetToolPlacementPosition(out x, out y, out z);
             }
             catch
             {
