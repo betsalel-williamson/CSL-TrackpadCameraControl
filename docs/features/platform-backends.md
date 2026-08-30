@@ -9,7 +9,7 @@ Keep product language and Options **platform-neutral**. Isolate OS capture behin
 | Layer                                      | Stance                                                                  |
 | ------------------------------------------ | ----------------------------------------------------------------------- |
 | Features, client Outcomes, settings schema | No required OS brand in the capability story                            |
-| First shipping backend                     | **macOS** trackpad (in-process Contacts and AppleGestures interpreters) |
+| First shipping backend                     | **macOS** AppleKit (AppleGestures). Contacts behind `EnableContactsCapture` |
 | Windows / Linux                            | Stubs with the same interface; contributor implementations welcome      |
 
 ## Backend contract
@@ -22,10 +22,10 @@ A backend must:
 
 ## macOS (v1)
 
-- **AppleGestures (default):** in-process AppKit local monitor (scroll / magnify / rotate → same primitives). No Accessibility. Selected when `CaptureBackend` is AppleGestures, or when the setting is unset.
-- **Contacts:** in-process MultitouchSupport contacts → primitives. Selected when `CaptureBackend` is Contacts, or `TRACKPAD_CAPTURE_BACKEND=contacts`.
-- Both interpreters log frames to a capture log file for inspection (path overridable with `TRACKPAD_CAPTURE_LOG`).
-- Maps+ orbit modifier defaults to Option.
+- **AppleGestures / AppleKit (shipped):** in-process AppKit local monitor (scroll / magnify / rotate → same primitives). No Accessibility. Precise scroll deltas drive pan; non-precise (mouse wheel) are not mapped to pan.
+- **Contacts:** in-process MultitouchSupport contacts → primitives. Product UI and default path only when `EnableContactsCapture` is on (or `TRACKPAD_CAPTURE_BACKEND=contacts` for maintainers).
+- Interpreters may log frames to a capture log file (path overridable with `TRACKPAD_CAPTURE_LOG`).
+- Maps+ orbit modifier defaults to Option (`⌥`).
 - Client notes for Mission Control live under the client guide’s platform conflicts shard.
 
 ## Windows / Linux (stubs)
