@@ -6,6 +6,7 @@ namespace TrackpadCameraControl.Tests
     public sealed class FakeSelectionContext : ISelectionContext
     {
         public bool HasSelection { get; set; }
+        public SelectionGestureKind Kind { get; set; } = SelectionGestureKind.PlacementGhost;
         public float WorldX { get; set; }
         public float WorldY { get; set; }
         public float WorldZ { get; set; }
@@ -22,7 +23,7 @@ namespace TrackpadCameraControl.Tests
 
         public bool TryApplyObjectYawDelta(float deltaDegrees)
         {
-            if (!HasSelection)
+            if (!HasSelection || !SelectionGesturePriority.AllowsObjectYaw(Kind))
             {
                 return false;
             }
@@ -63,6 +64,34 @@ namespace TrackpadCameraControl.Tests
             Assert.Equal(40f, cam.AngleX, 3);
             Assert.Equal(1f, selection.AppliedYawDegrees, 3);
             Assert.Equal(1, selection.RotateCalls);
+        }
+
+        [Fact]
+        public void Yaw_ClickSelect_DoesNotRotateObject_YawsCamera()
+        {
+            var cam = new FakeCameraController { AngleX = 0f };
+            var selection = new FakeSelectionContext
+            {
+                HasSelection = true,
+                Kind = SelectionGestureKind.SelectedInstance,
+            };
+            var settings = new ModSettings { YawRotateGain = 2f };
+
+            CameraApplicator.Apply(
+                CameraOp.Yaw,
+                0,
+                0,
+                0,
+                0.5f,
+                settings,
+                cam,
+                CameraApplicator.InputModality.Drag,
+                selection
+            );
+
+            Assert.Equal(1f, cam.AngleX, 3);
+            Assert.Equal(0, selection.RotateCalls);
+            Assert.Equal(0f, selection.AppliedYawDegrees, 3);
         }
 
         [Fact]
