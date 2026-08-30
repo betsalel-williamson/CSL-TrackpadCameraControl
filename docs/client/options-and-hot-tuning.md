@@ -1,43 +1,47 @@
 # Options and hot tuning
 
-You can tune Trackpad Camera Control from **two places**. They share the same settings: change a value in one, and the other shows it when you open it. Changes apply **without restarting** the game or the mod, and they **survive quit**.
+You can tune Trackpad Camera Control from **two places**. They share the same live settings: change a value in one, and the other shows it right away. Every change **autosaves** — no restart, and values **survive quit**.
 
 ## Where to edit
 
-1. **In-game Assist / tuning panel** — floating window while a city is loaded (when Assist UI is on). Same feel and per-op tunables as Options.
-2. **Options → Trackpad Camera Control** — same tunables as number fields and checkboxes, laid out in **multi-column groups by op** (same grouping as the panel).
+1. **In-game Debug panel** — floating window while a city is loaded (when Debug is on). Same feel and per-op tunables as Options. See [Debug panel](./debug-ui.md).
+2. **Options → Trackpad Camera Control** — same tunables; the Options window title is the **mod name + version**.
 
-Assist chrome (drag pads and nudge buttons) and Btn / button-step fields appear only when `EnableAssistChrome` is on. Capture-backend picker and low-pass appear only when `EnableContactsCapture` is on. A CAD gesture-style switcher appears only when `EnableCadGestureStyle` is on. With those flags off (shipped surface), you see Maps+/AppleKit feel controls only — no Btn, LP, CAD, or backend picker.
+On the shipped surface you see Maps+/AppleKit feel controls only. Pad/button chrome, capture-backend / low-pass, and CAD gesture-style switchers stay behind their own flags.
 
 ## Feel presets
 
-The presets row offers **Slow | Default | Fast**, **Save as… / Load**, and **Reset to factory**. These are [feel presets](../glossary/feel-preset.md) (sensitivities and related feel), not gesture-style seeds. Details and Default numbers: [feel presets](./feel-presets.md).
+A **dropdown** lists built-in and named [feel presets](../glossary/feel-preset.md), loads the profile **on select**, and ends with **Save as…**. Dirty edits while a built-in is active move you to **New Preset** and autosave there. Details: [feel presets](./feel-presets.md).
 
-## Per-op sections
+## Layout and per-op sections
 
-For **Pan**, **Zoom**, **Rotate** (yaw), and **Orbit**, each heading briefly states **what it means** and **what activates it** on the shipped Maps+ style:
+Sections appear in order **General → Zoom → Pan → Rotate → Orbit**. Rhythm: prior content → horizontal rule → section title → rows.
+
+For each camera op, a short heading states **what it means** and **what activates it** on the shipped Maps+ style:
 
 | Op | Meaning | Activation (Maps+) |
 | --- | --- | --- |
-| Pan | Slide the camera laterally | Two-finger drag |
 | Zoom | Change camera distance / size | Pinch (mouse wheel uses vanilla zoom) |
-| Rotate | Yaw around the vertical axis | Two-finger rotate |
-| Orbit | Pitch + yaw around the pivot | Option (`⌥`)+two-finger drag |
+| Pan | Slide the camera laterally | Two-finger drag (stays within city bounds) |
+| Rotate | Yaw the camera, or rotate a selected object | Two-finger rotate |
+| Orbit | Pitch + yaw around the pivot (or around a selection) | Option (`⌥`)+two-finger drag |
 
-Controls on the product surface (flags off): **Enable**, **Reverse** (where applicable), **Sensitivity** fields, and for Orbit **Pitch min / max**. Labels say **Sensitivity** (not drag scale). Values must be **greater than zero** and round to **two decimal places**. Pitch min / max also use two decimals; orbit pitch stays within those limits.
+Product-surface controls: **Sensitivity** sliders (about **0.1×–2×** factory default) and, for Orbit, **Pitch min / max** (**7–90°**, always above zero). There is no Enable-per-op or Reverse UI. Labels say **Sensitivity** (not drag scale).
+
+With a **selection**: two-finger rotate turns the **selected object**; ⌥+two-finger **orbits the camera around** that object. With **no selection**, rotate is camera yaw and ⌥+two-finger is normal orbit.
 
 ## Menus, Options, and popups
 
 When Options or another game menu is open: the mod does **not** apply camera ops — two-finger scroll belongs to the UI.
 
-When the cursor is over an active popup or HUD panel (Assist panel or another mod’s popup): two-finger input scrolls the UI, not the city camera. Keyboard camera may still move unless a text field is focused.
+When the cursor is over an active popup or HUD panel (Debug panel or another mod’s popup): two-finger input scrolls the UI, not the city camera. Keyboard camera may still move unless a text field is focused.
 
 ## How to experiment
 
 1. Enable the mod and load a city.
-2. Open the floating panel (or Options → Trackpad Camera Control).
-3. Try Slow / Default / Fast, or edit a Sensitivity / reverse / Pitch min / max.
-4. Perform the gesture — new values apply immediately.
-5. Optionally Save as… a named feel profile; quit and relaunch to confirm values came back.
+2. Open the Debug panel (or Options → Trackpad Camera Control).
+3. Try Slow / Default / Fast from the dropdown, or drag a Sensitivity / Pitch min / max control.
+4. Perform the gesture — new values apply immediately and autosave.
+5. Optionally **Save as…** a named feel profile; quit and relaunch to confirm values came back.
 
 Factory defaults live only in the settings schema. See [install and first run](./install-and-first-run.md) for Maps+ gesture basics.
