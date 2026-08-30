@@ -4,6 +4,7 @@ How Cities: Skylines I players use **Trackpad Camera Control** on a trackpad.
 
 - [Client guide](#table-of-contents)
   - [About this guide](./about-this-guide.md)
+  - [Personas](./personas.md)
   - [Install and first run](./install-and-first-run.md)
   - [Feel presets](./feel-presets.md)
   - [Gesture style (Maps+)](./gesture-presets.md)
