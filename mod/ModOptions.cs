@@ -101,12 +101,26 @@ namespace TrackpadCameraControl
                 return ScaleMax;
             }
 
-            return value;
+            return Round2(value);
         }
 
+        /// <summary>
+        /// Sensitivity numeric policy: round to two decimals; no upper cap.
+        /// Non-positive values become 0 (Apply*Sensitivity ignores ≤ 0 separately).
+        /// </summary>
         public static float ClampSensitivity(float value)
         {
-            return ClampScale(value);
+            if (value <= 0f)
+            {
+                return 0f;
+            }
+
+            return Round2(value);
+        }
+
+        public static float Round2(float value)
+        {
+            return (float)Math.Round(value, 2, MidpointRounding.AwayFromZero);
         }
 
         public static float ClampAlpha(float value)
@@ -156,7 +170,7 @@ namespace TrackpadCameraControl
 
         public static string FormatFloat(float value)
         {
-            return value.ToString("0.###", CultureInfo.InvariantCulture);
+            return Round2(value).ToString("0.00", CultureInfo.InvariantCulture);
         }
 
         public static bool TryApplyFloat(
@@ -180,70 +194,54 @@ namespace TrackpadCameraControl
             return true;
         }
 
-        public static void ApplyPanSensitivityX(ModSettings settings, float value)
+        private static void ApplyPositiveSensitivity(
+            ModSettings settings,
+            float value,
+            Action<ModSettings, float> assign
+        )
         {
-            if (settings == null)
+            if (settings == null || assign == null)
             {
                 return;
             }
 
-            settings.PanSensitivityX = ClampScale(value);
+            if (value <= 0f)
+            {
+                return;
+            }
+
+            assign(settings, Round2(value));
             NotifyChanged();
+        }
+
+        public static void ApplyPanSensitivityX(ModSettings settings, float value)
+        {
+            ApplyPositiveSensitivity(settings, value, (s, v) => s.PanSensitivityX = v);
         }
 
         public static void ApplyPanSensitivityY(ModSettings settings, float value)
         {
-            if (settings == null)
-            {
-                return;
-            }
-
-            settings.PanSensitivityY = ClampScale(value);
-            NotifyChanged();
+            ApplyPositiveSensitivity(settings, value, (s, v) => s.PanSensitivityY = v);
         }
 
         public static void ApplyOrbitYawSensitivity(ModSettings settings, float value)
         {
-            if (settings == null)
-            {
-                return;
-            }
-
-            settings.OrbitYawSensitivity = ClampScale(value);
-            NotifyChanged();
+            ApplyPositiveSensitivity(settings, value, (s, v) => s.OrbitYawSensitivity = v);
         }
 
         public static void ApplyOrbitPitchSensitivity(ModSettings settings, float value)
         {
-            if (settings == null)
-            {
-                return;
-            }
-
-            settings.OrbitPitchSensitivity = ClampScale(value);
-            NotifyChanged();
+            ApplyPositiveSensitivity(settings, value, (s, v) => s.OrbitPitchSensitivity = v);
         }
 
         public static void ApplyZoomSensitivity(ModSettings settings, float value)
         {
-            if (settings == null)
-            {
-                return;
-            }
-
-            settings.ZoomSensitivity = ClampScale(value);
-            NotifyChanged();
+            ApplyPositiveSensitivity(settings, value, (s, v) => s.ZoomSensitivity = v);
         }
 
         public static void ApplyYawRotateSensitivity(ModSettings settings, float value)
         {
-            if (settings == null)
-            {
-                return;
-            }
-
-            settings.YawRotateSensitivity = ClampScale(value);
-            NotifyChanged();
+            ApplyPositiveSensitivity(settings, value, (s, v) => s.YawRotateSensitivity = v);
         }
 
         public static void ApplyPanButtonScaleX(ModSettings settings, float value)

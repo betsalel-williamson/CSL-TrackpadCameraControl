@@ -36,12 +36,15 @@ namespace TrackpadCameraControl
         public bool OrbitEnabled { get; set; } = true;
         public OrbitTrigger OrbitTrigger { get; set; } = OrbitTrigger.ModifierPlusTwoFinger;
 
-        public float PanSensitivityX { get; set; } = 1f;
-        public float PanSensitivityY { get; set; } = 1f;
-        public float OrbitYawSensitivity { get; set; } = 1f;
-        public float OrbitPitchSensitivity { get; set; } = 1f;
-        public float ZoomSensitivity { get; set; } = 1f;
-        public float YawRotateSensitivity { get; set; } = 1f;
+        public float PanSensitivityX { get; set; } = 0.50f;
+        public float PanSensitivityY { get; set; } = 0.50f;
+        public float OrbitYawSensitivity { get; set; } = 10.00f;
+        public float OrbitPitchSensitivity { get; set; } = 10.00f;
+        public float ZoomSensitivity { get; set; } = 1.00f;
+        public float YawRotateSensitivity { get; set; } = 2.00f;
+
+        public float OrbitPitchMin { get; set; } = -80f;
+        public float OrbitPitchMax { get; set; } = 80f;
 
         public float PanButtonScaleX { get; set; } = 0.05f;
         public float PanButtonScaleY { get; set; } = 0.05f;
@@ -50,7 +53,7 @@ namespace TrackpadCameraControl
         public float ZoomButtonScale { get; set; } = 0.05f;
         public float YawRotateButtonScale { get; set; } = 2f;
 
-        public bool InvertPanX { get; set; }
+        public bool InvertPanX { get; set; } = true;
         public bool InvertPanY { get; set; }
         public bool InvertOrbitYaw { get; set; }
         public bool InvertOrbitPitch { get; set; }
@@ -127,6 +130,9 @@ namespace TrackpadCameraControl
             OrbitPitchSensitivity = other.OrbitPitchSensitivity;
             ZoomSensitivity = other.ZoomSensitivity;
             YawRotateSensitivity = other.YawRotateSensitivity;
+
+            OrbitPitchMin = other.OrbitPitchMin;
+            OrbitPitchMax = other.OrbitPitchMax;
 
             PanButtonScaleX = other.PanButtonScaleX;
             PanButtonScaleY = other.PanButtonScaleY;

@@ -238,7 +238,27 @@ namespace TrackpadCameraControl
             }
 
             camera.AngleX = yaw + dyaw;
-            camera.AngleY = pitch + dpitch;
+
+            float nextPitch = pitch + dpitch;
+            float min = settings.OrbitPitchMin;
+            float max = settings.OrbitPitchMax;
+            if (min > max)
+            {
+                float swap = min;
+                min = max;
+                max = swap;
+            }
+
+            if (nextPitch < min)
+            {
+                nextPitch = min;
+            }
+            else if (nextPitch > max)
+            {
+                nextPitch = max;
+            }
+
+            camera.AngleY = nextPitch;
         }
 
         private static void ApplyYawRotate(
