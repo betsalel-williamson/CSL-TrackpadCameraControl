@@ -13,7 +13,7 @@ No feel or binding parameter is hardcoded in camera or gesture logic. Defaults e
 
 One binding layer parses, rounds to two decimals, validates **> 0** for Sensitivity, and writes fields. A change on either surface updates live settings immediately and schedules a durable write.
 
-Assist chrome pads/buttons and button-step fields appear only when `EnableAssistChrome` is on. Capture-backend picker and [low-pass](../glossary/low-pass.md) appear only when `EnableContactsCapture` is on. CAD gesture-style switcher appears only when `EnableCadGestureStyle` is on. See [feature flags](../developer/feature-flags.md).
+Assist chrome pads/buttons and button-step fields appear only when `EnableAssistChrome` is on. Capture-backend picker and [low-pass](../glossary/low-pass.md) appear only when `EnableContactsCapture` is on. CAD gesture-style switcher appears only when `EnableCadGestureStyle` is on. See [feature flags](./adr/0003-feel-profiles-and-product-flags.md).
 
 ## Feel presets
 
@@ -21,7 +21,7 @@ A [feel preset](../glossary/feel-preset.md) stores sensitivities, reverse flags,
 
 | Profile | Role |
 | ------- | ---- |
-| Default | Factory / Reset — playtest Maps+ feel (see settings schema) |
+| Default | Factory / Reset — playtest Maps+ feel ([Sensitivity](../glossary/sensitivity.md) factory defaults) |
 | Slow    | Default sensitivities × 0.75 (two decimals); reverse and pitch limits unchanged |
 | Fast    | Default sensitivities × 1.25 (two decimals); reverse and pitch limits unchanged |
 | Named   | Save as… / Load on the persist `userPresets` envelope |

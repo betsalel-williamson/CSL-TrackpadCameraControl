@@ -162,7 +162,7 @@ EMA on continuous deltas after resolve, before apply — see glossary **low-pass
 
 `CaptureBackend` selects the in-process interpreter: **AppleGestures** (default, shipped) is AppKit scroll/magnify/rotate (no Accessibility). **Contacts** is the legacy MultitouchSupport path — product UI when `EnableContactsCapture` is on. Launch override: `TRACKPAD_CAPTURE_BACKEND=apple` or `contacts` (env wins when set).
 
-**IgnoreOverUi** (default on): when the pointer is over any active popup / HUD panel, skip mod camera ops from two-finger; leave scroll to UI. **Menu / Options open** is a separate, stronger gate (no mod camera; UI owns scroll). Precise trackpad vs mouse-wheel scroll split lives with [vanilla camera suppress](../features/vanilla-camera-suppress.md).
+**IgnoreOverUi** (default on): when the pointer is over any active popup / HUD panel, skip mod camera ops from two-finger; leave scroll to UI. **Menu / Options open** is a separate, stronger gate (no mod camera; UI owns scroll). Precise trackpad vs mouse-wheel scroll split lives with [vanilla camera suppress](../glossary/vanilla-camera-suppress.md).
 
 ## Feel presets and persist envelope
 
