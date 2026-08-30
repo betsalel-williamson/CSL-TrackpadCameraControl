@@ -1,6 +1,6 @@
 # Debug panel
 
-The in-game **Debug** panel is the floating window for [feel presets](./feel-presets.md) and per-op tunables beside the city view. It shares the same live settings as Options → Trackpad Camera Control: change a value in either place and the other stays in sync; every change **autosaves**.
+The in-game **Debug** panel is the floating window for [feel presets](./feel-presets.md) and per-op tunables beside the city view. It shares the same live **ModSettings** as Options → Trackpad Camera Control: camera feel updates immediately from either surface; the Debug panel rebuilds its controls when settings change; every change **autosaves**.
 
 Drag the panel by its **title bar** (mod name + version).
 
@@ -24,7 +24,7 @@ There are no Enable-per-op or Reverse controls on the product surface. Pad/butto
 ## Validate camera controls
 
 1. With Debug on, change a Sensitivity or feel preset and confirm gestures respond immediately.
-2. Change the same value in Options and confirm the panel reflects it (and the reverse).
+2. Change a value in Options and confirm the Debug panel rebuilds to match; change in Debug and confirm gestures update immediately — reopen Options to see slider positions catch up.
 3. If gestures do nothing after tuning, check the backend and [OS gesture conflicts](./os-gesture-conflicts.md).
 
 The Debug panel does not replace installing or connecting a trackpad backend for gesture play.

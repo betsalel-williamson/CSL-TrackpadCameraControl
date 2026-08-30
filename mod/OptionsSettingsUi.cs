@@ -14,9 +14,9 @@ namespace TrackpadCameraControl
     /// - Sensitivity uses <see cref="UIHelperBase.AddSlider"/> (0.1×–2× factory, step ≈ 10%).
     /// - Feel presets use a dropdown; Save as… is the last entry plus a name text field
     ///   (dropdown cannot collect a new name alone).
-    /// - Options controls bind to live <see cref="ModSettings"/> at build time; Apply*
-    ///   already raises <see cref="ModOptions.SettingsChanged"/> (C2). Full control rebuild
-    ///   on that event is not practical under UIHelperBase.
+    /// - Options controls bind to live <see cref="ModSettings"/> at build time only; Apply*
+    ///   raises <see cref="ModOptions.SettingsChanged"/> for Debug rebuild (C2). Reopen Options
+    ///   to refresh sliders after Debug edits — in-place rebuild is not practical under UIHelperBase.
     /// Gated controls use compile-time ENABLE_* symbols (see FeatureFlags / csproj).
     /// </summary>
     internal static class OptionsSettingsUi

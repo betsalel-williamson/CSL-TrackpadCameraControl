@@ -2,7 +2,7 @@
 
 ## Intent
 
-No feel or binding parameter is hardcoded in camera or gesture logic. Defaults exist only in the settings schema. Players experiment mid-session from the **in-game Debug panel** or **Options → Trackpad Camera Control**. Both surfaces edit the same live ModSettings; every change updates the other surface and autosaves. Values persist across quit.
+No feel or binding parameter is hardcoded in camera or gesture logic. Defaults exist only in the settings schema. Players experiment mid-session from the **in-game Debug panel** or **Options → Trackpad Camera Control**. Both surfaces edit the same live ModSettings; every change applies immediately and autosaves. Values persist across quit.
 
 ## Surfaces
 
@@ -11,7 +11,7 @@ No feel or binding parameter is hardcoded in camera or gesture logic. Defaults e
 | In-game Debug panel               | Feel presets (incl. **New Preset** dirty), Reset, Sensitivity, pitch angle limits (develop), Debug UI enable |
 | Options → Trackpad Camera Control | Feel presets + Sensitivity sliders; window title is mod name + version; **no** pitch angle fields |
 
-One binding layer parses, rounds to two decimals, validates Sensitivity against the slider contract, and writes fields. A change on either surface updates live settings immediately, mirrors to the other surface, and schedules a durable write (autosave).
+One binding layer parses, rounds gains to three decimals (button steps to two), validates Options Sensitivity against the slider contract on player drag, and writes fields. A change on either surface updates live settings immediately and schedules a durable write (autosave).
 
 Debug chrome pads/buttons and button-step fields appear only when `EnableAssistChrome` is on. Capture-backend picker and [low-pass](../glossary/low-pass.md) appear only when `EnableContactsCapture` is on. CAD gesture-style switcher appears only when `EnableCadGestureStyle` is on. See [feature flags](./adr/0003-feel-profiles-and-product-flags.md).
 
@@ -46,7 +46,7 @@ A [feel preset](../glossary/feel-preset.md) stores sensitivities, reverse flags,
 
 Under each op heading (**Zoom**, **Pan**, **Rotate**, **Orbit**) after **General**: short meaning + activation, then:
 
-- Per-op [Sensitivity](../glossary/sensitivity.md) **slider**: min **0.1×** that field’s factory default, max **2×**, step ≈ **10%** of factory default; display/apply **four** decimals for Sensitivity
+- Per-op [Sensitivity](../glossary/sensitivity.md) **slider** (Options only): min **0.1×** that field’s factory default, max **2×**, step ≈ **10%** of factory default; display/apply **three** decimals for Sensitivity gains (button steps **two** decimals)
 - Orbit: schema seeds OrbitPitchMin/Max **0** / **90** (vanilla). Live clamp is hardcoded to that range — not Options/Debug-tunable. Drag floors at **0°**; button writes clamp **0…90**. No yaw angle clamp.
 
 Also: [feel preset](../glossary/feel-preset.md) row (Slow / Default / Fast / New Preset when dirty, Save as… / Load, Reset to factory), Debug UI enabled (panel master switch).
@@ -99,13 +99,15 @@ Once orbit engages from the configured trigger, the session stays in orbit until
 
 ## Hot-apply contract
 
-- Settings updates from either UI take effect immediately and stay in sync with the other surface.
-- Binding resolver, gesture session, and camera applicator read live settings each frame.
+- Live **ModSettings** update immediately from either surface; binding resolver, gesture session, and camera applicator read live settings each frame.
+- **Debug panel** UI rebuilds on `SettingsChanged` so edits from Options appear in the floating panel without restart.
+- **Options controls** bind at page build (ColossalUI / UIHelperBase cannot rebuild sliders in place). Leave and re-enter Options (or reopen the page) to see Debug edits reflected in slider positions.
+- Debug may hold Sensitivity **outside** the Options slider **0.1×–2×** range; Options sliders clamp only when the player moves them.
 - No mod disable/enable cycle required for tuning.
 
 ## Acceptance
 
-- Change a Sensitivity in the Debug panel and see the same value in Options (and the reverse) without restart; every edit autosaves; values show two decimals within the slider range.
+- Change a Sensitivity in Debug: gestures respond immediately; Debug UI shows the new value; Options sliders match after reopening the page (and the reverse for Options → Debug rebuild). Every edit autosaves; Sensitivity gains display **three** decimals; button steps **two**.
 - Quit and relaunch; tunables and named feel presets are restored from disk.
 - Editing a built-in switches active identity to **New Preset**; Slow / Default / Fast remain unchanged after autosave.
 - Save as… selects the named preset; further edits dirty to **New Preset** again.

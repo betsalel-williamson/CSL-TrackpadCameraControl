@@ -1,6 +1,8 @@
 # Options and hot tuning
 
-You can tune Trackpad Camera Control from **two places**. They share the same live settings: change a value in one, and the other shows it right away. Every change **autosaves** — no restart, and values **survive quit**.
+You can tune Trackpad Camera Control from **two places**. They share the same live **ModSettings**: camera feel updates immediately from either surface, and every change **autosaves** — no restart, and values **survive quit**.
+
+**Debug panel** controls refresh when settings change. **Options** sliders bind when the page is built — after editing in Debug, leave and re-enter Options to see updated slider positions. Debug may show Sensitivity outside the Options **0.1×–2×** range until you move an Options slider (sliders clamp on drag only).
 
 ## Where to edit
 
