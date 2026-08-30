@@ -35,8 +35,8 @@ Base Maps+ pan / pinch zoom and [orbit latch](../glossary/orbit-latch.md) remain
 In-game detection lives in `CitiesSelectionContext` behind `ISelectionContext`, ordered by `SelectionGesturePriority`:
 
 1. **Relocate:** `BuildingTool.m_relocate != 0` → two-finger rotate adjusts tool `m_angle` only (ghost). Do **not** mutate the buffer building at the old cell. Option-orbit pivots on cursor preview when present.
-2. **Selected instance:** used for **orbit pivot** only (`InstanceManager.m_selectedInstance`). Does **not** enable object yaw.
-3. **Placement ghost:** new place with prefab and no relocate → rotate tool `m_angle`; orbit pivots on `ToolBase.m_mousePosition`.
+2. **Placement ghost:** new place with prefab (even if `m_selectedInstance` is still set) → rotate tool `m_angle`; orbit pivots on `ToolBase.m_mousePosition`.
+3. **Selected instance:** used for **orbit pivot** only when no place/relocate tool is armed. Does **not** enable object yaw.
 4. **Fail soft / none:** missing fields or exceptions → Maps+ camera yaw / orbit.
 
 Hover is not used (it flickers as the camera moves). Unit tests cover priority / `AllowsObjectYaw` without Unity. This behavior is from this mod, not a third-party conflict.

@@ -34,10 +34,11 @@ namespace TrackpadCameraControl.Tests
         }
 
         [Fact]
-        public void SelectedInstance_BeatsPlacementGhost_WhenNotRelocating()
+        public void PlacementGhost_BeatsSelectedInstance_WhenPlacing()
         {
+            // Leftover click selection must not steal ghost object-yaw.
             Assert.Equal(
-                SelectionGestureKind.SelectedInstance,
+                SelectionGestureKind.PlacementGhost,
                 SelectionGesturePriority.Resolve(
                     placementToolArmed: true,
                     relocateBuildingId: 0,

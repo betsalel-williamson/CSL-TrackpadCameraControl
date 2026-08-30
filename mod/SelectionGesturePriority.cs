@@ -2,7 +2,7 @@ namespace TrackpadCameraControl
 {
     /// <summary>
     /// Pure priority for selection-aware rotate / orbit pivot (no Unity).
-    /// Relocate and live selection beat placement ghost / stale mouse.
+    /// Relocate / placement ghost beat click-selection (selection alone is orbit pivot only).
     /// </summary>
     public enum SelectionGestureKind
     {
@@ -34,14 +34,15 @@ namespace TrackpadCameraControl
                 return SelectionGestureKind.RelocateInstance;
             }
 
-            if (hasValidSelectedInstance)
-            {
-                return SelectionGestureKind.SelectedInstance;
-            }
-
+            // Placement must beat leftover m_selectedInstance or ghost twist becomes camera yaw.
             if (placementToolArmed)
             {
                 return SelectionGestureKind.PlacementGhost;
+            }
+
+            if (hasValidSelectedInstance)
+            {
+                return SelectionGestureKind.SelectedInstance;
             }
 
             return SelectionGestureKind.None;
