@@ -9,8 +9,8 @@ Use the feel-preset **dropdown** in Options → Trackpad Camera Control or the i
 | Profile | What it does |
 | --- | --- |
 | **Default** | Factory / playtest feel (same values **Reset to factory** restores) |
-| **Slow** | Default’s Sensitivity values × **0.75**, rounded to two decimals |
-| **Fast** | Default’s Sensitivity values × **1.25**, rounded to two decimals |
+| **Slow** | Default’s Sensitivity values × **0.75**, rounded to three decimals |
+| **Fast** | Default’s Sensitivity values × **1.25**, rounded to three decimals |
 
 Built-ins (**Slow**, **Default**, **Fast**) are **immutable** — the mod never overwrites them. Slow and Fast only scale Sensitivity.
 

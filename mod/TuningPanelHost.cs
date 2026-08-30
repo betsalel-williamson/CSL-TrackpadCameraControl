@@ -18,7 +18,6 @@ namespace TrackpadCameraControl
         private const float ColWidth = 260f;
         private const float FieldLabelW = 90f;
         private const float FieldInputW = 72f;
-        private const string PanelTitleText = "Trackpad Camera Control 0.2.0";
 
         private static UIPanel _root;
         private static UIPanel _titleBar;
@@ -237,7 +236,7 @@ namespace TrackpadCameraControl
             _titleBar.eventMouseUp += OnTitleMouseUp;
             _titleBar.eventMouseMove += OnTitleMouseMove;
 
-            _title = AddLabel(_titleBar, PanelTitleText, Col0, 8f);
+            _title = AddLabel(_titleBar, Mod.OptionsTitle, Col0, 8f);
             _title.textScale = 1.1f;
             // Title text is decorative; drag comes from the title-bar strip.
             _title.isInteractive = false;

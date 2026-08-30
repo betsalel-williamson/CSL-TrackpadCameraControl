@@ -164,8 +164,7 @@ namespace TrackpadCameraControl
                 return false;
             }
 
-            Vector3 mouse = TryReadMousePosition(tool);
-            if (mouse == Vector3.zero)
+            if (!TryReadMousePosition(tool, out Vector3 mouse))
             {
                 return false;
             }
@@ -500,8 +499,9 @@ namespace TrackpadCameraControl
             return controller != null ? controller.CurrentTool : null;
         }
 
-        private static Vector3 TryReadMousePosition(ToolBase tool)
+        private static bool TryReadMousePosition(ToolBase tool, out Vector3 position)
         {
+            position = Vector3.zero;
             if (!_mousePositionResolved)
             {
                 _mousePositionResolved = true;
@@ -513,11 +513,17 @@ namespace TrackpadCameraControl
 
             if (_mousePositionField == null || tool == null)
             {
-                return Vector3.zero;
+                return false;
             }
 
             object value = _mousePositionField.GetValue(tool);
-            return value is Vector3 v ? v : Vector3.zero;
+            if (value is Vector3 v)
+            {
+                position = v;
+                return true;
+            }
+
+            return false;
         }
 
         private static float NormalizeDegrees(float degrees)

@@ -2,7 +2,7 @@
 
 Logical schema for ModSettings. Field names in source may differ; this shard is the contract. Defaults belong only in the settings defaults factory — not in camera update logic.
 
-Canonical UI term: **[Sensitivity](../glossary/sensitivity.md)**. Persist / code names use control-systems language (**gain**). Synonyms in older docs: drag scale, speed, scale. Product floats round to **two decimal places**; gain values must be **> 0**.
+Canonical UI term: **[Sensitivity](../glossary/sensitivity.md)**. Persist / code names use control-systems language (**gain**). Synonyms in older docs: drag scale, speed, scale. Sensitivity gains round to **three decimal places** (`RoundGain`); button-step fields round to **two**; gain values must be **> 0**.
 
 Product-surface gates: [feature flags](./feature-flags.md). Planning: [AppleKit Maps+ feel surface design](../superpowers/specs/2026-08-29-applekit-feel-surface-design.md).
 
@@ -85,7 +85,7 @@ Used by Assist chrome nudge buttons only — product UI when `EnableAssistChrome
 | ZoomStep       | float | 0.05         | yes |
 | YawRotateStep  | float | 2.00         | yes |
 
-Exact button-step seeds may be tuned in the defaults factory; document new seeds here when they change. Product floats still round to two decimals.
+Exact button-step seeds may be tuned in the defaults factory; document new seeds here when they change. Button-step fields round to two decimals; Sensitivity gains use three (`RoundGain`).
 
 ## Apply math (contract)
 
@@ -177,8 +177,8 @@ Primary player model: **[feel presets](../glossary/feel-preset.md)** (sensitivit
 | Profile | Contract |
 | ------- | -------- |
 | Default / Reset to factory | Factory Default table above (SignInvertPanX true; gain seeds; OrbitPitchMin/Max 0–90 schema seeds) |
-| Slow | Default gain fields × **0.75**; reverse and pitch limits unchanged; round to two decimals |
-| Fast | Default gain fields × **1.25**; reverse and pitch limits unchanged; round to two decimals |
+| Slow | Default gain fields × **0.75**; reverse and pitch limits unchanged; round to three decimals (`RoundGain`) |
+| Fast | Default gain fields × **1.25**; reverse and pitch limits unchanged; round to three decimals (`RoundGain`) |
 | **New Preset** | Scratch identity when the player dirties an active built-in or named preset; autosave writes here; built-ins Slow / Default / Fast are never overwritten |
 | Named Save as… / Load | Full feel set in `userPresets[]`; after Save as…, the named preset is selected; further edits dirty back to **New Preset** |
 

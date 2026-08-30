@@ -30,8 +30,8 @@ A [feel preset](../glossary/feel-preset.md) stores sensitivities, reverse flags,
 | Profile | Role |
 | ------- | ---- |
 | Default | Factory / Reset — playtest Maps+ feel ([Sensitivity](../glossary/sensitivity.md) factory defaults) |
-| Slow    | Default sensitivities × 0.75 (two decimals); reverse and pitch limits unchanged |
-| Fast    | Default sensitivities × 1.25 (two decimals); reverse and pitch limits unchanged |
+| Slow    | Default sensitivities × 0.75 (three decimals); reverse and pitch limits unchanged |
+| Fast    | Default sensitivities × 1.25 (three decimals); reverse and pitch limits unchanged |
 | New Preset | Scratch identity when the player dirties a built-in or named preset; autosave writes here |
 | Named   | Save as… / Load on the persist `userPresets` envelope |
 

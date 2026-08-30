@@ -30,9 +30,8 @@ namespace TrackpadCameraControl
         }
 
         /// <summary>
-        /// Any feel-field edit while not already on New Preset switches identity to New Preset
-        /// and upserts the scratch slot in <paramref name="store"/> (when non-null).
-        /// Further edits while on New Preset keep autosaving into that slot.
+        /// Every feel-field edit sets active identity to New Preset and upserts the scratch slot
+        /// in <paramref name="store"/> (when non-null), including when already on New Preset.
         /// </summary>
         public static void EnsureDirtyNewPreset(ModSettings settings, ModSettingsStore store)
         {

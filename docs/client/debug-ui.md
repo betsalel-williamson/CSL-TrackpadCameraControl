@@ -10,7 +10,7 @@ Drag the panel by its **title bar** (mod name + version).
 2. Toggle **Debug** (panel visibility).
 3. Return to the city view — no restart required.
 
-Development builds may default Debug **on**. Shipping defaults turn it **off** so gesture-only players keep a clean viewport unless they opt in.
+Factory default is **off** so gesture-only players keep a clean viewport; enable **Debug** from Options when you want the floating panel.
 
 ## How to use it (shipped surface)
 
