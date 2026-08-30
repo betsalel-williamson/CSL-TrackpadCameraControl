@@ -36,7 +36,7 @@ Base Maps+ pan / pinch zoom and [orbit latch](../glossary/orbit-latch.md) remain
 
 In-game detection lives in `CitiesSelectionContext` behind `ISelectionContext`, ordered by `SelectionGesturePriority`:
 
-1. **Relocate:** `BuildingTool.m_relocate != 0` → object yaw and orbit pivot use the ghost (`m_angle` / cursor preview). Do **not** mutate the buffer building at the old cell.
+1. **Relocate:** `BuildingTool.m_relocate != 0` → object yaw updates `m_angle` and render angles `m_mouseAngle` / `m_cachedAngle` (relocate ghost does not follow `m_angle` alone). Do **not** mutate the buffer building at the old cell. Orbit pivot uses cursor preview when present.
 2. **Placement ghost:** new place with prefab → object yaw / orbit pivot on tool ghost (even if `m_selectedInstance` is still set).
 3. **Selected instance / none:** no object yaw and **no** orbit Target re-home → Maps+ camera yaw / orbit from current look-at.
 
