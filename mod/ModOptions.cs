@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 
 namespace TrackpadCameraControl
@@ -18,6 +19,15 @@ namespace TrackpadCameraControl
         public const float SensitivityMax = ScaleMax;
 
         public const float SensitivityStep = 0.05f;
+
+        /// <summary>Product Sensitivity slider floor as a fraction of factory default.</summary>
+        public const float SensitivitySliderMinFactor = 0.1f;
+
+        /// <summary>Product Sensitivity slider ceiling as a fraction of factory default.</summary>
+        public const float SensitivitySliderMaxFactor = 2f;
+
+        /// <summary>Product Sensitivity slider step as a fraction of factory default (~10%).</summary>
+        public const float SensitivitySliderStepFactor = 0.1f;
 
         public const float AlphaMin = 0f;
         public const float AlphaMax = 1f;
@@ -140,6 +150,51 @@ namespace TrackpadCameraControl
             if (value <= 0f)
             {
                 return 0f;
+            }
+
+            return Round2(value);
+        }
+
+        /// <summary>Options Sensitivity slider minimum for a factory default (0.1×).</summary>
+        public static float SensitivitySliderMin(float factoryDefault)
+        {
+            return Round2(factoryDefault * SensitivitySliderMinFactor);
+        }
+
+        /// <summary>Options Sensitivity slider maximum for a factory default (2×).</summary>
+        public static float SensitivitySliderMax(float factoryDefault)
+        {
+            return Round2(factoryDefault * SensitivitySliderMaxFactor);
+        }
+
+        /// <summary>Options Sensitivity slider step for a factory default (~10%).</summary>
+        public static float SensitivitySliderStep(float factoryDefault)
+        {
+            float step = Round2(factoryDefault * SensitivitySliderStepFactor);
+            return step > 0f ? step : 0.01f;
+        }
+
+        /// <summary>
+        /// Clamp a Sensitivity edit to the product Options slider range for that factory default.
+        /// Non-positive / out-of-range values snap into [0.1×, 2×] factory.
+        /// </summary>
+        public static float ClampSensitivityToFactoryRange(float value, float factoryDefault)
+        {
+            float min = SensitivitySliderMin(factoryDefault);
+            float max = SensitivitySliderMax(factoryDefault);
+            if (min < 0.01f)
+            {
+                min = 0.01f;
+            }
+
+            if (value < min)
+            {
+                value = min;
+            }
+
+            if (value > max)
+            {
+                value = max;
             }
 
             return Round2(value);
@@ -282,6 +337,12 @@ namespace TrackpadCameraControl
                 return;
             }
 
+            // Pitch limits must stay > 0 (schema / applicator contract).
+            if (value <= 0f)
+            {
+                return;
+            }
+
             settings.OrbitPitchMin = Round2(value);
             AfterFeelFieldChanged(settings);
         }
@@ -289,6 +350,11 @@ namespace TrackpadCameraControl
         public static void ApplyOrbitPitchMax(ModSettings settings, float value)
         {
             if (settings == null)
+            {
+                return;
+            }
+
+            if (value <= 0f)
             {
                 return;
             }
@@ -555,6 +621,132 @@ namespace TrackpadCameraControl
             }
 
             return Store.ListUserPresetNames();
+        }
+
+        /// <summary>Last entry in the feel-preset dropdown — promotes current feel to a named slot.</summary>
+        public const string FeelPresetSaveAsLabel = "Save as…";
+
+        /// <summary>
+        /// Dropdown items: Slow, Default, Fast, named user presets, New Preset (when present/active), Save as….
+        /// Shared by Options (C3) and the Debug panel (C4).
+        /// </summary>
+        public static string[] GetFeelPresetDropdownItems(ModSettings settings)
+        {
+            var items = new List<string>(8);
+            items.Add(FeelProfiles.NameSlow);
+            items.Add(FeelProfiles.NameDefault);
+            items.Add(FeelProfiles.NameFast);
+
+            bool hasNewPresetSlot = false;
+            string[] named = ListNamedFeelPresetNames();
+            if (named != null)
+            {
+                for (int i = 0; i < named.Length; i++)
+                {
+                    string name = named[i];
+                    if (string.IsNullOrEmpty(name) || FeelProfiles.IsBuiltInName(name))
+                    {
+                        continue;
+                    }
+
+                    if (string.Equals(name, FeelProfiles.NameNewPreset, StringComparison.Ordinal))
+                    {
+                        hasNewPresetSlot = true;
+                        continue;
+                    }
+
+                    items.Add(name);
+                }
+            }
+
+            bool newPresetActive =
+                settings != null
+                && string.Equals(
+                    settings.ActiveFeelPresetName,
+                    FeelProfiles.NameNewPreset,
+                    StringComparison.Ordinal
+                );
+            if (hasNewPresetSlot || newPresetActive)
+            {
+                items.Add(FeelProfiles.NameNewPreset);
+            }
+
+            items.Add(FeelPresetSaveAsLabel);
+            return items.ToArray();
+        }
+
+        /// <summary>Index of <paramref name="activeName"/> in dropdown items; defaults to Default.</summary>
+        public static int IndexOfFeelPresetDropdownItem(string[] items, string activeName)
+        {
+            int defaultIndex = 1;
+            if (items == null || items.Length == 0)
+            {
+                return 0;
+            }
+
+            for (int i = 0; i < items.Length; i++)
+            {
+                if (string.Equals(items[i], FeelProfiles.NameDefault, StringComparison.Ordinal))
+                {
+                    defaultIndex = i;
+                }
+            }
+
+            if (string.IsNullOrEmpty(activeName))
+            {
+                return defaultIndex;
+            }
+
+            for (int i = 0; i < items.Length; i++)
+            {
+                if (string.Equals(items[i], FeelPresetSaveAsLabel, StringComparison.Ordinal))
+                {
+                    continue;
+                }
+
+                if (string.Equals(items[i], activeName, StringComparison.Ordinal))
+                {
+                    return i;
+                }
+            }
+
+            return defaultIndex;
+        }
+
+        /// <summary>
+        /// Apply a feel-preset dropdown selection (not Save as…). Built-ins use ApplyFeel*; others load by name.
+        /// </summary>
+        public static void ApplyFeelPresetDropdownChoice(ModSettings settings, string label)
+        {
+            if (settings == null || string.IsNullOrEmpty(label))
+            {
+                return;
+            }
+
+            if (string.Equals(label, FeelPresetSaveAsLabel, StringComparison.Ordinal))
+            {
+                return;
+            }
+
+            if (string.Equals(label, FeelProfiles.NameSlow, StringComparison.Ordinal))
+            {
+                ApplyFeelSlow(settings);
+                return;
+            }
+
+            if (string.Equals(label, FeelProfiles.NameDefault, StringComparison.Ordinal))
+            {
+                ApplyFeelDefault(settings);
+                return;
+            }
+
+            if (string.Equals(label, FeelProfiles.NameFast, StringComparison.Ordinal))
+            {
+                ApplyFeelFast(settings);
+                return;
+            }
+
+            LoadNamedFeelPreset(settings, label);
         }
 
         public static void NotifyChanged()

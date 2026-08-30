@@ -273,5 +273,48 @@ namespace TrackpadCameraControl.Tests
             Assert.Equal(FeelProfiles.NameDefault, live.ActiveFeelPresetName);
             Assert.Equal(0.50f, live.PanSensitivityX);
         }
+
+        [Fact]
+        public void GetFeelPresetDropdownItems_IncludesBuiltInsAndSaveAs()
+        {
+            OpenStoreWithLive(out ModSettings live);
+            string[] items = ModOptions.GetFeelPresetDropdownItems(live);
+
+            Assert.Equal(FeelProfiles.NameSlow, items[0]);
+            Assert.Equal(FeelProfiles.NameDefault, items[1]);
+            Assert.Equal(FeelProfiles.NameFast, items[2]);
+            Assert.Equal(ModOptions.FeelPresetSaveAsLabel, items[items.Length - 1]);
+            Assert.DoesNotContain(FeelProfiles.NameNewPreset, items);
+            Assert.Equal(
+                1,
+                ModOptions.IndexOfFeelPresetDropdownItem(items, FeelProfiles.NameDefault)
+            );
+        }
+
+        [Fact]
+        public void GetFeelPresetDropdownItems_IncludesNewPresetWhenActive()
+        {
+            OpenStoreWithLive(out ModSettings live);
+            ModOptions.ApplyPanSensitivityX(live, 0.80f);
+            Assert.Equal(FeelProfiles.NameNewPreset, live.ActiveFeelPresetName);
+
+            string[] items = ModOptions.GetFeelPresetDropdownItems(live);
+
+            Assert.Contains(FeelProfiles.NameNewPreset, items);
+            Assert.Equal(ModOptions.FeelPresetSaveAsLabel, items[items.Length - 1]);
+            Assert.Equal(
+                Array.IndexOf(items, FeelProfiles.NameNewPreset),
+                ModOptions.IndexOfFeelPresetDropdownItem(items, FeelProfiles.NameNewPreset)
+            );
+        }
+
+        [Fact]
+        public void ApplyFeelPresetDropdownChoice_LoadsBuiltIn()
+        {
+            OpenStoreWithLive(out ModSettings live);
+            ModOptions.ApplyFeelPresetDropdownChoice(live, FeelProfiles.NameFast);
+            Assert.Equal(FeelProfiles.NameFast, live.ActiveFeelPresetName);
+            Assert.Equal(0.63f, live.PanSensitivityX);
+        }
     }
 }

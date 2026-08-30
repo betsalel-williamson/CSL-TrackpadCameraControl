@@ -6,25 +6,32 @@ using UnityEngine;
 namespace TrackpadCameraControl
 {
     /// <summary>
-    /// Floating in-game Assist / tuning panel host (ColossalUI).
+    /// Floating in-game Debug / tuning panel host (ColossalUI).
     /// Product-surface feel controls; gated chrome / CAD / Contacts via ENABLE_* compile symbols.
     /// </summary>
     internal static class TuningPanelHost
     {
         private const float PanelWidth = 560f;
+        private const float TitleBarHeight = 32f;
         private const float Col0 = 12f;
         private const float Col1 = 286f;
         private const float ColWidth = 260f;
         private const float FieldLabelW = 90f;
         private const float FieldInputW = 72f;
+        private const string PanelTitleText = "Trackpad Camera Control 0.2.0";
 
         private static UIPanel _root;
+        private static UIPanel _titleBar;
+        private static UIButton _closeButton;
         private static UIButton _reopen;
         private static UILabel _presetDesc;
         private static UILabel _title;
         private static UITextField _feelNameField;
+        private static UIDropDown _feelDropdown;
+        private static string[] _feelDropdownItems;
         private static float _nextY;
         private static bool _dragging;
+        private static bool _handlingSettingsChanged;
         private static Vector3 _dragPanelStart;
         private static Vector3 _dragMouseStart;
 
@@ -41,16 +48,19 @@ namespace TrackpadCameraControl
                 return;
             }
 
+            ModOptions.SettingsChanged -= OnSettingsChanged;
+            ModOptions.SettingsChanged += OnSettingsChanged;
+
             _root = view.AddUIComponent(typeof(UIPanel)) as UIPanel;
             if (_root == null)
             {
                 return;
             }
 
-            _root.name = "TrackpadCameraTuningPanel";
+            _root.name = "TrackpadCameraDebugPanel";
             _root.backgroundSprite = "MenuPanel2";
             _root.width = PanelWidth;
-            _root.height = 520f;
+            _root.height = 420f;
             _root.relativePosition = new Vector3(40f, 60f);
             _root.canFocus = true;
             _root.isInteractive = true;
@@ -58,32 +68,17 @@ namespace TrackpadCameraControl
             {
                 _root.BringToFront();
             };
-
-            UILabel title = AddLabel(_root, "Trackpad Camera Control", Col0, 8f);
-            title.textScale = 1.1f;
-            _title = title;
-            // Drag only from the title label so text fields keep focus and clicks.
-            title.eventMouseDown += OnTitleMouseDown;
-            title.eventMouseUp += OnTitleMouseUp;
-            title.eventMouseMove += OnTitleMouseMove;
             _root.eventMouseUp += OnTitleMouseUp;
 
-            UIButton close = _root.AddUIComponent<UIButton>();
-            close.text = "X";
-            close.width = 28f;
-            close.height = 24f;
-            close.relativePosition = new Vector3(_root.width - 36f, 8f);
-            close.normalBgSprite = "ButtonMenu";
-            close.hoveredBgSprite = "ButtonMenuHovered";
-            close.pressedBgSprite = "ButtonMenuPressed";
-            close.eventClick += (c, e) => HidePanel();
+            BuildTitleBar();
 
-            _nextY = 36f;
+            _nextY = TitleBarHeight + 8f;
             ModSettings s = Mod.EnsureSettings();
 
             AddSection("Feel presets");
             AddFeelPresetRow(s);
 
+#if ENABLE_CAD_GESTURE_STYLE
             _presetDesc = _root.AddUIComponent<UILabel>();
             _presetDesc.textColor = Color.white;
             _presetDesc.relativePosition = new Vector3(Col0, _nextY);
@@ -91,17 +86,11 @@ namespace TrackpadCameraControl
             _presetDesc.autoSize = false;
             _presetDesc.autoHeight = true;
             _presetDesc.wordWrap = true;
-            _presetDesc.text =
-#if ENABLE_CAD_GESTURE_STYLE
-                ModOptions.PresetDescription(s.GesturePreset);
-#else
-                ModOptions.MapsPlusDescription;
-#endif
+            _presetDesc.text = ModOptions.PresetDescription(s.GesturePreset);
             _presetDesc.PerformLayout();
             float descH = Mathf.Max(36f, _presetDesc.height + 4f);
             _nextY += descH;
 
-#if ENABLE_CAD_GESTURE_STYLE
             AddSection("Gesture style");
             AddCadStyleButtons(s);
 #endif
@@ -111,8 +100,9 @@ namespace TrackpadCameraControl
             AddCaptureBackendButtons(s);
 #endif
 
-            BuildPanSection(s);
+            // Shipped section order: Zoom → Pan → Rotate → Orbit (feel presets = General above).
             BuildZoomSection(s);
+            BuildPanSection(s);
             BuildYawSection(s);
             BuildOrbitSection(s);
 
@@ -121,8 +111,8 @@ namespace TrackpadCameraControl
             _reopen = view.AddUIComponent(typeof(UIButton)) as UIButton;
             if (_reopen != null)
             {
-                _reopen.name = "TrackpadCameraTuningReopen";
-                _reopen.text = "Trackpad";
+                _reopen.name = "TrackpadCameraDebugReopen";
+                _reopen.text = "Debug";
                 _reopen.width = 90f;
                 _reopen.height = 28f;
                 _reopen.relativePosition = new Vector3(40f, 40f);
@@ -151,6 +141,8 @@ namespace TrackpadCameraControl
 
         public static void Destroy()
         {
+            ModOptions.SettingsChanged -= OnSettingsChanged;
+
             if (_root != null)
             {
                 UnityEngine.Object.Destroy(_root.gameObject);
@@ -163,10 +155,48 @@ namespace TrackpadCameraControl
                 _reopen = null;
             }
 
+            _titleBar = null;
+            _closeButton = null;
             _presetDesc = null;
             _title = null;
             _feelNameField = null;
+            _feelDropdown = null;
+            _feelDropdownItems = null;
             _dragging = false;
+        }
+
+        private static void OnSettingsChanged()
+        {
+            if (_handlingSettingsChanged)
+            {
+                return;
+            }
+
+            _handlingSettingsChanged = true;
+            try
+            {
+                if (_root == null)
+                {
+                    ApplyVisibility();
+                    return;
+                }
+
+                Vector3 pos = _root.relativePosition;
+                bool wasVisible = _root.isVisible;
+                Destroy();
+                EnsureCreated();
+                if (_root != null)
+                {
+                    _root.relativePosition = pos;
+                    _root.isVisible = wasVisible;
+                }
+
+                ApplyVisibility();
+            }
+            finally
+            {
+                _handlingSettingsChanged = false;
+            }
         }
 
         private static void ShowPanel()
@@ -192,6 +222,8 @@ namespace TrackpadCameraControl
 
         private static void HidePanel()
         {
+            _dragging = false;
+
             if (_root != null)
             {
                 _root.isVisible = false;
@@ -205,49 +237,78 @@ namespace TrackpadCameraControl
             ModOptions.FlushStore(true);
         }
 
-        private static void RebuildPanel()
+        private static void BuildTitleBar()
         {
-            Destroy();
-            EnsureCreated();
-            ApplyVisibility();
+            _titleBar = _root.AddUIComponent<UIPanel>();
+            _titleBar.name = "TrackpadCameraDebugTitleBar";
+            _titleBar.width = PanelWidth;
+            _titleBar.height = TitleBarHeight;
+            _titleBar.relativePosition = Vector3.zero;
+            _titleBar.backgroundSprite = "GenericPanel";
+            _titleBar.color = new Color32(40, 40, 40, 255);
+            _titleBar.isInteractive = true;
+            _titleBar.eventMouseDown += OnTitleMouseDown;
+            _titleBar.eventMouseUp += OnTitleMouseUp;
+            _titleBar.eventMouseMove += OnTitleMouseMove;
+
+            _title = AddLabel(_titleBar, PanelTitleText, Col0, 8f);
+            _title.textScale = 1.1f;
+            // Title text is decorative; drag comes from the title-bar strip.
+            _title.isInteractive = false;
+
+            _closeButton = _root.AddUIComponent<UIButton>();
+            _closeButton.text = "X";
+            _closeButton.width = 28f;
+            _closeButton.height = 24f;
+            _closeButton.relativePosition = new Vector3(_root.width - 36f, 4f);
+            _closeButton.normalBgSprite = "ButtonMenu";
+            _closeButton.hoveredBgSprite = "ButtonMenuHovered";
+            _closeButton.pressedBgSprite = "ButtonMenuPressed";
+            _closeButton.eventClick += (c, e) => HidePanel();
+            _closeButton.eventMouseDown += (c, e) =>
+            {
+                // Close must not start a title-bar drag.
+                _dragging = false;
+                e.Use();
+            };
+            _closeButton.BringToFront();
         }
 
         private static void AddFeelPresetRow(ModSettings s)
         {
-            float y = _nextY;
-            float bw = 72f;
-            float gap = 6f;
-            float x = Col0;
+            _feelDropdownItems = ModOptions.GetFeelPresetDropdownItems(s);
 
-            UIButton slow = MakeMenuButton("Slow", x, y, bw);
-            slow.eventClick += (c, e) =>
-            {
-                ModOptions.ApplyFeelSlow(s);
-                RebuildPanel();
-            };
-            x += bw + gap;
+            _feelDropdown = _root.AddUIComponent<UIDropDown>();
+            _feelDropdown.width = 220f;
+            _feelDropdown.height = 28f;
+            _feelDropdown.relativePosition = new Vector3(Col0, _nextY);
+            _feelDropdown.listWidth = 220;
+            _feelDropdown.itemHeight = 24;
+            _feelDropdown.normalBgSprite = "ButtonMenu";
+            _feelDropdown.hoveredBgSprite = "ButtonMenuHovered";
+            _feelDropdown.focusedBgSprite = "ButtonMenu";
+            _feelDropdown.listBackground = "GenericPanelLight";
+            _feelDropdown.itemHover = "ListItemHover";
+            _feelDropdown.itemHighlight = "ListItemHighlight";
+            _feelDropdown.normalFgSprite = "IconDownArrow";
+            _feelDropdown.hoveredFgSprite = "IconDownArrowHovered";
+            _feelDropdown.focusedFgSprite = "IconDownArrowFocused";
+            _feelDropdown.textScale = 0.85f;
+            _feelDropdown.textFieldPadding = new RectOffset(8, 8, 6, 0);
+            _feelDropdown.listPosition = UIDropDown.PopupListPosition.Automatic;
+            _feelDropdown.items = _feelDropdownItems;
+            _feelDropdown.selectedIndex = ModOptions.IndexOfFeelPresetDropdownItem(
+                _feelDropdownItems,
+                s.ActiveFeelPresetName
+            );
+            // Subscribe after selectedIndex so init does not treat it as a user choice.
+            _feelDropdown.eventSelectedIndexChanged += OnFeelDropdownSelected;
 
-            UIButton def = MakeMenuButton("Default", x, y, bw);
-            def.eventClick += (c, e) =>
-            {
-                ModOptions.ApplyFeelDefault(s);
-                RebuildPanel();
-            };
-            x += bw + gap;
-
-            UIButton fast = MakeMenuButton("Fast", x, y, bw);
-            fast.eventClick += (c, e) =>
-            {
-                ModOptions.ApplyFeelFast(s);
-                RebuildPanel();
-            };
-            x += bw + gap;
-
-            UIButton reset = MakeMenuButton("Reset", x, y, bw);
+            UIButton reset = MakeMenuButton("Reset", Col0 + 228f, _nextY, 72f);
             reset.eventClick += (c, e) =>
             {
+                // SettingsChanged rebuilds the panel (New Preset / field sync).
                 ModOptions.ResetToFactory(s);
-                RebuildPanel();
             };
             _nextY += 32f;
 
@@ -267,24 +328,41 @@ namespace TrackpadCameraControl
             _feelNameField.selectOnFocus = true;
             _feelNameField.isInteractive = true;
             _feelNameField.builtinKeyNavigation = true;
-
-            UIButton save = MakeMenuButton("Save as…", Col0 + 232f, _nextY - 2f, 90f);
-            save.eventClick += (c, e) =>
-            {
-                string name = _feelNameField != null ? _feelNameField.text : "";
-                ModOptions.SaveNamedFeelPreset(s, name);
-            };
-
-            UIButton load = MakeMenuButton("Load", Col0 + 328f, _nextY - 2f, 70f);
-            load.eventClick += (c, e) =>
-            {
-                string name = _feelNameField != null ? _feelNameField.text : "";
-                if (ModOptions.LoadNamedFeelPreset(s, name))
-                {
-                    RebuildPanel();
-                }
-            };
             _nextY += 30f;
+        }
+
+        private static void OnFeelDropdownSelected(UIComponent component, int index)
+        {
+            if (_handlingSettingsChanged || _feelDropdownItems == null)
+            {
+                return;
+            }
+
+            if (index < 0 || index >= _feelDropdownItems.Length)
+            {
+                return;
+            }
+
+            ModSettings s = Mod.EnsureSettings();
+            string label = _feelDropdownItems[index];
+            if (string.Equals(label, ModOptions.FeelPresetSaveAsLabel, StringComparison.Ordinal))
+            {
+                string name = _feelNameField != null ? _feelNameField.text : "";
+                if (!ModOptions.SaveNamedFeelPreset(s, name))
+                {
+                    if (_feelDropdown != null)
+                    {
+                        _feelDropdown.selectedIndex = ModOptions.IndexOfFeelPresetDropdownItem(
+                            _feelDropdownItems,
+                            s.ActiveFeelPresetName
+                        );
+                    }
+                }
+
+                return;
+            }
+
+            ModOptions.ApplyFeelPresetDropdownChoice(s, label);
         }
 
 #if ENABLE_CAD_GESTURE_STYLE
@@ -333,30 +411,6 @@ namespace TrackpadCameraControl
         private static void BuildPanSection(ModSettings s)
         {
             AddOpHeading(ModOptions.OpHeadingPan);
-            AddCheckRow(
-                s,
-                () => s.PanEnabled,
-                v => s.PanEnabled = v,
-                "Enable",
-                () => s.InvertPanX,
-                v => s.InvertPanX = v,
-                "Reverse X"
-            );
-            AddCheckRow(
-                s,
-                () => s.InvertPanY,
-                v => s.InvertPanY = v,
-                "Reverse Y",
-#if ENABLE_CONTACTS_CAPTURE
-                () => s.PanLowPassEnabled,
-                v => s.PanLowPassEnabled = v,
-                "Low-pass"
-#else
-                null,
-                null,
-                null
-#endif
-            );
             AddFloatPair(
                 s,
                 "Sensitivity X",
@@ -379,6 +433,15 @@ namespace TrackpadCameraControl
 #endif
 
 #if ENABLE_CONTACTS_CAPTURE
+            AddCheckRow(
+                s,
+                () => s.PanLowPassEnabled,
+                v => s.PanLowPassEnabled = v,
+                "Low-pass",
+                null,
+                null,
+                null
+            );
             AddFloatPair(
                 s,
                 "LP α",
@@ -394,27 +457,6 @@ namespace TrackpadCameraControl
         private static void BuildZoomSection(ModSettings s)
         {
             AddOpHeading(ModOptions.OpHeadingZoom);
-            AddCheckRow(
-                s,
-                () => s.ZoomEnabled,
-                v => s.ZoomEnabled = v,
-                "Enable",
-                () => s.InvertZoom,
-                v => s.InvertZoom = v,
-                "Reverse"
-            );
-#if ENABLE_CONTACTS_CAPTURE
-            AddCheckRow(
-                s,
-                () => s.ZoomLowPassEnabled,
-                v => s.ZoomLowPassEnabled = v,
-                "Low-pass",
-                null,
-                null,
-                null
-            );
-#endif
-
 #if ENABLE_ASSIST_CHROME
             AddFloatPair(
                 s,
@@ -438,6 +480,15 @@ namespace TrackpadCameraControl
 #endif
 
 #if ENABLE_CONTACTS_CAPTURE
+            AddCheckRow(
+                s,
+                () => s.ZoomLowPassEnabled,
+                v => s.ZoomLowPassEnabled = v,
+                "Low-pass",
+                null,
+                null,
+                null
+            );
             AddFloatPair(
                 s,
                 "LP α",
@@ -453,27 +504,6 @@ namespace TrackpadCameraControl
         private static void BuildYawSection(ModSettings s)
         {
             AddOpHeading(ModOptions.OpHeadingRotate);
-            AddCheckRow(
-                s,
-                () => s.YawEnabled,
-                v => s.YawEnabled = v,
-                "Enable",
-                () => s.InvertYawRotate,
-                v => s.InvertYawRotate = v,
-                "Reverse"
-            );
-#if ENABLE_CONTACTS_CAPTURE
-            AddCheckRow(
-                s,
-                () => s.YawLowPassEnabled,
-                v => s.YawLowPassEnabled = v,
-                "Low-pass",
-                null,
-                null,
-                null
-            );
-#endif
-
 #if ENABLE_ASSIST_CHROME
             AddFloatPair(
                 s,
@@ -497,6 +527,15 @@ namespace TrackpadCameraControl
 #endif
 
 #if ENABLE_CONTACTS_CAPTURE
+            AddCheckRow(
+                s,
+                () => s.YawLowPassEnabled,
+                v => s.YawLowPassEnabled = v,
+                "Low-pass",
+                null,
+                null,
+                null
+            );
             AddFloatPair(
                 s,
                 "LP α",
@@ -512,30 +551,6 @@ namespace TrackpadCameraControl
         private static void BuildOrbitSection(ModSettings s)
         {
             AddOpHeading(ModOptions.OpHeadingOrbit);
-            AddCheckRow(
-                s,
-                () => s.OrbitEnabled,
-                v => s.OrbitEnabled = v,
-                "Enable",
-                () => s.InvertOrbitYaw,
-                v => s.InvertOrbitYaw = v,
-                "Reverse yaw"
-            );
-            AddCheckRow(
-                s,
-                () => s.InvertOrbitPitch,
-                v => s.InvertOrbitPitch = v,
-                "Reverse pitch",
-#if ENABLE_CONTACTS_CAPTURE
-                () => s.OrbitLowPassEnabled,
-                v => s.OrbitLowPassEnabled = v,
-                "Low-pass"
-#else
-                null,
-                null,
-                null
-#endif
-            );
             AddFloatPair(
                 s,
                 "Sensitivity yaw",
@@ -567,6 +582,15 @@ namespace TrackpadCameraControl
 #endif
 
 #if ENABLE_CONTACTS_CAPTURE
+            AddCheckRow(
+                s,
+                () => s.OrbitLowPassEnabled,
+                v => s.OrbitLowPassEnabled = v,
+                "Low-pass",
+                null,
+                null,
+                null
+            );
             AddFloatPair(
                 s,
                 "LP α",
@@ -737,6 +761,11 @@ namespace TrackpadCameraControl
 
         private static void OnTitleMouseDown(UIComponent c, UIMouseEventParameter e)
         {
+            if (_closeButton != null && e.source == _closeButton)
+            {
+                return;
+            }
+
             _dragging = true;
             if (_root != null)
             {
