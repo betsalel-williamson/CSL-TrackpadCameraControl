@@ -383,6 +383,79 @@ namespace TrackpadCameraControl
             }
         }
 
+        public static void ApplyFeelDefault(ModSettings settings)
+        {
+            if (settings == null)
+            {
+                return;
+            }
+
+            FeelProfiles.ApplyDefault(settings);
+            NotifyChanged();
+        }
+
+        public static void ApplyFeelSlow(ModSettings settings)
+        {
+            if (settings == null)
+            {
+                return;
+            }
+
+            FeelProfiles.ApplySlow(settings);
+            NotifyChanged();
+        }
+
+        public static void ApplyFeelFast(ModSettings settings)
+        {
+            if (settings == null)
+            {
+                return;
+            }
+
+            FeelProfiles.ApplyFast(settings);
+            NotifyChanged();
+        }
+
+        /// <summary>Save named feel snapshot into the settings store <c>userPresets</c> envelope.</summary>
+        public static bool SaveNamedFeelPreset(ModSettings settings, string name)
+        {
+            if (settings == null || string.IsNullOrEmpty(name) || Store == null)
+            {
+                return false;
+            }
+
+            return Store.SaveUserPreset(name, settings, settings);
+        }
+
+        /// <summary>Load a named feel preset into live settings.</summary>
+        public static bool LoadNamedFeelPreset(ModSettings settings, string name)
+        {
+            if (settings == null || string.IsNullOrEmpty(name) || Store == null)
+            {
+                return false;
+            }
+
+            ModSettings snap;
+            if (!Store.TryGetUserPreset(name, out snap))
+            {
+                return false;
+            }
+
+            FeelProfiles.CopyFeelFields(settings, snap);
+            NotifyChanged();
+            return true;
+        }
+
+        public static string[] ListNamedFeelPresetNames()
+        {
+            if (Store == null)
+            {
+                return new string[0];
+            }
+
+            return Store.ListUserPresetNames();
+        }
+
         public static void NotifyChanged()
         {
             if (Store != null)

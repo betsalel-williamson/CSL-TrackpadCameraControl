@@ -129,6 +129,7 @@ namespace TrackpadCameraControl.Tests
         }
     }
 
+    [Collection(ModOptionsStoreCollection.Name)]
     public class ModSettingsStoreTests : IDisposable
     {
         private readonly string _dir;

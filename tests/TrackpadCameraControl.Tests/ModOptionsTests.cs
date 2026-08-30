@@ -5,6 +5,7 @@ using System.IO;
 
 namespace TrackpadCameraControl.Tests
 {
+    [Collection(ModOptionsStoreCollection.Name)]
     public class ModOptionsTests
     {
         [Fact]

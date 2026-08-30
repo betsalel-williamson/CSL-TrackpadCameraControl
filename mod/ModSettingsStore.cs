@@ -15,6 +15,8 @@ namespace TrackpadCameraControl
         private readonly string _filePath;
         private DateTime _lastWriteUtc = DateTime.MinValue;
         private bool _dirty;
+        private List<NamedPreset> _userPresets = new List<NamedPreset>();
+        private bool _presetsHydrated;
 
         public ModSettingsStore(string filePath)
         {
@@ -51,6 +53,8 @@ namespace TrackpadCameraControl
             {
                 if (!File.Exists(_filePath))
                 {
+                    _userPresets = new List<NamedPreset>();
+                    _presetsHydrated = true;
                     ModSettings fresh = ModSettings.CreateFactoryDefaults();
                     SaveNow(fresh);
                     return fresh;
@@ -65,15 +69,24 @@ namespace TrackpadCameraControl
 
                 if (envelope == null || envelope.Current == null)
                 {
+                    _userPresets = new List<NamedPreset>();
+                    _presetsHydrated = true;
                     ModSettings recovered = ModSettings.CreateFactoryDefaults();
                     SaveNow(recovered);
                     return recovered;
                 }
 
+                _userPresets =
+                    envelope.UserPresets != null
+                        ? new List<NamedPreset>(envelope.UserPresets)
+                        : new List<NamedPreset>();
+                _presetsHydrated = true;
                 return envelope.Current;
             }
             catch
             {
+                _userPresets = new List<NamedPreset>();
+                _presetsHydrated = true;
                 ModSettings recovered = ModSettings.CreateFactoryDefaults();
                 try
                 {
@@ -86,6 +99,157 @@ namespace TrackpadCameraControl
 
                 return recovered;
             }
+        }
+
+        /// <summary>Names of named feel profiles in the persist envelope.</summary>
+        public string[] ListUserPresetNames()
+        {
+            EnsurePresetsLoaded();
+            var names = new List<string>();
+            for (int i = 0; i < _userPresets.Count; i++)
+            {
+                NamedPreset preset = _userPresets[i];
+                if (preset != null && !string.IsNullOrEmpty(preset.Name))
+                {
+                    names.Add(preset.Name);
+                }
+            }
+
+            return names.ToArray();
+        }
+
+        /// <summary>
+        /// Upsert a named feel snapshot into <c>userPresets</c> and rewrite the envelope
+        /// (preserves current settings blob when the file already exists).
+        /// </summary>
+        public bool SaveUserPreset(string name, ModSettings feelSnapshot, ModSettings current)
+        {
+            if (string.IsNullOrEmpty(name) || feelSnapshot == null)
+            {
+                return false;
+            }
+
+            EnsurePresetsLoaded();
+
+            ModSettings snap = FeelProfiles.SnapshotFeel(feelSnapshot);
+            bool replaced = false;
+            for (int i = 0; i < _userPresets.Count; i++)
+            {
+                NamedPreset existing = _userPresets[i];
+                if (
+                    existing != null
+                    && string.Equals(existing.Name, name, StringComparison.Ordinal)
+                )
+                {
+                    existing.Settings = snap;
+                    replaced = true;
+                    break;
+                }
+            }
+
+            if (!replaced)
+            {
+                _userPresets.Add(new NamedPreset { Name = name, Settings = snap });
+            }
+
+            ModSettings toWrite = current ?? LoadCurrentOrFactoryWithoutResettingPresets();
+            SaveNow(toWrite);
+            return true;
+        }
+
+        /// <summary>Load a named feel preset's settings snapshot (feel fields).</summary>
+        public bool TryGetUserPreset(string name, out ModSettings feelSnapshot)
+        {
+            feelSnapshot = null;
+            if (string.IsNullOrEmpty(name))
+            {
+                return false;
+            }
+
+            EnsurePresetsLoaded();
+            for (int i = 0; i < _userPresets.Count; i++)
+            {
+                NamedPreset preset = _userPresets[i];
+                if (
+                    preset != null
+                    && string.Equals(preset.Name, name, StringComparison.Ordinal)
+                    && preset.Settings != null
+                )
+                {
+                    feelSnapshot = FeelProfiles.SnapshotFeel(preset.Settings);
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private void EnsurePresetsLoaded()
+        {
+            if (_presetsHydrated)
+            {
+                return;
+            }
+
+            if (_userPresets == null)
+            {
+                _userPresets = new List<NamedPreset>();
+            }
+
+            _presetsHydrated = true;
+
+            if (!File.Exists(_filePath))
+            {
+                return;
+            }
+
+            try
+            {
+                Envelope envelope;
+                using (var reader = new StreamReader(_filePath))
+                {
+                    var serializer = new XmlSerializer(typeof(Envelope));
+                    envelope = serializer.Deserialize(reader) as Envelope;
+                }
+
+                if (envelope != null && envelope.UserPresets != null)
+                {
+                    _userPresets = new List<NamedPreset>(envelope.UserPresets);
+                }
+            }
+            catch
+            {
+                // keep empty list
+            }
+        }
+
+        private ModSettings LoadCurrentOrFactoryWithoutResettingPresets()
+        {
+            try
+            {
+                if (!File.Exists(_filePath))
+                {
+                    return ModSettings.CreateFactoryDefaults();
+                }
+
+                Envelope envelope;
+                using (var reader = new StreamReader(_filePath))
+                {
+                    var serializer = new XmlSerializer(typeof(Envelope));
+                    envelope = serializer.Deserialize(reader) as Envelope;
+                }
+
+                if (envelope != null && envelope.Current != null)
+                {
+                    return envelope.Current;
+                }
+            }
+            catch
+            {
+                // fall through
+            }
+
+            return ModSettings.CreateFactoryDefaults();
         }
 
         public void MarkDirty()
@@ -126,17 +290,24 @@ namespace TrackpadCameraControl
                 return;
             }
 
+            EnsurePresetsLoaded();
+
             string dir = Path.GetDirectoryName(_filePath);
             if (!string.IsNullOrEmpty(dir) && !Directory.Exists(dir))
             {
                 Directory.CreateDirectory(dir);
             }
 
+            if (_userPresets == null)
+            {
+                _userPresets = new List<NamedPreset>();
+            }
+
             var envelope = new Envelope
             {
                 SchemaVersion = CurrentSchemaVersion,
                 Current = settings,
-                UserPresets = new List<NamedPreset>(),
+                UserPresets = new List<NamedPreset>(_userPresets),
             };
 
             using (var writer = new StreamWriter(_filePath, false))
