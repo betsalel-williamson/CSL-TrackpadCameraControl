@@ -15,9 +15,45 @@ namespace TrackpadCameraControl
         public const string E2eInjectEnvVar = "TRACKPAD_E2E_INJECT";
         public const string E2eInjectFlagFileName = "e2e-inject.flag";
 
-        public string Name => "Trackpad Camera Control";
+        /// <summary>Options tab / Content Manager title: mod name + assembly version.</summary>
+        public string Name => OptionsTitle;
+
         public string Description =>
             "Trackpad multitouch camera — pan, orbit, zoom. Vanilla scroll-zoom suppressed while enabled.";
+
+        /// <summary>Mod display title including assembly version (e.g. for Options group header).</summary>
+        public static string OptionsTitle
+        {
+            get
+            {
+                string version = GetAssemblyVersionDisplay();
+                if (string.IsNullOrEmpty(version))
+                {
+                    return "Trackpad Camera Control";
+                }
+
+                return "Trackpad Camera Control " + version;
+            }
+        }
+
+        internal static string GetAssemblyVersionDisplay()
+        {
+            try
+            {
+                Version v = typeof(Mod).Assembly.GetName().Version;
+                if (v == null)
+                {
+                    return null;
+                }
+
+                // Prefer major.minor.build; Revision is often 0 from GenerateAssemblyInfo.
+                return v.ToString(3);
+            }
+            catch
+            {
+                return null;
+            }
+        }
 
         public static ModSettings Settings { get; private set; }
         public static GesturePipeline Pipeline { get; private set; }
