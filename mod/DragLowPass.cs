@@ -1,10 +1,12 @@
-using System;
-
 namespace TrackpadCameraControl
 {
-    /// <summary>EMA helper for per-op drag low-pass. Buttons skip this path.</summary>
+    /// <summary>
+    /// EMA helper for per-op drag low-pass. Buttons skip this path.
+    /// Implementation compiles only when <c>ENABLE_CONTACTS_CAPTURE</c> is defined.
+    /// </summary>
     public sealed class DragLowPass
     {
+#if ENABLE_CONTACTS_CAPTURE
         private float _panX;
         private float _panY;
         private float _zoom;
@@ -15,9 +17,11 @@ namespace TrackpadCameraControl
         private bool _zoomInit;
         private bool _yawInit;
         private bool _orbitInit;
+#endif
 
         public void Reset()
         {
+#if ENABLE_CONTACTS_CAPTURE
             _panInit = false;
             _zoomInit = false;
             _yawInit = false;
@@ -28,6 +32,7 @@ namespace TrackpadCameraControl
             _yaw = 0f;
             _orbitX = 0f;
             _orbitY = 0f;
+#endif
         }
 
         public void Filter(
@@ -39,8 +44,8 @@ namespace TrackpadCameraControl
             ref float rotateDelta
         )
         {
-            // LP rides EnableContactsCapture: settings toggles only apply when Contacts is on.
-            if (!FeatureFlags.EnableContactsCapture || settings == null)
+#if ENABLE_CONTACTS_CAPTURE
+            if (settings == null)
             {
                 return;
             }
@@ -99,8 +104,10 @@ namespace TrackpadCameraControl
                     _yawInit = false;
                 }
             }
+#endif
         }
 
+#if ENABLE_CONTACTS_CAPTURE
         private static void Filter1(float alpha, ref bool init, ref float state, ref float sample)
         {
             float a = ClampAlpha(alpha);
@@ -153,5 +160,6 @@ namespace TrackpadCameraControl
 
             return alpha;
         }
+#endif
     }
 }

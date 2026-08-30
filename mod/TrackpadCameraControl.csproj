@@ -17,6 +17,22 @@
             >$(HOME)/Library/Application Support/Steam/steamapps/common/Cities_Skylines/Cities.app/Contents/Resources/Data/Managed</CitiesManaged>
         <!-- Needed so SDK can compile net35 on modern .NET SDK hosts -->
         <DisableImplicitFrameworkReferences>false</DisableImplicitFrameworkReferences>
+
+        <!-- Product-surface feature flags (compile-time). Default off for ship.
+             Enable gated code with: -p:EnableCadGestureStyle=true etc. -->
+        <EnableCadGestureStyle Condition="'$(EnableCadGestureStyle)' == ''">false</EnableCadGestureStyle>
+        <EnableContactsCapture Condition="'$(EnableContactsCapture)' == ''">false</EnableContactsCapture>
+        <EnableAssistChrome Condition="'$(EnableAssistChrome)' == ''">false</EnableAssistChrome>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(EnableCadGestureStyle)' == 'true'">
+        <DefineConstants>$(DefineConstants);ENABLE_CAD_GESTURE_STYLE</DefineConstants>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(EnableContactsCapture)' == 'true'">
+        <DefineConstants>$(DefineConstants);ENABLE_CONTACTS_CAPTURE</DefineConstants>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(EnableAssistChrome)' == 'true'">
+        <DefineConstants>$(DefineConstants);ENABLE_ASSIST_CHROME</DefineConstants>
     </PropertyGroup>
 
     <ItemGroup>

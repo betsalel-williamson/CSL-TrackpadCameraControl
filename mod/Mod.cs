@@ -206,9 +206,9 @@ namespace TrackpadCameraControl
 #endif
 
         /// <summary>
-        /// Product surface uses <see cref="CaptureBackendFlags.Resolve"/>: with
-        /// <see cref="FeatureFlags.EnableContactsCapture"/> off, AppleKit wins unless
-        /// maintainer env <c>TRACKPAD_CAPTURE_BACKEND=contacts</c> overrides.
+        /// Product surface uses <see cref="CaptureBackendFlags.Resolve"/>: without
+        /// <c>ENABLE_CONTACTS_CAPTURE</c>, AppleKit wins unless maintainer env
+        /// <c>TRACKPAD_CAPTURE_BACKEND=contacts</c> overrides.
         /// </summary>
         internal static IGestureSource CreateCaptureSource(ModSettings settings)
         {

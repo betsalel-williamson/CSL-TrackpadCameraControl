@@ -8,7 +8,7 @@ namespace TrackpadCameraControl
 {
     /// <summary>
     /// Builds the mirrored Options page (number fields, not sliders).
-    /// Gated controls consult <see cref="FeatureFlags"/>.
+    /// Gated controls use compile-time ENABLE_* symbols (see FeatureFlags / csproj).
     /// </summary>
     internal static class OptionsSettingsUi
     {
@@ -36,27 +36,25 @@ namespace TrackpadCameraControl
                     )
             );
 
-            if (FeatureFlags.EnableCadGestureStyle)
-            {
-                helper.AddGroup("Gesture style");
-                helper.AddDropdown(
-                    "Style",
-                    ModOptions.GesturePresetLabels,
-                    ModOptions.GesturePresetToIndex(s.GesturePreset),
-                    sel => ModOptions.ApplyGesturePresetIndex(s, sel)
-                );
-            }
+#if ENABLE_CAD_GESTURE_STYLE
+            helper.AddGroup("Gesture style");
+            helper.AddDropdown(
+                "Style",
+                ModOptions.GesturePresetLabels,
+                ModOptions.GesturePresetToIndex(s.GesturePreset),
+                sel => ModOptions.ApplyGesturePresetIndex(s, sel)
+            );
+#endif
 
-            if (FeatureFlags.EnableContactsCapture)
-            {
-                helper.AddGroup("Capture");
-                helper.AddDropdown(
-                    "Interpreter",
-                    ModOptions.CaptureBackendLabels,
-                    ModOptions.CaptureBackendToIndex(s.CaptureBackend),
-                    sel => ModOptions.ApplyCaptureBackendIndex(s, sel)
-                );
-            }
+#if ENABLE_CONTACTS_CAPTURE
+            helper.AddGroup("Capture");
+            helper.AddDropdown(
+                "Interpreter",
+                ModOptions.CaptureBackendLabels,
+                ModOptions.CaptureBackendToIndex(s.CaptureBackend),
+                sel => ModOptions.ApplyCaptureBackendIndex(s, sel)
+            );
+#endif
 
             // Per-op groups mirror Assist panel columns (best-effort under ColossalUI helper).
             BuildOpGroup(
@@ -246,22 +244,20 @@ namespace TrackpadCameraControl
                     // leave prior value
                 }
             });
-            if (FeatureFlags.EnableAssistChrome)
+#if ENABLE_ASSIST_CHROME
+            AddFloatField(helper, buttonLabel, buttonValue, text =>
             {
-                AddFloatField(helper, buttonLabel, buttonValue, text =>
-                {
-                    ModOptions.TryApplyFloat(s, text, onButton);
-                });
-            }
+                ModOptions.TryApplyFloat(s, text, onButton);
+            });
+#endif
 
-            if (FeatureFlags.EnableContactsCapture)
+#if ENABLE_CONTACTS_CAPTURE
+            helper.AddCheckbox("Low-pass", lpEnabled, onLp);
+            AddFloatField(helper, "Low-pass alpha", lpAlpha, text =>
             {
-                helper.AddCheckbox("Low-pass", lpEnabled, onLp);
-                AddFloatField(helper, "Low-pass alpha", lpAlpha, text =>
-                {
-                    ModOptions.TryApplyFloat(s, text, onLpAlpha);
-                });
-            }
+                ModOptions.TryApplyFloat(s, text, onLpAlpha);
+            });
+#endif
         }
 
         private static void BuildOpGroup(
@@ -310,32 +306,30 @@ namespace TrackpadCameraControl
                 sensitivityB,
                 text => ModOptions.TryApplyFloat(s, text, onSensitivityB)
             );
-            if (FeatureFlags.EnableAssistChrome)
-            {
-                AddFloatField(
-                    helper,
-                    buttonALabel,
-                    buttonA,
-                    text => ModOptions.TryApplyFloat(s, text, onButtonA)
-                );
-                AddFloatField(
-                    helper,
-                    buttonBLabel,
-                    buttonB,
-                    text => ModOptions.TryApplyFloat(s, text, onButtonB)
-                );
-            }
+#if ENABLE_ASSIST_CHROME
+            AddFloatField(
+                helper,
+                buttonALabel,
+                buttonA,
+                text => ModOptions.TryApplyFloat(s, text, onButtonA)
+            );
+            AddFloatField(
+                helper,
+                buttonBLabel,
+                buttonB,
+                text => ModOptions.TryApplyFloat(s, text, onButtonB)
+            );
+#endif
 
-            if (FeatureFlags.EnableContactsCapture)
-            {
-                helper.AddCheckbox("Low-pass", lpEnabled, onLp);
-                AddFloatField(
-                    helper,
-                    "Low-pass alpha",
-                    lpAlpha,
-                    text => ModOptions.TryApplyFloat(s, text, onLpAlpha)
-                );
-            }
+#if ENABLE_CONTACTS_CAPTURE
+            helper.AddCheckbox("Low-pass", lpEnabled, onLp);
+            AddFloatField(
+                helper,
+                "Low-pass alpha",
+                lpAlpha,
+                text => ModOptions.TryApplyFloat(s, text, onLpAlpha)
+            );
+#endif
         }
 
         private static void AddFloatField(

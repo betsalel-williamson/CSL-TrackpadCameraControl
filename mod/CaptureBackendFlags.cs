@@ -42,8 +42,8 @@ namespace TrackpadCameraControl
 
         /// <summary>
         /// Env wins when set so a launch flag can switch backends without Options UI.
-        /// When <see cref="FeatureFlags.EnableContactsCapture"/> is off, product play forces
-        /// AppleGestures (ignore stored Contacts). Maintainer env
+        /// Without <c>ENABLE_CONTACTS_CAPTURE</c>, product play forces AppleGestures
+        /// (ignore stored Contacts). Maintainer env
         /// <c>TRACKPAD_CAPTURE_BACKEND=contacts</c> may still override for local debugging.
         /// </summary>
         public static CaptureBackend Resolve(ModSettings settings, string envValue)
@@ -55,16 +55,11 @@ namespace TrackpadCameraControl
                 return fromEnv;
             }
 
-            CaptureBackend fromSettings =
-                settings != null ? settings.CaptureBackend : CaptureBackend.AppleGestures;
-
-            // Helper call keeps CS0162 quiet while EnableContactsCapture is a const false.
-            return IsContactsCaptureEnabled() ? fromSettings : CaptureBackend.AppleGestures;
-        }
-
-        private static bool IsContactsCaptureEnabled()
-        {
-            return FeatureFlags.EnableContactsCapture;
+#if ENABLE_CONTACTS_CAPTURE
+            return settings != null ? settings.CaptureBackend : CaptureBackend.AppleGestures;
+#else
+            return CaptureBackend.AppleGestures;
+#endif
         }
 
         public static CaptureBackend Resolve(ModSettings settings)

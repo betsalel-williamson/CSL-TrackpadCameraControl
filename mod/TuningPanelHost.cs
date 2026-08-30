@@ -7,7 +7,7 @@ namespace TrackpadCameraControl
 {
     /// <summary>
     /// Floating in-game Assist / tuning panel host (ColossalUI).
-    /// Product-surface feel controls; gated chrome / CAD / Contacts via <see cref="FeatureFlags"/>.
+    /// Product-surface feel controls; gated chrome / CAD / Contacts via ENABLE_* compile symbols.
     /// </summary>
     internal static class TuningPanelHost
     {
@@ -91,24 +91,25 @@ namespace TrackpadCameraControl
             _presetDesc.autoSize = false;
             _presetDesc.autoHeight = true;
             _presetDesc.wordWrap = true;
-            _presetDesc.text = FeatureFlags.EnableCadGestureStyle
-                ? ModOptions.PresetDescription(s.GesturePreset)
-                : ModOptions.MapsPlusDescription;
+            _presetDesc.text =
+#if ENABLE_CAD_GESTURE_STYLE
+                ModOptions.PresetDescription(s.GesturePreset);
+#else
+                ModOptions.MapsPlusDescription;
+#endif
             _presetDesc.PerformLayout();
             float descH = Mathf.Max(36f, _presetDesc.height + 4f);
             _nextY += descH;
 
-            if (FeatureFlags.EnableCadGestureStyle)
-            {
-                AddSection("Gesture style");
-                AddCadStyleButtons(s);
-            }
+#if ENABLE_CAD_GESTURE_STYLE
+            AddSection("Gesture style");
+            AddCadStyleButtons(s);
+#endif
 
-            if (FeatureFlags.EnableContactsCapture)
-            {
-                AddSection("Capture");
-                AddCaptureBackendButtons(s);
-            }
+#if ENABLE_CONTACTS_CAPTURE
+            AddSection("Capture");
+            AddCaptureBackendButtons(s);
+#endif
 
             BuildPanSection(s);
             BuildZoomSection(s);
@@ -286,6 +287,7 @@ namespace TrackpadCameraControl
             _nextY += 30f;
         }
 
+#if ENABLE_CAD_GESTURE_STYLE
         private static void AddCadStyleButtons(ModSettings s)
         {
             UIButton maps = MakeMenuButton("Maps+", Col0, _nextY, 120f);
@@ -303,7 +305,9 @@ namespace TrackpadCameraControl
             };
             _nextY += 32f;
         }
+#endif
 
+#if ENABLE_CONTACTS_CAPTURE
         private static void AddCaptureBackendButtons(ModSettings s)
         {
             UIButton apple = MakeMenuButton("AppKit", Col0, _nextY, 120f);
@@ -313,6 +317,7 @@ namespace TrackpadCameraControl
             contacts.eventClick += (c, e) => ModOptions.ApplyCaptureBackendIndex(s, 1);
             _nextY += 32f;
         }
+#endif
 
         private static void UpdatePresetDesc(string text)
         {
@@ -342,9 +347,15 @@ namespace TrackpadCameraControl
                 () => s.InvertPanY,
                 v => s.InvertPanY = v,
                 "Reverse Y",
-                FeatureFlags.EnableContactsCapture ? (Func<bool>)(() => s.PanLowPassEnabled) : null,
-                FeatureFlags.EnableContactsCapture ? (Action<bool>)(v => s.PanLowPassEnabled = v) : null,
-                FeatureFlags.EnableContactsCapture ? "Low-pass" : null
+#if ENABLE_CONTACTS_CAPTURE
+                () => s.PanLowPassEnabled,
+                v => s.PanLowPassEnabled = v,
+                "Low-pass"
+#else
+                null,
+                null,
+                null
+#endif
             );
             AddFloatPair(
                 s,
@@ -355,31 +366,29 @@ namespace TrackpadCameraControl
                 () => s.PanSensitivityY,
                 ModOptions.ApplyPanSensitivityY
             );
-            if (FeatureFlags.EnableAssistChrome)
-            {
-                AddFloatPair(
-                    s,
-                    "Btn X",
-                    () => s.PanButtonScaleX,
-                    ModOptions.ApplyPanButtonScaleX,
-                    "Btn Y",
-                    () => s.PanButtonScaleY,
-                    ModOptions.ApplyPanButtonScaleY
-                );
-            }
+#if ENABLE_ASSIST_CHROME
+            AddFloatPair(
+                s,
+                "Btn X",
+                () => s.PanButtonScaleX,
+                ModOptions.ApplyPanButtonScaleX,
+                "Btn Y",
+                () => s.PanButtonScaleY,
+                ModOptions.ApplyPanButtonScaleY
+            );
+#endif
 
-            if (FeatureFlags.EnableContactsCapture)
-            {
-                AddFloatPair(
-                    s,
-                    "LP α",
-                    () => s.PanLowPassAlpha,
-                    ModOptions.ApplyPanLowPassAlpha,
-                    null,
-                    null,
-                    null
-                );
-            }
+#if ENABLE_CONTACTS_CAPTURE
+            AddFloatPair(
+                s,
+                "LP α",
+                () => s.PanLowPassAlpha,
+                ModOptions.ApplyPanLowPassAlpha,
+                null,
+                null,
+                null
+            );
+#endif
         }
 
         private static void BuildZoomSection(ModSettings s)
@@ -394,56 +403,51 @@ namespace TrackpadCameraControl
                 v => s.InvertZoom = v,
                 "Reverse"
             );
-            if (FeatureFlags.EnableContactsCapture)
-            {
-                AddCheckRow(
-                    s,
-                    () => s.ZoomLowPassEnabled,
-                    v => s.ZoomLowPassEnabled = v,
-                    "Low-pass",
-                    null,
-                    null,
-                    null
-                );
-            }
+#if ENABLE_CONTACTS_CAPTURE
+            AddCheckRow(
+                s,
+                () => s.ZoomLowPassEnabled,
+                v => s.ZoomLowPassEnabled = v,
+                "Low-pass",
+                null,
+                null,
+                null
+            );
+#endif
 
-            if (FeatureFlags.EnableAssistChrome)
-            {
-                AddFloatPair(
-                    s,
-                    "Sensitivity",
-                    () => s.ZoomSensitivity,
-                    ModOptions.ApplyZoomSensitivity,
-                    "Btn",
-                    () => s.ZoomButtonScale,
-                    ModOptions.ApplyZoomButtonScale
-                );
-            }
-            else
-            {
-                AddFloatPair(
-                    s,
-                    "Sensitivity",
-                    () => s.ZoomSensitivity,
-                    ModOptions.ApplyZoomSensitivity,
-                    null,
-                    null,
-                    null
-                );
-            }
+#if ENABLE_ASSIST_CHROME
+            AddFloatPair(
+                s,
+                "Sensitivity",
+                () => s.ZoomSensitivity,
+                ModOptions.ApplyZoomSensitivity,
+                "Btn",
+                () => s.ZoomButtonScale,
+                ModOptions.ApplyZoomButtonScale
+            );
+#else
+            AddFloatPair(
+                s,
+                "Sensitivity",
+                () => s.ZoomSensitivity,
+                ModOptions.ApplyZoomSensitivity,
+                null,
+                null,
+                null
+            );
+#endif
 
-            if (FeatureFlags.EnableContactsCapture)
-            {
-                AddFloatPair(
-                    s,
-                    "LP α",
-                    () => s.ZoomLowPassAlpha,
-                    ModOptions.ApplyZoomLowPassAlpha,
-                    null,
-                    null,
-                    null
-                );
-            }
+#if ENABLE_CONTACTS_CAPTURE
+            AddFloatPair(
+                s,
+                "LP α",
+                () => s.ZoomLowPassAlpha,
+                ModOptions.ApplyZoomLowPassAlpha,
+                null,
+                null,
+                null
+            );
+#endif
         }
 
         private static void BuildYawSection(ModSettings s)
@@ -458,56 +462,51 @@ namespace TrackpadCameraControl
                 v => s.InvertYawRotate = v,
                 "Reverse"
             );
-            if (FeatureFlags.EnableContactsCapture)
-            {
-                AddCheckRow(
-                    s,
-                    () => s.YawLowPassEnabled,
-                    v => s.YawLowPassEnabled = v,
-                    "Low-pass",
-                    null,
-                    null,
-                    null
-                );
-            }
+#if ENABLE_CONTACTS_CAPTURE
+            AddCheckRow(
+                s,
+                () => s.YawLowPassEnabled,
+                v => s.YawLowPassEnabled = v,
+                "Low-pass",
+                null,
+                null,
+                null
+            );
+#endif
 
-            if (FeatureFlags.EnableAssistChrome)
-            {
-                AddFloatPair(
-                    s,
-                    "Sensitivity",
-                    () => s.YawRotateSensitivity,
-                    ModOptions.ApplyYawRotateSensitivity,
-                    "Btn",
-                    () => s.YawRotateButtonScale,
-                    ModOptions.ApplyYawRotateButtonScale
-                );
-            }
-            else
-            {
-                AddFloatPair(
-                    s,
-                    "Sensitivity",
-                    () => s.YawRotateSensitivity,
-                    ModOptions.ApplyYawRotateSensitivity,
-                    null,
-                    null,
-                    null
-                );
-            }
+#if ENABLE_ASSIST_CHROME
+            AddFloatPair(
+                s,
+                "Sensitivity",
+                () => s.YawRotateSensitivity,
+                ModOptions.ApplyYawRotateSensitivity,
+                "Btn",
+                () => s.YawRotateButtonScale,
+                ModOptions.ApplyYawRotateButtonScale
+            );
+#else
+            AddFloatPair(
+                s,
+                "Sensitivity",
+                () => s.YawRotateSensitivity,
+                ModOptions.ApplyYawRotateSensitivity,
+                null,
+                null,
+                null
+            );
+#endif
 
-            if (FeatureFlags.EnableContactsCapture)
-            {
-                AddFloatPair(
-                    s,
-                    "LP α",
-                    () => s.YawLowPassAlpha,
-                    ModOptions.ApplyYawLowPassAlpha,
-                    null,
-                    null,
-                    null
-                );
-            }
+#if ENABLE_CONTACTS_CAPTURE
+            AddFloatPair(
+                s,
+                "LP α",
+                () => s.YawLowPassAlpha,
+                ModOptions.ApplyYawLowPassAlpha,
+                null,
+                null,
+                null
+            );
+#endif
         }
 
         private static void BuildOrbitSection(ModSettings s)
@@ -527,13 +526,15 @@ namespace TrackpadCameraControl
                 () => s.InvertOrbitPitch,
                 v => s.InvertOrbitPitch = v,
                 "Reverse pitch",
-                FeatureFlags.EnableContactsCapture
-                    ? (Func<bool>)(() => s.OrbitLowPassEnabled)
-                    : null,
-                FeatureFlags.EnableContactsCapture
-                    ? (Action<bool>)(v => s.OrbitLowPassEnabled = v)
-                    : null,
-                FeatureFlags.EnableContactsCapture ? "Low-pass" : null
+#if ENABLE_CONTACTS_CAPTURE
+                () => s.OrbitLowPassEnabled,
+                v => s.OrbitLowPassEnabled = v,
+                "Low-pass"
+#else
+                null,
+                null,
+                null
+#endif
             );
             AddFloatPair(
                 s,
@@ -553,31 +554,29 @@ namespace TrackpadCameraControl
                 () => s.OrbitPitchMax,
                 ModOptions.ApplyOrbitPitchMax
             );
-            if (FeatureFlags.EnableAssistChrome)
-            {
-                AddFloatPair(
-                    s,
-                    "Btn yaw",
-                    () => s.OrbitYawButtonScale,
-                    ModOptions.ApplyOrbitYawButtonScale,
-                    "Btn pitch",
-                    () => s.OrbitPitchButtonScale,
-                    ModOptions.ApplyOrbitPitchButtonScale
-                );
-            }
+#if ENABLE_ASSIST_CHROME
+            AddFloatPair(
+                s,
+                "Btn yaw",
+                () => s.OrbitYawButtonScale,
+                ModOptions.ApplyOrbitYawButtonScale,
+                "Btn pitch",
+                () => s.OrbitPitchButtonScale,
+                ModOptions.ApplyOrbitPitchButtonScale
+            );
+#endif
 
-            if (FeatureFlags.EnableContactsCapture)
-            {
-                AddFloatPair(
-                    s,
-                    "LP α",
-                    () => s.OrbitLowPassAlpha,
-                    ModOptions.ApplyOrbitLowPassAlpha,
-                    null,
-                    null,
-                    null
-                );
-            }
+#if ENABLE_CONTACTS_CAPTURE
+            AddFloatPair(
+                s,
+                "LP α",
+                () => s.OrbitLowPassAlpha,
+                ModOptions.ApplyOrbitLowPassAlpha,
+                null,
+                null,
+                null
+            );
+#endif
         }
 
         private static void AddSection(string title)
