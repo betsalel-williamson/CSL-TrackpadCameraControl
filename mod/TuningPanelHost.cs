@@ -7,7 +7,7 @@ namespace TrackpadCameraControl
 {
     /// <summary>
     /// Floating in-game Assist / tuning panel host (ColossalUI).
-    /// Tunables only — no chrome nudge pads/buttons.
+    /// Product-surface feel controls; gated chrome / CAD / Contacts via <see cref="FeatureFlags"/>.
     /// </summary>
     internal static class TuningPanelHost
     {
@@ -15,13 +15,14 @@ namespace TrackpadCameraControl
         private const float Col0 = 12f;
         private const float Col1 = 286f;
         private const float ColWidth = 260f;
-        private const float FieldLabelW = 78f;
+        private const float FieldLabelW = 90f;
         private const float FieldInputW = 72f;
 
         private static UIPanel _root;
         private static UIButton _reopen;
         private static UILabel _presetDesc;
         private static UILabel _title;
+        private static UITextField _feelNameField;
         private static float _nextY;
         private static bool _dragging;
         private static Vector3 _dragPanelStart;
@@ -80,8 +81,8 @@ namespace TrackpadCameraControl
             _nextY = 36f;
             ModSettings s = Mod.EnsureSettings();
 
-            AddSection("Preset");
-            AddDropdownLikeButtons(s);
+            AddSection("Feel presets");
+            AddFeelPresetRow(s);
 
             _presetDesc = _root.AddUIComponent<UILabel>();
             _presetDesc.textColor = Color.white;
@@ -90,29 +91,31 @@ namespace TrackpadCameraControl
             _presetDesc.autoSize = false;
             _presetDesc.autoHeight = true;
             _presetDesc.wordWrap = true;
-            _presetDesc.text = ModOptions.PresetDescription(s.GesturePreset);
-            // Force layout so height is known before stacking more controls.
+            _presetDesc.text = FeatureFlags.EnableCadGestureStyle
+                ? ModOptions.PresetDescription(s.GesturePreset)
+                : ModOptions.MapsPlusDescription;
             _presetDesc.PerformLayout();
             float descH = Mathf.Max(36f, _presetDesc.height + 4f);
             _nextY += descH;
 
-            AddButton(
-                "Reset to factory default",
-                () =>
-                {
-                    ModOptions.ResetToFactory(s);
-                    Destroy();
-                    EnsureCreated();
-                    ApplyVisibility();
-                }
-            );
+            if (FeatureFlags.EnableCadGestureStyle)
+            {
+                AddSection("Gesture style");
+                AddCadStyleButtons(s);
+            }
+
+            if (FeatureFlags.EnableContactsCapture)
+            {
+                AddSection("Capture");
+                AddCaptureBackendButtons(s);
+            }
 
             BuildPanSection(s);
             BuildZoomSection(s);
             BuildYawSection(s);
             BuildOrbitSection(s);
 
-            _root.height = Mathf.Min(680f, _nextY + 16f);
+            _root.height = Mathf.Min(720f, _nextY + 16f);
 
             _reopen = view.AddUIComponent(typeof(UIButton)) as UIButton;
             if (_reopen != null)
@@ -161,6 +164,7 @@ namespace TrackpadCameraControl
 
             _presetDesc = null;
             _title = null;
+            _feelNameField = null;
             _dragging = false;
         }
 
@@ -200,7 +204,89 @@ namespace TrackpadCameraControl
             ModOptions.FlushStore(true);
         }
 
-        private static void AddDropdownLikeButtons(ModSettings s)
+        private static void RebuildPanel()
+        {
+            Destroy();
+            EnsureCreated();
+            ApplyVisibility();
+        }
+
+        private static void AddFeelPresetRow(ModSettings s)
+        {
+            float y = _nextY;
+            float bw = 72f;
+            float gap = 6f;
+            float x = Col0;
+
+            UIButton slow = MakeMenuButton("Slow", x, y, bw);
+            slow.eventClick += (c, e) =>
+            {
+                ModOptions.ApplyFeelSlow(s);
+                RebuildPanel();
+            };
+            x += bw + gap;
+
+            UIButton def = MakeMenuButton("Default", x, y, bw);
+            def.eventClick += (c, e) =>
+            {
+                ModOptions.ApplyFeelDefault(s);
+                RebuildPanel();
+            };
+            x += bw + gap;
+
+            UIButton fast = MakeMenuButton("Fast", x, y, bw);
+            fast.eventClick += (c, e) =>
+            {
+                ModOptions.ApplyFeelFast(s);
+                RebuildPanel();
+            };
+            x += bw + gap;
+
+            UIButton reset = MakeMenuButton("Reset", x, y, bw);
+            reset.eventClick += (c, e) =>
+            {
+                ModOptions.ResetToFactory(s);
+                RebuildPanel();
+            };
+            _nextY += 32f;
+
+            UILabel nameLbl = AddLabel(_root, "Name", Col0, _nextY + 2f);
+            nameLbl.width = 40f;
+            nameLbl.autoSize = false;
+
+            _feelNameField = _root.AddUIComponent<UITextField>();
+            _feelNameField.width = 180f;
+            _feelNameField.height = 22f;
+            _feelNameField.relativePosition = new Vector3(Col0 + 44f, _nextY);
+            _feelNameField.normalBgSprite = "TextFieldPanel";
+            _feelNameField.hoveredBgSprite = "TextFieldPanelHovered";
+            _feelNameField.focusedBgSprite = "TextFieldPanel";
+            _feelNameField.selectionSprite = "EmptySprite";
+            _feelNameField.text = "";
+            _feelNameField.selectOnFocus = true;
+            _feelNameField.isInteractive = true;
+            _feelNameField.builtinKeyNavigation = true;
+
+            UIButton save = MakeMenuButton("Save as…", Col0 + 232f, _nextY - 2f, 90f);
+            save.eventClick += (c, e) =>
+            {
+                string name = _feelNameField != null ? _feelNameField.text : "";
+                ModOptions.SaveNamedFeelPreset(s, name);
+            };
+
+            UIButton load = MakeMenuButton("Load", Col0 + 328f, _nextY - 2f, 70f);
+            load.eventClick += (c, e) =>
+            {
+                string name = _feelNameField != null ? _feelNameField.text : "";
+                if (ModOptions.LoadNamedFeelPreset(s, name))
+                {
+                    RebuildPanel();
+                }
+            };
+            _nextY += 30f;
+        }
+
+        private static void AddCadStyleButtons(ModSettings s)
         {
             UIButton maps = MakeMenuButton("Maps+", Col0, _nextY, 120f);
             maps.eventClick += (c, e) =>
@@ -218,6 +304,16 @@ namespace TrackpadCameraControl
             _nextY += 32f;
         }
 
+        private static void AddCaptureBackendButtons(ModSettings s)
+        {
+            UIButton apple = MakeMenuButton("AppKit", Col0, _nextY, 120f);
+            apple.eventClick += (c, e) => ModOptions.ApplyCaptureBackendIndex(s, 0);
+
+            UIButton contacts = MakeMenuButton("Contacts", Col0 + 128f, _nextY, 120f);
+            contacts.eventClick += (c, e) => ModOptions.ApplyCaptureBackendIndex(s, 1);
+            _nextY += 32f;
+        }
+
         private static void UpdatePresetDesc(string text)
         {
             if (_presetDesc == null)
@@ -231,7 +327,7 @@ namespace TrackpadCameraControl
 
         private static void BuildPanSection(ModSettings s)
         {
-            AddSection("Pan");
+            AddOpHeading(ModOptions.OpHeadingPan);
             AddCheckRow(
                 s,
                 () => s.PanEnabled,
@@ -246,42 +342,49 @@ namespace TrackpadCameraControl
                 () => s.InvertPanY,
                 v => s.InvertPanY = v,
                 "Reverse Y",
-                () => s.PanLowPassEnabled,
-                v => s.PanLowPassEnabled = v,
-                "Low-pass"
+                FeatureFlags.EnableContactsCapture ? (Func<bool>)(() => s.PanLowPassEnabled) : null,
+                FeatureFlags.EnableContactsCapture ? (Action<bool>)(v => s.PanLowPassEnabled = v) : null,
+                FeatureFlags.EnableContactsCapture ? "Low-pass" : null
             );
             AddFloatPair(
                 s,
-                "Drag X",
+                "Sensitivity X",
                 () => s.PanSensitivityX,
                 ModOptions.ApplyPanSensitivityX,
-                "Drag Y",
+                "Sensitivity Y",
                 () => s.PanSensitivityY,
                 ModOptions.ApplyPanSensitivityY
             );
-            AddFloatPair(
-                s,
-                "Btn X",
-                () => s.PanButtonScaleX,
-                ModOptions.ApplyPanButtonScaleX,
-                "Btn Y",
-                () => s.PanButtonScaleY,
-                ModOptions.ApplyPanButtonScaleY
-            );
-            AddFloatPair(
-                s,
-                "LP α",
-                () => s.PanLowPassAlpha,
-                ModOptions.ApplyPanLowPassAlpha,
-                null,
-                null,
-                null
-            );
+            if (FeatureFlags.EnableAssistChrome)
+            {
+                AddFloatPair(
+                    s,
+                    "Btn X",
+                    () => s.PanButtonScaleX,
+                    ModOptions.ApplyPanButtonScaleX,
+                    "Btn Y",
+                    () => s.PanButtonScaleY,
+                    ModOptions.ApplyPanButtonScaleY
+                );
+            }
+
+            if (FeatureFlags.EnableContactsCapture)
+            {
+                AddFloatPair(
+                    s,
+                    "LP α",
+                    () => s.PanLowPassAlpha,
+                    ModOptions.ApplyPanLowPassAlpha,
+                    null,
+                    null,
+                    null
+                );
+            }
         }
 
         private static void BuildZoomSection(ModSettings s)
         {
-            AddSection("Zoom");
+            AddOpHeading(ModOptions.OpHeadingZoom);
             AddCheckRow(
                 s,
                 () => s.ZoomEnabled,
@@ -291,38 +394,61 @@ namespace TrackpadCameraControl
                 v => s.InvertZoom = v,
                 "Reverse"
             );
-            AddCheckRow(
-                s,
-                () => s.ZoomLowPassEnabled,
-                v => s.ZoomLowPassEnabled = v,
-                "Low-pass",
-                null,
-                null,
-                null
-            );
-            AddFloatPair(
-                s,
-                "Drag",
-                () => s.ZoomSensitivity,
-                ModOptions.ApplyZoomSensitivity,
-                "Btn",
-                () => s.ZoomButtonScale,
-                ModOptions.ApplyZoomButtonScale
-            );
-            AddFloatPair(
-                s,
-                "LP α",
-                () => s.ZoomLowPassAlpha,
-                ModOptions.ApplyZoomLowPassAlpha,
-                null,
-                null,
-                null
-            );
+            if (FeatureFlags.EnableContactsCapture)
+            {
+                AddCheckRow(
+                    s,
+                    () => s.ZoomLowPassEnabled,
+                    v => s.ZoomLowPassEnabled = v,
+                    "Low-pass",
+                    null,
+                    null,
+                    null
+                );
+            }
+
+            if (FeatureFlags.EnableAssistChrome)
+            {
+                AddFloatPair(
+                    s,
+                    "Sensitivity",
+                    () => s.ZoomSensitivity,
+                    ModOptions.ApplyZoomSensitivity,
+                    "Btn",
+                    () => s.ZoomButtonScale,
+                    ModOptions.ApplyZoomButtonScale
+                );
+            }
+            else
+            {
+                AddFloatPair(
+                    s,
+                    "Sensitivity",
+                    () => s.ZoomSensitivity,
+                    ModOptions.ApplyZoomSensitivity,
+                    null,
+                    null,
+                    null
+                );
+            }
+
+            if (FeatureFlags.EnableContactsCapture)
+            {
+                AddFloatPair(
+                    s,
+                    "LP α",
+                    () => s.ZoomLowPassAlpha,
+                    ModOptions.ApplyZoomLowPassAlpha,
+                    null,
+                    null,
+                    null
+                );
+            }
         }
 
         private static void BuildYawSection(ModSettings s)
         {
-            AddSection("Rotate (yaw)");
+            AddOpHeading(ModOptions.OpHeadingRotate);
             AddCheckRow(
                 s,
                 () => s.YawEnabled,
@@ -332,38 +458,61 @@ namespace TrackpadCameraControl
                 v => s.InvertYawRotate = v,
                 "Reverse"
             );
-            AddCheckRow(
-                s,
-                () => s.YawLowPassEnabled,
-                v => s.YawLowPassEnabled = v,
-                "Low-pass",
-                null,
-                null,
-                null
-            );
-            AddFloatPair(
-                s,
-                "Drag",
-                () => s.YawRotateSensitivity,
-                ModOptions.ApplyYawRotateSensitivity,
-                "Btn",
-                () => s.YawRotateButtonScale,
-                ModOptions.ApplyYawRotateButtonScale
-            );
-            AddFloatPair(
-                s,
-                "LP α",
-                () => s.YawLowPassAlpha,
-                ModOptions.ApplyYawLowPassAlpha,
-                null,
-                null,
-                null
-            );
+            if (FeatureFlags.EnableContactsCapture)
+            {
+                AddCheckRow(
+                    s,
+                    () => s.YawLowPassEnabled,
+                    v => s.YawLowPassEnabled = v,
+                    "Low-pass",
+                    null,
+                    null,
+                    null
+                );
+            }
+
+            if (FeatureFlags.EnableAssistChrome)
+            {
+                AddFloatPair(
+                    s,
+                    "Sensitivity",
+                    () => s.YawRotateSensitivity,
+                    ModOptions.ApplyYawRotateSensitivity,
+                    "Btn",
+                    () => s.YawRotateButtonScale,
+                    ModOptions.ApplyYawRotateButtonScale
+                );
+            }
+            else
+            {
+                AddFloatPair(
+                    s,
+                    "Sensitivity",
+                    () => s.YawRotateSensitivity,
+                    ModOptions.ApplyYawRotateSensitivity,
+                    null,
+                    null,
+                    null
+                );
+            }
+
+            if (FeatureFlags.EnableContactsCapture)
+            {
+                AddFloatPair(
+                    s,
+                    "LP α",
+                    () => s.YawLowPassAlpha,
+                    ModOptions.ApplyYawLowPassAlpha,
+                    null,
+                    null,
+                    null
+                );
+            }
         }
 
         private static void BuildOrbitSection(ModSettings s)
         {
-            AddSection("Orbit");
+            AddOpHeading(ModOptions.OpHeadingOrbit);
             AddCheckRow(
                 s,
                 () => s.OrbitEnabled,
@@ -378,43 +527,77 @@ namespace TrackpadCameraControl
                 () => s.InvertOrbitPitch,
                 v => s.InvertOrbitPitch = v,
                 "Reverse pitch",
-                () => s.OrbitLowPassEnabled,
-                v => s.OrbitLowPassEnabled = v,
-                "Low-pass"
+                FeatureFlags.EnableContactsCapture
+                    ? (Func<bool>)(() => s.OrbitLowPassEnabled)
+                    : null,
+                FeatureFlags.EnableContactsCapture
+                    ? (Action<bool>)(v => s.OrbitLowPassEnabled = v)
+                    : null,
+                FeatureFlags.EnableContactsCapture ? "Low-pass" : null
             );
             AddFloatPair(
                 s,
-                "Drag yaw",
+                "Sensitivity yaw",
                 () => s.OrbitYawSensitivity,
                 ModOptions.ApplyOrbitYawSensitivity,
-                "Drag pitch",
+                "Sensitivity pitch",
                 () => s.OrbitPitchSensitivity,
                 ModOptions.ApplyOrbitPitchSensitivity
             );
             AddFloatPair(
                 s,
-                "Btn yaw",
-                () => s.OrbitYawButtonScale,
-                ModOptions.ApplyOrbitYawButtonScale,
-                "Btn pitch",
-                () => s.OrbitPitchButtonScale,
-                ModOptions.ApplyOrbitPitchButtonScale
+                "Pitch min",
+                () => s.OrbitPitchMin,
+                ModOptions.ApplyOrbitPitchMin,
+                "Pitch max",
+                () => s.OrbitPitchMax,
+                ModOptions.ApplyOrbitPitchMax
             );
-            AddFloatPair(
-                s,
-                "LP α",
-                () => s.OrbitLowPassAlpha,
-                ModOptions.ApplyOrbitLowPassAlpha,
-                null,
-                null,
-                null
-            );
+            if (FeatureFlags.EnableAssistChrome)
+            {
+                AddFloatPair(
+                    s,
+                    "Btn yaw",
+                    () => s.OrbitYawButtonScale,
+                    ModOptions.ApplyOrbitYawButtonScale,
+                    "Btn pitch",
+                    () => s.OrbitPitchButtonScale,
+                    ModOptions.ApplyOrbitPitchButtonScale
+                );
+            }
+
+            if (FeatureFlags.EnableContactsCapture)
+            {
+                AddFloatPair(
+                    s,
+                    "LP α",
+                    () => s.OrbitLowPassAlpha,
+                    ModOptions.ApplyOrbitLowPassAlpha,
+                    null,
+                    null,
+                    null
+                );
+            }
         }
 
         private static void AddSection(string title)
         {
-            UILabel label = AddLabel(_root, "— " + title + " —", Col0, _nextY);
+            AddLabel(_root, "— " + title + " —", Col0, _nextY);
             _nextY += 22f;
+        }
+
+        private static void AddOpHeading(string text)
+        {
+            UILabel label = _root.AddUIComponent<UILabel>();
+            label.text = text;
+            label.relativePosition = new Vector3(Col0, _nextY);
+            label.textColor = Color.white;
+            label.width = PanelWidth - 24f;
+            label.autoSize = false;
+            label.autoHeight = true;
+            label.wordWrap = true;
+            label.PerformLayout();
+            _nextY += Mathf.Max(22f, label.height + 4f);
         }
 
         private static void AddCheckRow(
@@ -528,20 +711,6 @@ namespace TrackpadCameraControl
                     field.text = ModOptions.FormatFloat(get());
                 }
             };
-        }
-
-        private static UIButton AddButton(string text, Action onClick)
-        {
-            UIButton btn = MakeMenuButton(text, Col0, _nextY, Mathf.Min(280f, PanelWidth - 24f));
-            btn.eventClick += (c, e) =>
-            {
-                if (onClick != null)
-                {
-                    onClick();
-                }
-            };
-            _nextY += 32f;
-            return btn;
         }
 
         private static UIButton MakeMenuButton(string text, float x, float y, float width)

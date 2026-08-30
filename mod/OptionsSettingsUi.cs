@@ -8,6 +8,7 @@ namespace TrackpadCameraControl
 {
     /// <summary>
     /// Builds the mirrored Options page (number fields, not sliders).
+    /// Gated controls consult <see cref="FeatureFlags"/>.
     /// </summary>
     internal static class OptionsSettingsUi
     {
@@ -18,20 +19,7 @@ namespace TrackpadCameraControl
                 return;
             }
 
-            helper.AddGroup("Gesture preset");
-            helper.AddDropdown(
-                "Preset",
-                ModOptions.GesturePresetLabels,
-                ModOptions.GesturePresetToIndex(s.GesturePreset),
-                sel => ModOptions.ApplyGesturePresetIndex(s, sel)
-            );
-            helper.AddButton(
-                "Reset to factory default",
-                () =>
-                {
-                    ModOptions.ResetToFactory(s);
-                }
-            );
+            BuildFeelPresetRow(helper, s);
 
             helper.AddGroup("Assist UI");
             helper.AddCheckbox(
@@ -48,17 +36,32 @@ namespace TrackpadCameraControl
                     )
             );
 
-            helper.AddGroup("Capture");
-            helper.AddDropdown(
-                "Interpreter",
-                ModOptions.CaptureBackendLabels,
-                ModOptions.CaptureBackendToIndex(s.CaptureBackend),
-                sel => ModOptions.ApplyCaptureBackendIndex(s, sel)
-            );
+            if (FeatureFlags.EnableCadGestureStyle)
+            {
+                helper.AddGroup("Gesture style");
+                helper.AddDropdown(
+                    "Style",
+                    ModOptions.GesturePresetLabels,
+                    ModOptions.GesturePresetToIndex(s.GesturePreset),
+                    sel => ModOptions.ApplyGesturePresetIndex(s, sel)
+                );
+            }
 
+            if (FeatureFlags.EnableContactsCapture)
+            {
+                helper.AddGroup("Capture");
+                helper.AddDropdown(
+                    "Interpreter",
+                    ModOptions.CaptureBackendLabels,
+                    ModOptions.CaptureBackendToIndex(s.CaptureBackend),
+                    sel => ModOptions.ApplyCaptureBackendIndex(s, sel)
+                );
+            }
+
+            // Per-op groups mirror Assist panel columns (best-effort under ColossalUI helper).
             BuildOpGroup(
                 helper,
-                "Pan",
+                ModOptions.OpHeadingPan,
                 s.PanEnabled,
                 v => ModOptions.ApplyBool(s, x => x.PanEnabled = v),
                 s.InvertPanX,
@@ -67,10 +70,10 @@ namespace TrackpadCameraControl
                 s.InvertPanY,
                 v => ModOptions.ApplyBool(s, x => x.InvertPanY = v),
                 "Reverse Y",
-                "Drag scale X",
+                "Sensitivity X",
                 s.PanSensitivityX,
                 ModOptions.ApplyPanSensitivityX,
-                "Drag scale Y",
+                "Sensitivity Y",
                 s.PanSensitivityY,
                 ModOptions.ApplyPanSensitivityY,
                 "Button step X",
@@ -87,13 +90,13 @@ namespace TrackpadCameraControl
 
             BuildOpGroup1Axis(
                 helper,
-                "Zoom",
+                ModOptions.OpHeadingZoom,
                 s.ZoomEnabled,
                 v => ModOptions.ApplyBool(s, x => x.ZoomEnabled = v),
                 s.InvertZoom,
                 v => ModOptions.ApplyBool(s, x => x.InvertZoom = v),
                 "Reverse",
-                "Drag scale",
+                "Sensitivity",
                 s.ZoomSensitivity,
                 ModOptions.ApplyZoomSensitivity,
                 "Button step",
@@ -107,13 +110,13 @@ namespace TrackpadCameraControl
 
             BuildOpGroup1Axis(
                 helper,
-                "Rotate (yaw)",
+                ModOptions.OpHeadingRotate,
                 s.YawEnabled,
                 v => ModOptions.ApplyBool(s, x => x.YawEnabled = v),
                 s.InvertYawRotate,
                 v => ModOptions.ApplyBool(s, x => x.InvertYawRotate = v),
                 "Reverse",
-                "Drag scale",
+                "Sensitivity",
                 s.YawRotateSensitivity,
                 ModOptions.ApplyYawRotateSensitivity,
                 "Button step",
@@ -127,7 +130,7 @@ namespace TrackpadCameraControl
 
             BuildOpGroup(
                 helper,
-                "Orbit",
+                ModOptions.OpHeadingOrbit,
                 s.OrbitEnabled,
                 v => ModOptions.ApplyBool(s, x => x.OrbitEnabled = v),
                 s.InvertOrbitYaw,
@@ -136,10 +139,10 @@ namespace TrackpadCameraControl
                 s.InvertOrbitPitch,
                 v => ModOptions.ApplyBool(s, x => x.InvertOrbitPitch = v),
                 "Reverse pitch",
-                "Drag scale yaw",
+                "Sensitivity yaw",
                 s.OrbitYawSensitivity,
                 ModOptions.ApplyOrbitYawSensitivity,
-                "Drag scale pitch",
+                "Sensitivity pitch",
                 s.OrbitPitchSensitivity,
                 ModOptions.ApplyOrbitPitchSensitivity,
                 "Button step yaw",
@@ -153,6 +156,63 @@ namespace TrackpadCameraControl
                 s.OrbitLowPassAlpha,
                 ModOptions.ApplyOrbitLowPassAlpha
             );
+
+            AddFloatField(
+                helper,
+                "Pitch min",
+                s.OrbitPitchMin,
+                text => ModOptions.TryApplyFloat(s, text, ModOptions.ApplyOrbitPitchMin)
+            );
+            AddFloatField(
+                helper,
+                "Pitch max",
+                s.OrbitPitchMax,
+                text => ModOptions.TryApplyFloat(s, text, ModOptions.ApplyOrbitPitchMax)
+            );
+        }
+
+        private static void BuildFeelPresetRow(UIHelperBase helper, ModSettings s)
+        {
+            helper.AddGroup("Feel presets");
+            helper.AddButton("Slow", () => ModOptions.ApplyFeelSlow(s));
+            helper.AddButton("Default", () => ModOptions.ApplyFeelDefault(s));
+            helper.AddButton("Fast", () => ModOptions.ApplyFeelFast(s));
+            helper.AddButton(
+                "Reset to factory",
+                () =>
+                {
+                    ModOptions.ResetToFactory(s);
+                }
+            );
+
+            // Simple name field for Save as… / Load (no fancy dialogs under ColossalUI).
+            string[] nameBox = new string[] { "" };
+            helper.AddTextfield(
+                "Preset name",
+                "",
+                text =>
+                {
+                    nameBox[0] = text ?? "";
+                },
+                text =>
+                {
+                    nameBox[0] = text ?? "";
+                }
+            );
+            helper.AddButton(
+                "Save as…",
+                () =>
+                {
+                    ModOptions.SaveNamedFeelPreset(s, nameBox[0]);
+                }
+            );
+            helper.AddButton(
+                "Load",
+                () =>
+                {
+                    ModOptions.LoadNamedFeelPreset(s, nameBox[0]);
+                }
+            );
         }
 
         private static void BuildOpGroup1Axis(
@@ -163,9 +223,9 @@ namespace TrackpadCameraControl
             bool invert,
             OnCheckChanged onInvert,
             string invertLabel,
-            string dragLabel,
-            float dragValue,
-            Action<ModSettings, float> onDrag,
+            string sensitivityLabel,
+            float sensitivityValue,
+            Action<ModSettings, float> onSensitivity,
             string buttonLabel,
             float buttonValue,
             Action<ModSettings, float> onButton,
@@ -179,22 +239,29 @@ namespace TrackpadCameraControl
             helper.AddGroup(title);
             helper.AddCheckbox("Enable", enabled, onEnabled);
             helper.AddCheckbox(invertLabel, invert, onInvert);
-            AddFloatField(helper, dragLabel, dragValue, text =>
+            AddFloatField(helper, sensitivityLabel, sensitivityValue, text =>
             {
-                if (!ModOptions.TryApplyFloat(s, text, onDrag))
+                if (!ModOptions.TryApplyFloat(s, text, onSensitivity))
                 {
                     // leave prior value
                 }
             });
-            AddFloatField(helper, buttonLabel, buttonValue, text =>
+            if (FeatureFlags.EnableAssistChrome)
             {
-                ModOptions.TryApplyFloat(s, text, onButton);
-            });
-            helper.AddCheckbox("Low-pass", lpEnabled, onLp);
-            AddFloatField(helper, "Low-pass alpha", lpAlpha, text =>
+                AddFloatField(helper, buttonLabel, buttonValue, text =>
+                {
+                    ModOptions.TryApplyFloat(s, text, onButton);
+                });
+            }
+
+            if (FeatureFlags.EnableContactsCapture)
             {
-                ModOptions.TryApplyFloat(s, text, onLpAlpha);
-            });
+                helper.AddCheckbox("Low-pass", lpEnabled, onLp);
+                AddFloatField(helper, "Low-pass alpha", lpAlpha, text =>
+                {
+                    ModOptions.TryApplyFloat(s, text, onLpAlpha);
+                });
+            }
         }
 
         private static void BuildOpGroup(
@@ -208,12 +275,12 @@ namespace TrackpadCameraControl
             bool invertB,
             OnCheckChanged onInvertB,
             string invertBLabel,
-            string dragALabel,
-            float dragA,
-            Action<ModSettings, float> onDragA,
-            string dragBLabel,
-            float dragB,
-            Action<ModSettings, float> onDragB,
+            string sensitivityALabel,
+            float sensitivityA,
+            Action<ModSettings, float> onSensitivityA,
+            string sensitivityBLabel,
+            float sensitivityB,
+            Action<ModSettings, float> onSensitivityB,
             string buttonALabel,
             float buttonA,
             Action<ModSettings, float> onButtonA,
@@ -231,27 +298,44 @@ namespace TrackpadCameraControl
             helper.AddCheckbox("Enable", enabled, onEnabled);
             helper.AddCheckbox(invertALabel, invertA, onInvertA);
             helper.AddCheckbox(invertBLabel, invertB, onInvertB);
-            AddFloatField(helper, dragALabel, dragA, text => ModOptions.TryApplyFloat(s, text, onDragA));
-            AddFloatField(helper, dragBLabel, dragB, text => ModOptions.TryApplyFloat(s, text, onDragB));
             AddFloatField(
                 helper,
-                buttonALabel,
-                buttonA,
-                text => ModOptions.TryApplyFloat(s, text, onButtonA)
+                sensitivityALabel,
+                sensitivityA,
+                text => ModOptions.TryApplyFloat(s, text, onSensitivityA)
             );
             AddFloatField(
                 helper,
-                buttonBLabel,
-                buttonB,
-                text => ModOptions.TryApplyFloat(s, text, onButtonB)
+                sensitivityBLabel,
+                sensitivityB,
+                text => ModOptions.TryApplyFloat(s, text, onSensitivityB)
             );
-            helper.AddCheckbox("Low-pass", lpEnabled, onLp);
-            AddFloatField(
-                helper,
-                "Low-pass alpha",
-                lpAlpha,
-                text => ModOptions.TryApplyFloat(s, text, onLpAlpha)
-            );
+            if (FeatureFlags.EnableAssistChrome)
+            {
+                AddFloatField(
+                    helper,
+                    buttonALabel,
+                    buttonA,
+                    text => ModOptions.TryApplyFloat(s, text, onButtonA)
+                );
+                AddFloatField(
+                    helper,
+                    buttonBLabel,
+                    buttonB,
+                    text => ModOptions.TryApplyFloat(s, text, onButtonB)
+                );
+            }
+
+            if (FeatureFlags.EnableContactsCapture)
+            {
+                helper.AddCheckbox("Low-pass", lpEnabled, onLp);
+                AddFloatField(
+                    helper,
+                    "Low-pass alpha",
+                    lpAlpha,
+                    text => ModOptions.TryApplyFloat(s, text, onLpAlpha)
+                );
+            }
         }
 
         private static void AddFloatField(

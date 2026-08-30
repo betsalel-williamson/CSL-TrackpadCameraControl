@@ -30,15 +30,31 @@ namespace TrackpadCameraControl
 
         public static readonly string[] GesturePresetLabels = new string[]
         {
-            "Maps+ — map-app pan/pinch/yaw; modifier+two-finger orbit",
+            "Maps+ — map-app pan/pinch/yaw; Option (⌥)+two-finger orbit",
             "CAD — same pan/pinch/yaw; three-finger orbit",
         };
 
         public static readonly string MapsPlusDescription =
-            "Two-finger pan, pinch zoom, two-finger rotate yaw, modifier+two-finger orbit. Lower conflict with OS three-finger gestures.";
+            "Two-finger pan, pinch zoom, two-finger rotate yaw, Option (⌥)+two-finger orbit. Lower conflict with OS three-finger gestures.";
 
         public static readonly string CadDescription =
             "Same pan/pinch/yaw as Maps+. Three-finger drag orbits (may fight OS Mission Control / Spaces).";
+
+        /// <summary>Pan section heading: meaning + Maps+ activation.</summary>
+        public const string OpHeadingPan =
+            "Pan — Slide the camera laterally · two-finger drag";
+
+        /// <summary>Zoom section heading: meaning + Maps+ activation.</summary>
+        public const string OpHeadingZoom =
+            "Zoom — Change camera distance / size · pinch (mouse wheel: vanilla zoom)";
+
+        /// <summary>Rotate section heading: meaning + Maps+ activation.</summary>
+        public const string OpHeadingRotate =
+            "Rotate — Yaw around the vertical axis · two-finger rotate";
+
+        /// <summary>Orbit section heading: meaning + Maps+ activation.</summary>
+        public const string OpHeadingOrbit =
+            "Orbit — Pitch + yaw around the pivot · Option (⌥)+two-finger drag";
 
         public static ModSettingsStore Store { get; set; }
 
@@ -232,6 +248,28 @@ namespace TrackpadCameraControl
         public static void ApplyOrbitPitchSensitivity(ModSettings settings, float value)
         {
             ApplyPositiveSensitivity(settings, value, (s, v) => s.OrbitPitchSensitivity = v);
+        }
+
+        public static void ApplyOrbitPitchMin(ModSettings settings, float value)
+        {
+            if (settings == null)
+            {
+                return;
+            }
+
+            settings.OrbitPitchMin = Round2(value);
+            NotifyChanged();
+        }
+
+        public static void ApplyOrbitPitchMax(ModSettings settings, float value)
+        {
+            if (settings == null)
+            {
+                return;
+            }
+
+            settings.OrbitPitchMax = Round2(value);
+            NotifyChanged();
         }
 
         public static void ApplyZoomSensitivity(ModSettings settings, float value)
