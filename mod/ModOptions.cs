@@ -141,7 +141,7 @@ namespace TrackpadCameraControl
         }
 
         /// <summary>
-        /// Sensitivity numeric policy: round to four decimals (supports pan 0.005 after
+        /// Sensitivity numeric policy: round to three decimals (supports pan 0.005 after
         /// folding the old 0.01 scroll unit into defaults); no upper cap.
         /// Non-positive values become 0 (Apply*Sensitivity ignores ≤ 0 separately).
         /// </summary>
@@ -205,10 +205,10 @@ namespace TrackpadCameraControl
             return (float)Math.Round(value, 2, MidpointRounding.AwayFromZero);
         }
 
-        /// <summary>Four-decimal round for Sensitivity after scroll-unit fold into defaults.</summary>
+        /// <summary>Three-decimal round for Sensitivity after scroll-unit fold into defaults.</summary>
         public static float RoundGain(float value)
         {
-            return (float)Math.Round(value, 4, MidpointRounding.AwayFromZero);
+            return (float)Math.Round(value, 3, MidpointRounding.AwayFromZero);
         }
 
         public static float ClampAlpha(float value)
@@ -254,6 +254,11 @@ namespace TrackpadCameraControl
         public static string FormatFloat(float value)
         {
             return Round2(value).ToString("0.00", CultureInfo.InvariantCulture);
+        }
+
+        public static string FormatGain(float value)
+        {
+            return RoundGain(value).ToString("0.000", CultureInfo.InvariantCulture);
         }
 
         public static bool TryApplyFloat(

@@ -54,6 +54,24 @@ namespace TrackpadCameraControl.Tests
             Assert.Equal("1.25", ModOptions.FormatFloat(1.254f));
             Assert.Equal("0.50", ModOptions.FormatFloat(0.5f));
             Assert.Equal("10.00", ModOptions.FormatFloat(10f));
+            // Two-decimal FormatFloat cannot represent factory pan 0.005; FormatGain can.
+            float pan = FeelExpectation.Factory().PanGainX;
+            Assert.Equal("0.005", ModOptions.FormatGain(pan));
+            Assert.NotEqual(ModOptions.FormatGain(pan), ModOptions.FormatFloat(pan));
+        }
+
+        [Fact]
+        public void RoundGain_RoundsToThreeDecimals()
+        {
+            Assert.Equal(0.004f, ModOptions.RoundGain(0.00375f));
+            Assert.Equal(0.006f, ModOptions.RoundGain(0.00625f));
+        }
+
+        [Fact]
+        public void FormatGain_RoundsToThreeDecimals()
+        {
+            Assert.Equal("0.005", ModOptions.FormatGain(0.005f));
+            Assert.Equal("0.004", ModOptions.FormatGain(0.00375f));
         }
 
         [Fact]
@@ -64,12 +82,12 @@ namespace TrackpadCameraControl.Tests
         }
 
         [Fact]
-        public void ApplyPanGainX_RoundsToFourDecimals()
+        public void ApplyPanGainX_RoundsToThreeDecimals()
         {
             float seed = FeelExpectation.Factory().PanGainX;
             var settings = new ModSettings { PanGainX = seed };
             ModOptions.ApplyPanGainX(settings, 0.001234f);
-            Assert.Equal(0.0012f, settings.PanGainX);
+            Assert.Equal(0.001f, settings.PanGainX);
         }
 
         [Fact]

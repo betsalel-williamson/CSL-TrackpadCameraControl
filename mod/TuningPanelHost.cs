@@ -418,7 +418,9 @@ namespace TrackpadCameraControl
                 ModOptions.ApplyPanGainX,
                 "Sensitivity Y",
                 () => s.PanGainY,
-                ModOptions.ApplyPanGainY
+                ModOptions.ApplyPanGainY,
+                gainFormatL: true,
+                gainFormatR: true
             );
 #if ENABLE_ASSIST_CHROME
             AddFloatPair(
@@ -465,7 +467,8 @@ namespace TrackpadCameraControl
                 ModOptions.ApplyZoomGain,
                 "Btn",
                 () => s.ZoomStep,
-                ModOptions.ApplyZoomStep
+                ModOptions.ApplyZoomStep,
+                gainFormatL: true
             );
 #else
             AddFloatPair(
@@ -475,7 +478,8 @@ namespace TrackpadCameraControl
                 ModOptions.ApplyZoomGain,
                 null,
                 null,
-                null
+                null,
+                gainFormatL: true
             );
 #endif
 
@@ -512,7 +516,8 @@ namespace TrackpadCameraControl
                 ModOptions.ApplyYawRotateGain,
                 "Btn",
                 () => s.YawRotateStep,
-                ModOptions.ApplyYawRotateStep
+                ModOptions.ApplyYawRotateStep,
+                gainFormatL: true
             );
 #else
             AddFloatPair(
@@ -522,7 +527,8 @@ namespace TrackpadCameraControl
                 ModOptions.ApplyYawRotateGain,
                 null,
                 null,
-                null
+                null,
+                gainFormatL: true
             );
 #endif
 
@@ -558,7 +564,9 @@ namespace TrackpadCameraControl
                 ModOptions.ApplyOrbitYawGain,
                 "Sensitivity pitch",
                 () => s.OrbitPitchGain,
-                ModOptions.ApplyOrbitPitchGain
+                ModOptions.ApplyOrbitPitchGain,
+                gainFormatL: true,
+                gainFormatR: true
             );
 #if ENABLE_ASSIST_CHROME
             AddFloatPair(
@@ -675,13 +683,15 @@ namespace TrackpadCameraControl
             Action<ModSettings, float> applyL,
             string labelR,
             Func<float> getR,
-            Action<ModSettings, float> applyR
+            Action<ModSettings, float> applyR,
+            bool gainFormatL = false,
+            bool gainFormatR = false
         )
         {
-            AddFloatAt(s, Col0, labelL, getL, applyL);
+            AddFloatAt(s, Col0, labelL, getL, applyL, gainFormatL);
             if (getR != null && applyR != null && !string.IsNullOrEmpty(labelR))
             {
-                AddFloatAt(s, Col1, labelR, getR, applyR);
+                AddFloatAt(s, Col1, labelR, getR, applyR, gainFormatR);
             }
 
             _nextY += 26f;
@@ -692,7 +702,8 @@ namespace TrackpadCameraControl
             float x,
             string label,
             Func<float> get,
-            Action<ModSettings, float> apply
+            Action<ModSettings, float> apply,
+            bool useGainFormat = false
         )
         {
             UILabel lbl = AddLabel(_root, label, x, _nextY + 2f);
@@ -707,7 +718,7 @@ namespace TrackpadCameraControl
             field.hoveredBgSprite = "TextFieldPanelHovered";
             field.focusedBgSprite = "TextFieldPanel";
             field.selectionSprite = "EmptySprite";
-            field.text = ModOptions.FormatFloat(get());
+            field.text = FormatFieldValue(get(), useGainFormat);
             field.numericalOnly = false;
             field.allowFloats = true;
             field.selectOnFocus = true;
@@ -718,13 +729,18 @@ namespace TrackpadCameraControl
             {
                 if (!ModOptions.TryApplyFloat(s, text, apply))
                 {
-                    field.text = ModOptions.FormatFloat(get());
+                    field.text = FormatFieldValue(get(), useGainFormat);
                 }
                 else
                 {
-                    field.text = ModOptions.FormatFloat(get());
+                    field.text = FormatFieldValue(get(), useGainFormat);
                 }
             };
+        }
+
+        private static string FormatFieldValue(float value, bool useGainFormat)
+        {
+            return useGainFormat ? ModOptions.FormatGain(value) : ModOptions.FormatFloat(value);
         }
 
         private static UIButton MakeMenuButton(string text, float x, float y, float width)
