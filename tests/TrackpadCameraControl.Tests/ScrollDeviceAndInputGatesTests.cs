@@ -4,6 +4,7 @@ using Xunit;
 
 namespace TrackpadCameraControl.Tests
 {
+    [Collection(VanillaCameraSuppressCollection.Name)]
     public sealed class ScrollDeviceAndInputGatesTests : IDisposable
     {
         public ScrollDeviceAndInputGatesTests()
@@ -80,56 +81,6 @@ namespace TrackpadCameraControl.Tests
         }
 
         [Fact]
-        public void Suppress_PreciseWorld_Skips()
-        {
-            VanillaCameraSuppress.Enabled = true;
-            Assert.True(VanillaCameraSuppress.ShouldSkipScrollWheel(preciseTrackpad: true, menuOrOverUi: false));
-        }
-
-        [Fact]
-        public void Suppress_MouseWheel_DoesNotSkip()
-        {
-            VanillaCameraSuppress.Enabled = true;
-            Assert.False(
-                VanillaCameraSuppress.ShouldSkipScrollWheel(preciseTrackpad: false, menuOrOverUi: false)
-            );
-        }
-
-        [Fact]
-        public void Suppress_OverUi_DoesNotSkip()
-        {
-            VanillaCameraSuppress.Enabled = true;
-            Assert.False(
-                VanillaCameraSuppress.ShouldSkipScrollWheel(preciseTrackpad: true, menuOrOverUi: true)
-            );
-        }
-
-        [Fact]
-        public void Suppress_Disabled_DoesNotSkipEvenIfPrecise()
-        {
-            VanillaCameraSuppress.Enabled = false;
-            Assert.False(
-                VanillaCameraSuppress.ShouldSkipScrollWheel(preciseTrackpad: true, menuOrOverUi: false)
-            );
-        }
-
-        [Fact]
-        public void Suppress_Parameterless_UsesSettableState()
-        {
-            VanillaCameraSuppress.Enabled = true;
-            VanillaCameraSuppress.PreciseTrackpadScroll = true;
-            VanillaCameraSuppress.MenuOrOverUi = false;
-            Assert.True(VanillaCameraSuppress.ShouldSkipScrollWheel());
-
-            VanillaCameraSuppress.MenuOrOverUi = true;
-            Assert.False(VanillaCameraSuppress.ShouldSkipScrollWheel());
-
-            VanillaCameraSuppress.MenuOrOverUi = false;
-            VanillaCameraSuppress.PreciseTrackpadScroll = false;
-            Assert.False(VanillaCameraSuppress.ShouldSkipScrollWheel());
-        }
-
-        [Fact]
         public void InputGates_MenuOpen_SkipsModCamera()
         {
             InputGates.MenuOpenOverride = () => true;
@@ -201,9 +152,9 @@ namespace TrackpadCameraControl.Tests
             var settings = new ModSettings
             {
                 PanEnabled = true,
-                MotionDeadzone = 0.001f,
-                PanSensitivityX = 1f,
-                PanSensitivityY = 1f,
+                MotionDeadband = 0.001f,
+                PanGainX = 1f,
+                PanGainY = 1f,
             };
             var inject = new InjectGestureSource();
             var cam = new FakeCameraController
@@ -241,9 +192,9 @@ namespace TrackpadCameraControl.Tests
             var settings = new ModSettings
             {
                 PanEnabled = true,
-                MotionDeadzone = 0.001f,
-                PanSensitivityX = 1f,
-                PanSensitivityY = 1f,
+                MotionDeadband = 0.001f,
+                PanGainX = 1f,
+                PanGainY = 1f,
             };
             var inject = new InjectGestureSource();
             var cam = new FakeCameraController

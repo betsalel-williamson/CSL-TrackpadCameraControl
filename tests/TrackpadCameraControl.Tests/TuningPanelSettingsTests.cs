@@ -13,12 +13,12 @@ namespace TrackpadCameraControl.Tests
             var camera = new FakeCameraController { Size = 100f, TargetX = 0f, TargetZ = 0f };
             var settings = new ModSettings
             {
-                InvertPanX = false,
-                InvertPanY = false,
-                PanSensitivityX = 10f,
-                PanSensitivityY = 10f,
-                PanButtonScaleX = 0.05f,
-                PanButtonScaleY = 0.05f,
+                SignInvertPanX = false,
+                SignInvertPanY = false,
+                PanGainX = 10f,
+                PanGainY = 10f,
+                PanStepX = 0.05f,
+                PanStepY = 0.05f,
             };
 
             CameraApplicator.ApplyButton(CameraOp.Pan, 1f, 0f, 0f, 0f, settings, camera);
@@ -33,8 +33,8 @@ namespace TrackpadCameraControl.Tests
             var camera = new FakeCameraController { Size = 100f, TargetX = 0f, TargetZ = 0f };
             var settings = new ModSettings
             {
-                PanButtonScaleX = 0.05f,
-                InvertPanX = true,
+                PanStepX = 0.05f,
+                SignInvertPanX = true,
             };
 
             CameraApplicator.ApplyButton(CameraOp.Pan, 1f, 0f, 0f, 0f, settings, camera);
@@ -48,10 +48,10 @@ namespace TrackpadCameraControl.Tests
             var camera = new FakeCameraController { Size = 100f, TargetX = 0f, TargetZ = 0f };
             var settings = new ModSettings
             {
-                InvertPanX = false,
-                InvertPanY = false,
-                PanSensitivityX = 2f,
-                PanSensitivityY = 1f,
+                SignInvertPanX = false,
+                SignInvertPanY = false,
+                PanGainX = 2f,
+                PanGainY = 1f,
             };
 
             CameraApplicator.Apply(CameraOp.Pan, 0.05f, 0f, 0f, 0f, settings, camera);
@@ -65,8 +65,8 @@ namespace TrackpadCameraControl.Tests
             var camera = new FakeCameraController { Size = 100f };
             var settings = new ModSettings
             {
-                ZoomSensitivity = 10f,
-                ZoomButtonScale = 0.1f,
+                ZoomGain = 10f,
+                ZoomStep = 0.1f,
             };
 
             CameraApplicator.ApplyButton(CameraOp.Zoom, 0f, 0f, 1f, 0f, settings, camera);
@@ -82,7 +82,7 @@ namespace TrackpadCameraControl.Tests
         public void Filter_Disabled_IsIdentity()
         {
             var lp = new DragLowPass();
-            var settings = new ModSettings { PanLowPassEnabled = false };
+            var settings = new ModSettings { PanFilterEnabled = false };
             float dx = 0.5f;
             float dy = 0.25f;
             float pinch = 0f;
@@ -95,13 +95,13 @@ namespace TrackpadCameraControl.Tests
         }
 
         [Fact]
-        public void Filter_ContactsFlagOff_IgnoresPanLowPassEnabled()
+        public void Filter_ContactsFlagOff_IgnoresPanFilterEnabled()
         {
             // EnableContactsCapture is const false for ship; LP must pass through raw.
             Assert.False(FeatureFlags.EnableContactsCapture);
 
             var lp = new DragLowPass();
-            var settings = new ModSettings { PanLowPassEnabled = true, PanLowPassAlpha = 0.5f };
+            var settings = new ModSettings { PanFilterEnabled = true, PanFilterAlpha = 0.5f };
             float dx = 1f;
             float dy = 0f;
             float pinch = 0f;
@@ -119,7 +119,7 @@ namespace TrackpadCameraControl.Tests
         public void Reset_ClearsState()
         {
             var lp = new DragLowPass();
-            var settings = new ModSettings { PanLowPassEnabled = true, PanLowPassAlpha = 0.5f };
+            var settings = new ModSettings { PanFilterEnabled = true, PanFilterAlpha = 0.5f };
             float dx = 1f;
             float dy = 0f;
             float pinch = 0f;
@@ -166,18 +166,18 @@ namespace TrackpadCameraControl.Tests
             var store = new ModSettingsStore(_path);
             var settings = new ModSettings
             {
-                PanSensitivityX = 2.5f,
-                ZoomButtonScale = 0.2f,
-                PanLowPassEnabled = true,
-                PanLowPassAlpha = 0.4f,
+                PanGainX = 2.5f,
+                ZoomStep = 0.2f,
+                PanFilterEnabled = true,
+                PanFilterAlpha = 0.4f,
             };
             store.SaveNow(settings);
 
             ModSettings loaded = store.LoadOrFactory();
-            Assert.Equal(2.5f, loaded.PanSensitivityX);
-            Assert.Equal(0.2f, loaded.ZoomButtonScale);
-            Assert.True(loaded.PanLowPassEnabled);
-            Assert.Equal(0.4f, loaded.PanLowPassAlpha);
+            Assert.Equal(2.5f, loaded.PanGainX);
+            Assert.Equal(0.2f, loaded.ZoomStep);
+            Assert.True(loaded.PanFilterEnabled);
+            Assert.Equal(0.4f, loaded.PanFilterAlpha);
         }
 
         [Fact]
@@ -185,10 +185,7 @@ namespace TrackpadCameraControl.Tests
         {
             var store = new ModSettingsStore(_path);
             ModSettings loaded = store.LoadOrFactory();
-            Assert.Equal(0.005f, loaded.PanSensitivityX);
-            Assert.True(loaded.InvertPanX);
-            Assert.Equal(7f, loaded.OrbitPitchMin);
-            Assert.Equal(90f, loaded.OrbitPitchMax);
+            FeelExpectation.AssertMatchesFactoryFeel(loaded);
             Assert.True(File.Exists(_path));
         }
 
@@ -198,7 +195,7 @@ namespace TrackpadCameraControl.Tests
             File.WriteAllText(_path, "not-xml{{{");
             var store = new ModSettingsStore(_path);
             ModSettings loaded = store.LoadOrFactory();
-            Assert.Equal(0.005f, loaded.PanSensitivityX);
+            FeelExpectation.AssertMatchesFactoryFeel(loaded);
             Assert.Equal(GesturePreset.MapsPlus, loaded.GesturePreset);
         }
 
@@ -209,13 +206,12 @@ namespace TrackpadCameraControl.Tests
             ModOptions.Store = store;
             try
             {
-                var settings = new ModSettings { PanSensitivityX = 9f };
+                var settings = new ModSettings { PanGainX = 9f };
                 store.SaveNow(settings);
                 ModOptions.ResetToFactory(settings);
-                Assert.Equal(0.005f, settings.PanSensitivityX);
-                Assert.True(settings.InvertPanX);
+                FeelExpectation.AssertMatchesFactoryFeel(settings);
                 ModSettings loaded = store.LoadOrFactory();
-                Assert.Equal(0.005f, loaded.PanSensitivityX);
+                FeelExpectation.AssertMatchesFactoryFeel(loaded);
             }
             finally
             {
@@ -227,7 +223,7 @@ namespace TrackpadCameraControl.Tests
         public void Envelope_UserPresetsRoundTripEmpty()
         {
             var store = new ModSettingsStore(_path);
-            store.SaveNow(new ModSettings { PanSensitivityX = 1.25f });
+            store.SaveNow(new ModSettings { PanGainX = 1.25f });
             string xml = File.ReadAllText(_path);
             Assert.Contains("UserPresets", xml);
             Assert.Contains("SchemaVersion", xml);
@@ -252,11 +248,11 @@ namespace TrackpadCameraControl.Tests
         [Fact]
         public void TryApplyFloat_StoresRoundedPositive()
         {
-            var settings = new ModSettings { PanSensitivityX = 0.50f };
+            var settings = new ModSettings { PanGainX = 0.50f };
             Assert.True(
-                ModOptions.TryApplyFloat(settings, "999", ModOptions.ApplyPanSensitivityX)
+                ModOptions.TryApplyFloat(settings, "999", ModOptions.ApplyPanGainX)
             );
-            Assert.Equal(999f, settings.PanSensitivityX);
+            Assert.Equal(999f, settings.PanGainX);
         }
 
         [Fact]
@@ -269,11 +265,11 @@ namespace TrackpadCameraControl.Tests
         }
 
         [Fact]
-        public void ClampSensitivity_RoundsPositive_NoUpperCap()
+        public void ClampGain_RoundsPositive_NoUpperCap()
         {
-            Assert.Equal(0f, ModOptions.ClampSensitivity(-1f));
-            Assert.Equal(999f, ModOptions.ClampSensitivity(999f));
-            Assert.Equal(1.5f, ModOptions.ClampSensitivity(1.5f));
+            Assert.Equal(0f, ModOptions.ClampGain(-1f));
+            Assert.Equal(999f, ModOptions.ClampGain(999f));
+            Assert.Equal(1.5f, ModOptions.ClampGain(1.5f));
         }
     }
 }

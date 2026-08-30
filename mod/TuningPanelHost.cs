@@ -414,29 +414,29 @@ namespace TrackpadCameraControl
             AddFloatPair(
                 s,
                 "Sensitivity X",
-                () => s.PanSensitivityX,
-                ModOptions.ApplyPanSensitivityX,
+                () => s.PanGainX,
+                ModOptions.ApplyPanGainX,
                 "Sensitivity Y",
-                () => s.PanSensitivityY,
-                ModOptions.ApplyPanSensitivityY
+                () => s.PanGainY,
+                ModOptions.ApplyPanGainY
             );
 #if ENABLE_ASSIST_CHROME
             AddFloatPair(
                 s,
                 "Btn X",
-                () => s.PanButtonScaleX,
-                ModOptions.ApplyPanButtonScaleX,
+                () => s.PanStepX,
+                ModOptions.ApplyPanStepX,
                 "Btn Y",
-                () => s.PanButtonScaleY,
-                ModOptions.ApplyPanButtonScaleY
+                () => s.PanStepY,
+                ModOptions.ApplyPanStepY
             );
 #endif
 
 #if ENABLE_CONTACTS_CAPTURE
             AddCheckRow(
                 s,
-                () => s.PanLowPassEnabled,
-                v => s.PanLowPassEnabled = v,
+                () => s.PanFilterEnabled,
+                v => s.PanFilterEnabled = v,
                 "Low-pass",
                 null,
                 null,
@@ -445,8 +445,8 @@ namespace TrackpadCameraControl
             AddFloatPair(
                 s,
                 "LP α",
-                () => s.PanLowPassAlpha,
-                ModOptions.ApplyPanLowPassAlpha,
+                () => s.PanFilterAlpha,
+                ModOptions.ApplyPanFilterAlpha,
                 null,
                 null,
                 null
@@ -461,18 +461,18 @@ namespace TrackpadCameraControl
             AddFloatPair(
                 s,
                 "Sensitivity",
-                () => s.ZoomSensitivity,
-                ModOptions.ApplyZoomSensitivity,
+                () => s.ZoomGain,
+                ModOptions.ApplyZoomGain,
                 "Btn",
-                () => s.ZoomButtonScale,
-                ModOptions.ApplyZoomButtonScale
+                () => s.ZoomStep,
+                ModOptions.ApplyZoomStep
             );
 #else
             AddFloatPair(
                 s,
                 "Sensitivity",
-                () => s.ZoomSensitivity,
-                ModOptions.ApplyZoomSensitivity,
+                () => s.ZoomGain,
+                ModOptions.ApplyZoomGain,
                 null,
                 null,
                 null
@@ -482,8 +482,8 @@ namespace TrackpadCameraControl
 #if ENABLE_CONTACTS_CAPTURE
             AddCheckRow(
                 s,
-                () => s.ZoomLowPassEnabled,
-                v => s.ZoomLowPassEnabled = v,
+                () => s.ZoomFilterEnabled,
+                v => s.ZoomFilterEnabled = v,
                 "Low-pass",
                 null,
                 null,
@@ -492,8 +492,8 @@ namespace TrackpadCameraControl
             AddFloatPair(
                 s,
                 "LP α",
-                () => s.ZoomLowPassAlpha,
-                ModOptions.ApplyZoomLowPassAlpha,
+                () => s.ZoomFilterAlpha,
+                ModOptions.ApplyZoomFilterAlpha,
                 null,
                 null,
                 null
@@ -508,18 +508,18 @@ namespace TrackpadCameraControl
             AddFloatPair(
                 s,
                 "Sensitivity",
-                () => s.YawRotateSensitivity,
-                ModOptions.ApplyYawRotateSensitivity,
+                () => s.YawRotateGain,
+                ModOptions.ApplyYawRotateGain,
                 "Btn",
-                () => s.YawRotateButtonScale,
-                ModOptions.ApplyYawRotateButtonScale
+                () => s.YawRotateStep,
+                ModOptions.ApplyYawRotateStep
             );
 #else
             AddFloatPair(
                 s,
                 "Sensitivity",
-                () => s.YawRotateSensitivity,
-                ModOptions.ApplyYawRotateSensitivity,
+                () => s.YawRotateGain,
+                ModOptions.ApplyYawRotateGain,
                 null,
                 null,
                 null
@@ -529,8 +529,8 @@ namespace TrackpadCameraControl
 #if ENABLE_CONTACTS_CAPTURE
             AddCheckRow(
                 s,
-                () => s.YawLowPassEnabled,
-                v => s.YawLowPassEnabled = v,
+                () => s.YawFilterEnabled,
+                v => s.YawFilterEnabled = v,
                 "Low-pass",
                 null,
                 null,
@@ -539,8 +539,8 @@ namespace TrackpadCameraControl
             AddFloatPair(
                 s,
                 "LP α",
-                () => s.YawLowPassAlpha,
-                ModOptions.ApplyYawLowPassAlpha,
+                () => s.YawFilterAlpha,
+                ModOptions.ApplyYawFilterAlpha,
                 null,
                 null,
                 null
@@ -554,38 +554,29 @@ namespace TrackpadCameraControl
             AddFloatPair(
                 s,
                 "Sensitivity yaw",
-                () => s.OrbitYawSensitivity,
-                ModOptions.ApplyOrbitYawSensitivity,
+                () => s.OrbitYawGain,
+                ModOptions.ApplyOrbitYawGain,
                 "Sensitivity pitch",
-                () => s.OrbitPitchSensitivity,
-                ModOptions.ApplyOrbitPitchSensitivity
-            );
-            AddFloatPair(
-                s,
-                "Pitch min",
-                () => s.OrbitPitchMin,
-                ModOptions.ApplyOrbitPitchMin,
-                "Pitch max",
-                () => s.OrbitPitchMax,
-                ModOptions.ApplyOrbitPitchMax
+                () => s.OrbitPitchGain,
+                ModOptions.ApplyOrbitPitchGain
             );
 #if ENABLE_ASSIST_CHROME
             AddFloatPair(
                 s,
                 "Btn yaw",
-                () => s.OrbitYawButtonScale,
-                ModOptions.ApplyOrbitYawButtonScale,
+                () => s.OrbitYawStep,
+                ModOptions.ApplyOrbitYawStep,
                 "Btn pitch",
-                () => s.OrbitPitchButtonScale,
-                ModOptions.ApplyOrbitPitchButtonScale
+                () => s.OrbitPitchStep,
+                ModOptions.ApplyOrbitPitchStep
             );
 #endif
 
 #if ENABLE_CONTACTS_CAPTURE
             AddCheckRow(
                 s,
-                () => s.OrbitLowPassEnabled,
-                v => s.OrbitLowPassEnabled = v,
+                () => s.OrbitFilterEnabled,
+                v => s.OrbitFilterEnabled = v,
                 "Low-pass",
                 null,
                 null,
@@ -594,8 +585,8 @@ namespace TrackpadCameraControl
             AddFloatPair(
                 s,
                 "LP α",
-                () => s.OrbitLowPassAlpha,
-                ModOptions.ApplyOrbitLowPassAlpha,
+                () => s.OrbitFilterAlpha,
+                ModOptions.ApplyOrbitFilterAlpha,
                 null,
                 null,
                 null

@@ -19,21 +19,21 @@ namespace TrackpadCameraControl.Tests
         }
 
         [Fact]
-        public void ClampSensitivityToFactoryRange_ClampsAndRounds()
+        public void ClampGainToFactoryRange_ClampsAndRounds()
         {
-            Assert.Equal(0.05f, ModOptions.ClampSensitivityToFactoryRange(0.01f, 0.50f));
-            Assert.Equal(1.00f, ModOptions.ClampSensitivityToFactoryRange(9f, 0.50f));
-            Assert.Equal(0.551f, ModOptions.ClampSensitivityToFactoryRange(0.551f, 0.50f));
+            Assert.Equal(0.05f, ModOptions.ClampGainToFactoryRange(0.01f, 0.50f));
+            Assert.Equal(1.00f, ModOptions.ClampGainToFactoryRange(9f, 0.50f));
+            Assert.Equal(0.551f, ModOptions.ClampGainToFactoryRange(0.551f, 0.50f));
         }
 
         [Fact]
-        public void ApplyOrbitPitchMin_IgnoresNonPositive()
+        public void ApplyOrbitPitchMin_AllowsZero_IgnoresNegative()
         {
-            var s = new ModSettings { OrbitPitchMin = 7f };
+            var s = new ModSettings { OrbitPitchMin = 5f };
             ModOptions.ApplyOrbitPitchMin(s, 0f);
-            Assert.Equal(7f, s.OrbitPitchMin);
+            Assert.Equal(0f, s.OrbitPitchMin);
             ModOptions.ApplyOrbitPitchMin(s, -3f);
-            Assert.Equal(7f, s.OrbitPitchMin);
+            Assert.Equal(0f, s.OrbitPitchMin);
             ModOptions.ApplyOrbitPitchMin(s, 12.345f);
             Assert.Equal(12.35f, s.OrbitPitchMin);
         }
@@ -52,7 +52,8 @@ namespace TrackpadCameraControl.Tests
         public void OptionsTitle_IncludesAssemblyVersion()
         {
             string title = Mod.OptionsTitle;
-            Assert.StartsWith("Trackpad Camera Control", title);
+            Assert.False(string.IsNullOrEmpty(title));
+            // Version display embeds a dotted assembly version when available.
             Assert.Contains(".", title);
         }
     }

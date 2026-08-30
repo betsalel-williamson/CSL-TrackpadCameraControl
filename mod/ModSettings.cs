@@ -24,6 +24,10 @@ namespace TrackpadCameraControl
         PrimaryOnly,
     }
 
+    /// <summary>
+    /// Live settings model and schema ≥3 XML shape. Persist field names use control-systems
+    /// language (gain, step, deadband, filter, sign invert). Player Options still say Sensitivity.
+    /// </summary>
     public class ModSettings
     {
         public GesturePreset GesturePreset { get; set; } = GesturePreset.MapsPlus;
@@ -36,44 +40,47 @@ namespace TrackpadCameraControl
         public bool OrbitEnabled { get; set; } = true;
         public OrbitTrigger OrbitTrigger { get; set; } = OrbitTrigger.ModifierPlusTwoFinger;
 
-        public float PanSensitivityX { get; set; } = 0.005f;
-        public float PanSensitivityY { get; set; } = 0.005f;
+        public float PanGainX { get; set; } = 0.005f;
+        public float PanGainY { get; set; } = 0.005f;
         // Defaults = former value × 0.01 (old AppleGestureMapper.ScrollToCentroid).
-        public float OrbitYawSensitivity { get; set; } = 0.10f;
-        public float OrbitPitchSensitivity { get; set; } = 0.10f;
-        public float ZoomSensitivity { get; set; } = 1.00f;
-        public float YawRotateSensitivity { get; set; } = 2.00f;
+        public float OrbitYawGain { get; set; } = 0.10f;
+        public float OrbitPitchGain { get; set; } = 0.10f;
+        public float ZoomGain { get; set; } = 1.00f;
+        public float YawRotateGain { get; set; } = 2.00f;
 
-        public float OrbitPitchMin { get; set; } = 7f;
+        /// <summary>Schema-retained; orbit clamp uses vanilla 0…90 (see CameraApplicator).</summary>
+        public float OrbitPitchMin { get; set; } = 0f;
+
+        /// <summary>Schema-retained; orbit clamp uses vanilla 0…90 (see CameraApplicator).</summary>
         public float OrbitPitchMax { get; set; } = 90f;
 
-        public float PanButtonScaleX { get; set; } = 0.05f;
-        public float PanButtonScaleY { get; set; } = 0.05f;
-        public float OrbitYawButtonScale { get; set; } = 2f;
-        public float OrbitPitchButtonScale { get; set; } = 2f;
-        public float ZoomButtonScale { get; set; } = 0.05f;
-        public float YawRotateButtonScale { get; set; } = 2f;
+        public float PanStepX { get; set; } = 0.05f;
+        public float PanStepY { get; set; } = 0.05f;
+        public float OrbitYawStep { get; set; } = 2f;
+        public float OrbitPitchStep { get; set; } = 2f;
+        public float ZoomStep { get; set; } = 0.05f;
+        public float YawRotateStep { get; set; } = 2f;
 
-        public bool InvertPanX { get; set; } = true;
-        public bool InvertPanY { get; set; }
-        public bool InvertOrbitYaw { get; set; }
-        public bool InvertOrbitPitch { get; set; }
-        public bool InvertZoom { get; set; }
-        public bool InvertYawRotate { get; set; }
+        public bool SignInvertPanX { get; set; } = true;
+        public bool SignInvertPanY { get; set; }
+        public bool SignInvertOrbitYaw { get; set; }
+        public bool SignInvertOrbitPitch { get; set; }
+        public bool SignInvertZoom { get; set; }
+        public bool SignInvertYawRotate { get; set; }
 
-        public float MotionDeadzone { get; set; } = 0.1f;
+        public float MotionDeadband { get; set; } = 0.1f;
         public float PinchEpsilon { get; set; } = 0.001f;
         public float RotateEpsilon { get; set; } = 0.001f;
         public float FingerCountHysteresis { get; set; } = 0.05f;
 
-        public bool PanLowPassEnabled { get; set; }
-        public float PanLowPassAlpha { get; set; } = 0.3f;
-        public bool ZoomLowPassEnabled { get; set; }
-        public float ZoomLowPassAlpha { get; set; } = 0.3f;
-        public bool YawLowPassEnabled { get; set; }
-        public float YawLowPassAlpha { get; set; } = 0.3f;
-        public bool OrbitLowPassEnabled { get; set; }
-        public float OrbitLowPassAlpha { get; set; } = 0.3f;
+        public bool PanFilterEnabled { get; set; }
+        public float PanFilterAlpha { get; set; } = 0.3f;
+        public bool ZoomFilterEnabled { get; set; }
+        public float ZoomFilterAlpha { get; set; } = 0.3f;
+        public bool YawFilterEnabled { get; set; }
+        public float YawFilterAlpha { get; set; } = 0.3f;
+        public bool OrbitFilterEnabled { get; set; }
+        public float OrbitFilterAlpha { get; set; } = 0.3f;
 
         public bool RequireGameFocus { get; set; } = true;
         public bool IgnoreOverUi { get; set; } = true;
@@ -93,7 +100,7 @@ namespace TrackpadCameraControl
 
         /// <summary>
         /// Seeds orbit trigger (and related defaults) from Maps+ or CAD. Custom is a no-op.
-        /// Does not wipe custom scales or low-pass settings.
+        /// Does not wipe custom scales or filter settings.
         /// </summary>
         public void ApplyPreset(GesturePreset preset)
         {
@@ -130,43 +137,43 @@ namespace TrackpadCameraControl
             OrbitEnabled = other.OrbitEnabled;
             OrbitTrigger = other.OrbitTrigger;
 
-            PanSensitivityX = other.PanSensitivityX;
-            PanSensitivityY = other.PanSensitivityY;
-            OrbitYawSensitivity = other.OrbitYawSensitivity;
-            OrbitPitchSensitivity = other.OrbitPitchSensitivity;
-            ZoomSensitivity = other.ZoomSensitivity;
-            YawRotateSensitivity = other.YawRotateSensitivity;
+            PanGainX = other.PanGainX;
+            PanGainY = other.PanGainY;
+            OrbitYawGain = other.OrbitYawGain;
+            OrbitPitchGain = other.OrbitPitchGain;
+            ZoomGain = other.ZoomGain;
+            YawRotateGain = other.YawRotateGain;
 
             OrbitPitchMin = other.OrbitPitchMin;
             OrbitPitchMax = other.OrbitPitchMax;
 
-            PanButtonScaleX = other.PanButtonScaleX;
-            PanButtonScaleY = other.PanButtonScaleY;
-            OrbitYawButtonScale = other.OrbitYawButtonScale;
-            OrbitPitchButtonScale = other.OrbitPitchButtonScale;
-            ZoomButtonScale = other.ZoomButtonScale;
-            YawRotateButtonScale = other.YawRotateButtonScale;
+            PanStepX = other.PanStepX;
+            PanStepY = other.PanStepY;
+            OrbitYawStep = other.OrbitYawStep;
+            OrbitPitchStep = other.OrbitPitchStep;
+            ZoomStep = other.ZoomStep;
+            YawRotateStep = other.YawRotateStep;
 
-            InvertPanX = other.InvertPanX;
-            InvertPanY = other.InvertPanY;
-            InvertOrbitYaw = other.InvertOrbitYaw;
-            InvertOrbitPitch = other.InvertOrbitPitch;
-            InvertZoom = other.InvertZoom;
-            InvertYawRotate = other.InvertYawRotate;
+            SignInvertPanX = other.SignInvertPanX;
+            SignInvertPanY = other.SignInvertPanY;
+            SignInvertOrbitYaw = other.SignInvertOrbitYaw;
+            SignInvertOrbitPitch = other.SignInvertOrbitPitch;
+            SignInvertZoom = other.SignInvertZoom;
+            SignInvertYawRotate = other.SignInvertYawRotate;
 
-            MotionDeadzone = other.MotionDeadzone;
+            MotionDeadband = other.MotionDeadband;
             PinchEpsilon = other.PinchEpsilon;
             RotateEpsilon = other.RotateEpsilon;
             FingerCountHysteresis = other.FingerCountHysteresis;
 
-            PanLowPassEnabled = other.PanLowPassEnabled;
-            PanLowPassAlpha = other.PanLowPassAlpha;
-            ZoomLowPassEnabled = other.ZoomLowPassEnabled;
-            ZoomLowPassAlpha = other.ZoomLowPassAlpha;
-            YawLowPassEnabled = other.YawLowPassEnabled;
-            YawLowPassAlpha = other.YawLowPassAlpha;
-            OrbitLowPassEnabled = other.OrbitLowPassEnabled;
-            OrbitLowPassAlpha = other.OrbitLowPassAlpha;
+            PanFilterEnabled = other.PanFilterEnabled;
+            PanFilterAlpha = other.PanFilterAlpha;
+            ZoomFilterEnabled = other.ZoomFilterEnabled;
+            ZoomFilterAlpha = other.ZoomFilterAlpha;
+            YawFilterEnabled = other.YawFilterEnabled;
+            YawFilterAlpha = other.YawFilterAlpha;
+            OrbitFilterEnabled = other.OrbitFilterEnabled;
+            OrbitFilterAlpha = other.OrbitFilterAlpha;
 
             RequireGameFocus = other.RequireGameFocus;
             IgnoreOverUi = other.IgnoreOverUi;

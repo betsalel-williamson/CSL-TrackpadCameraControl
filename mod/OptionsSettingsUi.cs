@@ -60,78 +60,78 @@ namespace TrackpadCameraControl
                 helper,
                 ModOptions.OpHeadingZoom,
                 "Sensitivity",
-                s.ZoomSensitivity,
-                factory.ZoomSensitivity,
-                ModOptions.ApplyZoomSensitivity,
+                s.ZoomGain,
+                factory.ZoomGain,
+                ModOptions.ApplyZoomGain,
                 "Button step",
-                s.ZoomButtonScale,
-                ModOptions.ApplyZoomButtonScale,
-                s.ZoomLowPassEnabled,
-                v => ModOptions.ApplyBool(s, x => x.ZoomLowPassEnabled = v),
-                s.ZoomLowPassAlpha,
-                ModOptions.ApplyZoomLowPassAlpha
+                s.ZoomStep,
+                ModOptions.ApplyZoomStep,
+                s.ZoomFilterEnabled,
+                v => ModOptions.ApplyBool(s, x => x.ZoomFilterEnabled = v),
+                s.ZoomFilterAlpha,
+                ModOptions.ApplyZoomFilterAlpha
             );
 
             BuildOpGroup(
                 helper,
                 ModOptions.OpHeadingPan,
                 "Sensitivity X",
-                s.PanSensitivityX,
-                factory.PanSensitivityX,
-                ModOptions.ApplyPanSensitivityX,
+                s.PanGainX,
+                factory.PanGainX,
+                ModOptions.ApplyPanGainX,
                 "Sensitivity Y",
-                s.PanSensitivityY,
-                factory.PanSensitivityY,
-                ModOptions.ApplyPanSensitivityY,
+                s.PanGainY,
+                factory.PanGainY,
+                ModOptions.ApplyPanGainY,
                 "Button step X",
-                s.PanButtonScaleX,
-                ModOptions.ApplyPanButtonScaleX,
+                s.PanStepX,
+                ModOptions.ApplyPanStepX,
                 "Button step Y",
-                s.PanButtonScaleY,
-                ModOptions.ApplyPanButtonScaleY,
-                s.PanLowPassEnabled,
-                v => ModOptions.ApplyBool(s, x => x.PanLowPassEnabled = v),
-                s.PanLowPassAlpha,
-                ModOptions.ApplyPanLowPassAlpha
+                s.PanStepY,
+                ModOptions.ApplyPanStepY,
+                s.PanFilterEnabled,
+                v => ModOptions.ApplyBool(s, x => x.PanFilterEnabled = v),
+                s.PanFilterAlpha,
+                ModOptions.ApplyPanFilterAlpha
             );
 
             BuildOpGroup1Axis(
                 helper,
                 ModOptions.OpHeadingRotate,
                 "Sensitivity",
-                s.YawRotateSensitivity,
-                factory.YawRotateSensitivity,
-                ModOptions.ApplyYawRotateSensitivity,
+                s.YawRotateGain,
+                factory.YawRotateGain,
+                ModOptions.ApplyYawRotateGain,
                 "Button step",
-                s.YawRotateButtonScale,
-                ModOptions.ApplyYawRotateButtonScale,
-                s.YawLowPassEnabled,
-                v => ModOptions.ApplyBool(s, x => x.YawLowPassEnabled = v),
-                s.YawLowPassAlpha,
-                ModOptions.ApplyYawLowPassAlpha
+                s.YawRotateStep,
+                ModOptions.ApplyYawRotateStep,
+                s.YawFilterEnabled,
+                v => ModOptions.ApplyBool(s, x => x.YawFilterEnabled = v),
+                s.YawFilterAlpha,
+                ModOptions.ApplyYawFilterAlpha
             );
 
             BuildOpGroup(
                 helper,
                 ModOptions.OpHeadingOrbit,
                 "Sensitivity yaw",
-                s.OrbitYawSensitivity,
-                factory.OrbitYawSensitivity,
-                ModOptions.ApplyOrbitYawSensitivity,
+                s.OrbitYawGain,
+                factory.OrbitYawGain,
+                ModOptions.ApplyOrbitYawGain,
                 "Sensitivity pitch",
-                s.OrbitPitchSensitivity,
-                factory.OrbitPitchSensitivity,
-                ModOptions.ApplyOrbitPitchSensitivity,
+                s.OrbitPitchGain,
+                factory.OrbitPitchGain,
+                ModOptions.ApplyOrbitPitchGain,
                 "Button step yaw",
-                s.OrbitYawButtonScale,
-                ModOptions.ApplyOrbitYawButtonScale,
+                s.OrbitYawStep,
+                ModOptions.ApplyOrbitYawStep,
                 "Button step pitch",
-                s.OrbitPitchButtonScale,
-                ModOptions.ApplyOrbitPitchButtonScale,
-                s.OrbitLowPassEnabled,
-                v => ModOptions.ApplyBool(s, x => x.OrbitLowPassEnabled = v),
-                s.OrbitLowPassAlpha,
-                ModOptions.ApplyOrbitLowPassAlpha
+                s.OrbitPitchStep,
+                ModOptions.ApplyOrbitPitchStep,
+                s.OrbitFilterEnabled,
+                v => ModOptions.ApplyBool(s, x => x.OrbitFilterEnabled = v),
+                s.OrbitFilterAlpha,
+                ModOptions.ApplyOrbitFilterAlpha
             );
         }
 
@@ -331,7 +331,7 @@ namespace TrackpadCameraControl
             float min = ModOptions.SensitivitySliderMin(factoryDefault);
             float max = ModOptions.SensitivitySliderMax(factoryDefault);
             float step = ModOptions.SensitivitySliderStep(factoryDefault);
-            float clamped = ModOptions.ClampSensitivityToFactoryRange(value, factoryDefault);
+            float clamped = ModOptions.ClampGainToFactoryRange(value, factoryDefault);
 
             helper.AddSlider(
                 label,
@@ -341,7 +341,7 @@ namespace TrackpadCameraControl
                 clamped,
                 v =>
                 {
-                    float next = ModOptions.ClampSensitivityToFactoryRange(v, factoryDefault);
+                    float next = ModOptions.ClampGainToFactoryRange(v, factoryDefault);
                     onChanged(next);
                 }
             );

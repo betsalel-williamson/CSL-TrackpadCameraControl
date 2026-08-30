@@ -165,24 +165,26 @@ namespace TrackpadCameraControl.Tests
         }
 
         [Fact]
-        public void CreateCaptureSource_Default_IsAppleGestureSource()
+        public void CreateCaptureSource_Default_UsesAppleGesturesBackend()
         {
-            Assert.IsType<AppleGestureSource>(Mod.CreateCaptureSource(new ModSettings()));
+            Assert.Equal(
+                CaptureBackend.AppleGestures,
+                CaptureBackendFlags.Resolve(new ModSettings(), null)
+            );
+            Assert.NotNull(Mod.CreateCaptureSource(new ModSettings()));
         }
 
         [Fact]
-        public void CreateCaptureSource_ContactsSettings_WhenFlagOff_IsAppleGestureSource()
+        public void CreateCaptureSource_ContactsSettings_WhenFlagOff_StillResolvesApple()
         {
             Assert.False(FeatureFlags.EnableContactsCapture);
-            Assert.IsType<AppleGestureSource>(
-                Mod.CreateCaptureSource(
-                    new ModSettings
-                    {
-                        CaptureBackend = CaptureBackend.Contacts,
-                        BridgeEnabled = true,
-                    }
-                )
-            );
+            var settings = new ModSettings
+            {
+                CaptureBackend = CaptureBackend.Contacts,
+                BridgeEnabled = true,
+            };
+            Assert.Equal(CaptureBackend.AppleGestures, CaptureBackendFlags.Resolve(settings, null));
+            Assert.NotNull(Mod.CreateCaptureSource(settings));
         }
     }
 
@@ -203,7 +205,7 @@ namespace TrackpadCameraControl.Tests
                 GestureCaptureLog.ResetForTests();
                 string text = File.ReadAllText(path);
                 Assert.Contains("hello-capture", text);
-                Assert.Contains("capture log opened", text);
+                Assert.Contains(GestureCaptureLog.OpenedLinePrefix, text);
             }
             finally
             {

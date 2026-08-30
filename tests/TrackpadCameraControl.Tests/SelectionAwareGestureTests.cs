@@ -46,7 +46,7 @@ namespace TrackpadCameraControl.Tests
                 WorldY = 0f,
                 WorldZ = 20f,
             };
-            var settings = new ModSettings { YawRotateSensitivity = 2f };
+            var settings = new ModSettings { YawRotateGain = 2f };
 
             CameraApplicator.Apply(
                 CameraOp.Yaw,
@@ -70,7 +70,7 @@ namespace TrackpadCameraControl.Tests
         {
             var cam = new FakeCameraController { AngleX = 0f };
             var selection = new FakeSelectionContext { HasSelection = false };
-            var settings = new ModSettings { YawRotateSensitivity = 2f };
+            var settings = new ModSettings { YawRotateGain = 2f };
 
             CameraApplicator.Apply(
                 CameraOp.Yaw,
@@ -108,9 +108,9 @@ namespace TrackpadCameraControl.Tests
             };
             var settings = new ModSettings
             {
-                OrbitYawSensitivity = 1f,
-                OrbitPitchSensitivity = 1f,
-                OrbitPitchMin = 7f,
+                OrbitYawGain = 1f,
+                OrbitPitchGain = 1f,
+                OrbitPitchMin = 0f,
                 OrbitPitchMax = 90f,
             };
 
@@ -125,6 +125,7 @@ namespace TrackpadCameraControl.Tests
                 CameraApplicator.InputModality.Drag,
                 selection
             );
+            FakeCameraController.SimulateVanillaOrbitFrame(cam, inertia: 1f, deltaTimeSeconds: 1f / 60f);
 
             Assert.Equal(100f, cam.TargetX, 3);
             Assert.Equal(5f, cam.TargetY, 3);
@@ -153,9 +154,9 @@ namespace TrackpadCameraControl.Tests
             };
             var settings = new ModSettings
             {
-                OrbitYawSensitivity = 1f,
-                OrbitPitchSensitivity = 1f,
-                OrbitPitchMin = 7f,
+                OrbitYawGain = 1f,
+                OrbitPitchGain = 1f,
+                OrbitPitchMin = 0f,
                 OrbitPitchMax = 90f,
             };
 
@@ -192,9 +193,9 @@ namespace TrackpadCameraControl.Tests
             var selection = new FakeSelectionContext { HasSelection = false };
             var settings = new ModSettings
             {
-                OrbitYawSensitivity = 1f,
-                OrbitPitchSensitivity = 1f,
-                OrbitPitchMin = 7f,
+                OrbitYawGain = 1f,
+                OrbitPitchGain = 1f,
+                OrbitPitchMin = 0f,
                 OrbitPitchMax = 90f,
             };
 
@@ -209,6 +210,7 @@ namespace TrackpadCameraControl.Tests
                 CameraApplicator.InputModality.Drag,
                 selection
             );
+            FakeCameraController.SimulateVanillaOrbitFrame(cam, inertia: 1f, deltaTimeSeconds: 1f / 60f);
 
             Assert.Equal(3f, cam.TargetX, 3);
             Assert.Equal(1f, cam.TargetY, 3);
@@ -223,7 +225,7 @@ namespace TrackpadCameraControl.Tests
             var settings = new ModSettings
             {
                 YawEnabled = true,
-                YawRotateSensitivity = 1f,
+                YawRotateGain = 1f,
                 RotateEpsilon = 0.001f,
             };
             var inject = new InjectGestureSource();
@@ -254,7 +256,7 @@ namespace TrackpadCameraControl.Tests
             var settings = new ModSettings
             {
                 YawEnabled = true,
-                YawRotateSensitivity = 1f,
+                YawRotateGain = 1f,
                 RotateEpsilon = 0.001f,
             };
             var inject = new InjectGestureSource();

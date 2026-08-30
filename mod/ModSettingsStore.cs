@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Xml;
 using System.Xml.Serialization;
 
 namespace TrackpadCameraControl
@@ -10,13 +11,21 @@ namespace TrackpadCameraControl
     /// </summary>
     public sealed class ModSettingsStore
     {
-        public const int CurrentSchemaVersion = 2;
+        /// <summary>
+        /// Schema 3 persists control-systems field names (gain, step, deadband, filter, sign invert).
+        /// Schema 2 used Sensitivity / ButtonScale / Deadzone / LowPass / Invert element names.
+        /// Schema 1 also used pre-scaled AppKit scroll (migrate ×0.01 into pan/orbit gain).
+        /// </summary>
+        public const int CurrentSchemaVersion = 3;
 
         /// <summary>
-        /// Schema 1 used scroll deltas pre-scaled by 0.01 in AppleGestureMapper and larger
-        /// Sensitivity defaults. Schema 2 uses raw scroll deltas; Sensitivity × 0.01.
+        /// Former AppleGestureMapper.ScrollToCentroid scale. Schema 1 used pre-scaled scroll
+        /// and larger gains; schema 2+ folds this into pan/orbit gain on load.
         /// </summary>
-        private const float V1ScrollUnit = 0.01f;
+        internal const float V1ScrollUnit = 0.01f;
+
+        /// <summary>First schema version that writes engineering XML element names.</summary>
+        private const int EngineeringNamesSchemaVersion = 3;
 
         private readonly string _filePath;
         private DateTime _lastWriteUtc = DateTime.MinValue;
@@ -66,14 +75,34 @@ namespace TrackpadCameraControl
                     return fresh;
                 }
 
-                Envelope envelope;
-                using (var reader = new StreamReader(_filePath))
+                int fileSchema = PeekSchemaVersion(_filePath);
+                ModSettings current;
+                List<NamedPreset> presets;
+                if (fileSchema < EngineeringNamesSchemaVersion)
                 {
-                    var serializer = new XmlSerializer(typeof(Envelope));
-                    envelope = serializer.Deserialize(reader) as Envelope;
-                }
+                    if (!TryLoadLegacy(out current, out presets))
+                    {
+                        _userPresets = new List<NamedPreset>();
+                        _presetsHydrated = true;
+                        ModSettings recovered = ModSettings.CreateFactoryDefaults();
+                        SaveNow(recovered);
+                        return recovered;
+                    }
 
-                if (envelope == null || envelope.Current == null)
+                    if (fileSchema < 2)
+                    {
+                        MigrateScrollUnitIntoGain(current);
+                        for (int i = 0; i < presets.Count; i++)
+                        {
+                            NamedPreset preset = presets[i];
+                            if (preset != null && preset.Settings != null)
+                            {
+                                MigrateScrollUnitIntoGain(preset.Settings);
+                            }
+                        }
+                    }
+                }
+                else if (!TryLoadCurrent(out current, out presets))
                 {
                     _userPresets = new List<NamedPreset>();
                     _presetsHydrated = true;
@@ -82,28 +111,14 @@ namespace TrackpadCameraControl
                     return recovered;
                 }
 
-                _userPresets =
-                    envelope.UserPresets != null
-                        ? new List<NamedPreset>(envelope.UserPresets)
-                        : new List<NamedPreset>();
+                _userPresets = presets;
                 _presetsHydrated = true;
 
-                if (envelope.SchemaVersion < CurrentSchemaVersion)
+                if (fileSchema < CurrentSchemaVersion)
                 {
-                    MigrateScrollUnitIntoSensitivity(envelope.Current);
-                    for (int i = 0; i < _userPresets.Count; i++)
-                    {
-                        NamedPreset preset = _userPresets[i];
-                        if (preset != null && preset.Settings != null)
-                        {
-                            MigrateScrollUnitIntoSensitivity(preset.Settings);
-                        }
-                    }
-
-                    envelope.SchemaVersion = CurrentSchemaVersion;
                     try
                     {
-                        SaveNow(envelope.Current);
+                        SaveNow(current);
                     }
                     catch
                     {
@@ -111,7 +126,7 @@ namespace TrackpadCameraControl
                     }
                 }
 
-                return envelope.Current;
+                return current;
             }
             catch
             {
@@ -240,23 +255,136 @@ namespace TrackpadCameraControl
         }
 
         /// <summary>
-        /// Fold former mapper ScrollToCentroid (0.01) into Sensitivity / motion deadzone so
-        /// raw AppKit scroll deltas keep the same feel.
+        /// Fold former mapper ScrollToCentroid (0.01) into gain / motion deadband so
+        /// raw AppKit scroll deltas keep the same feel (schema 1 → 2).
         /// </summary>
-        internal static void MigrateScrollUnitIntoSensitivity(ModSettings settings)
+        internal static void MigrateScrollUnitIntoGain(ModSettings settings)
         {
             if (settings == null)
             {
                 return;
             }
 
-            settings.PanSensitivityX *= V1ScrollUnit;
-            settings.PanSensitivityY *= V1ScrollUnit;
-            settings.OrbitYawSensitivity *= V1ScrollUnit;
-            settings.OrbitPitchSensitivity *= V1ScrollUnit;
-            if (settings.MotionDeadzone > 0f)
+            settings.PanGainX *= V1ScrollUnit;
+            settings.PanGainY *= V1ScrollUnit;
+            settings.OrbitYawGain *= V1ScrollUnit;
+            settings.OrbitPitchGain *= V1ScrollUnit;
+            if (settings.MotionDeadband > 0f)
             {
-                settings.MotionDeadzone /= V1ScrollUnit;
+                settings.MotionDeadband /= V1ScrollUnit;
+            }
+        }
+
+        internal static int PeekSchemaVersion(string filePath)
+        {
+            if (string.IsNullOrEmpty(filePath) || !File.Exists(filePath))
+            {
+                return 0;
+            }
+
+            try
+            {
+                using (XmlReader reader = XmlReader.Create(filePath))
+                {
+                    while (reader.Read())
+                    {
+                        if (
+                            reader.NodeType == XmlNodeType.Element
+                            && reader.Name == "SchemaVersion"
+                        )
+                        {
+                            return reader.ReadElementContentAsInt();
+                        }
+                    }
+                }
+            }
+            catch
+            {
+                // fall through
+            }
+
+            return 0;
+        }
+
+        private bool TryLoadLegacy(out ModSettings current, out List<NamedPreset> presets)
+        {
+            current = null;
+            presets = new List<NamedPreset>();
+            try
+            {
+                LegacySettingsEnvelope legacy;
+                using (var reader = new StreamReader(_filePath))
+                {
+                    var serializer = new XmlSerializer(typeof(LegacySettingsEnvelope));
+                    legacy = serializer.Deserialize(reader) as LegacySettingsEnvelope;
+                }
+
+                if (legacy == null || legacy.Current == null)
+                {
+                    return false;
+                }
+
+                current = legacy.Current.ToModSettings();
+                if (legacy.UserPresets != null)
+                {
+                    for (int i = 0; i < legacy.UserPresets.Count; i++)
+                    {
+                        LegacyNamedPreset lp = legacy.UserPresets[i];
+                        if (lp == null)
+                        {
+                            continue;
+                        }
+
+                        presets.Add(
+                            new NamedPreset
+                            {
+                                Name = lp.Name,
+                                Settings =
+                                    lp.Settings != null
+                                        ? lp.Settings.ToModSettings()
+                                        : null,
+                            }
+                        );
+                    }
+                }
+
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        private bool TryLoadCurrent(out ModSettings current, out List<NamedPreset> presets)
+        {
+            current = null;
+            presets = new List<NamedPreset>();
+            try
+            {
+                Envelope envelope;
+                using (var reader = new StreamReader(_filePath))
+                {
+                    var serializer = new XmlSerializer(typeof(Envelope));
+                    envelope = serializer.Deserialize(reader) as Envelope;
+                }
+
+                if (envelope == null || envelope.Current == null)
+                {
+                    return false;
+                }
+
+                current = envelope.Current;
+                if (envelope.UserPresets != null)
+                {
+                    presets = new List<NamedPreset>(envelope.UserPresets);
+                }
+
+                return true;
+            }
+            catch
+            {
+                return false;
             }
         }
 
@@ -281,16 +409,16 @@ namespace TrackpadCameraControl
 
             try
             {
-                Envelope envelope;
-                using (var reader = new StreamReader(_filePath))
+                int fileSchema = PeekSchemaVersion(_filePath);
+                ModSettings unused;
+                List<NamedPreset> presets;
+                bool ok =
+                    fileSchema < EngineeringNamesSchemaVersion
+                        ? TryLoadLegacy(out unused, out presets)
+                        : TryLoadCurrent(out unused, out presets);
+                if (ok)
                 {
-                    var serializer = new XmlSerializer(typeof(Envelope));
-                    envelope = serializer.Deserialize(reader) as Envelope;
-                }
-
-                if (envelope != null && envelope.UserPresets != null)
-                {
-                    _userPresets = new List<NamedPreset>(envelope.UserPresets);
+                    _userPresets = presets;
                 }
             }
             catch
@@ -308,16 +436,16 @@ namespace TrackpadCameraControl
                     return ModSettings.CreateFactoryDefaults();
                 }
 
-                Envelope envelope;
-                using (var reader = new StreamReader(_filePath))
+                int fileSchema = PeekSchemaVersion(_filePath);
+                ModSettings current;
+                List<NamedPreset> unusedPresets;
+                bool ok =
+                    fileSchema < EngineeringNamesSchemaVersion
+                        ? TryLoadLegacy(out current, out unusedPresets)
+                        : TryLoadCurrent(out current, out unusedPresets);
+                if (ok && current != null)
                 {
-                    var serializer = new XmlSerializer(typeof(Envelope));
-                    envelope = serializer.Deserialize(reader) as Envelope;
-                }
-
-                if (envelope != null && envelope.Current != null)
-                {
-                    return envelope.Current;
+                    return current;
                 }
             }
             catch

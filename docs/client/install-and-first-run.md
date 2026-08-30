@@ -26,7 +26,7 @@ Shipped capture is **AppleKit** with [Maps+](../glossary/maps-plus-preset.md) ge
 2. Enable **Trackpad Camera Control** in Content Manager.
 3. Load a city or start a new game.
 4. With the game focused, try two-finger drag (pan), pinch (zoom), two-finger rotate (yaw / rotate selection), and Option (`⌥`)+two-finger drag (orbit). Trackpad pan should not also vanilla-zoom; a real mouse wheel should still zoom.
-5. Open Options → Trackpad Camera Control to adjust Sensitivity sliders or Slow / Default / Fast from the feel dropdown. Pitch angle limits (7–90°) live on the [Debug panel](./debug-ui.md) if you need them.
+5. Open Options → Trackpad Camera Control to adjust Sensitivity sliders or Slow / Default / Fast from the feel dropdown. Orbit pitch matches the game **0–90°**.
 6. Confirm edge pan (cursor at screen edge) and keyboard camera keys still move the camera.
 
 If gestures do nothing, check that the game is focused and the OS is not consuming the gesture (see [OS gesture conflicts](./os-gesture-conflicts.md)). Contributors can inspect the capture log under the process temp directory.

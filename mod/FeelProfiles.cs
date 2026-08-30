@@ -59,13 +59,13 @@ namespace TrackpadCameraControl
             CopyFeelFields(settings, ModSettings.CreateFactoryDefaults());
         }
 
-        /// <summary>Factory Default sensitivities × 0.75 (RoundSensitivity); reverse + pitch = factory.</summary>
+        /// <summary>Factory Default sensitivities × 0.75 (RoundGain); reverse + pitch = factory.</summary>
         public static void ApplySlow(ModSettings settings)
         {
             ApplyScaledFromFactory(settings, SlowMultiplier);
         }
 
-        /// <summary>Factory Default sensitivities × 1.25 (RoundSensitivity); reverse + pitch = factory.</summary>
+        /// <summary>Factory Default sensitivities × 1.25 (RoundGain); reverse + pitch = factory.</summary>
         public static void ApplyFast(ModSettings settings)
         {
             ApplyScaledFromFactory(settings, FastMultiplier);
@@ -86,19 +86,19 @@ namespace TrackpadCameraControl
             dest.YawEnabled = source.YawEnabled;
             dest.OrbitEnabled = source.OrbitEnabled;
 
-            dest.InvertPanX = source.InvertPanX;
-            dest.InvertPanY = source.InvertPanY;
-            dest.InvertOrbitYaw = source.InvertOrbitYaw;
-            dest.InvertOrbitPitch = source.InvertOrbitPitch;
-            dest.InvertZoom = source.InvertZoom;
-            dest.InvertYawRotate = source.InvertYawRotate;
+            dest.SignInvertPanX = source.SignInvertPanX;
+            dest.SignInvertPanY = source.SignInvertPanY;
+            dest.SignInvertOrbitYaw = source.SignInvertOrbitYaw;
+            dest.SignInvertOrbitPitch = source.SignInvertOrbitPitch;
+            dest.SignInvertZoom = source.SignInvertZoom;
+            dest.SignInvertYawRotate = source.SignInvertYawRotate;
 
-            dest.PanSensitivityX = source.PanSensitivityX;
-            dest.PanSensitivityY = source.PanSensitivityY;
-            dest.ZoomSensitivity = source.ZoomSensitivity;
-            dest.YawRotateSensitivity = source.YawRotateSensitivity;
-            dest.OrbitYawSensitivity = source.OrbitYawSensitivity;
-            dest.OrbitPitchSensitivity = source.OrbitPitchSensitivity;
+            dest.PanGainX = source.PanGainX;
+            dest.PanGainY = source.PanGainY;
+            dest.ZoomGain = source.ZoomGain;
+            dest.YawRotateGain = source.YawRotateGain;
+            dest.OrbitYawGain = source.OrbitYawGain;
+            dest.OrbitPitchGain = source.OrbitPitchGain;
 
             dest.OrbitPitchMin = source.OrbitPitchMin;
             dest.OrbitPitchMax = source.OrbitPitchMax;
@@ -125,25 +125,25 @@ namespace TrackpadCameraControl
 
             ModSettings factory = ModSettings.CreateFactoryDefaults();
 
-            settings.PanSensitivityX = ModOptions.RoundSensitivity(factory.PanSensitivityX * multiplier);
-            settings.PanSensitivityY = ModOptions.RoundSensitivity(factory.PanSensitivityY * multiplier);
-            settings.ZoomSensitivity = ModOptions.RoundSensitivity(factory.ZoomSensitivity * multiplier);
-            settings.YawRotateSensitivity = ModOptions.RoundSensitivity(
-                factory.YawRotateSensitivity * multiplier
+            settings.PanGainX = ModOptions.RoundGain(factory.PanGainX * multiplier);
+            settings.PanGainY = ModOptions.RoundGain(factory.PanGainY * multiplier);
+            settings.ZoomGain = ModOptions.RoundGain(factory.ZoomGain * multiplier);
+            settings.YawRotateGain = ModOptions.RoundGain(
+                factory.YawRotateGain * multiplier
             );
-            settings.OrbitYawSensitivity = ModOptions.RoundSensitivity(
-                factory.OrbitYawSensitivity * multiplier
+            settings.OrbitYawGain = ModOptions.RoundGain(
+                factory.OrbitYawGain * multiplier
             );
-            settings.OrbitPitchSensitivity = ModOptions.RoundSensitivity(
-                factory.OrbitPitchSensitivity * multiplier
+            settings.OrbitPitchGain = ModOptions.RoundGain(
+                factory.OrbitPitchGain * multiplier
             );
 
-            settings.InvertPanX = factory.InvertPanX;
-            settings.InvertPanY = factory.InvertPanY;
-            settings.InvertOrbitYaw = factory.InvertOrbitYaw;
-            settings.InvertOrbitPitch = factory.InvertOrbitPitch;
-            settings.InvertZoom = factory.InvertZoom;
-            settings.InvertYawRotate = factory.InvertYawRotate;
+            settings.SignInvertPanX = factory.SignInvertPanX;
+            settings.SignInvertPanY = factory.SignInvertPanY;
+            settings.SignInvertOrbitYaw = factory.SignInvertOrbitYaw;
+            settings.SignInvertOrbitPitch = factory.SignInvertOrbitPitch;
+            settings.SignInvertZoom = factory.SignInvertZoom;
+            settings.SignInvertYawRotate = factory.SignInvertYawRotate;
 
             settings.OrbitPitchMin = factory.OrbitPitchMin;
             settings.OrbitPitchMax = factory.OrbitPitchMax;

@@ -146,32 +146,32 @@ namespace TrackpadCameraControl
         /// folding the old 0.01 scroll unit into defaults); no upper cap.
         /// Non-positive values become 0 (Apply*Sensitivity ignores ≤ 0 separately).
         /// </summary>
-        public static float ClampSensitivity(float value)
+        public static float ClampGain(float value)
         {
             if (value <= 0f)
             {
                 return 0f;
             }
 
-            return RoundSensitivity(value);
+            return RoundGain(value);
         }
 
         /// <summary>Options Sensitivity slider minimum for a factory default (0.1×).</summary>
         public static float SensitivitySliderMin(float factoryDefault)
         {
-            return RoundSensitivity(factoryDefault * SensitivitySliderMinFactor);
+            return RoundGain(factoryDefault * SensitivitySliderMinFactor);
         }
 
         /// <summary>Options Sensitivity slider maximum for a factory default (2×).</summary>
         public static float SensitivitySliderMax(float factoryDefault)
         {
-            return RoundSensitivity(factoryDefault * SensitivitySliderMaxFactor);
+            return RoundGain(factoryDefault * SensitivitySliderMaxFactor);
         }
 
         /// <summary>Options Sensitivity slider step for a factory default (~10%).</summary>
         public static float SensitivitySliderStep(float factoryDefault)
         {
-            float step = RoundSensitivity(factoryDefault * SensitivitySliderStepFactor);
+            float step = RoundGain(factoryDefault * SensitivitySliderStepFactor);
             return step > 0f ? step : 0.0001f;
         }
 
@@ -179,7 +179,7 @@ namespace TrackpadCameraControl
         /// Clamp a Sensitivity edit to the product Options slider range for that factory default.
         /// Non-positive / out-of-range values snap into [0.1×, 2×] factory.
         /// </summary>
-        public static float ClampSensitivityToFactoryRange(float value, float factoryDefault)
+        public static float ClampGainToFactoryRange(float value, float factoryDefault)
         {
             float min = SensitivitySliderMin(factoryDefault);
             float max = SensitivitySliderMax(factoryDefault);
@@ -198,7 +198,7 @@ namespace TrackpadCameraControl
                 value = max;
             }
 
-            return RoundSensitivity(value);
+            return RoundGain(value);
         }
 
         public static float Round2(float value)
@@ -207,7 +207,7 @@ namespace TrackpadCameraControl
         }
 
         /// <summary>Four-decimal round for Sensitivity after scroll-unit fold into defaults.</summary>
-        public static float RoundSensitivity(float value)
+        public static float RoundGain(float value)
         {
             return (float)Math.Round(value, 4, MidpointRounding.AwayFromZero);
         }
@@ -283,7 +283,7 @@ namespace TrackpadCameraControl
             return true;
         }
 
-        private static void ApplyPositiveSensitivity(
+        private static void ApplyPositiveGain(
             ModSettings settings,
             float value,
             Action<ModSettings, float> assign
@@ -299,7 +299,7 @@ namespace TrackpadCameraControl
                 return;
             }
 
-            assign(settings, RoundSensitivity(value));
+            assign(settings, RoundGain(value));
             AfterFeelFieldChanged(settings);
         }
 
@@ -317,26 +317,30 @@ namespace TrackpadCameraControl
             NotifyChanged(settings);
         }
 
-        public static void ApplyPanSensitivityX(ModSettings settings, float value)
+        public static void ApplyPanGainX(ModSettings settings, float value)
         {
-            ApplyPositiveSensitivity(settings, value, (s, v) => s.PanSensitivityX = v);
+            ApplyPositiveGain(settings, value, (s, v) => s.PanGainX = v);
         }
 
-        public static void ApplyPanSensitivityY(ModSettings settings, float value)
+        public static void ApplyPanGainY(ModSettings settings, float value)
         {
-            ApplyPositiveSensitivity(settings, value, (s, v) => s.PanSensitivityY = v);
+            ApplyPositiveGain(settings, value, (s, v) => s.PanGainY = v);
         }
 
-        public static void ApplyOrbitYawSensitivity(ModSettings settings, float value)
+        public static void ApplyOrbitYawGain(ModSettings settings, float value)
         {
-            ApplyPositiveSensitivity(settings, value, (s, v) => s.OrbitYawSensitivity = v);
+            ApplyPositiveGain(settings, value, (s, v) => s.OrbitYawGain = v);
         }
 
-        public static void ApplyOrbitPitchSensitivity(ModSettings settings, float value)
+        public static void ApplyOrbitPitchGain(ModSettings settings, float value)
         {
-            ApplyPositiveSensitivity(settings, value, (s, v) => s.OrbitPitchSensitivity = v);
+            ApplyPositiveGain(settings, value, (s, v) => s.OrbitPitchGain = v);
         }
 
+        /// <summary>
+        /// Schema-retained for old presets. Live orbit clamp is vanilla 0…90 in
+        /// <see cref="CameraApplicator"/>; negative values are ignored.
+        /// </summary>
         public static void ApplyOrbitPitchMin(ModSettings settings, float value)
         {
             if (settings == null)
@@ -344,8 +348,7 @@ namespace TrackpadCameraControl
                 return;
             }
 
-            // Pitch limits must stay > 0 (schema / applicator contract).
-            if (value <= 0f)
+            if (value < 0f)
             {
                 return;
             }
@@ -354,6 +357,10 @@ namespace TrackpadCameraControl
             AfterFeelFieldChanged(settings);
         }
 
+        /// <summary>
+        /// Schema-retained for old presets. Live orbit clamp is vanilla 0…90 in
+        /// <see cref="CameraApplicator"/>; non-positive values are ignored.
+        /// </summary>
         public static void ApplyOrbitPitchMax(ModSettings settings, float value)
         {
             if (settings == null)
@@ -370,123 +377,123 @@ namespace TrackpadCameraControl
             AfterFeelFieldChanged(settings);
         }
 
-        public static void ApplyZoomSensitivity(ModSettings settings, float value)
+        public static void ApplyZoomGain(ModSettings settings, float value)
         {
-            ApplyPositiveSensitivity(settings, value, (s, v) => s.ZoomSensitivity = v);
+            ApplyPositiveGain(settings, value, (s, v) => s.ZoomGain = v);
         }
 
-        public static void ApplyYawRotateSensitivity(ModSettings settings, float value)
+        public static void ApplyYawRotateGain(ModSettings settings, float value)
         {
-            ApplyPositiveSensitivity(settings, value, (s, v) => s.YawRotateSensitivity = v);
+            ApplyPositiveGain(settings, value, (s, v) => s.YawRotateGain = v);
         }
 
-        public static void ApplyPanButtonScaleX(ModSettings settings, float value)
+        public static void ApplyPanStepX(ModSettings settings, float value)
         {
             if (settings == null)
             {
                 return;
             }
 
-            settings.PanButtonScaleX = ClampScale(value);
+            settings.PanStepX = ClampScale(value);
             NotifyChanged(settings);
         }
 
-        public static void ApplyPanButtonScaleY(ModSettings settings, float value)
+        public static void ApplyPanStepY(ModSettings settings, float value)
         {
             if (settings == null)
             {
                 return;
             }
 
-            settings.PanButtonScaleY = ClampScale(value);
+            settings.PanStepY = ClampScale(value);
             NotifyChanged(settings);
         }
 
-        public static void ApplyOrbitYawButtonScale(ModSettings settings, float value)
+        public static void ApplyOrbitYawStep(ModSettings settings, float value)
         {
             if (settings == null)
             {
                 return;
             }
 
-            settings.OrbitYawButtonScale = ClampScale(value);
+            settings.OrbitYawStep = ClampScale(value);
             NotifyChanged(settings);
         }
 
-        public static void ApplyOrbitPitchButtonScale(ModSettings settings, float value)
+        public static void ApplyOrbitPitchStep(ModSettings settings, float value)
         {
             if (settings == null)
             {
                 return;
             }
 
-            settings.OrbitPitchButtonScale = ClampScale(value);
+            settings.OrbitPitchStep = ClampScale(value);
             NotifyChanged(settings);
         }
 
-        public static void ApplyZoomButtonScale(ModSettings settings, float value)
+        public static void ApplyZoomStep(ModSettings settings, float value)
         {
             if (settings == null)
             {
                 return;
             }
 
-            settings.ZoomButtonScale = ClampScale(value);
+            settings.ZoomStep = ClampScale(value);
             NotifyChanged(settings);
         }
 
-        public static void ApplyYawRotateButtonScale(ModSettings settings, float value)
+        public static void ApplyYawRotateStep(ModSettings settings, float value)
         {
             if (settings == null)
             {
                 return;
             }
 
-            settings.YawRotateButtonScale = ClampScale(value);
+            settings.YawRotateStep = ClampScale(value);
             NotifyChanged(settings);
         }
 
-        public static void ApplyPanLowPassAlpha(ModSettings settings, float value)
+        public static void ApplyPanFilterAlpha(ModSettings settings, float value)
         {
             if (settings == null)
             {
                 return;
             }
 
-            settings.PanLowPassAlpha = ClampAlpha(value);
+            settings.PanFilterAlpha = ClampAlpha(value);
             NotifyChanged(settings);
         }
 
-        public static void ApplyZoomLowPassAlpha(ModSettings settings, float value)
+        public static void ApplyZoomFilterAlpha(ModSettings settings, float value)
         {
             if (settings == null)
             {
                 return;
             }
 
-            settings.ZoomLowPassAlpha = ClampAlpha(value);
+            settings.ZoomFilterAlpha = ClampAlpha(value);
             NotifyChanged(settings);
         }
 
-        public static void ApplyYawLowPassAlpha(ModSettings settings, float value)
+        public static void ApplyYawFilterAlpha(ModSettings settings, float value)
         {
             if (settings == null)
             {
                 return;
             }
 
-            settings.YawLowPassAlpha = ClampAlpha(value);
+            settings.YawFilterAlpha = ClampAlpha(value);
             NotifyChanged(settings);
         }
 
-        public static void ApplyOrbitLowPassAlpha(ModSettings settings, float value)
+        public static void ApplyOrbitFilterAlpha(ModSettings settings, float value)
         {
             if (settings == null)
             {
                 return;
             }
 
-            settings.OrbitLowPassAlpha = ClampAlpha(value);
+            settings.OrbitFilterAlpha = ClampAlpha(value);
             NotifyChanged(settings);
         }
 

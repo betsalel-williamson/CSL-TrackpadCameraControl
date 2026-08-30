@@ -123,6 +123,29 @@ namespace TrackpadCameraControl
             );
         }
 
+        /// <summary>
+        /// After vanilla damp (and optional mouse seed), flush trackpad orbit pending into
+        /// m_angleVelocity before UpdateTargetPosition integrates. Runs even when Prefix skips
+        /// the original (rotate binding held).
+        /// </summary>
+        public static void Postfix()
+        {
+            try
+            {
+                ICameraController camera = Mod.Pipeline != null ? Mod.Pipeline.Camera : null;
+                if (camera == null)
+                {
+                    return;
+                }
+
+                camera.FlushPendingAngleVelocity(Time.deltaTime);
+            }
+            catch
+            {
+                // Fail soft every frame.
+            }
+        }
+
         private static bool IsCameraMouseRotateHeld(CameraController instance)
         {
             try

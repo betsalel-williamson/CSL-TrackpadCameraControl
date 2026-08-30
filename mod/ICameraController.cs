@@ -22,9 +22,22 @@ namespace TrackpadCameraControl
         void ClampPanTarget(ref float x, ref float z);
 
         /// <summary>
-        /// Add yaw/pitch into the camera angle velocity (same path as middle mouse button
-        /// drag). Vanilla LateUpdate applies inertia and lerps current toward target.
+        /// Queue yaw/pitch for middle-mouse-style orbit. Does <b>not</b> change AngleX/Y.
+        /// Production flushes into <c>m_angleVelocity</c> from a HandleMouseEvents Harmony postfix
+        /// (after vanilla inertia damp, before integrate).
         /// </summary>
         void AddAngleVelocity(float yawDelta, float pitchDelta);
+
+        /// <summary>
+        /// Flush queued orbit deltas into angle velocity as <c>pending / max(dt, 0.001)</c>
+        /// so <c>velocity * dt ≈ pending</c> this frame. Call from HandleMouseEvents postfix.
+        /// </summary>
+        void FlushPendingAngleVelocity(float deltaTimeSeconds);
+
+        /// <summary>
+        /// Zero pitch (and optionally yaw) angle velocity so a prior orbit coast cannot
+        /// keep changing pitch during a pure yaw/rotate gesture.
+        /// </summary>
+        void ClearAngleVelocity(bool yaw, bool pitch);
     }
 }

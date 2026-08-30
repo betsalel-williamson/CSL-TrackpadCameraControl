@@ -8,59 +8,41 @@ namespace TrackpadCameraControl.Tests
     public class FeelProfilesApplyTests
     {
         [Fact]
-        public void ApplySlow_UsesFactorySensitivitiesTimes075_Rounded()
+        public void ApplySlow_UsesFactoryTimesSlowMultiplier_Rounded()
         {
             var settings = new ModSettings
             {
-                PanSensitivityX = 9f,
-                PanSensitivityY = 9f,
-                ZoomSensitivity = 9f,
-                YawRotateSensitivity = 9f,
-                OrbitYawSensitivity = 9f,
-                OrbitPitchSensitivity = 9f,
-                InvertPanX = false,
-                InvertPanY = true,
+                PanGainX = 9f,
+                PanGainY = 9f,
+                ZoomGain = 9f,
+                YawRotateGain = 9f,
+                OrbitYawGain = 9f,
+                OrbitPitchGain = 9f,
+                SignInvertPanX = false,
+                SignInvertPanY = true,
                 OrbitPitchMin = -10f,
                 OrbitPitchMax = 10f,
             };
 
             FeelProfiles.ApplySlow(settings);
 
-            Assert.Equal(0.0037f, settings.PanSensitivityX);
-            Assert.Equal(0.0037f, settings.PanSensitivityY);
-            Assert.Equal(0.75f, settings.ZoomSensitivity);
-            Assert.Equal(1.50f, settings.YawRotateSensitivity);
-            Assert.Equal(0.075f, settings.OrbitYawSensitivity);
-            Assert.Equal(0.075f, settings.OrbitPitchSensitivity);
-            Assert.True(settings.InvertPanX);
-            Assert.False(settings.InvertPanY);
-            Assert.Equal(7f, settings.OrbitPitchMin);
-            Assert.Equal(90f, settings.OrbitPitchMax);
+            FeelExpectation.AssertMatchesScaledFactory(settings, FeelProfiles.SlowMultiplier);
         }
 
         [Fact]
-        public void ApplyFast_UsesFactorySensitivitiesTimes125_Rounded()
+        public void ApplyFast_UsesFactoryTimesFastMultiplier_Rounded()
         {
             var settings = new ModSettings
             {
-                PanSensitivityX = 0.01f,
-                InvertPanX = false,
+                PanGainX = 0.01f,
+                SignInvertPanX = false,
                 OrbitPitchMin = 0f,
                 OrbitPitchMax = 1f,
             };
 
             FeelProfiles.ApplyFast(settings);
 
-            Assert.Equal(ModOptions.RoundSensitivity(0.005f * 1.25f), settings.PanSensitivityX);
-            Assert.Equal(ModOptions.RoundSensitivity(0.005f * 1.25f), settings.PanSensitivityY);
-            Assert.Equal(1.25f, settings.ZoomSensitivity);
-            Assert.Equal(2.50f, settings.YawRotateSensitivity);
-            Assert.Equal(0.125f, settings.OrbitYawSensitivity);
-            Assert.Equal(0.125f, settings.OrbitPitchSensitivity);
-            Assert.True(settings.InvertPanX);
-            Assert.False(settings.InvertPanY);
-            Assert.Equal(7f, settings.OrbitPitchMin);
-            Assert.Equal(90f, settings.OrbitPitchMax);
+            FeelExpectation.AssertMatchesScaledFactory(settings, FeelProfiles.FastMultiplier);
         }
 
         [Fact]
@@ -68,9 +50,9 @@ namespace TrackpadCameraControl.Tests
         {
             var settings = new ModSettings
             {
-                PanSensitivityX = 9f,
-                InvertPanX = false,
-                InvertPanY = true,
+                PanGainX = 9f,
+                SignInvertPanX = false,
+                SignInvertPanY = true,
                 OrbitPitchMin = -1f,
                 OrbitPitchMax = 1f,
                 PanEnabled = false,
@@ -78,16 +60,7 @@ namespace TrackpadCameraControl.Tests
 
             FeelProfiles.ApplyDefault(settings);
 
-            Assert.Equal(0.005f, settings.PanSensitivityX);
-            Assert.Equal(0.005f, settings.PanSensitivityY);
-            Assert.Equal(1.00f, settings.ZoomSensitivity);
-            Assert.Equal(2.00f, settings.YawRotateSensitivity);
-            Assert.Equal(0.10f, settings.OrbitYawSensitivity);
-            Assert.Equal(0.10f, settings.OrbitPitchSensitivity);
-            Assert.True(settings.InvertPanX);
-            Assert.False(settings.InvertPanY);
-            Assert.Equal(7f, settings.OrbitPitchMin);
-            Assert.Equal(90f, settings.OrbitPitchMax);
+            FeelExpectation.AssertMatchesFactoryFeel(settings);
             Assert.True(settings.PanEnabled);
         }
     }
@@ -100,6 +73,7 @@ namespace TrackpadCameraControl.Tests
 
         public FeelProfilesNamedPresetTests()
         {
+            ModOptions.Store = null;
             _dir = Path.Combine(
                 Path.GetTempPath(),
                 "tcc-feel-presets-" + Guid.NewGuid().ToString("N")
@@ -132,14 +106,14 @@ namespace TrackpadCameraControl.Tests
             var live = ModSettings.CreateFactoryDefaults();
             store.SaveNow(live);
 
-            live.PanSensitivityX = 1.25f;
-            live.PanSensitivityY = 0.75f;
-            live.ZoomSensitivity = 2.00f;
-            live.YawRotateSensitivity = 3.00f;
-            live.OrbitYawSensitivity = 4.00f;
-            live.OrbitPitchSensitivity = 5.00f;
-            live.InvertPanX = false;
-            live.InvertPanY = true;
+            live.PanGainX = 1.25f;
+            live.PanGainY = 0.75f;
+            live.ZoomGain = 2.00f;
+            live.YawRotateGain = 3.00f;
+            live.OrbitYawGain = 4.00f;
+            live.OrbitPitchGain = 5.00f;
+            live.SignInvertPanX = false;
+            live.SignInvertPanY = true;
             live.OrbitPitchMin = -40f;
             live.OrbitPitchMax = 40f;
             live.PanEnabled = false;
@@ -149,14 +123,14 @@ namespace TrackpadCameraControl.Tests
             var restored = ModSettings.CreateFactoryDefaults();
             Assert.True(ModOptions.LoadNamedFeelPreset(restored, "MyFeel"));
 
-            Assert.Equal(1.25f, restored.PanSensitivityX);
-            Assert.Equal(0.75f, restored.PanSensitivityY);
-            Assert.Equal(2.00f, restored.ZoomSensitivity);
-            Assert.Equal(3.00f, restored.YawRotateSensitivity);
-            Assert.Equal(4.00f, restored.OrbitYawSensitivity);
-            Assert.Equal(5.00f, restored.OrbitPitchSensitivity);
-            Assert.False(restored.InvertPanX);
-            Assert.True(restored.InvertPanY);
+            Assert.Equal(1.25f, restored.PanGainX);
+            Assert.Equal(0.75f, restored.PanGainY);
+            Assert.Equal(2.00f, restored.ZoomGain);
+            Assert.Equal(3.00f, restored.YawRotateGain);
+            Assert.Equal(4.00f, restored.OrbitYawGain);
+            Assert.Equal(5.00f, restored.OrbitPitchGain);
+            Assert.False(restored.SignInvertPanX);
+            Assert.True(restored.SignInvertPanY);
             Assert.Equal(-40f, restored.OrbitPitchMin);
             Assert.Equal(40f, restored.OrbitPitchMax);
             Assert.False(restored.PanEnabled);
@@ -170,15 +144,15 @@ namespace TrackpadCameraControl.Tests
             var live = ModSettings.CreateFactoryDefaults();
             store.SaveNow(live);
 
-            live.PanSensitivityX = 1.11f;
+            live.PanGainX = 1.11f;
             Assert.True(ModOptions.SaveNamedFeelPreset(live, "KeepMe"));
 
-            live.PanSensitivityX = 2.22f;
+            live.PanGainX = 2.22f;
             store.SaveNow(live);
 
             var other = ModSettings.CreateFactoryDefaults();
             Assert.True(ModOptions.LoadNamedFeelPreset(other, "KeepMe"));
-            Assert.Equal(1.11f, other.PanSensitivityX);
+            Assert.Equal(1.11f, other.PanGainX);
         }
 
         [Fact]
@@ -200,10 +174,9 @@ namespace TrackpadCameraControl.Tests
         [Fact]
         public void ApplyFeelSlow_ViaModOptions_MatchesSlowContract()
         {
-            var settings = new ModSettings { PanSensitivityX = 9f, InvertPanX = false };
+            var settings = new ModSettings { PanGainX = 9f, SignInvertPanX = false };
             ModOptions.ApplyFeelSlow(settings);
-            Assert.Equal(0.0037f, settings.PanSensitivityX);
-            Assert.True(settings.InvertPanX);
+            FeelExpectation.AssertMatchesScaledFactory(settings, FeelProfiles.SlowMultiplier);
         }
 
         [Fact]
@@ -213,18 +186,15 @@ namespace TrackpadCameraControl.Tests
             ModOptions.Store = store;
             var settings = new ModSettings
             {
-                PanSensitivityX = 9f,
-                InvertPanX = false,
+                PanGainX = 9f,
+                SignInvertPanX = false,
                 OrbitPitchMin = -5f,
             };
             store.SaveNow(settings);
 
             ModOptions.ResetToFactory(settings);
 
-            Assert.Equal(0.005f, settings.PanSensitivityX);
-            Assert.True(settings.InvertPanX);
-            Assert.Equal(7f, settings.OrbitPitchMin);
-            Assert.Equal(90f, settings.OrbitPitchMax);
+            FeelExpectation.AssertMatchesFactoryFeel(settings);
         }
     }
 }

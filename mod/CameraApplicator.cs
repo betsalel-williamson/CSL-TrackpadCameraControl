@@ -7,8 +7,13 @@ namespace TrackpadCameraControl
         private static readonly CameraControllerZoom DefaultCamera = new CameraControllerZoom();
         private const float Deg2Rad = (float)(Math.PI / 180.0);
 
-        /// <summary>Pitch must stay &gt; 0 even if settings allow non-positive mins.</summary>
-        private const float PitchEpsilon = 0.01f;
+        /// <summary>
+        /// Vanilla <c>CameraController.UpdateTargetPosition</c> pitch range (normal play).
+        /// Free camera allows −90; we still floor at 0 so mod orbit cannot go negative.
+        /// </summary>
+        private const float VanillaPitchMin = 0f;
+
+        private const float VanillaPitchMax = 90f;
 
         public enum InputModality
         {
@@ -97,24 +102,24 @@ namespace TrackpadCameraControl
 
             if ((ops & CameraOp.Pan) != 0)
             {
-                dx = dxSign * settings.PanButtonScaleX;
-                dy = dySign * settings.PanButtonScaleY;
+                dx = dxSign * settings.PanStepX;
+                dy = dySign * settings.PanStepY;
             }
 
             if ((ops & CameraOp.Orbit) != 0)
             {
-                dx = dxSign * settings.OrbitYawButtonScale;
-                dy = dySign * settings.OrbitPitchButtonScale;
+                dx = dxSign * settings.OrbitYawStep;
+                dy = dySign * settings.OrbitPitchStep;
             }
 
             if ((ops & CameraOp.Zoom) != 0)
             {
-                pinch = pinchSign * settings.ZoomButtonScale;
+                pinch = pinchSign * settings.ZoomStep;
             }
 
             if ((ops & CameraOp.Yaw) != 0)
             {
-                rotate = rotateSign * settings.YawRotateButtonScale;
+                rotate = rotateSign * settings.YawRotateStep;
             }
 
             Apply(ops, dx, dy, pinch, rotate, settings, camera, InputModality.Button, null);
@@ -188,8 +193,8 @@ namespace TrackpadCameraControl
             float delta =
                 modality == InputModality.Button
                     ? pinchDelta
-                    : pinchDelta * settings.ZoomSensitivity;
-            if (settings.InvertZoom)
+                    : pinchDelta * settings.ZoomGain;
+            if (settings.SignInvertZoom)
             {
                 delta = -delta;
             }
@@ -225,15 +230,15 @@ namespace TrackpadCameraControl
             }
 
             float mx =
-                modality == InputModality.Button ? dx : dx * settings.PanSensitivityX;
+                modality == InputModality.Button ? dx : dx * settings.PanGainX;
             float my =
-                modality == InputModality.Button ? dy : dy * settings.PanSensitivityY;
-            if (settings.InvertPanX)
+                modality == InputModality.Button ? dy : dy * settings.PanGainY;
+            if (settings.SignInvertPanX)
             {
                 mx = -mx;
             }
 
-            if (settings.InvertPanY)
+            if (settings.SignInvertPanY)
             {
                 my = -my;
             }
@@ -303,46 +308,24 @@ namespace TrackpadCameraControl
             }
 
             float dyaw =
-                modality == InputModality.Button ? dx : dx * settings.OrbitYawSensitivity;
+                modality == InputModality.Button ? dx : dx * settings.OrbitYawGain;
             float dpitch =
-                modality == InputModality.Button ? dy : dy * settings.OrbitPitchSensitivity;
-            if (settings.InvertOrbitYaw)
+                modality == InputModality.Button ? dy : dy * settings.OrbitPitchGain;
+            if (settings.SignInvertOrbitYaw)
             {
                 dyaw = -dyaw;
             }
 
-            if (settings.InvertOrbitPitch)
+            if (settings.SignInvertOrbitPitch)
             {
                 dpitch = -dpitch;
             }
 
-            // Drag: middle mouse button-style velocity. Button chrome: absolute step.
+            // Drag: queue middle-mouse-style velocity (flushed from HandleMouseEvents postfix).
+            // Only stop further downward pitch at 0 so free-cam −90 cannot be reached via our path.
             if (modality != InputModality.Button)
             {
-                float min = settings.OrbitPitchMin;
-                float max = settings.OrbitPitchMax;
-                if (min > max)
-                {
-                    float swap = min;
-                    min = max;
-                    max = swap;
-                }
-
-                if (min < PitchEpsilon)
-                {
-                    min = PitchEpsilon;
-                }
-
-                if (max < min)
-                {
-                    max = min;
-                }
-
-                if (pitch <= min && dpitch < 0f)
-                {
-                    dpitch = 0f;
-                }
-                else if (pitch >= max && dpitch > 0f)
+                if (pitch <= VanillaPitchMin && dpitch < 0f)
                 {
                     dpitch = 0f;
                 }
@@ -354,32 +337,13 @@ namespace TrackpadCameraControl
             camera.AngleX = yaw + dyaw;
 
             float nextPitch = pitch + dpitch;
-            float buttonMin = settings.OrbitPitchMin;
-            float buttonMax = settings.OrbitPitchMax;
-            if (buttonMin > buttonMax)
+            if (nextPitch < VanillaPitchMin)
             {
-                float swap = buttonMin;
-                buttonMin = buttonMax;
-                buttonMax = swap;
+                nextPitch = VanillaPitchMin;
             }
-
-            if (buttonMin < PitchEpsilon)
+            else if (nextPitch > VanillaPitchMax)
             {
-                buttonMin = PitchEpsilon;
-            }
-
-            if (buttonMax < buttonMin)
-            {
-                buttonMax = buttonMin;
-            }
-
-            if (nextPitch < buttonMin)
-            {
-                nextPitch = buttonMin;
-            }
-            else if (nextPitch > buttonMax)
-            {
-                nextPitch = buttonMax;
+                nextPitch = VanillaPitchMax;
             }
 
             camera.AngleY = nextPitch;
@@ -396,14 +360,16 @@ namespace TrackpadCameraControl
             float delta =
                 modality == InputModality.Button
                     ? rotateDelta
-                    : rotateDelta * settings.YawRotateSensitivity;
-            if (settings.InvertYawRotate)
+                    : rotateDelta * settings.YawRotateGain;
+            if (settings.SignInvertYawRotate)
             {
                 delta = -delta;
             }
 
             if (selection != null && selection.TryApplyObjectYawDelta(delta))
             {
+                // Object twist must not keep coasting camera pitch from a prior Option-orbit.
+                camera.ClearAngleVelocity(yaw: false, pitch: true);
                 return;
             }
 
@@ -413,6 +379,8 @@ namespace TrackpadCameraControl
                 return;
             }
 
+            // Pure camera yaw: kill leftover orbit pitch velocity so rotate cannot pitch.
+            camera.ClearAngleVelocity(yaw: false, pitch: true);
             camera.AngleX = yaw + delta;
         }
     }

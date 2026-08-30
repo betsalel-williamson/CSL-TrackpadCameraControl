@@ -52,9 +52,9 @@ namespace TrackpadCameraControl
 
             if ((ops & CameraOp.Pan) != 0)
             {
-                if (settings.PanLowPassEnabled)
+                if (settings.PanFilterEnabled)
                 {
-                    Filter2(settings.PanLowPassAlpha, ref _panInit, ref _panX, ref _panY, ref dx, ref dy);
+                    Filter2(settings.PanFilterAlpha, ref _panInit, ref _panX, ref _panY, ref dx, ref dy);
                 }
                 else
                 {
@@ -64,10 +64,10 @@ namespace TrackpadCameraControl
 
             if ((ops & CameraOp.Orbit) != 0)
             {
-                if (settings.OrbitLowPassEnabled)
+                if (settings.OrbitFilterEnabled)
                 {
                     Filter2(
-                        settings.OrbitLowPassAlpha,
+                        settings.OrbitFilterAlpha,
                         ref _orbitInit,
                         ref _orbitX,
                         ref _orbitY,
@@ -83,9 +83,9 @@ namespace TrackpadCameraControl
 
             if ((ops & CameraOp.Zoom) != 0)
             {
-                if (settings.ZoomLowPassEnabled)
+                if (settings.ZoomFilterEnabled)
                 {
-                    Filter1(settings.ZoomLowPassAlpha, ref _zoomInit, ref _zoom, ref pinchDelta);
+                    Filter1(settings.ZoomFilterAlpha, ref _zoomInit, ref _zoom, ref pinchDelta);
                 }
                 else
                 {
@@ -95,9 +95,9 @@ namespace TrackpadCameraControl
 
             if ((ops & CameraOp.Yaw) != 0)
             {
-                if (settings.YawLowPassEnabled)
+                if (settings.YawFilterEnabled)
                 {
-                    Filter1(settings.YawLowPassAlpha, ref _yawInit, ref _yaw, ref rotateDelta);
+                    Filter1(settings.YawFilterAlpha, ref _yawInit, ref _yaw, ref rotateDelta);
                 }
                 else
                 {

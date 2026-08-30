@@ -2,7 +2,7 @@
 
 Logical schema for ModSettings. Field names in source may differ; this shard is the contract. Defaults belong only in the settings defaults factory — not in camera update logic.
 
-Canonical UI term: **[Sensitivity](../glossary/sensitivity.md)**. Synonyms in older docs/code: drag scale, speed, scale. Product floats round to **two decimal places**; Sensitivity values must be **> 0**.
+Canonical UI term: **[Sensitivity](../glossary/sensitivity.md)**. Persist / code names use control-systems language (**gain**). Synonyms in older docs: drag scale, speed, scale. Product floats round to **two decimal places**; gain values must be **> 0**.
 
 Product-surface gates: [feature flags](./feature-flags.md). Planning: [AppleKit Maps+ feel surface design](../superpowers/specs/2026-08-29-applekit-feel-surface-design.md).
 
@@ -42,46 +42,48 @@ See [gesture resolve mode](../glossary/gesture-resolve-mode.md). PrimaryOnly pri
 
 Maps+ uses ModifierPlusTwoFinger (Option on macOS). CAD would use ThreeFinger when `EnableCadGestureStyle` is on. [Orbit latch](../glossary/orbit-latch.md) always applies when orbit engages.
 
-## Sensitivity (factory Default feel)
+## Sensitivity / gain (factory Default feel)
 
-Used by trackpad gestures (and Assist chrome pads when `EnableAssistChrome` is on). Field names use `*Sensitivity*`.
+Used by trackpad gestures (and Assist chrome pads when `EnableAssistChrome` is on). Options labels say **Sensitivity**; schema/XML fields use `*Gain*`.
 
-| Field                 | Type  | Factory Default | Hot |
-| --------------------- | ----- | --------------- | --- |
-| PanSensitivityX       | float | 0.005           | yes |
-| PanSensitivityY       | float | 0.005           | yes |
-| ZoomSensitivity       | float | 1.00            | yes |
-| YawRotateSensitivity  | float | 2.00            | yes |
-| OrbitYawSensitivity   | float | 0.10            | yes |
-| OrbitPitchSensitivity | float | 0.10            | yes |
+| Field           | Type  | Factory Default | Hot |
+| --------------- | ----- | --------------- | --- |
+| PanGainX        | float | 0.005           | yes |
+| PanGainY        | float | 0.005           | yes |
+| ZoomGain        | float | 1.00            | yes |
+| YawRotateGain   | float | 2.00            | yes |
+| OrbitYawGain    | float | 0.10            | yes |
+| OrbitPitchGain  | float | 0.10            | yes |
 
-**Numeric policy:** each Sensitivity must be **> 0**; parse/apply round to **four** decimals (pan/orbit after folding the former 0.01 AppKit scroll unit into defaults).
+**Numeric policy:** each gain must be **> 0**; parse/apply round to **four** decimals (pan/orbit after folding the former 0.01 AppKit scroll unit into defaults).
 
 **Product Sensitivity sliders:** for each axis, UI range is **0.1×–2×** that axis’s factory Default value, with step ≈ **10%** of the factory default (rounded to four decimals; values must stay **> 0**).
 
-**Schema 2:** AppKit scroll deltas are raw; schema 1 files migrate by ×0.01 on pan/orbit Sensitivity and ÷0.01 on MotionDeadzone.
+**Schema 2:** AppKit scroll deltas are raw; schema 1 files migrate by ×0.01 on pan/orbit gain and ÷0.01 on motion deadband (legacy element `MotionDeadzone`).
+
+**Schema 3:** XML element names move to engineering language (`*Gain*`, `*Step*`, `MotionDeadband`, `*Filter*`, `SignInvert*`). Schema 1–2 files deserialize via the legacy shape and rewrite as schema 3.
 
 ## Orbit pitch limits
 
 | Field         | Type  | Factory Default | Hot |
 | ------------- | ----- | --------------- | --- |
-| OrbitPitchMin | float | 7.00            | yes |
+| OrbitPitchMin | float | 0.00            | yes |
 | OrbitPitchMax | float | 90.00           | yes |
 
-Applied as a clamp after orbit pitch writes. Both limits and live pitch must stay **> 0** (no non-positive pitch). Display/store at two decimals. No yaw angle clamp in this contract. **UI:** Pitch min / max appear on the **Debug panel** only (develop); Options does not expose angle limit fields.
+Schema-retained for presets / older XML. **Live orbit clamp matches vanilla** `CameraController` normal play: **0°–90°**. Drag uses `AddAngleVelocity` (vanilla integrates and clamps); the mod only floors further downward pitch at **0°** so free-camera **−90°** cannot be reached via our path. Button / absolute `AngleY` writes clamp to **0…90**. Fields are not exposed in Options or the Debug panel.
 
 ## Button steps
 
-Used by Assist chrome nudge buttons only — product UI when `EnableAssistChrome` is on. Schema-retained while the flag is off. UI label: **button step**. Field names use `*ButtonScale*`. **Not** multiplied by Sensitivity.
+Used by Assist chrome nudge buttons only — product UI when `EnableAssistChrome` is on. Schema-retained while the flag is off. UI label: **button step**. Field names use `*Step*` (schema ≤2: `*ButtonScale*`). **Not** multiplied by gain / Sensitivity.
 
-| Field                 | Type  | Default seed | Hot |
-| --------------------- | ----- | ------------ | --- |
-| PanButtonScaleX       | float | 0.05         | yes |
-| PanButtonScaleY       | float | 0.05         | yes |
-| OrbitYawButtonScale   | float | 2.00         | yes |
-| OrbitPitchButtonScale | float | 2.00         | yes |
-| ZoomButtonScale       | float | 0.05         | yes |
-| YawRotateButtonScale  | float | 2.00         | yes |
+| Field          | Type  | Default seed | Hot |
+| -------------- | ----- | ------------ | --- |
+| PanStepX       | float | 0.05         | yes |
+| PanStepY       | float | 0.05         | yes |
+| OrbitYawStep   | float | 2.00         | yes |
+| OrbitPitchStep | float | 2.00         | yes |
+| ZoomStep       | float | 0.05         | yes |
+| YawRotateStep  | float | 2.00         | yes |
 
 Exact button-step seeds may be tuned in the defaults factory; document new seeds here when they change. Product floats still round to two decimals.
 
@@ -89,42 +91,42 @@ Exact button-step seeds may be tuned in the defaults factory; document new seeds
 
 Let `raw` be the resolved gesture delta for that axis (centroid, pinch, or rotate). Optional [low-pass](../glossary/low-pass.md) may replace `raw` with an EMA-smoothed value on the continuous path only — and only when Contacts capture is enabled (`EnableContactsCapture`).
 
-**Invert:** if the matching invert flag is on, multiply the signed delta by `-1` after scaling.
+**Sign invert:** if the matching `SignInvert*` flag is on, multiply the signed delta by `-1` after scaling. Options may still label these **Invert** / Reverse.
 
 ### Continuous path (trackpad; chrome pads when flagged on)
 
-| Op    | After Sensitivity                                                                                    | Camera write                                                              |
-| ----- | ---------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------- |
-| Pan   | `mx = dx * PanSensitivityX`, `my = dy * PanSensitivityY`, then `mx,my *= Size`                       | Camera-relative XZ: `target += right*mx + forward*my`                     |
-| Zoom  | `delta = pinch * ZoomSensitivity`                                                                    | `Size' = Size * (1 - delta)` (clamped)                                    |
-| Yaw   | `delta = rotate * YawRotateSensitivity`                                                              | `AngleX' = AngleX + delta`                                                |
-| Orbit | `dyaw = dx * OrbitYawSensitivity`, `dpitch = dy * OrbitPitchSensitivity`                             | `AngleX' += dyaw`, `AngleY' += dpitch`, then clamp pitch to min / max     |
+| Op    | After gain                                                                                     | Camera write                                                              |
+| ----- | ---------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------- |
+| Pan   | `mx = dx * PanGainX`, `my = dy * PanGainY`, then `mx,my *= Size`                               | Camera-relative XZ: `target += right*mx + forward*my`                     |
+| Zoom  | `delta = pinch * ZoomGain`                                                                     | `Size' = Size * (1 - delta)` (clamped)                                    |
+| Yaw   | `delta = rotate * YawRotateGain`                                                               | `AngleX' = AngleX + delta`                                                |
+| Orbit | `dyaw = dx * OrbitYawGain`, `dpitch = dy * OrbitPitchGain`                                     | `AngleX' += dyaw`, `AngleY' += dpitch`, then clamp pitch to min / max     |
 
 ### Button path (chrome nudges only; `EnableAssistChrome`)
 
-Build a one-shot delta from the button step and a sign (`±1`), then apply invert and the same camera write as above. **Do not** multiply by Sensitivity. Skip low-pass.
+Build a one-shot delta from the button step and a sign (`±1`), then apply sign invert and the same camera write as above. **Do not** multiply by gain. Skip filter (low-pass).
 
-| Op    | One-shot input before invert                                      |
-| ----- | ----------------------------------------------------------------- |
-| Pan   | `dx = signX * PanButtonScaleX`, `dy = signY * PanButtonScaleY`    |
-| Zoom  | `pinch = sign * ZoomButtonScale`                                  |
-| Yaw   | `rotate = sign * YawRotateButtonScale`                            |
-| Orbit | `dx = signYaw * OrbitYawButtonScale`, `dy = signPitch * OrbitPitchButtonScale` |
+| Op    | One-shot input before sign invert                              |
+| ----- | -------------------------------------------------------------- |
+| Pan   | `dx = signX * PanStepX`, `dy = signY * PanStepY`               |
+| Zoom  | `pinch = sign * ZoomStep`                                      |
+| Yaw   | `rotate = sign * YawRotateStep`                                |
+| Orbit | `dx = signYaw * OrbitYawStep`, `dy = signPitch * OrbitPitchStep` |
 
-### Low-pass (continuous only; Contacts)
+### Filter / low-pass (continuous only; Contacts)
 
 When enabled for an op under Contacts capture: first sample seeds state; later `smoothed += alpha * (raw - smoothed)`. Reset on touch-up. Buttons skip this stage.
 
-## Inverts
+## Sign invert (polarity)
 
-| Field            | Type | Factory Default | Hot |
-| ---------------- | ---- | --------------- | --- |
-| InvertPanX       | bool | true            | yes |
-| InvertPanY       | bool | false           | yes |
-| InvertOrbitYaw   | bool | false           | yes |
-| InvertOrbitPitch | bool | false           | yes |
-| InvertZoom       | bool | false           | yes |
-| InvertYawRotate  | bool | false           | yes |
+| Field                 | Type | Factory Default | Hot |
+| --------------------- | ---- | --------------- | --- |
+| SignInvertPanX        | bool | true            | yes |
+| SignInvertPanY        | bool | false           | yes |
+| SignInvertOrbitYaw    | bool | false           | yes |
+| SignInvertOrbitPitch  | bool | false           | yes |
+| SignInvertZoom        | bool | false           | yes |
+| SignInvertYawRotate   | bool | false           | yes |
 
 Factory Default feel: Pan Reverse X on, Y off (playtest Maps+).
 
@@ -132,27 +134,27 @@ Factory Default feel: Pan Reverse X on, Y off (playtest Maps+).
 
 | Field                 | Type  | Default seed   | Hot |
 | --------------------- | ----- | -------------- | --- |
-| MotionDeadzone        | float | small positive | yes |
+| MotionDeadband        | float | small positive | yes |
 | PinchEpsilon          | float | small positive | yes |
 | RotateEpsilon         | float | small positive | yes |
 | FingerCountHysteresis | float | small positive | yes |
 
 Schema-retained; not required on the slim product surface.
 
-## Per-op low-pass (Contacts only)
+## Per-op filter / low-pass (Contacts only)
 
-EMA on continuous deltas after resolve, before apply — see glossary **low-pass**. Product UI and processing when `EnableContactsCapture` is on. Buttons skip low-pass. The former single `Smoothing` field is retired.
+EMA on continuous deltas after resolve, before apply — see glossary **low-pass**. Product UI and processing when `EnableContactsCapture` is on. Buttons skip filter. Schema fields use `*Filter*`; Options may still say **Low-pass**. The former single `Smoothing` field is retired.
 
 | Field               | Type      | Default | Hot |
 | ------------------- | --------- | ------- | --- |
-| PanLowPassEnabled   | bool      | false   | yes |
-| PanLowPassAlpha     | float 0–1 | 0.30    | yes |
-| ZoomLowPassEnabled  | bool      | false   | yes |
-| ZoomLowPassAlpha    | float 0–1 | 0.30    | yes |
-| YawLowPassEnabled   | bool      | false   | yes |
-| YawLowPassAlpha     | float 0–1 | 0.30    | yes |
-| OrbitLowPassEnabled | bool      | false   | yes |
-| OrbitLowPassAlpha   | float 0–1 | 0.30    | yes |
+| PanFilterEnabled    | bool      | false   | yes |
+| PanFilterAlpha      | float 0–1 | 0.30    | yes |
+| ZoomFilterEnabled   | bool      | false   | yes |
+| ZoomFilterAlpha     | float 0–1 | 0.30    | yes |
+| YawFilterEnabled    | bool      | false   | yes |
+| YawFilterAlpha      | float 0–1 | 0.30    | yes |
+| OrbitFilterEnabled  | bool      | false   | yes |
+| OrbitFilterAlpha    | float 0–1 | 0.30    | yes |
 
 ## Gates and capture
 
@@ -174,9 +176,9 @@ Primary player model: **[feel presets](../glossary/feel-preset.md)** (sensitivit
 
 | Profile | Contract |
 | ------- | -------- |
-| Default / Reset to factory | Factory Default table above (InvertPanX true; Sensitivity seeds; OrbitPitchMin/Max 7–90) |
-| Slow | Default Sensitivity fields × **0.75**; reverse and pitch limits unchanged; round to two decimals |
-| Fast | Default Sensitivity fields × **1.25**; reverse and pitch limits unchanged; round to two decimals |
+| Default / Reset to factory | Factory Default table above (SignInvertPanX true; gain seeds; OrbitPitchMin/Max 0–90 schema seeds) |
+| Slow | Default gain fields × **0.75**; reverse and pitch limits unchanged; round to two decimals |
+| Fast | Default gain fields × **1.25**; reverse and pitch limits unchanged; round to two decimals |
 | **New Preset** | Scratch identity when the player dirties an active built-in or named preset; autosave writes here; built-ins Slow / Default / Fast are never overwritten |
 | Named Save as… / Load | Full feel set in `userPresets[]`; after Save as…, the named preset is selected; further edits dirty back to **New Preset** |
 

@@ -47,7 +47,7 @@ A [feel preset](../glossary/feel-preset.md) stores sensitivities, reverse flags,
 Under each op heading (**Zoom**, **Pan**, **Rotate**, **Orbit**) after **General**: short meaning + activation, then:
 
 - Per-op [Sensitivity](../glossary/sensitivity.md) **slider**: min **0.1×** that field’s factory default, max **2×**, step ≈ **10%** of factory default; display/apply **four** decimals for Sensitivity
-- Orbit: Pitch min / max (schema + Debug panel only; factory **7°** / **90°**, pitch always **> 0**). No yaw angle clamp. Options does **not** expose these angle limits.
+- Orbit: schema seeds OrbitPitchMin/Max **0** / **90** (vanilla). Live clamp is hardcoded to that range — not Options/Debug-tunable. Drag floors at **0°**; button writes clamp **0…90**. No yaw angle clamp.
 
 Also: [feel preset](../glossary/feel-preset.md) row (Slow / Default / Fast / New Preset when dirty, Save as… / Load, Reset to factory), Debug UI enabled (panel master switch).
 

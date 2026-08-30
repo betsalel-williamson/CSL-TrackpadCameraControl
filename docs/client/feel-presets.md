@@ -1,6 +1,6 @@
 # Feel presets
 
-A [feel preset](../glossary/feel-preset.md) stores how the camera *feels*: [Sensitivity](../glossary/sensitivity.md) values and orbit Pitch min / max. It does **not** change [gesture style](../glossary/gesture-style.md) — shipped play stays [Maps+](../glossary/maps-plus-preset.md) (AppleKit), including Option (`⌥`)+two-finger for [orbit](../glossary/orbit.md).
+A [feel preset](../glossary/feel-preset.md) stores how the camera *feels*: [Sensitivity](../glossary/sensitivity.md) values. It does **not** change [gesture style](../glossary/gesture-style.md) — shipped play stays [Maps+](../glossary/maps-plus-preset.md) (AppleKit), including Option (`⌥`)+two-finger for [orbit](../glossary/orbit.md).
 
 Use the feel-preset **dropdown** in Options → Trackpad Camera Control or the in-game [Debug panel](./debug-ui.md).
 
@@ -12,7 +12,7 @@ Use the feel-preset **dropdown** in Options → Trackpad Camera Control or the i
 | **Slow** | Default’s Sensitivity values × **0.75**, rounded to two decimals |
 | **Fast** | Default’s Sensitivity values × **1.25**, rounded to two decimals |
 
-Built-ins (**Slow**, **Default**, **Fast**) are **immutable** — the mod never overwrites them. Slow and Fast keep the same Pitch min / max as Default; they only scale Sensitivity.
+Built-ins (**Slow**, **Default**, **Fast**) are **immutable** — the mod never overwrites them. Slow and Fast only scale Sensitivity.
 
 ### Default (factory) numbers
 
@@ -24,7 +24,7 @@ Built-ins (**Slow**, **Default**, **Fast**) are **immutable** — the mod never 
 | Orbit yaw / pitch Sensitivity | 10.00 / 10.00 |
 | Gesture style | Maps+ (`⌥`+two-finger orbit) |
 | Capture | AppleKit |
-| Orbit Pitch min / max | **7** / **90** |
+| Orbit pitch | vanilla **0** / **90** |
 
 **Sensitivity** sliders run from about **0.1×** to **2×** the factory default for that field.
 

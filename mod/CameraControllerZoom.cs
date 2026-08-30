@@ -30,6 +30,8 @@ namespace TrackpadCameraControl
 
         private object _cachedController;
         private int _missStreak;
+        private float _pendingYaw;
+        private float _pendingPitch;
 
         public bool IsAvailable
         {
@@ -129,17 +131,86 @@ namespace TrackpadCameraControl
         }
 
         /// <summary>
-        /// Feed yaw/pitch the way middle mouse button drag does: accumulate into
-        /// <c>m_angleVelocity</c> and let CameraController LateUpdate damp + lerp.
-        /// Does not write <c>m_currentAngle</c> (avoids teleport jitter).
+        /// Queue yaw/pitch for middle-mouse-style orbit. Does not write angles or
+        /// <c>m_angleVelocity</c> here — vanilla damps velocity first in UpdateTargetPosition.
+        /// Flush from HandleMouseEvents Harmony postfix (after damp, before integrate).
         /// </summary>
         public void AddAngleVelocity(float yawDelta, float pitchDelta)
         {
+            if (yawDelta == 0f && pitchDelta == 0f)
+            {
+                return;
+            }
+
+            _pendingYaw += yawDelta;
+            _pendingPitch += pitchDelta;
+        }
+
+        /// <summary>
+        /// Write queued deltas into <c>m_angleVelocity</c> as pending / max(dt, 0.001)
+        /// so velocity * dt ≈ pending this frame.
+        /// </summary>
+        public void FlushPendingAngleVelocity(float deltaTimeSeconds)
+        {
             if (
-                !TryGetController(out object cam)
+                (_pendingYaw == 0f && _pendingPitch == 0f)
+                || !TryGetController(out object cam)
                 || _angleVelocityField == null
-                || (yawDelta == 0f && pitchDelta == 0f)
             )
+            {
+                _pendingYaw = 0f;
+                _pendingPitch = 0f;
+                return;
+            }
+
+            float dt = deltaTimeSeconds;
+            if (dt < 0.001f)
+            {
+                dt = 0.001f;
+            }
+
+            float yawDelta = _pendingYaw / dt;
+            float pitchDelta = _pendingPitch / dt;
+            _pendingYaw = 0f;
+            _pendingPitch = 0f;
+
+            object vec = _angleVelocityField.GetValue(cam);
+            if (vec == null)
+            {
+                return;
+            }
+
+            Type vectorType = _angleVelocityField.FieldType;
+            float x = GetVectorComponent(vec, 0);
+            float y = GetVectorComponent(vec, 1);
+            if (float.IsNaN(x))
+            {
+                x = 0f;
+            }
+
+            if (float.IsNaN(y))
+            {
+                y = 0f;
+            }
+
+            object next = SetVectorComponent(vec, vectorType, 0, x + yawDelta);
+            next = SetVectorComponent(next, vectorType, 1, y + pitchDelta);
+            _angleVelocityField.SetValue(cam, next);
+        }
+
+        public void ClearAngleVelocity(bool yaw, bool pitch)
+        {
+            if (yaw)
+            {
+                _pendingYaw = 0f;
+            }
+
+            if (pitch)
+            {
+                _pendingPitch = 0f;
+            }
+
+            if (!TryGetController(out object cam) || _angleVelocityField == null || (!yaw && !pitch))
             {
                 return;
             }
@@ -163,8 +234,18 @@ namespace TrackpadCameraControl
                 y = 0f;
             }
 
-            object next = SetVectorComponent(vec, vectorType, 0, x + yawDelta);
-            next = SetVectorComponent(next, vectorType, 1, y + pitchDelta);
+            if (yaw)
+            {
+                x = 0f;
+            }
+
+            if (pitch)
+            {
+                y = 0f;
+            }
+
+            object next = SetVectorComponent(vec, vectorType, 0, x);
+            next = SetVectorComponent(next, vectorType, 1, y);
             _angleVelocityField.SetValue(cam, next);
         }
 

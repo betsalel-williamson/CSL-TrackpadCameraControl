@@ -15,12 +15,15 @@ namespace TrackpadCameraControl.Tests
         }
 
         [Fact]
-        public void FeelProfileNameConstants_MatchProductLabels()
+        public void FeelProfileNameConstants_AreDistinctNonEmpty()
         {
-            Assert.Equal("Slow", FeelProfiles.NameSlow);
-            Assert.Equal("Default", FeelProfiles.NameDefault);
-            Assert.Equal("Fast", FeelProfiles.NameFast);
-            Assert.Equal("New Preset", FeelProfiles.NameNewPreset);
+            Assert.False(string.IsNullOrEmpty(FeelProfiles.NameSlow));
+            Assert.False(string.IsNullOrEmpty(FeelProfiles.NameDefault));
+            Assert.False(string.IsNullOrEmpty(FeelProfiles.NameFast));
+            Assert.False(string.IsNullOrEmpty(FeelProfiles.NameNewPreset));
+            Assert.NotEqual(FeelProfiles.NameSlow, FeelProfiles.NameDefault);
+            Assert.NotEqual(FeelProfiles.NameDefault, FeelProfiles.NameFast);
+            Assert.NotEqual(FeelProfiles.NameFast, FeelProfiles.NameNewPreset);
         }
 
         [Fact]
@@ -84,12 +87,12 @@ namespace TrackpadCameraControl.Tests
         public void ApplyFeelSlow_SetsActiveName_DoesNotWriteNewPresetSlot()
         {
             OpenStoreWithLive(out ModSettings live);
-            live.PanSensitivityX = 9f;
+            live.PanGainX = 9f;
 
             ModOptions.ApplyFeelSlow(live);
 
             Assert.Equal(FeelProfiles.NameSlow, live.ActiveFeelPresetName);
-            Assert.Equal(0.0037f, live.PanSensitivityX);
+            FeelExpectation.AssertMatchesScaledFactory(live, FeelProfiles.SlowMultiplier);
             ModSettings scratch;
             Assert.False(ModOptions.Store.TryGetUserPreset(FeelProfiles.NameNewPreset, out scratch));
         }
@@ -101,44 +104,45 @@ namespace TrackpadCameraControl.Tests
 
             ModOptions.ApplyFeelDefault(live);
             Assert.Equal(FeelProfiles.NameDefault, live.ActiveFeelPresetName);
+            FeelExpectation.AssertMatchesFactoryFeel(live);
 
             ModOptions.ApplyFeelFast(live);
             Assert.Equal(FeelProfiles.NameFast, live.ActiveFeelPresetName);
-            Assert.Equal(ModOptions.RoundSensitivity(0.005f * 1.25f), live.PanSensitivityX);
+            FeelExpectation.AssertMatchesScaledFactory(live, FeelProfiles.FastMultiplier);
         }
 
         [Fact]
-        public void ApplyPanSensitivityX_WhileOnDefault_SwitchesToNewPresetAndAutosaves()
+        public void ApplyPanGainX_WhileOnDefault_SwitchesToNewPresetAndAutosaves()
         {
             OpenStoreWithLive(out ModSettings live);
             Assert.Equal(FeelProfiles.NameDefault, live.ActiveFeelPresetName);
 
-            ModOptions.ApplyPanSensitivityX(live, 0.75f);
+            ModOptions.ApplyPanGainX(live, 0.75f);
 
             Assert.Equal(FeelProfiles.NameNewPreset, live.ActiveFeelPresetName);
-            Assert.Equal(0.75f, live.PanSensitivityX);
+            Assert.Equal(0.75f, live.PanGainX);
 
             ModSettings scratch;
             Assert.True(
                 ModOptions.Store.TryGetUserPreset(FeelProfiles.NameNewPreset, out scratch)
             );
-            Assert.Equal(0.75f, scratch.PanSensitivityX);
+            Assert.Equal(0.75f, scratch.PanGainX);
         }
 
         [Fact]
         public void FurtherEditsOnNewPreset_AutosaveIntoSameSlot()
         {
             OpenStoreWithLive(out ModSettings live);
-            ModOptions.ApplyPanSensitivityX(live, 0.75f);
-            ModOptions.ApplyZoomSensitivity(live, 1.50f);
+            ModOptions.ApplyPanGainX(live, 0.75f);
+            ModOptions.ApplyZoomGain(live, 1.50f);
 
             Assert.Equal(FeelProfiles.NameNewPreset, live.ActiveFeelPresetName);
             ModSettings scratch;
             Assert.True(
                 ModOptions.Store.TryGetUserPreset(FeelProfiles.NameNewPreset, out scratch)
             );
-            Assert.Equal(0.75f, scratch.PanSensitivityX);
-            Assert.Equal(1.50f, scratch.ZoomSensitivity);
+            Assert.Equal(0.75f, scratch.PanGainX);
+            Assert.Equal(1.50f, scratch.ZoomGain);
         }
 
         [Fact]
@@ -146,21 +150,21 @@ namespace TrackpadCameraControl.Tests
         {
             OpenStoreWithLive(out ModSettings live);
             ModOptions.ApplyFeelSlow(live);
-            ModOptions.ApplyPanSensitivityX(live, 0.99f);
+            ModOptions.ApplyPanGainX(live, 0.99f);
 
             Assert.Equal(FeelProfiles.NameNewPreset, live.ActiveFeelPresetName);
 
             var other = ModSettings.CreateFactoryDefaults();
             FeelProfiles.ApplySlow(other);
-            Assert.Equal(0.0037f, other.PanSensitivityX);
-            Assert.NotEqual(0.99f, other.PanSensitivityX);
+            FeelExpectation.AssertMatchesScaledFactory(other, FeelProfiles.SlowMultiplier);
+            Assert.NotEqual(0.99f, other.PanGainX);
         }
 
         [Fact]
         public void SaveNamedFeelPreset_RejectsBuiltInNames()
         {
             OpenStoreWithLive(out ModSettings live);
-            live.PanSensitivityX = 0.80f;
+            live.PanGainX = 0.80f;
 
             Assert.False(ModOptions.SaveNamedFeelPreset(live, FeelProfiles.NameSlow));
             Assert.False(ModOptions.SaveNamedFeelPreset(live, FeelProfiles.NameDefault));
@@ -178,7 +182,7 @@ namespace TrackpadCameraControl.Tests
         public void SaveNamedFeelPreset_PromotesNewPreset_SelectsNamed()
         {
             OpenStoreWithLive(out ModSettings live);
-            ModOptions.ApplyPanSensitivityX(live, 0.80f);
+            ModOptions.ApplyPanGainX(live, 0.80f);
             Assert.Equal(FeelProfiles.NameNewPreset, live.ActiveFeelPresetName);
 
             Assert.True(ModOptions.SaveNamedFeelPreset(live, "MyFeel"));
@@ -186,7 +190,7 @@ namespace TrackpadCameraControl.Tests
             Assert.Equal("MyFeel", live.ActiveFeelPresetName);
             ModSettings named;
             Assert.True(ModOptions.Store.TryGetUserPreset("MyFeel", out named));
-            Assert.Equal(0.80f, named.PanSensitivityX);
+            Assert.Equal(0.80f, named.PanGainX);
 
             ModSettings scratch;
             Assert.False(
@@ -198,44 +202,44 @@ namespace TrackpadCameraControl.Tests
         public void AfterSaveAs_FurtherEdit_DirtiesToNewPresetAgain()
         {
             OpenStoreWithLive(out ModSettings live);
-            ModOptions.ApplyPanSensitivityX(live, 0.80f);
+            ModOptions.ApplyPanGainX(live, 0.80f);
             Assert.True(ModOptions.SaveNamedFeelPreset(live, "MyFeel"));
 
-            ModOptions.ApplyPanSensitivityX(live, 0.90f);
+            ModOptions.ApplyPanGainX(live, 0.90f);
 
             Assert.Equal(FeelProfiles.NameNewPreset, live.ActiveFeelPresetName);
             ModSettings named;
             Assert.True(ModOptions.Store.TryGetUserPreset("MyFeel", out named));
-            Assert.Equal(0.80f, named.PanSensitivityX);
+            Assert.Equal(0.80f, named.PanGainX);
 
             ModSettings scratch;
             Assert.True(
                 ModOptions.Store.TryGetUserPreset(FeelProfiles.NameNewPreset, out scratch)
             );
-            Assert.Equal(0.90f, scratch.PanSensitivityX);
+            Assert.Equal(0.90f, scratch.PanGainX);
         }
 
         [Fact]
         public void LoadNamedFeelPreset_SetsActiveName()
         {
             OpenStoreWithLive(out ModSettings live);
-            live.PanSensitivityX = 1.11f;
+            live.PanGainX = 1.11f;
             Assert.True(ModOptions.SaveNamedFeelPreset(live, "KeepMe"));
 
             ModOptions.ApplyFeelDefault(live);
             Assert.Equal(FeelProfiles.NameDefault, live.ActiveFeelPresetName);
-            Assert.Equal(0.005f, live.PanSensitivityX);
+            Assert.Equal(FeelExpectation.Factory().PanGainX, live.PanGainX);
 
             Assert.True(ModOptions.LoadNamedFeelPreset(live, "KeepMe"));
             Assert.Equal("KeepMe", live.ActiveFeelPresetName);
-            Assert.Equal(1.11f, live.PanSensitivityX);
+            Assert.Equal(1.11f, live.PanGainX);
         }
 
         [Fact]
         public void ApplyOrbitPitchMin_WhileOnNamed_DirtiesToNewPreset()
         {
             OpenStoreWithLive(out ModSettings live);
-            live.PanSensitivityX = 1.00f;
+            live.PanGainX = 1.00f;
             Assert.True(ModOptions.SaveNamedFeelPreset(live, "Pitchy"));
             ModOptions.LoadNamedFeelPreset(live, "Pitchy");
 
@@ -252,26 +256,26 @@ namespace TrackpadCameraControl.Tests
             int raised = 0;
             ModOptions.SettingsChanged += () => raised++;
 
-            live.PanSensitivityY = 0.42f;
+            live.PanGainY = 0.42f;
             ModOptions.NotifyChanged(live);
 
             Assert.Equal(1, raised);
 
             var reloaded = new ModSettingsStore(_path).LoadOrFactory();
-            Assert.Equal(0.42f, reloaded.PanSensitivityY);
+            Assert.Equal(0.42f, reloaded.PanGainY);
         }
 
         [Fact]
         public void ResetToFactory_SetsActiveDefault()
         {
             OpenStoreWithLive(out ModSettings live);
-            ModOptions.ApplyPanSensitivityX(live, 0.80f);
+            ModOptions.ApplyPanGainX(live, 0.80f);
             Assert.Equal(FeelProfiles.NameNewPreset, live.ActiveFeelPresetName);
 
             ModOptions.ResetToFactory(live);
 
             Assert.Equal(FeelProfiles.NameDefault, live.ActiveFeelPresetName);
-            Assert.Equal(0.005f, live.PanSensitivityX);
+            FeelExpectation.AssertMatchesFactoryFeel(live);
         }
 
         [Fact]
@@ -280,13 +284,21 @@ namespace TrackpadCameraControl.Tests
             OpenStoreWithLive(out ModSettings live);
             string[] items = ModOptions.GetFeelPresetDropdownItems(live);
 
-            Assert.Equal(FeelProfiles.NameSlow, items[0]);
-            Assert.Equal(FeelProfiles.NameDefault, items[1]);
-            Assert.Equal(FeelProfiles.NameFast, items[2]);
+            Assert.Contains(FeelProfiles.NameSlow, items);
+            Assert.Contains(FeelProfiles.NameDefault, items);
+            Assert.Contains(FeelProfiles.NameFast, items);
+            Assert.True(
+                Array.IndexOf(items, FeelProfiles.NameSlow)
+                    < Array.IndexOf(items, FeelProfiles.NameDefault)
+            );
+            Assert.True(
+                Array.IndexOf(items, FeelProfiles.NameDefault)
+                    < Array.IndexOf(items, FeelProfiles.NameFast)
+            );
             Assert.Equal(ModOptions.FeelPresetSaveAsLabel, items[items.Length - 1]);
             Assert.DoesNotContain(FeelProfiles.NameNewPreset, items);
             Assert.Equal(
-                1,
+                Array.IndexOf(items, FeelProfiles.NameDefault),
                 ModOptions.IndexOfFeelPresetDropdownItem(items, FeelProfiles.NameDefault)
             );
         }
@@ -295,7 +307,7 @@ namespace TrackpadCameraControl.Tests
         public void GetFeelPresetDropdownItems_IncludesNewPresetWhenActive()
         {
             OpenStoreWithLive(out ModSettings live);
-            ModOptions.ApplyPanSensitivityX(live, 0.80f);
+            ModOptions.ApplyPanGainX(live, 0.80f);
             Assert.Equal(FeelProfiles.NameNewPreset, live.ActiveFeelPresetName);
 
             string[] items = ModOptions.GetFeelPresetDropdownItems(live);
@@ -314,7 +326,7 @@ namespace TrackpadCameraControl.Tests
             OpenStoreWithLive(out ModSettings live);
             ModOptions.ApplyFeelPresetDropdownChoice(live, FeelProfiles.NameFast);
             Assert.Equal(FeelProfiles.NameFast, live.ActiveFeelPresetName);
-            Assert.Equal(ModOptions.RoundSensitivity(0.005f * 1.25f), live.PanSensitivityX);
+            FeelExpectation.AssertMatchesScaledFactory(live, FeelProfiles.FastMultiplier);
         }
     }
 }

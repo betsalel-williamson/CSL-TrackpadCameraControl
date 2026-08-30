@@ -26,7 +26,7 @@ For each camera op, a short heading states **what it means** and **what activate
 | Rotate | Yaw the camera, or rotate a place/relocate ghost | Two-finger rotate |
 | Orbit | Pitch + yaw around the pivot (or around a selection) | Option (`⌥`)+two-finger drag |
 
-Product-surface Options controls: **Sensitivity** sliders only (about **0.1×–2×** factory default). Orbit **Pitch min / max** (angle limits, factory **7–90°**) are **Debug panel** develop controls, not Options. There is no Enable-per-op or Reverse UI. Labels say **Sensitivity** (not drag scale).
+Product-surface Options controls: **Sensitivity** sliders only (about **0.1×–2×** factory default). Orbit pitch follows vanilla **0–90°** (no separate Pitch min/max controls). There is no Enable-per-op or Reverse UI. Labels say **Sensitivity** (not drag scale).
 
 With a **new place or relocate** ghost: two-finger rotate turns the **ghost**; ⌥+two-finger may orbit around that ghost. Otherwise rotate is camera yaw and ⌥+two-finger orbits from the **current** look-at (no snap to a prior pivot).
 

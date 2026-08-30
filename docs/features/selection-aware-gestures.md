@@ -22,7 +22,7 @@ Base Maps+ pan / pinch zoom and [orbit latch](../glossary/orbit-latch.md) remain
 - During relocate, Escape cancel must not leave the original building spun (ghost-only yaw).
 - Clicking a placed object does **not** enable object rotate; two-finger rotate yaws the camera.
 - After panning away, Option-orbit must not snap the look-at back to a prior orbit/selection pivot.
-- During place/relocate, `⌥`+two-finger may orbit around the ghost; orbit pitch stays within Pitch min / max.
+- During place/relocate, `⌥`+two-finger may orbit around the ghost; orbit pitch stays within vanilla **0–90°**.
 - With no place/relocate, two-finger rotate yaws the camera and `⌥`+two-finger orbits from the current look-at.
 
 ## Non-goals

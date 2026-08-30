@@ -78,13 +78,153 @@ namespace TrackpadCameraControl.Tests
             }
         }
 
+        public float AngleVelocityX { get; set; }
+
+        public float AngleVelocityY { get; set; }
+
+        public float PendingYaw { get; private set; }
+
+        public float PendingPitch { get; private set; }
+
         /// <summary>
-        /// Test stand-in for middle mouse button velocity: integrate immediately onto angles.
+        /// Queue only — must not change AngleX/Y (same contract as production).
         /// </summary>
         public void AddAngleVelocity(float yawDelta, float pitchDelta)
         {
-            AngleX += yawDelta;
-            AngleY += pitchDelta;
+            PendingYaw += yawDelta;
+            PendingPitch += pitchDelta;
+        }
+
+        public void FlushPendingAngleVelocity(float deltaTimeSeconds)
+        {
+            float dt = deltaTimeSeconds;
+            if (dt < 0.001f)
+            {
+                dt = 0.001f;
+            }
+
+            AngleVelocityX += PendingYaw / dt;
+            AngleVelocityY += PendingPitch / dt;
+            PendingYaw = 0f;
+            PendingPitch = 0f;
+        }
+
+        public void ClearAngleVelocity(bool yaw, bool pitch)
+        {
+            if (yaw)
+            {
+                AngleVelocityX = 0f;
+                PendingYaw = 0f;
+            }
+
+            if (pitch)
+            {
+                AngleVelocityY = 0f;
+                PendingPitch = 0f;
+            }
+        }
+
+        /// <summary>
+        /// Mirror vanilla UpdateTargetPosition orbit order: damp → flush (HandleMouseEvents) → integrate.
+        /// </summary>
+        public static void SimulateVanillaOrbitFrame(
+            FakeCameraController cam,
+            float inertia,
+            float deltaTimeSeconds
+        )
+        {
+            float dt = deltaTimeSeconds;
+            if (dt < 0.001f)
+            {
+                dt = 0.001f;
+            }
+
+            float damp = (float)System.Math.Pow(inertia, dt);
+            cam.AngleVelocityX *= damp;
+            cam.AngleVelocityY *= damp;
+            cam.FlushPendingAngleVelocity(dt);
+            cam.AngleX += cam.AngleVelocityX * dt;
+            float nextPitch = cam.AngleY + cam.AngleVelocityY * dt;
+            if (nextPitch < 0f)
+            {
+                nextPitch = 0f;
+            }
+            else if (nextPitch > 90f)
+            {
+                nextPitch = 90f;
+            }
+
+            cam.AngleY = nextPitch;
+        }
+    }
+
+    public class YawDoesNotPitchTests
+    {
+        [Fact]
+        public void ApplyYaw_ClearsLeftoverPitchVelocity_DoesNotChangePitch()
+        {
+            var cam = new FakeCameraController
+            {
+                AngleX = 10f,
+                AngleY = 40f,
+                AngleVelocityY = 5f,
+            };
+            var settings = new ModSettings { YawRotateGain = 1f };
+
+            CameraApplicator.Apply(CameraOp.Yaw, 0f, 0f, 0f, 3f, settings, cam);
+
+            Assert.Equal(13f, cam.AngleX, 3);
+            Assert.Equal(40f, cam.AngleY, 3);
+            Assert.Equal(0f, cam.AngleVelocityY, 3);
+        }
+    }
+
+    public class OrbitVelocityQueueFlushTests
+    {
+        [Fact]
+        public void AddAngleVelocity_DoesNotChangeAngles_UntilFlush()
+        {
+            var cam = new FakeCameraController { AngleX = 10f, AngleY = 20f };
+
+            cam.AddAngleVelocity(5f, -2f);
+
+            Assert.Equal(10f, cam.AngleX, 3);
+            Assert.Equal(20f, cam.AngleY, 3);
+            Assert.Equal(5f, cam.PendingYaw, 3);
+            Assert.Equal(-2f, cam.PendingPitch, 3);
+        }
+
+        [Fact]
+        public void SimulateWithoutFlush_LeavesAnglesUnchanged()
+        {
+            var cam = new FakeCameraController { AngleX = 10f, AngleY = 20f };
+            cam.AddAngleVelocity(5f, -2f);
+
+            // Damp + integrate only — no HandleMouseEvents flush.
+            float dt = 1f / 60f;
+            float damp = (float)System.Math.Pow(1f, dt);
+            cam.AngleVelocityX *= damp;
+            cam.AngleVelocityY *= damp;
+            cam.AngleX += cam.AngleVelocityX * dt;
+            cam.AngleY += cam.AngleVelocityY * dt;
+
+            Assert.Equal(10f, cam.AngleX, 3);
+            Assert.Equal(20f, cam.AngleY, 3);
+            Assert.Equal(5f, cam.PendingYaw, 3);
+        }
+
+        [Fact]
+        public void SimulateVanillaOrbitFrame_AppliesPendingAfterDamp()
+        {
+            var cam = new FakeCameraController { AngleX = 10f, AngleY = 20f };
+            cam.AddAngleVelocity(5f, -2f);
+
+            FakeCameraController.SimulateVanillaOrbitFrame(cam, inertia: 1f, deltaTimeSeconds: 1f / 60f);
+
+            Assert.Equal(15f, cam.AngleX, 3);
+            Assert.Equal(18f, cam.AngleY, 3);
+            Assert.Equal(0f, cam.PendingYaw, 3);
+            Assert.Equal(0f, cam.PendingPitch, 3);
         }
     }
 
@@ -150,7 +290,7 @@ namespace TrackpadCameraControl.Tests
         [Fact]
         public void ResolveCandidates_Concurrent_PinchAndDrag_IncludesZoomAndPan()
         {
-            var settings = new ModSettings { PinchEpsilon = 0.001f, MotionDeadzone = 0.001f };
+            var settings = new ModSettings { PinchEpsilon = 0.001f, MotionDeadband = 0.001f };
             var frame = Frame(fingers: 2, pinch: 0.05f, dx: 0.02f, dy: 0f);
 
             CameraOp ops = GestureBindingResolver.ResolveCandidates(frame, settings, false);
@@ -184,7 +324,37 @@ namespace TrackpadCameraControl.Tests
         }
 
         [Fact]
-        public void ExclusiveOrbitVersusYaw_DropsYaw()
+        public void ExclusiveOrbitVersusYaw_DropsYawWhenOrbitDominant()
+        {
+            var settings = new ModSettings { RotateEpsilon = 0.001f, MotionDeadband = 0.1f };
+            var frame = Frame(dx: 5f, dy: 5f, rotate: 0.001f);
+            Assert.Equal(
+                CameraOp.Orbit,
+                GestureBindingResolver.ExclusiveOrbitVersusYaw(
+                    CameraOp.Orbit | CameraOp.Yaw,
+                    frame,
+                    settings
+                )
+            );
+        }
+
+        [Fact]
+        public void ExclusiveOrbitVersusYaw_KeepsYawWhenTwistDominant()
+        {
+            var settings = new ModSettings { RotateEpsilon = 0.001f, MotionDeadband = 0.1f };
+            var frame = Frame(dx: 0.01f, dy: 0.01f, rotate: 2f);
+            Assert.Equal(
+                CameraOp.Yaw,
+                GestureBindingResolver.ExclusiveOrbitVersusYaw(
+                    CameraOp.Orbit | CameraOp.Yaw,
+                    frame,
+                    settings
+                )
+            );
+        }
+
+        [Fact]
+        public void ExclusiveOrbitVersusYaw_LegacyOverload_DropsYaw()
         {
             Assert.Equal(
                 CameraOp.Orbit,
@@ -202,7 +372,7 @@ namespace TrackpadCameraControl.Tests
             var settings = new ModSettings
             {
                 OrbitTrigger = OrbitTrigger.ModifierPlusTwoFinger,
-                MotionDeadzone = 0.001f,
+                MotionDeadband = 0.001f,
             };
             var session = new GestureSession();
             CameraOp ops = session.Process(
@@ -257,7 +427,7 @@ namespace TrackpadCameraControl.Tests
             {
                 GestureResolveMode = GestureResolveMode.Concurrent,
                 PinchEpsilon = 0.001f,
-                MotionDeadzone = 0.001f,
+                MotionDeadband = 0.001f,
             };
             var session = new GestureSession();
             var frame = new GestureFrame
@@ -281,7 +451,7 @@ namespace TrackpadCameraControl.Tests
             var settings = new ModSettings
             {
                 OrbitTrigger = OrbitTrigger.ModifierPlusTwoFinger,
-                MotionDeadzone = 0.001f,
+                MotionDeadband = 0.001f,
             };
             var session = new GestureSession();
 
@@ -324,7 +494,7 @@ namespace TrackpadCameraControl.Tests
             var settings = new ModSettings
             {
                 OrbitTrigger = OrbitTrigger.ModifierPlusTwoFinger,
-                MotionDeadzone = 0.001f,
+                MotionDeadband = 0.001f,
                 PinchEpsilon = 0.001f,
                 RotateEpsilon = 0.001f,
             };
@@ -370,7 +540,7 @@ namespace TrackpadCameraControl.Tests
             var settings = new ModSettings
             {
                 OrbitTrigger = OrbitTrigger.ModifierPlusTwoFinger,
-                MotionDeadzone = 0.001f,
+                MotionDeadband = 0.001f,
             };
             var session = new GestureSession();
 
@@ -408,7 +578,7 @@ namespace TrackpadCameraControl.Tests
             {
                 GestureResolveMode = GestureResolveMode.PrimaryOnly,
                 PinchEpsilon = 0.001f,
-                MotionDeadzone = 0.001f,
+                MotionDeadband = 0.001f,
             };
             var session = new GestureSession();
             CameraOp ops = session.Process(
@@ -434,7 +604,7 @@ namespace TrackpadCameraControl.Tests
             {
                 GestureResolveMode = GestureResolveMode.SessionLock,
                 PinchEpsilon = 0.001f,
-                MotionDeadzone = 0.001f,
+                MotionDeadband = 0.001f,
             };
             var session = new GestureSession();
 
@@ -472,7 +642,7 @@ namespace TrackpadCameraControl.Tests
         {
             var settings = new ModSettings();
             settings.ApplyPreset(GesturePreset.CAD);
-            settings.MotionDeadzone = 0.001f;
+            settings.MotionDeadband = 0.001f;
             var session = new GestureSession();
 
             CameraOp ops = session.Process(
@@ -523,7 +693,7 @@ namespace TrackpadCameraControl.Tests
         public void Apply_PositivePinch_DecreasesSize()
         {
             var cam = new FakeCameraController { Size = 100f };
-            var settings = new ModSettings { ZoomSensitivity = 1f, InvertZoom = false };
+            var settings = new ModSettings { ZoomGain = 1f, SignInvertZoom = false };
 
             CameraApplicator.Apply(CameraOp.Zoom, 0, 0, 0.1f, 0, settings, cam);
 
@@ -535,7 +705,7 @@ namespace TrackpadCameraControl.Tests
         public void Apply_ClampsMinimumSize()
         {
             var cam = new FakeCameraController { Size = 11f };
-            var settings = new ModSettings { ZoomSensitivity = 1f };
+            var settings = new ModSettings { ZoomGain = 1f };
 
             CameraApplicator.Apply(CameraOp.Zoom, 0, 0, 0.9f, 0, settings, cam);
 
@@ -552,7 +722,7 @@ namespace TrackpadCameraControl.Tests
                 TargetZ = 0f,
                 AngleX = 0f,
             };
-            var settings = new ModSettings { PanSensitivityX = 1f, PanSensitivityY = 1f };
+            var settings = new ModSettings { PanGainX = 1f, PanGainY = 1f };
 
             CameraApplicator.Apply(CameraOp.Pan, 0.1f, 0f, 0, 0, settings, cam);
 
@@ -563,9 +733,10 @@ namespace TrackpadCameraControl.Tests
         public void Apply_Orbit_ChangesAngles()
         {
             var cam = new FakeCameraController { AngleX = 10f, AngleY = 20f };
-            var settings = new ModSettings { OrbitYawSensitivity = 1f, OrbitPitchSensitivity = 1f };
+            var settings = new ModSettings { OrbitYawGain = 1f, OrbitPitchGain = 1f };
 
             CameraApplicator.Apply(CameraOp.Orbit, 5f, -2f, 0, 0, settings, cam);
+            FakeCameraController.SimulateVanillaOrbitFrame(cam, inertia: 1f, deltaTimeSeconds: 1f / 60f);
 
             Assert.Equal(15f, cam.AngleX, 3);
             Assert.Equal(18f, cam.AngleY, 3);
@@ -575,7 +746,7 @@ namespace TrackpadCameraControl.Tests
         public void Apply_YawRotate_ChangesAngleX()
         {
             var cam = new FakeCameraController { AngleX = 0f };
-            var settings = new ModSettings { YawRotateSensitivity = 2f };
+            var settings = new ModSettings { YawRotateGain = 2f };
 
             CameraApplicator.Apply(CameraOp.Yaw, 0, 0, 0, 0.5f, settings, cam);
 
@@ -594,9 +765,9 @@ namespace TrackpadCameraControl.Tests
             };
             var settings = new ModSettings
             {
-                ZoomSensitivity = 1f,
-                PanSensitivityX = 1f,
-                PanSensitivityY = 1f,
+                ZoomGain = 1f,
+                PanGainX = 1f,
+                PanGainY = 1f,
             };
 
             CameraApplicator.Apply(CameraOp.Zoom | CameraOp.Pan, 0.1f, 0f, 0.1f, 0, settings, cam);
@@ -614,7 +785,7 @@ namespace TrackpadCameraControl.Tests
             var settings = new ModSettings
             {
                 ZoomEnabled = true,
-                ZoomSensitivity = 1f,
+                ZoomGain = 1f,
                 PinchEpsilon = 0.001f,
             };
             var inject = new InjectGestureSource();
@@ -643,9 +814,9 @@ namespace TrackpadCameraControl.Tests
             var settings = new ModSettings
             {
                 PanEnabled = true,
-                MotionDeadzone = 0.001f,
-                PanSensitivityX = 1f,
-                PanSensitivityY = 1f,
+                MotionDeadband = 0.001f,
+                PanGainX = 1f,
+                PanGainY = 1f,
             };
             var inject = new InjectGestureSource();
             var cam = new FakeCameraController

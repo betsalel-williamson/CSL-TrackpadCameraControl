@@ -6,36 +6,47 @@ namespace TrackpadCameraControl.Tests
     public class ScrollUnitMigrationTests
     {
         [Fact]
-        public void MigrateScrollUnitIntoSensitivity_FoldsFormerMapperScale()
+        public void MigrateScrollUnitIntoGain_FoldsFormerMapperScale()
         {
+            ModSettings factory = ModSettings.CreateFactoryDefaults();
             var settings = new ModSettings
             {
-                PanSensitivityX = 0.50f,
-                PanSensitivityY = 0.50f,
-                OrbitYawSensitivity = 10.00f,
-                OrbitPitchSensitivity = 10.00f,
-                MotionDeadzone = 0.001f,
+                PanGainX = factory.PanGainX / ModSettingsStore.V1ScrollUnit,
+                PanGainY = factory.PanGainY / ModSettingsStore.V1ScrollUnit,
+                OrbitYawGain = factory.OrbitYawGain / ModSettingsStore.V1ScrollUnit,
+                OrbitPitchGain = factory.OrbitPitchGain / ModSettingsStore.V1ScrollUnit,
+                MotionDeadband = factory.MotionDeadband * ModSettingsStore.V1ScrollUnit,
             };
 
-            ModSettingsStore.MigrateScrollUnitIntoSensitivity(settings);
+            ModSettingsStore.MigrateScrollUnitIntoGain(settings);
 
-            Assert.Equal(0.005f, settings.PanSensitivityX, 4);
-            Assert.Equal(0.005f, settings.PanSensitivityY, 4);
-            Assert.Equal(0.10f, settings.OrbitYawSensitivity, 4);
-            Assert.Equal(0.10f, settings.OrbitPitchSensitivity, 4);
-            Assert.Equal(0.1f, settings.MotionDeadzone, 4);
+            Assert.Equal(factory.PanGainX, settings.PanGainX, 4);
+            Assert.Equal(factory.PanGainY, settings.PanGainY, 4);
+            Assert.Equal(factory.OrbitYawGain, settings.OrbitYawGain, 4);
+            Assert.Equal(factory.OrbitPitchGain, settings.OrbitPitchGain, 4);
+            Assert.Equal(factory.MotionDeadband, settings.MotionDeadband, 4);
         }
 
         [Fact]
         public void FactoryDefaults_MatchFoldedScrollUnit()
         {
             ModSettings factory = ModSettings.CreateFactoryDefaults();
-            Assert.Equal(0.005f, factory.PanSensitivityX);
-            Assert.Equal(0.005f, factory.PanSensitivityY);
-            Assert.Equal(0.10f, factory.OrbitYawSensitivity);
-            Assert.Equal(0.10f, factory.OrbitPitchSensitivity);
-            Assert.Equal(0.1f, factory.MotionDeadzone);
-            Assert.Equal(2, ModSettingsStore.CurrentSchemaVersion);
+            var preFold = new ModSettings
+            {
+                PanGainX = factory.PanGainX / ModSettingsStore.V1ScrollUnit,
+                PanGainY = factory.PanGainY / ModSettingsStore.V1ScrollUnit,
+                OrbitYawGain = factory.OrbitYawGain / ModSettingsStore.V1ScrollUnit,
+                OrbitPitchGain = factory.OrbitPitchGain / ModSettingsStore.V1ScrollUnit,
+                MotionDeadband = factory.MotionDeadband * ModSettingsStore.V1ScrollUnit,
+            };
+            ModSettingsStore.MigrateScrollUnitIntoGain(preFold);
+
+            Assert.Equal(preFold.PanGainX, factory.PanGainX, 4);
+            Assert.Equal(preFold.PanGainY, factory.PanGainY, 4);
+            Assert.Equal(preFold.OrbitYawGain, factory.OrbitYawGain, 4);
+            Assert.Equal(preFold.OrbitPitchGain, factory.OrbitPitchGain, 4);
+            Assert.Equal(preFold.MotionDeadband, factory.MotionDeadband, 4);
+            Assert.Equal(3, ModSettingsStore.CurrentSchemaVersion);
         }
     }
 }

@@ -20,7 +20,7 @@
 
 ## Current phase
 
-**Options polish + New Preset + selection rotate** — Debug panel naming, Options layout and Sensitivity sliders, **New Preset** dirty autosave, pitch 7–90°, pan city-bounds clamp, and selection-aware rotate / ⌥-orbit.
+**Options polish + New Preset + selection rotate** — Debug panel naming, Options layout and Sensitivity sliders, **New Preset** dirty autosave, pitch 0–90°, pan city-bounds clamp, and selection-aware rotate / ⌥-orbit.
 
 Design: [Options polish, New Preset, selection rotate](../superpowers/specs/2026-08-30-options-polish-selection-rotate-design.md).  
 Plan: [Options polish, New Preset, selection rotate](../superpowers/plans/2026-08-30-options-polish-selection-rotate-plan.md).

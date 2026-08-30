@@ -21,7 +21,7 @@ Give trackpad players the same camera fluency mouse users get from middle-mouse 
 | Two-finger drag | Pan (target clamped to unlocked game area) |
 | Pinch | Zoom |
 | Two-finger rotate | No placement/relocate: [yaw](../glossary/yaw.md). New place or relocate ghost: rotate ghost — see [selection-aware gestures](./selection-aware-gestures.md). |
-| Option (`⌥`)+two-finger drag | Place/relocate ghost: orbit around ghost. Otherwise [orbit](../glossary/orbit.md) from current look-at. Pitch clamped to Pitch min / max (factory **7°**–**90°**). No yaw angle clamp. |
+| Option (`⌥`)+two-finger drag | Place/relocate ghost: orbit around ghost. Otherwise [orbit](../glossary/orbit.md) from current look-at. Pitch follows vanilla **0°–90°** (floors at 0). No yaw angle clamp. |
 
 CAD three-finger orbit remains behind `EnableCadGestureStyle`.
 
@@ -30,9 +30,13 @@ CAD three-finger orbit remains behind `EnableCadGestureStyle`.
 - [Gesture resolve mode](../glossary/gesture-resolve-mode.md) controls whether multiple camera ops can apply from one frame (default: Concurrent).
 - [Orbit latch](../glossary/orbit-latch.md): once orbit engages, it holds until touch-up even if the modifier is released. While latched, orbit applies; yaw rotate, pan, and zoom do not.
 
+## Apply path (orbit drag)
+
+Option+two-finger (and Assist drag orbit) **queues** yaw/pitch via `AddAngleVelocity`. Those deltas are **not** written to angles in `OnUpdate`. A Harmony postfix on `CameraController.HandleMouseEvents` flushes them into `m_angleVelocity` after vanilla inertia damp and before integrate — the same slot middle-mouse drag uses. Button chrome orbit still writes `AngleX`/`AngleY` directly.
+
 ## Acceptance criteria (current)
 
-- With AppleKit and Maps+ defaults, pan, zoom, yaw, and `⌥`+two-finger orbit work in-game; pan stays within the unlocked game area; orbit pitch stays within **7°**–**90°**; yaw is not angle-clamped.
+- With AppleKit and Maps+ defaults, pan, zoom, yaw, and `⌥`+two-finger orbit work in-game; pan stays within the unlocked game area; orbit pitch stays within **0°**–**90°**; yaw is not angle-clamped.
 - Selection-aware rotate / Option-orbit match [selection-aware gestures](./selection-aware-gestures.md).
 - Slow / Default / Fast stay immutable; dirty edits use **New Preset** per [settings and hot configuration](./settings-and-hot-configuration.md); Sensitivity uses the slider contract (0.1×–2× factory default).
 - Changing Sensitivity or pitch limits in Options or the Debug panel applies hot, stays in sync, and autosaves across quit.
