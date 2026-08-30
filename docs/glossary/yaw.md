@@ -1,3 +1,5 @@
 # Yaw
 
-Rotate the camera around the vertical axis only (spin the view left/right). Bound to two-finger rotate. CS1 has no separate optical roll axis.
+Rotate the camera around the vertical axis (compass heading) without orbiting pitch.
+
+**Activation (Maps+ / AppleKit):** two-finger rotate on the trackpad.

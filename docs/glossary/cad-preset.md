@@ -1,3 +1,3 @@
 # CAD preset
 
-Options preset seeding Blender/Fusion-style bindings: same pan/pinch/yaw as Maps+, three-finger drag for orbit. May require remapping OS three-finger system gestures.
+Alternate [gesture style](./gesture-style.md): same pan / pinch / yaw as [Maps+](./maps-plus-preset.md), with three-finger drag for [orbit](./orbit.md). Behind `EnableCadGestureStyle` (off on the product surface). Not a [feel preset](./feel-preset.md).

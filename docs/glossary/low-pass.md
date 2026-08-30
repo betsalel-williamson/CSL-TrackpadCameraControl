@@ -1,5 +1,5 @@
 # Low-pass
 
-Optional per-op exponential smoothing (EMA) on **drag** deltas after gesture resolve and before the camera applicator. Player-facing: enable plus **alpha** (0–1). Default off.
+Optional EMA smoothing on continuous (trackpad) deltas before [Sensitivity](./sensitivity.md) is applied. Per-op enable + alpha.
 
-Buttons skip low-pass. When enabled: first sample seeds the filter; later samples use `smoothed += alpha * (raw - smoothed)`. Filter state resets on touch-up (Ended / Cancelled / zero fingers).
+On the product surface, low-pass appears only when `EnableContactsCapture` is on (Contacts interpreter). AppleKit / Maps+ ship without low-pass UI or filtering.
