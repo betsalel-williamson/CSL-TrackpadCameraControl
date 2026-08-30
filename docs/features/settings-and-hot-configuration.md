@@ -8,8 +8,8 @@ No feel or binding parameter is hardcoded in camera or gesture logic. Defaults e
 
 | Surface                           | Product-surface tunables                                                                 |
 | --------------------------------- | ---------------------------------------------------------------------------------------- |
-| In-game Debug panel               | Feel presets (incl. **New Preset** dirty), Reset, Sensitivity sliders, pitch limits, Debug UI enable |
-| Options → Trackpad Camera Control | Same tunables; window title is mod name + version                                        |
+| In-game Debug panel               | Feel presets (incl. **New Preset** dirty), Reset, Sensitivity, pitch angle limits (develop), Debug UI enable |
+| Options → Trackpad Camera Control | Feel presets + Sensitivity sliders; window title is mod name + version; **no** pitch angle fields |
 
 One binding layer parses, rounds to two decimals, validates Sensitivity against the slider contract, and writes fields. A change on either surface updates live settings immediately, mirrors to the other surface, and schedules a durable write (autosave).
 
@@ -47,7 +47,7 @@ A [feel preset](../glossary/feel-preset.md) stores sensitivities, reverse flags,
 Under each op heading (**Zoom**, **Pan**, **Rotate**, **Orbit**) after **General**: short meaning + activation, then:
 
 - Per-op [Sensitivity](../glossary/sensitivity.md) **slider**: min **0.1×** that field’s factory default, max **2×**, step ≈ **10%** of factory default; display/apply two decimals
-- Orbit: Pitch min / max (two decimals; applied as clamp). Factory / product contract: pitch min **7°**, pitch max **90°**, pitch always **> 0**. No yaw angle clamp.
+- Orbit: Pitch min / max (schema + Debug panel only; factory **7°** / **90°**, pitch always **> 0**). No yaw angle clamp. Options does **not** expose these angle limits.
 
 Also: [feel preset](../glossary/feel-preset.md) row (Slow / Default / Fast / New Preset when dirty, Save as… / Load, Reset to factory), Debug UI enabled (panel master switch).
 

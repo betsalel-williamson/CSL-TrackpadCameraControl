@@ -66,7 +66,7 @@ Used by trackpad gestures (and Assist chrome pads when `EnableAssistChrome` is o
 | OrbitPitchMin | float | 7.00            | yes |
 | OrbitPitchMax | float | 90.00           | yes |
 
-Applied as a clamp after orbit pitch writes. Both limits and live pitch must stay **> 0** (no non-positive pitch). Display/store at two decimals. No yaw angle clamp in this contract.
+Applied as a clamp after orbit pitch writes. Both limits and live pitch must stay **> 0** (no non-positive pitch). Display/store at two decimals. No yaw angle clamp in this contract. **UI:** Pitch min / max appear on the **Debug panel** only (develop); Options does not expose angle limit fields.
 
 ## Button steps
 

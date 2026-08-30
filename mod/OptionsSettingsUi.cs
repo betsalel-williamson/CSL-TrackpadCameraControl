@@ -133,19 +133,6 @@ namespace TrackpadCameraControl
                 s.OrbitLowPassAlpha,
                 ModOptions.ApplyOrbitLowPassAlpha
             );
-
-            AddFloatField(
-                helper,
-                "Pitch min",
-                s.OrbitPitchMin,
-                text => ModOptions.TryApplyFloat(s, text, ModOptions.ApplyOrbitPitchMin)
-            );
-            AddFloatField(
-                helper,
-                "Pitch max",
-                s.OrbitPitchMax,
-                text => ModOptions.TryApplyFloat(s, text, ModOptions.ApplyOrbitPitchMax)
-            );
         }
 
         private static void BuildGeneralSection(UIHelperBase helper, ModSettings s)

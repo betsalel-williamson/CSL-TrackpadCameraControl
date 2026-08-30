@@ -26,7 +26,7 @@ For each camera op, a short heading states **what it means** and **what activate
 | Rotate | Yaw the camera, or rotate a selected object | Two-finger rotate |
 | Orbit | Pitch + yaw around the pivot (or around a selection) | Option (`⌥`)+two-finger drag |
 
-Product-surface controls: **Sensitivity** sliders (about **0.1×–2×** factory default) and, for Orbit, **Pitch min / max** (**7–90°**, always above zero). There is no Enable-per-op or Reverse UI. Labels say **Sensitivity** (not drag scale).
+Product-surface Options controls: **Sensitivity** sliders only (about **0.1×–2×** factory default). Orbit **Pitch min / max** (angle limits, factory **7–90°**) are **Debug panel** develop controls, not Options. There is no Enable-per-op or Reverse UI. Labels say **Sensitivity** (not drag scale).
 
 With a **selection**: two-finger rotate turns the **selected object**; ⌥+two-finger **orbits the camera around** that object. With **no selection**, rotate is camera yaw and ⌥+two-finger is normal orbit.
 
@@ -40,7 +40,7 @@ When the cursor is over an active popup or HUD panel (Debug panel or another mod
 
 1. Enable the mod and load a city.
 2. Open the Debug panel (or Options → Trackpad Camera Control).
-3. Try Slow / Default / Fast from the dropdown, or drag a Sensitivity / Pitch min / max control.
+3. Try Slow / Default / Fast from the dropdown, or drag a Sensitivity slider.
 4. Perform the gesture — new values apply immediately and autosave.
 5. Optionally **Save as…** a named feel profile; quit and relaunch to confirm values came back.
 

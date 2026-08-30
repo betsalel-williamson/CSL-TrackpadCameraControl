@@ -16,7 +16,7 @@ Development builds may default Debug **on**. Shipping defaults turn it **off** s
 
 1. Load a city — the floating panel appears when Debug is on.
 2. Use the feel-preset **dropdown** (built-ins, your named presets, **Save as…**) — see [feel presets](./feel-presets.md).
-3. Sections follow **General → Zoom → Pan → Rotate → Orbit**, each after a horizontal rule and section title. Edit **Sensitivity** sliders and Orbit **Pitch min / max** (7–90°).
+3. Sections follow **General → Zoom → Pan → Rotate → Orbit**, each after a horizontal rule and section title. Edit **Sensitivity** and, for develop tuning, Orbit **Pitch min / max** (7–90°). Angle limits are Debug-only — not in Options.
 4. Close the panel for a clean view; reopen from Options or the remaining control.
 
 There are no Enable-per-op or Reverse controls on the product surface. Pad/button chrome, CAD switcher, and capture-backend / low-pass controls stay behind their own flags and are not part of shipped play.

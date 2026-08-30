@@ -11,7 +11,7 @@ How fingers map to camera ops is [gesture style](../glossary/gesture-style.md). 
 - Two-finger rotate → [yaw](../glossary/yaw.md) the camera, or rotate a **selected object** when one is selected
 - Option (`⌥`)+two-finger drag → [orbit](../glossary/orbit.md) (around the selection when one exists)
 
-Once orbit starts, [orbit latch](../glossary/orbit-latch.md) holds until you lift your fingers. Orbit pitch stays within Pitch min / max **7–90°** (editable in Options / the [Debug panel](./debug-ui.md)).
+Once orbit starts, [orbit latch](../glossary/orbit-latch.md) holds until you lift your fingers. Orbit pitch stays within Pitch min / max **7–90°** (tunable in the [Debug panel](./debug-ui.md), not Options).
 
 ## CAD (not on the product surface)
 
