@@ -4,6 +4,8 @@ namespace TrackpadCameraControl
     public static class AppleGestureMapper
     {
         public const ulong EventTypeRotate = 18;
+        public const ulong EventTypeBeginGesture = 19;
+        public const ulong EventTypeEndGesture = 20;
         public const ulong EventTypeScrollWheel = 22;
         public const ulong EventTypeMagnify = 30;
         public const ulong EventTypeSwipe = 31;
@@ -55,9 +57,28 @@ namespace TrackpadCameraControl
         )
         {
             frame = default;
-            if (eventType == EventTypeSwipe)
+            if (eventType == EventTypeSwipe || eventType == EventTypeBeginGesture)
             {
                 return false;
+            }
+
+            // Finger lift: reset orbit latch / rotate ownership when per-gesture Ended was missed.
+            if (eventType == EventTypeEndGesture)
+            {
+                frame = new GestureFrame
+                {
+                    magic = GestureFrame.Magic,
+                    version = GestureFrame.Version,
+                    timestampNs = 0,
+                    fingerCount = 2,
+                    phase = (int)GesturePhase.Ended,
+                    centroidDeltaX = 0f,
+                    centroidDeltaY = 0f,
+                    pinchScaleDelta = 0f,
+                    rotateDelta = 0f,
+                    modifiers = MapModifiers(modifierFlags),
+                };
+                return true;
             }
 
             int fingers = 2;

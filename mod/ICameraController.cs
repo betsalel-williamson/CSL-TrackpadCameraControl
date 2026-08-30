@@ -35,8 +35,8 @@ namespace TrackpadCameraControl
         void FlushPendingAngleVelocity(float deltaTimeSeconds);
 
         /// <summary>
-        /// Zero pitch (and optionally yaw) angle velocity so a prior orbit coast cannot
-        /// keep changing pitch during a pure yaw/rotate gesture.
+        /// Zero orbit angle velocity so a prior Option-orbit coast cannot keep changing
+        /// heading or pitch during a two-finger <b>rotation</b> (hard handoff).
         /// </summary>
         void ClearAngleVelocity(bool yaw, bool pitch);
     }

@@ -86,11 +86,14 @@ namespace TrackpadCameraControl.Tests
 
         public float PendingPitch { get; private set; }
 
+        public int AddAngleVelocityCallCount { get; private set; }
+
         /// <summary>
         /// Queue only — must not change AngleX/Y (same contract as production).
         /// </summary>
         public void AddAngleVelocity(float yawDelta, float pitchDelta)
         {
+            AddAngleVelocityCallCount++;
             PendingYaw += yawDelta;
             PendingPitch += pitchDelta;
         }
@@ -161,21 +164,309 @@ namespace TrackpadCameraControl.Tests
     public class YawDoesNotPitchTests
     {
         [Fact]
-        public void ApplyYaw_ClearsLeftoverPitchVelocity_DoesNotChangePitch()
+        public void ApplyRotation_HardHandoff_ClearsOrbitYawAndPitchVelocity()
         {
             var cam = new FakeCameraController
             {
                 AngleX = 10f,
-                AngleY = 40f,
+                AngleY = 12f,
+                AngleVelocityX = 8f,
                 AngleVelocityY = 5f,
+                Size = 40f,
             };
+            cam.AddAngleVelocity(1f, -2f);
             var settings = new ModSettings { YawRotateGain = 1f };
+            int addsBefore = cam.AddAngleVelocityCallCount;
 
             CameraApplicator.Apply(CameraOp.Yaw, 0f, 0f, 0f, 3f, settings, cam);
 
             Assert.Equal(13f, cam.AngleX, 3);
-            Assert.Equal(40f, cam.AngleY, 3);
+            Assert.Equal(12f, cam.AngleY, 3);
+            Assert.Equal(0f, cam.AngleVelocityX, 3);
             Assert.Equal(0f, cam.AngleVelocityY, 3);
+            Assert.Equal(0f, cam.PendingYaw, 3);
+            Assert.Equal(0f, cam.PendingPitch, 3);
+            Assert.Equal(addsBefore, cam.AddAngleVelocityCallCount);
+        }
+
+        [Fact]
+        public void ApplyRotation_WithOrbitOpSameCall_DoesNotAddAngleVelocity()
+        {
+            var cam = new FakeCameraController
+            {
+                AngleX = 0f,
+                AngleY = 15f,
+                Size = 30f,
+            };
+            var settings = new ModSettings
+            {
+                YawRotateGain = 1f,
+                OrbitYawGain = 1f,
+                OrbitPitchGain = 1f,
+            };
+
+            CameraApplicator.Apply(
+                CameraOp.Yaw | CameraOp.Orbit,
+                5f,
+                -3f,
+                0f,
+                2f,
+                settings,
+                cam
+            );
+
+            Assert.Equal(2f, cam.AngleX, 3);
+            Assert.Equal(15f, cam.AngleY, 3);
+            Assert.Equal(0, cam.AddAngleVelocityCallCount);
+            Assert.Equal(0f, cam.PendingPitch, 3);
+        }
+    }
+
+    public class RotationHardHandoffTests
+    {
+        [Fact]
+        public void AfterOrbitCoast_RotationFreezesPitchAndStopsVelocity()
+        {
+            var cam = new FakeCameraController
+            {
+                AngleX = 10f,
+                AngleY = 8f,
+                Size = 25f,
+            };
+            var settings = new ModSettings
+            {
+                YawRotateGain = 1f,
+                OrbitYawGain = 1f,
+                OrbitPitchGain = 1f,
+            };
+
+            CameraApplicator.Apply(CameraOp.Orbit, 4f, -2f, 0f, 0f, settings, cam);
+            FakeCameraController.SimulateVanillaOrbitFrame(
+                cam,
+                inertia: 1f,
+                deltaTimeSeconds: 1f / 60f
+            );
+            float pitchAfterOrbit = cam.AngleY;
+            float yawAfterOrbit = cam.AngleX;
+            Assert.True(cam.AngleVelocityY != 0f || pitchAfterOrbit != 8f);
+
+            // Simulate leftover coast still in velocity when rotation starts.
+            cam.AngleVelocityX = 3f;
+            cam.AngleVelocityY = -4f;
+            int addsAfterOrbit = cam.AddAngleVelocityCallCount;
+
+            CameraApplicator.Apply(CameraOp.Yaw, 0f, 0.5f, 0f, 2f, settings, cam);
+            FakeCameraController.SimulateVanillaOrbitFrame(
+                cam,
+                inertia: 1f,
+                deltaTimeSeconds: 1f / 60f
+            );
+
+            Assert.Equal(addsAfterOrbit, cam.AddAngleVelocityCallCount);
+            Assert.Equal(pitchAfterOrbit, cam.AngleY, 3);
+            Assert.Equal(0f, cam.AngleVelocityX, 3);
+            Assert.Equal(0f, cam.AngleVelocityY, 3);
+            Assert.Equal(yawAfterOrbit + 2f, cam.AngleX, 3);
+        }
+
+        [Fact]
+        public void RotateOwned_DropsCompanionScrollOrbitAndPan()
+        {
+            var settings = new ModSettings
+            {
+                OrbitTrigger = OrbitTrigger.ModifierPlusTwoFinger,
+                MotionDeadband = 0.001f,
+                RotateEpsilon = 0.001f,
+            };
+            var session = new GestureSession();
+
+            CameraOp rot = session.Process(
+                new GestureFrame
+                {
+                    magic = GestureFrame.Magic,
+                    version = GestureFrame.Version,
+                    fingerCount = 2,
+                    phase = (int)GesturePhase.Changed,
+                    rotateDelta = 2f,
+                },
+                settings
+            );
+            Assert.Equal(CameraOp.Yaw, rot);
+            Assert.True(session.RotateOwned);
+            Assert.False(session.OrbitLatched);
+
+            CameraOp scroll = session.Process(
+                new GestureFrame
+                {
+                    magic = GestureFrame.Magic,
+                    version = GestureFrame.Version,
+                    fingerCount = 2,
+                    phase = (int)GesturePhase.Changed,
+                    centroidDeltaY = 0.5f,
+                },
+                settings
+            );
+            Assert.Equal(CameraOp.None, scroll & CameraOp.Pan);
+            Assert.Equal(CameraOp.None, scroll & CameraOp.Orbit);
+        }
+
+        [Fact]
+        public void OptionOrbitLatch_StillIgnoresRotation()
+        {
+            var settings = new ModSettings
+            {
+                OrbitTrigger = OrbitTrigger.ModifierPlusTwoFinger,
+                MotionDeadband = 0.001f,
+                RotateEpsilon = 0.001f,
+            };
+            var session = new GestureSession();
+
+            session.Process(
+                new GestureFrame
+                {
+                    magic = GestureFrame.Magic,
+                    version = GestureFrame.Version,
+                    fingerCount = 2,
+                    phase = (int)GesturePhase.Changed,
+                    centroidDeltaX = 0.02f,
+                    modifiers = (uint)GestureModifiers.Option,
+                },
+                settings
+            );
+            Assert.True(session.OrbitLatched);
+
+            CameraOp ops = session.Process(
+                new GestureFrame
+                {
+                    magic = GestureFrame.Magic,
+                    version = GestureFrame.Version,
+                    fingerCount = 2,
+                    phase = (int)GesturePhase.Changed,
+                    rotateDelta = 3f,
+                    modifiers = (uint)GestureModifiers.Option,
+                },
+                settings
+            );
+            Assert.True((ops & CameraOp.Orbit) != 0);
+            Assert.Equal(CameraOp.None, ops & CameraOp.Yaw);
+            Assert.False(session.RotateOwned);
+        }
+
+        [Fact]
+        public void Pipeline_OrbitThenRotation_NoFurtherAddAngleVelocity_PitchFrozen()
+        {
+            var settings = new ModSettings
+            {
+                YawRotateGain = 1f,
+                OrbitYawGain = 1f,
+                OrbitPitchGain = 1f,
+                MotionDeadband = 0.001f,
+                RotateEpsilon = 0.001f,
+            };
+            var inject = new InjectGestureSource();
+            var cam = new FakeCameraController
+            {
+                AngleX = 10f,
+                AngleY = 10f,
+                Size = 20f,
+            };
+            var pipeline = new GesturePipeline(settings, inject, cam);
+
+            inject.Enqueue(
+                new GestureFrame
+                {
+                    magic = GestureFrame.Magic,
+                    version = GestureFrame.Version,
+                    fingerCount = 2,
+                    phase = (int)GesturePhase.Changed,
+                    centroidDeltaY = -0.3f,
+                    modifiers = (uint)GestureModifiers.Option,
+                }
+            );
+            pipeline.Tick();
+            FakeCameraController.SimulateVanillaOrbitFrame(
+                cam,
+                inertia: 1f,
+                deltaTimeSeconds: 1f / 60f
+            );
+            float pitchAfter = cam.AngleY;
+            int addsAfterOrbit = cam.AddAngleVelocityCallCount;
+            Assert.True(addsAfterOrbit > 0);
+
+            inject.Enqueue(
+                new GestureFrame
+                {
+                    magic = GestureFrame.Magic,
+                    version = GestureFrame.Version,
+                    fingerCount = 2,
+                    phase = (int)GesturePhase.Ended,
+                }
+            );
+            pipeline.Tick();
+
+            cam.AngleVelocityX = 2f;
+            cam.AngleVelocityY = -3f;
+
+            inject.Enqueue(
+                new GestureFrame
+                {
+                    magic = GestureFrame.Magic,
+                    version = GestureFrame.Version,
+                    fingerCount = 2,
+                    phase = (int)GesturePhase.Changed,
+                    rotateDelta = 4f,
+                }
+            );
+            inject.Enqueue(
+                new GestureFrame
+                {
+                    magic = GestureFrame.Magic,
+                    version = GestureFrame.Version,
+                    fingerCount = 2,
+                    phase = (int)GesturePhase.Changed,
+                    centroidDeltaY = 0.4f,
+                }
+            );
+            pipeline.Tick();
+            FakeCameraController.SimulateVanillaOrbitFrame(
+                cam,
+                inertia: 1f,
+                deltaTimeSeconds: 1f / 60f
+            );
+
+            Assert.Equal(addsAfterOrbit, cam.AddAngleVelocityCallCount);
+            Assert.Equal(pitchAfter, cam.AngleY, 3);
+            Assert.Equal(14f, cam.AngleX, 3);
+            Assert.Equal(0f, cam.AngleVelocityY, 3);
+        }
+    }
+
+    /// <summary>
+    /// Documents the production policy in CameraControllerZoom.SetAngleComponent:
+    /// writing one angle axis must not replace the other axis on m_currentAngle
+    /// (full-vector copy caused pitch pops on two-finger rotation vs Q/E).
+    /// </summary>
+    public class AngleAxisWritePolicyTests
+    {
+        [Fact]
+        public void WritingYawAxis_LeavesPitchComponentsUnchanged()
+        {
+            // Stand-in for Vector2 target/current: [x=yaw, y=pitch]
+            float[] target = { 10f, 40f };
+            float[] current = { 10f, 25f }; // pitch still lerping toward 40
+
+            ApplyAxisOnly(target, current, index: 0, value: 13f);
+
+            Assert.Equal(13f, target[0], 3);
+            Assert.Equal(40f, target[1], 3);
+            Assert.Equal(13f, current[0], 3);
+            Assert.Equal(25f, current[1], 3); // must not snap to target pitch
+        }
+
+        private static void ApplyAxisOnly(float[] target, float[] current, int index, float value)
+        {
+            target[index] = value;
+            current[index] = value;
         }
     }
 

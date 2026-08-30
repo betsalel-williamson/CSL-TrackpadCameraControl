@@ -18,8 +18,8 @@ Copy a section into a PR or commit note and check boxes as you go.
 
 - [ ] Two-finger drag **pans**; does **not** also vanilla-zoom
 - [ ] Pinch **zooms**
-- [ ] Two-finger twist **yaws** (no extra pitch)
-- [ ] Option (`⌥`)+two-finger drag **orbits** (yaw **and** pitch)
+- [ ] Two-finger twist **rotates** heading (no pitch; hard-handoffs leftover orbit coast)
+- [ ] Option (`⌥`)+two-finger drag **orbits** (orbit yaw **and** pitch); twist ignored while Option owns contact
 - [ ] With DefaultTool + a click-selected building: Option-orbit does **not** jump look-at to that building
 - [ ] Release Option while fingers still down: orbit **latches** until lift
 - [ ] Lift fingers after Option-orbit: short **coast** then stop (middle-click-like), not a teleport

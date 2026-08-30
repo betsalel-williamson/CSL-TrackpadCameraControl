@@ -156,6 +156,13 @@ namespace TrackpadCameraControl
                 return;
             }
 
+            // Rotation and orbit must not share one Apply: strip orbit when rotation is present
+            // so AddAngleVelocity cannot run in the same call as a rotation request.
+            if ((ops & CameraOp.Yaw) != 0)
+            {
+                ops &= ~CameraOp.Orbit;
+            }
+
             if ((ops & CameraOp.Zoom) != 0)
             {
                 ApplyZoom(pinchDelta, settings, camera, modality);
@@ -349,6 +356,11 @@ namespace TrackpadCameraControl
             camera.AngleY = nextPitch;
         }
 
+        /// <summary>
+        /// Two-finger <b>rotation</b> (twist) — not orbit yaw. Writes AngleX or ghost angles.
+        /// Hard handoff: clears leftover orbit yaw+pitch velocity so prior Option-orbit coast
+        /// cannot bleed into the twist.
+        /// </summary>
         private static void ApplyYawRotate(
             float rotateDelta,
             ModSettings settings,
@@ -368,8 +380,8 @@ namespace TrackpadCameraControl
 
             if (selection != null && selection.TryApplyObjectYawDelta(delta))
             {
-                // Object twist must not keep coasting camera pitch from a prior Option-orbit.
-                camera.ClearAngleVelocity(yaw: false, pitch: true);
+                // Hard handoff: kill leftover orbit yaw + pitch coast under object rotation.
+                camera.ClearAngleVelocity(yaw: true, pitch: true);
                 return;
             }
 
@@ -379,8 +391,8 @@ namespace TrackpadCameraControl
                 return;
             }
 
-            // Pure camera yaw: kill leftover orbit pitch velocity so rotate cannot pitch.
-            camera.ClearAngleVelocity(yaw: false, pitch: true);
+            // Hard handoff: clear both orbit velocity axes when rotation applies.
+            camera.ClearAngleVelocity(yaw: true, pitch: true);
             camera.AngleX = yaw + delta;
         }
     }

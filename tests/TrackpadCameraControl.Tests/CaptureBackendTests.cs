@@ -139,6 +139,25 @@ namespace TrackpadCameraControl.Tests
         }
 
         [Fact]
+        public void EndGesture_MapsToEndedPhase()
+        {
+            Assert.True(
+                AppleGestureMapper.TryMap(
+                    AppleGestureMapper.EventTypeEndGesture,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0f,
+                    out GestureFrame frame
+                )
+            );
+            Assert.Equal((int)GesturePhase.Ended, frame.phase);
+            Assert.Equal(2, frame.fingerCount);
+        }
+
+        [Fact]
         public void Swipe_IsIgnored()
         {
             Assert.False(
