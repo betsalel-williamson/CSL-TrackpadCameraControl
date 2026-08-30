@@ -32,6 +32,31 @@ namespace TrackpadCameraControl
             out GestureFrame frame
         )
         {
+            return TryMap(
+                eventType,
+                nsPhase,
+                modifierFlags,
+                scrollingDeltaX,
+                scrollingDeltaY,
+                magnification,
+                rotationDegrees,
+                hasPreciseScrollingDeltas: true,
+                out frame
+            );
+        }
+
+        public static bool TryMap(
+            ulong eventType,
+            ulong nsPhase,
+            ulong modifierFlags,
+            double scrollingDeltaX,
+            double scrollingDeltaY,
+            double magnification,
+            float rotationDegrees,
+            bool hasPreciseScrollingDeltas,
+            out GestureFrame frame
+        )
+        {
             frame = default;
             if (eventType == EventTypeSwipe)
             {
@@ -46,6 +71,12 @@ namespace TrackpadCameraControl
 
             if (eventType == EventTypeScrollWheel)
             {
+                // Mouse wheel (non-precise) must not become pan; leave vanilla zoom alone.
+                if (!hasPreciseScrollingDeltas)
+                {
+                    return false;
+                }
+
                 dx = (float)scrollingDeltaX * ScrollToCentroid;
                 dy = (float)scrollingDeltaY * ScrollToCentroid;
             }

@@ -211,10 +211,14 @@ namespace TrackpadCameraControl
             double sdy = 0;
             double mag = 0;
             float rot = 0f;
+            bool precise = true;
             if (type == AppleGestureMapper.EventTypeScrollWheel)
             {
                 sdx = objc_msgSend_f64(nsEvent, sel_registerName("scrollingDeltaX"));
                 sdy = objc_msgSend_f64(nsEvent, sel_registerName("scrollingDeltaY"));
+                precise = objc_msgSend_bool(nsEvent, sel_registerName("hasPreciseScrollingDeltas"));
+                // Drive vanilla suppress: precise trackpad → may skip zoom; wheel → allow.
+                VanillaCameraSuppress.PreciseTrackpadScroll = precise;
             }
             else if (type == AppleGestureMapper.EventTypeMagnify)
             {
@@ -234,6 +238,7 @@ namespace TrackpadCameraControl
                     sdy,
                     mag,
                     rot,
+                    precise,
                     out GestureFrame frame
                 )
             )
@@ -285,6 +290,10 @@ namespace TrackpadCameraControl
 
         [DllImport(LibObjC, EntryPoint = "objc_msgSend")]
         private static extern float objc_msgSend_f32(IntPtr recv, IntPtr sel);
+
+        [DllImport(LibObjC, EntryPoint = "objc_msgSend")]
+        [return: MarshalAs(UnmanagedType.I1)]
+        private static extern bool objc_msgSend_bool(IntPtr recv, IntPtr sel);
 
         [DllImport(LibSystem)]
         private static extern IntPtr dlopen(string path, int mode);

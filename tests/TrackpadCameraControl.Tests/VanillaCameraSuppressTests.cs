@@ -9,25 +9,42 @@ namespace TrackpadCameraControl.Tests
         public VanillaCameraSuppressTests()
         {
             VanillaCameraSuppress.Enabled = false;
+            VanillaCameraSuppress.PreciseTrackpadScroll = false;
+            VanillaCameraSuppress.MenuOrOverUi = false;
         }
 
         public void Dispose()
         {
             VanillaCameraSuppress.Enabled = false;
+            VanillaCameraSuppress.PreciseTrackpadScroll = false;
+            VanillaCameraSuppress.MenuOrOverUi = false;
         }
 
         [Fact]
         public void ShouldSkipScrollWheel_WhenDisabled_ReturnsFalse()
         {
             VanillaCameraSuppress.Enabled = false;
-            Assert.False(VanillaCameraSuppress.ShouldSkipScrollWheel());
+            Assert.False(
+                VanillaCameraSuppress.ShouldSkipScrollWheel(preciseTrackpad: true, menuOrOverUi: false)
+            );
         }
 
         [Fact]
-        public void ShouldSkipScrollWheel_WhenEnabled_ReturnsTrue()
+        public void ShouldSkipScrollWheel_WhenEnabledPreciseWorld_ReturnsTrue()
         {
             VanillaCameraSuppress.Enabled = true;
-            Assert.True(VanillaCameraSuppress.ShouldSkipScrollWheel());
+            Assert.True(
+                VanillaCameraSuppress.ShouldSkipScrollWheel(preciseTrackpad: true, menuOrOverUi: false)
+            );
+        }
+
+        [Fact]
+        public void ShouldSkipScrollWheel_WhenEnabledWheel_ReturnsFalse()
+        {
+            VanillaCameraSuppress.Enabled = true;
+            Assert.False(
+                VanillaCameraSuppress.ShouldSkipScrollWheel(preciseTrackpad: false, menuOrOverUi: false)
+            );
         }
 
         [Fact]

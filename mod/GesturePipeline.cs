@@ -58,6 +58,9 @@ namespace TrackpadCameraControl
                 E2eInjectFileProtocol.Poll(inject, _camera);
             }
 
+            // Keep vanilla scroll policy in sync with menu / over-UI gates.
+            VanillaCameraSuppress.MenuOrOverUi = InputGates.IsMenuOrOverUi();
+
             if (!_source.IsConnected)
             {
                 if (_reconnectCooldown > 0)
@@ -73,6 +76,8 @@ namespace TrackpadCameraControl
                     return;
                 }
             }
+
+            bool skipApply = InputGates.ShouldSkipModCamera(_settings);
 
             int safety = 32;
             bool applied = false;
@@ -99,6 +104,11 @@ namespace TrackpadCameraControl
                 float pinch = frame.pinchScaleDelta;
                 float rotate = frame.rotateDelta;
                 _lowPass.Filter(ops, _settings, ref dx, ref dy, ref pinch, ref rotate);
+
+                if (skipApply)
+                {
+                    continue;
+                }
 
                 CameraApplicator.Apply(ops, dx, dy, pinch, rotate, _settings, _camera);
                 applied = true;
