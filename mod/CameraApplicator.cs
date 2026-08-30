@@ -279,6 +279,10 @@ namespace TrackpadCameraControl
                 return;
             }
 
+            // Always re-home look-at from selection (live instance / relocate / ghost).
+            // Priority in CitiesSelectionContext prefers live buffer positions so this does not
+            // flicker like hover; keeping Target in sync on zero-delta latch ticks avoids
+            // orbiting a leftover pan target after select/relocate.
             if (
                 selection != null
                 && selection.TryGetSelectedWorldPosition(out float sx, out float sy, out float sz)

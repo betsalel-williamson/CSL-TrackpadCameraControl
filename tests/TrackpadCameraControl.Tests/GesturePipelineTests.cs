@@ -175,6 +175,19 @@ namespace TrackpadCameraControl.Tests
         }
 
         [Fact]
+        public void ExclusiveOrbitVersusYaw_DropsYaw()
+        {
+            Assert.Equal(
+                CameraOp.Orbit,
+                GestureBindingResolver.ExclusiveOrbitVersusYaw(CameraOp.Orbit | CameraOp.Yaw)
+            );
+            Assert.Equal(
+                CameraOp.Yaw,
+                GestureBindingResolver.ExclusiveOrbitVersusYaw(CameraOp.Yaw)
+            );
+        }
+
+        [Fact]
         public void OptionTwoFinger_EngagesOrbitNotPan()
         {
             var settings = new ModSettings
@@ -297,7 +310,7 @@ namespace TrackpadCameraControl.Tests
         }
 
         [Fact]
-        public void OrbitLatch_AllowsYaw_SuppressesZoom()
+        public void OrbitLatch_SuppressesYawAndZoom()
         {
             var settings = new ModSettings
             {
@@ -337,7 +350,7 @@ namespace TrackpadCameraControl.Tests
             );
 
             Assert.True((ops & CameraOp.Orbit) != 0);
-            Assert.True((ops & CameraOp.Yaw) != 0);
+            Assert.Equal(CameraOp.None, ops & CameraOp.Yaw);
             Assert.Equal(CameraOp.None, ops & CameraOp.Zoom);
             Assert.Equal(CameraOp.None, ops & CameraOp.Pan);
         }

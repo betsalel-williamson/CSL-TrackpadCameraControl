@@ -16,7 +16,7 @@ Trackpad players get full Maps+/CAD camera fluency (pan, pinch zoom, rotate yaw,
 | Preset schema | Keep Custom / OrbitTrigger.Both; defaults exclusive Maps+ vs CAD |
 | Resolve modes | Concurrent (default), SessionLock, PrimaryOnly                   |
 | Orbit latch   | Hold until touch-up even if modifier released                    |
-| While latched | Orbit + yaw rotate; no pan, no zoom                              |
+| While latched | Orbit only; no yaw rotate, pan, or zoom                          |
 | Architecture  | Op-set resolver + GestureSession + ICameraController             |
 
 ## Architecture

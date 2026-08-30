@@ -1,0 +1,73 @@
+using TrackpadCameraControl;
+using Xunit;
+
+namespace TrackpadCameraControl.Tests
+{
+    public class SelectionGesturePriorityTests
+    {
+        [Fact]
+        public void Relocate_BeatsPlacementGhost()
+        {
+            Assert.Equal(
+                SelectionGestureKind.RelocateInstance,
+                SelectionGesturePriority.Resolve(
+                    placementToolArmed: true,
+                    relocateBuildingId: 42,
+                    hasValidSelectedInstance: true
+                )
+            );
+        }
+
+        [Fact]
+        public void SelectedInstance_BeatsPlacementGhost_WhenNotRelocating()
+        {
+            Assert.Equal(
+                SelectionGestureKind.SelectedInstance,
+                SelectionGesturePriority.Resolve(
+                    placementToolArmed: true,
+                    relocateBuildingId: 0,
+                    hasValidSelectedInstance: true
+                )
+            );
+        }
+
+        [Fact]
+        public void PlacementGhost_WhenArmedWithoutSelection()
+        {
+            Assert.Equal(
+                SelectionGestureKind.PlacementGhost,
+                SelectionGesturePriority.Resolve(
+                    placementToolArmed: true,
+                    relocateBuildingId: 0,
+                    hasValidSelectedInstance: false
+                )
+            );
+        }
+
+        [Fact]
+        public void SelectedInstance_WithoutPlacementTool()
+        {
+            Assert.Equal(
+                SelectionGestureKind.SelectedInstance,
+                SelectionGesturePriority.Resolve(
+                    placementToolArmed: false,
+                    relocateBuildingId: 0,
+                    hasValidSelectedInstance: true
+                )
+            );
+        }
+
+        [Fact]
+        public void None_WhenNothingArmed()
+        {
+            Assert.Equal(
+                SelectionGestureKind.None,
+                SelectionGesturePriority.Resolve(
+                    placementToolArmed: false,
+                    relocateBuildingId: 0,
+                    hasValidSelectedInstance: false
+                )
+            );
+        }
+    }
+}

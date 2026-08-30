@@ -134,6 +134,51 @@ namespace TrackpadCameraControl.Tests
         }
 
         [Fact]
+        public void Orbit_WithSelection_ZeroDelta_StillRefreshesTarget()
+        {
+            var cam = new FakeCameraController
+            {
+                TargetX = 3f,
+                TargetY = 1f,
+                TargetZ = 4f,
+                AngleX = 10f,
+                AngleY = 30f,
+            };
+            var selection = new FakeSelectionContext
+            {
+                HasSelection = true,
+                WorldX = 100f,
+                WorldY = 5f,
+                WorldZ = -50f,
+            };
+            var settings = new ModSettings
+            {
+                OrbitYawSensitivity = 1f,
+                OrbitPitchSensitivity = 1f,
+                OrbitPitchMin = 7f,
+                OrbitPitchMax = 90f,
+            };
+
+            CameraApplicator.Apply(
+                CameraOp.Orbit,
+                0f,
+                0f,
+                0,
+                0,
+                settings,
+                cam,
+                CameraApplicator.InputModality.Drag,
+                selection
+            );
+
+            Assert.Equal(100f, cam.TargetX, 3);
+            Assert.Equal(5f, cam.TargetY, 3);
+            Assert.Equal(-50f, cam.TargetZ, 3);
+            Assert.Equal(10f, cam.AngleX, 3);
+            Assert.Equal(30f, cam.AngleY, 3);
+        }
+
+        [Fact]
         public void Orbit_WithoutSelection_LeavesTarget_ChangesAngles()
         {
             var cam = new FakeCameraController

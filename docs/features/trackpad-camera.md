@@ -28,7 +28,7 @@ CAD three-finger orbit remains behind `EnableCadGestureStyle`.
 ## Resolve mode and orbit latch
 
 - [Gesture resolve mode](../glossary/gesture-resolve-mode.md) controls whether multiple camera ops can apply from one frame (default: Concurrent).
-- [Orbit latch](../glossary/orbit-latch.md): once orbit engages, it holds until touch-up even if the modifier is released. While latched, orbit and yaw rotate apply; pan and zoom do not.
+- [Orbit latch](../glossary/orbit-latch.md): once orbit engages, it holds until touch-up even if the modifier is released. While latched, orbit applies; yaw rotate, pan, and zoom do not.
 
 ## Acceptance criteria (current)
 

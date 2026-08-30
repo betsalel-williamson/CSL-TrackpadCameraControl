@@ -88,7 +88,7 @@ One-shot delta from [button step](../glossary/button-step.md), then invert and t
 
 ## Orbit latch (contract)
 
-Once orbit engages from the configured trigger, the session stays in orbit until touch-up (Ended / Cancelled / zero fingers), even if the modifier key is released. While latched: orbit and yaw rotate may apply; pan and zoom do not — regardless of Concurrent resolve mode.
+Once orbit engages from the configured trigger, the session stays in orbit until touch-up (Ended / Cancelled / zero fingers), even if the modifier key is released. While latched: **orbit only** (yaw rotate is suppressed so twist noise cannot double-write angles); pan and zoom do not — regardless of Concurrent resolve mode.
 
 ## Input gates (contract)
 

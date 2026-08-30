@@ -29,8 +29,11 @@ Base Maps+ pan / pinch zoom and [orbit latch](../glossary/orbit-latch.md) remain
 
 ## Production selection (best-effort)
 
-In-game detection lives in `CitiesSelectionContext` behind `ISelectionContext`:
+In-game detection lives in `CitiesSelectionContext` behind `ISelectionContext`, ordered by `SelectionGesturePriority`:
 
-- **Placement tools:** `BuildingTool` / `PropTool` with a prefab → two-finger rotate adjusts tool `m_angle`; Option-orbit pivots on reflected `ToolBase.m_mousePosition` when present.
-- **Placed objects:** reflects `m_selectedInstance` or `m_hoverInstance` (`InstanceID`) from tool/manager types (owner varies by game build), then reads/writes `Building` / `PropInstance` buffers.
-- **Fail soft:** missing fields, null singletons, or exceptions → treat as no selection (Maps+ camera yaw / orbit). Unit tests use a fake; they do not need Unity.
+1. **Relocate:** `BuildingTool.m_relocate != 0` → two-finger rotate turns that building (and keeps tool `m_angle` in sync); Option-orbit pivots on cursor preview when present, else the building buffer position.
+2. **Selected instance:** `InstanceManager.m_selectedInstance` (validated when `IsValid` exists) → rotate / pivot on live `Building` / `PropInstance` buffer position (follows relocate commit).
+3. **Placement ghost:** `BuildingTool` / `PropTool` with prefab and no relocate → rotate tool `m_angle`; orbit pivots on `ToolBase.m_mousePosition`.
+4. **Fail soft / none:** missing fields or exceptions → Maps+ camera yaw / orbit.
+
+Hover is not used (it flickers as the camera moves). Unit tests cover priority without Unity.

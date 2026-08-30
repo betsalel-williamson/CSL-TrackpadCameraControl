@@ -93,6 +93,20 @@ namespace TrackpadCameraControl
             return ops & ~CameraOp.Zoom;
         }
 
+        /// <summary>
+        /// Orbit already applies yaw via centroid drag. Concurrent twist yaw double-writes AngleX
+        /// (and can steal object-rotate) — drop yaw whenever orbit is active this frame.
+        /// </summary>
+        public static CameraOp ExclusiveOrbitVersusYaw(CameraOp ops)
+        {
+            if ((ops & CameraOp.Orbit) != 0 && (ops & CameraOp.Yaw) != 0)
+            {
+                return ops & ~CameraOp.Yaw;
+            }
+
+            return ops;
+        }
+
         public static bool IsOrbitTriggerActive(GestureFrame frame, ModSettings settings)
         {
             if (settings == null || !settings.OrbitEnabled)

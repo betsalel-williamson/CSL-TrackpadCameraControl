@@ -8,11 +8,8 @@ namespace TrackpadCameraControl
 {
     /// <summary>
     /// Best-effort CS1 selection context.
-    /// <list type="bullet">
-    /// <item><description>Placement: <c>BuildingTool</c>/<c>PropTool</c> <c>m_angle</c> (degrees) + reflected <c>ToolBase.m_mousePosition</c> for orbit pivot.</description></item>
-    /// <item><description>Placed objects: reflect <c>m_selectedInstance</c> / <c>m_hoverInstance</c> on live tool / manager types (field owner varies by game build), then read <c>Building</c>/<c>PropInstance</c> buffers.</description></item>
-    /// </list>
-    /// All paths fail soft — returns false when APIs are missing or throw.
+    /// Priority: relocate building → selected instance → placement ghost (angle / mouse).
+    /// Hover is not used. All paths fail soft.
     /// </summary>
     public sealed class CitiesSelectionContext : ISelectionContext
     {
@@ -23,8 +20,6 @@ namespace TrackpadCameraControl
         private static bool _mousePositionResolved;
         private static FieldInfo _selectedInstanceField;
         private static bool _selectedInstanceResolved;
-        private static FieldInfo _hoverInstanceField;
-        private static bool _hoverInstanceResolved;
 #endif
 
         public bool TryGetSelectedWorldPosition(out float x, out float y, out float z)
@@ -35,14 +30,39 @@ namespace TrackpadCameraControl
 #if HAS_CITIES
             try
             {
-                if (TryGetToolPlacementPosition(out x, out y, out z))
+                bool placementArmed = IsPlacementTool(TryGetCurrentTool());
+                int relocateId = TryGetRelocateBuildingId();
+                bool hasSelected =
+                    TryGetInstanceSelection(out InstanceID selectedId) && IsInstanceValid(selectedId);
+
+                SelectionGestureKind kind = SelectionGesturePriority.Resolve(
+                    placementArmed,
+                    relocateId,
+                    hasSelected
+                );
+
+                if (kind == SelectionGestureKind.RelocateInstance)
                 {
-                    return true;
+                    // Ghost sits at the cursor; buffer still holds the pre-commit cell.
+                    // Prefer mouse so Option-orbit follows the relocated preview, not the old site.
+                    if (TryGetToolPlacementPosition(out x, out y, out z))
+                    {
+                        return true;
+                    }
+
+                    InstanceID relocate = default(InstanceID);
+                    relocate.Building = (ushort)relocateId;
+                    return TryGetInstancePosition(relocate, out x, out y, out z);
                 }
 
-                if (TryGetInstanceSelection(out InstanceID id) && TryGetInstancePosition(id, out x, out y, out z))
+                if (kind == SelectionGestureKind.SelectedInstance)
                 {
-                    return true;
+                    return TryGetInstancePosition(selectedId, out x, out y, out z);
+                }
+
+                if (kind == SelectionGestureKind.PlacementGhost)
+                {
+                    return TryGetToolPlacementPosition(out x, out y, out z);
                 }
             }
             catch
@@ -63,14 +83,39 @@ namespace TrackpadCameraControl
 #if HAS_CITIES
             try
             {
-                if (TryRotatePlacementTool(deltaDegrees))
+                bool placementArmed = IsPlacementTool(TryGetCurrentTool());
+                int relocateId = TryGetRelocateBuildingId();
+                bool hasSelected =
+                    TryGetInstanceSelection(out InstanceID selectedId) && IsInstanceValid(selectedId);
+
+                SelectionGestureKind kind = SelectionGesturePriority.Resolve(
+                    placementArmed,
+                    relocateId,
+                    hasSelected
+                );
+
+                if (kind == SelectionGestureKind.RelocateInstance)
                 {
-                    return true;
+                    InstanceID relocate = default(InstanceID);
+                    relocate.Building = (ushort)relocateId;
+                    bool rotated = TryRotateInstance(relocate, deltaDegrees);
+                    // Keep ghost preview angle in sync with the live building.
+                    if (rotated)
+                    {
+                        TryRotatePlacementTool(deltaDegrees);
+                    }
+
+                    return rotated;
                 }
 
-                if (TryGetInstanceSelection(out InstanceID id) && TryRotateInstance(id, deltaDegrees))
+                if (kind == SelectionGestureKind.SelectedInstance)
                 {
-                    return true;
+                    return TryRotateInstance(selectedId, deltaDegrees);
+                }
+
+                if (kind == SelectionGestureKind.PlacementGhost)
+                {
+                    return TryRotatePlacementTool(deltaDegrees);
                 }
             }
             catch
@@ -82,6 +127,40 @@ namespace TrackpadCameraControl
         }
 
 #if HAS_CITIES
+        private static int TryGetRelocateBuildingId()
+        {
+            ToolBase tool = TryGetCurrentTool();
+            if (tool is BuildingTool buildingTool && buildingTool.m_prefab != null)
+            {
+                return buildingTool.m_relocate;
+            }
+
+            return 0;
+        }
+
+        private static bool IsInstanceValid(InstanceID id)
+        {
+            if (id.IsEmpty)
+            {
+                return false;
+            }
+
+            try
+            {
+                InstanceManager manager = InstanceManager.instance;
+                if (manager != null && !InstanceManager.IsValid(id))
+                {
+                    return false;
+                }
+            }
+            catch
+            {
+                // If IsValid is unavailable, fall through to buffer reads.
+            }
+
+            return true;
+        }
+
         private static bool TryGetToolPlacementPosition(out float x, out float y, out float z)
         {
             x = 0f;
@@ -141,14 +220,7 @@ namespace TrackpadCameraControl
         private static bool TryGetInstanceSelection(out InstanceID id)
         {
             id = default(InstanceID);
-            // Prefer explicit selection field, then hover (info/click target).
             if (TryReadInstanceIdField(ref _selectedInstanceResolved, ref _selectedInstanceField, "m_selectedInstance", out id)
-                && !id.IsEmpty)
-            {
-                return true;
-            }
-
-            if (TryReadInstanceIdField(ref _hoverInstanceResolved, ref _hoverInstanceField, "m_hoverInstance", out id)
                 && !id.IsEmpty)
             {
                 return true;

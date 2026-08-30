@@ -52,11 +52,14 @@ namespace TrackpadCameraControl
 
             if (OrbitLatched)
             {
-                candidates &= CameraOp.Orbit | CameraOp.Yaw;
+                // Orbit owns the latched session. Yaw was previously allowed too, but Option-drag
+                // often emits twist noise → Orbit yaw + Yaw in one frame = jumping AngleX.
+                candidates &= CameraOp.Orbit;
             }
 
             // After latch masking: pinch vs twist stay exclusive when both remain.
             candidates = GestureBindingResolver.ExclusiveZoomVersusYaw(candidates, frame, settings);
+            candidates = GestureBindingResolver.ExclusiveOrbitVersusYaw(candidates);
 
             return ApplyResolveMode(frame, settings, candidates);
         }
