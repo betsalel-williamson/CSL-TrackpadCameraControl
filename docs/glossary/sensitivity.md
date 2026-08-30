@@ -6,7 +6,7 @@ Default factory values live only in the settings schema. Larger values move the 
 
 Option-orbit drag feeds the same **angle velocity** path as middle mouse button drag (vanilla inertia + lerp); Sensitivity is the single gain — there is no separate scroll “scale” constant.
 
-**Math (after optional low-pass when that path is active):** `scaled = raw * Sensitivity`, then apply invert if set. Pan also multiplies by camera `Size` before the camera-relative XZ write. Zoom: `Size' = Size * (1 - scaledPinch)`. Yaw / orbit: add scaled angle deltas to `AngleX` / `AngleY`. Orbit pitch is then clamped to Pitch min / max (7–90°).
+**Math (after optional low-pass when that path is active):** `scaled = raw * Sensitivity`, then apply invert if set. Pan also multiplies by camera `Size` before the camera-relative XZ write. Zoom: `Size' = Size * (1 - scaledPinch)`. Yaw: add scaled delta to `AngleX`. Orbit drag: `AddAngleVelocity` (middle mouse button path). Orbit pitch limits still apply at the edges / on button steps.
 
 **Synonyms** (same multiplier; prefer **Sensitivity** in UI and new docs): [drag scale](./drag-scale.md), speed, scale. Settings field names remain `*Sensitivity*` (for example `PanSensitivityX`).
 
