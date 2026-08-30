@@ -29,7 +29,8 @@ namespace TrackpadCameraControl
             bool hasValidSelectedInstance
         )
         {
-            if (placementToolArmed && relocateBuildingId != 0)
+            // Relocate wins even if prefab detection is flaky — m_relocate is the source of truth.
+            if (relocateBuildingId != 0)
             {
                 return SelectionGestureKind.RelocateInstance;
             }
