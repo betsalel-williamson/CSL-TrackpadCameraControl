@@ -11,7 +11,7 @@ There is no Options checkbox for this; mod on/off is the switch. Cities Harmony 
 - Precise trackpad two-finger scroll [pans](../glossary/pan.md) without also vanilla-zooming.
 - Real mouse wheel still vanilla-zooms.
 - Options / other menus open: two-finger scrolls the UI; the city does not pan from the mod.
-- Cursor over any active popup (Assist panel or other mods): two-finger scrolls/drags UI, not camera; keyboard may still move the camera unless a text field is focused.
+- Cursor over any active popup (Debug panel or other mods): two-finger scrolls/drags UI, not camera; keyboard may still move the camera unless a text field is focused.
 - Mouse-drag vanilla camera rotate does not run while the rotate-camera binding is held and the mod is on.
 - Edge scrolling, keyboard move/rotate/zoom, and analog/gamepad camera still work.
 - One-finger tools stay with the game.
