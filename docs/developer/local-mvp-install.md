@@ -1,12 +1,22 @@
 # Local MVP install (macOS)
 
-Prove pinch → zoom with the in-process capture path (mod DLL only) and a local install.
+Prove gestures with the in-process capture path (mod DLL only) and a local Mods-folder install. This is the **beta / contributor deploy** path until Steam Workshop packaging ships.
+
+Player-facing expectations after install: `docs/client/install-and-first-run.md`. When to point people at Release vs Workshop vs soft Discord: [Community and marketing](./community-and-marketing.md).
+
+## Deploy roles
+
+| Path | Role today |
+| --- | --- |
+| This local install | Beta testers and contributors prove the mod on a real game install |
+| GitHub Release source archive | Versioned input to this install (no prebuilt Workshop item yet) |
+| Steam Workshop | Future community subscribe path — not this script |
 
 ## Beta from a GitHub Release
 
 1. Open the latest [GitHub Release](https://github.com/betsalel-williamson/CSL-TrackpadCameraControl/releases) and download the **Source code** zip/tarball (or `git clone` and `git checkout` the release tag).
 2. Follow **Build and install the mod** below.
-3. You need your own Cities: Skylines install (Managed assemblies). Steam Workshop packaging comes later.
+3. You need your own Cities: Skylines install (Managed assemblies).
 
 ## Build and install the mod
 

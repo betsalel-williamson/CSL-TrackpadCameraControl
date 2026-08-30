@@ -46,6 +46,8 @@ npm run format:check  # csharpier + clang-format (see docs/developer/lint-and-fo
 | Features / architecture | [`docs/features/`](docs/features/)   |
 | Player guide            | [`docs/client/`](docs/client/)       |
 | Contributor guide       | [`docs/developer/`](docs/developer/) |
+| Community / marketing   | [`docs/developer/community-and-marketing.md`](docs/developer/community-and-marketing.md) |
+| Personas                | [`docs/client/personas.md`](docs/client/personas.md) |
 | Glossary                | [`docs/glossary/`](docs/glossary/)   |
 
 ## Contributing

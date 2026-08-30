@@ -1,10 +1,22 @@
 # Install and first run
 
+How players get the mod running. Who this is for: [Personas](./personas.md). Where maintainers announce it: `docs/developer/community-and-marketing.md`.
+
+## Distribution paths
+
+| Path | Who | How |
+| --- | --- | --- |
+| **Beta (current)** | Early adopters / testers | GitHub Release source archive → build/install per `docs/developer/local-mvp-install.md` |
+| **Steam Workshop** | Most players (when published) | Subscribe in Workshop; enable in Content Manager with Cities Harmony |
+| **Local dev** | Contributors | Same install script as beta; see developer guide |
+
+Until Workshop publishes, treat GitHub Release + local install as the supported player/tester path. Do not imply a Workshop item exists before it does.
+
 ## Requirements
 
 - Cities: Skylines I
 - [Cities Harmony](https://steamcommunity.com/sharedfiles/filedetails/?id=2040656402) subscribed and enabled — **required** for [vanilla camera suppress](../glossary/vanilla-camera-suppress.md) (without it, two-finger pan may still fight vanilla scroll-zoom)
-- Trackpad Camera Control installed (local Mods folder for development; Steam Workshop later)
+- Trackpad Camera Control installed via a path in the table above
 - A **supported trackpad backend** for your OS (v1 ships macOS; other platforms show unsupported until a backend exists)
 
 ## Vanilla camera while the mod is on
