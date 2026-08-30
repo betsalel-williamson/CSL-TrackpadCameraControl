@@ -39,7 +39,8 @@ namespace TrackpadCameraControl
             ref float rotateDelta
         )
         {
-            if (settings == null)
+            // LP rides EnableContactsCapture: settings toggles only apply when Contacts is on.
+            if (!FeatureFlags.EnableContactsCapture || settings == null)
             {
                 return;
             }

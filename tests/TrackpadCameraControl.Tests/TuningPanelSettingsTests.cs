@@ -95,8 +95,11 @@ namespace TrackpadCameraControl.Tests
         }
 
         [Fact]
-        public void Filter_Enabled_SmoothsTowardSample()
+        public void Filter_ContactsFlagOff_IgnoresPanLowPassEnabled()
         {
+            // EnableContactsCapture is const false for ship; LP must pass through raw.
+            Assert.False(FeatureFlags.EnableContactsCapture);
+
             var lp = new DragLowPass();
             var settings = new ModSettings { PanLowPassEnabled = true, PanLowPassAlpha = 0.5f };
             float dx = 1f;
@@ -109,7 +112,7 @@ namespace TrackpadCameraControl.Tests
 
             dx = 0f;
             lp.Filter(CameraOp.Pan, settings, ref dx, ref dy, ref pinch, ref rotate);
-            Assert.Equal(0.5f, dx, 3);
+            Assert.Equal(0f, dx);
         }
 
         [Fact]

@@ -36,6 +36,17 @@ namespace TrackpadCameraControl.Tests
             );
         }
 
+        [Fact]
+        public void Resolve_ContactsFlagOff_ForcesAppleEvenIfSettingsContacts()
+        {
+            Assert.False(FeatureFlags.EnableContactsCapture);
+            var settings = new ModSettings { CaptureBackend = CaptureBackend.Contacts };
+            Assert.Equal(
+                CaptureBackend.AppleGestures,
+                CaptureBackendFlags.Resolve(settings, null)
+            );
+        }
+
         [Theory]
         [InlineData("apple")]
         [InlineData("Apple")]
@@ -160,25 +171,16 @@ namespace TrackpadCameraControl.Tests
         }
 
         [Fact]
-        public void CreateCaptureSource_BridgeEnabled_IsIpc()
+        public void CreateCaptureSource_ContactsSettings_WhenFlagOff_IsAppleGestureSource()
         {
-            Assert.IsType<IpcGestureSource>(
+            Assert.False(FeatureFlags.EnableContactsCapture);
+            Assert.IsType<AppleGestureSource>(
                 Mod.CreateCaptureSource(
                     new ModSettings
                     {
                         CaptureBackend = CaptureBackend.Contacts,
                         BridgeEnabled = true,
                     }
-                )
-            );
-        }
-
-        [Fact]
-        public void CreateCaptureSource_Contacts_IsInProcess()
-        {
-            Assert.IsType<InProcessGestureSource>(
-                Mod.CreateCaptureSource(
-                    new ModSettings { CaptureBackend = CaptureBackend.Contacts }
                 )
             );
         }
