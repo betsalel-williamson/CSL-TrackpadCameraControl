@@ -46,7 +46,7 @@ A [feel preset](../glossary/feel-preset.md) stores sensitivities, reverse flags,
 
 Under each op heading (**Zoom**, **Pan**, **Rotate**, **Orbit**) after **General**: short meaning + activation, then:
 
-- Per-op [Sensitivity](../glossary/sensitivity.md) **slider**: min **0.1×** that field’s factory default, max **2×**, step ≈ **10%** of factory default; display/apply two decimals
+- Per-op [Sensitivity](../glossary/sensitivity.md) **slider**: min **0.1×** that field’s factory default, max **2×**, step ≈ **10%** of factory default; display/apply **four** decimals for Sensitivity
 - Orbit: Pitch min / max (schema + Debug panel only; factory **7°** / **90°**, pitch always **> 0**). No yaw angle clamp. Options does **not** expose these angle limits.
 
 Also: [feel preset](../glossary/feel-preset.md) row (Slow / Default / Fast / New Preset when dirty, Save as… / Load, Reset to factory), Debug UI enabled (panel master switch).
@@ -72,7 +72,7 @@ Let `raw` be the resolved gesture delta for that axis. Optional [low-pass](../gl
 | Pan   | `mx = dx * PanSensitivityX`, `my = dy * PanSensitivityY`, then `mx,my *= Size` | Camera-relative XZ, then **clamp target via `ICameraController.ClampPanTarget`** (unlocked game area / `ClampPoint`) |
 | Zoom  | `delta = pinch * ZoomSensitivity` | `Size' = Size * (1 - delta)` (clamped) |
 | Yaw   | `delta = rotate * YawRotateSensitivity` | `AngleX' = AngleX + delta` (no yaw angle clamp). When a selection is active, two-finger rotate targets the object instead — see [selection-aware gestures](./selection-aware-gestures.md). |
-| Orbit | `dyaw = dx * OrbitYawSensitivity`, `dpitch = dy * OrbitPitchSensitivity` | `AngleX' += dyaw`, `AngleY' += dpitch` then clamp pitch to Pitch min / max. Place/relocate ghost may re-home Target; otherwise orbit from current look-at. |
+| Orbit | Drag: `AddAngleVelocity(dx * OrbitYawSensitivity, dy * OrbitPitchSensitivity)` (middle mouse button-style; vanilla LateUpdate damps/lerps). Button: absolute angle step + pitch clamp. Place/relocate ghost may re-home Target; otherwise orbit from current look-at. |
 
 ### Button path (only when `EnableAssistChrome`)
 

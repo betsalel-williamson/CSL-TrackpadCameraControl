@@ -59,13 +59,13 @@ namespace TrackpadCameraControl
             CopyFeelFields(settings, ModSettings.CreateFactoryDefaults());
         }
 
-        /// <summary>Factory Default sensitivities × 0.75 (Round2); reverse + pitch = factory.</summary>
+        /// <summary>Factory Default sensitivities × 0.75 (RoundSensitivity); reverse + pitch = factory.</summary>
         public static void ApplySlow(ModSettings settings)
         {
             ApplyScaledFromFactory(settings, SlowMultiplier);
         }
 
-        /// <summary>Factory Default sensitivities × 1.25 (Round2); reverse + pitch = factory.</summary>
+        /// <summary>Factory Default sensitivities × 1.25 (RoundSensitivity); reverse + pitch = factory.</summary>
         public static void ApplyFast(ModSettings settings)
         {
             ApplyScaledFromFactory(settings, FastMultiplier);
@@ -125,16 +125,16 @@ namespace TrackpadCameraControl
 
             ModSettings factory = ModSettings.CreateFactoryDefaults();
 
-            settings.PanSensitivityX = ModOptions.Round2(factory.PanSensitivityX * multiplier);
-            settings.PanSensitivityY = ModOptions.Round2(factory.PanSensitivityY * multiplier);
-            settings.ZoomSensitivity = ModOptions.Round2(factory.ZoomSensitivity * multiplier);
-            settings.YawRotateSensitivity = ModOptions.Round2(
+            settings.PanSensitivityX = ModOptions.RoundSensitivity(factory.PanSensitivityX * multiplier);
+            settings.PanSensitivityY = ModOptions.RoundSensitivity(factory.PanSensitivityY * multiplier);
+            settings.ZoomSensitivity = ModOptions.RoundSensitivity(factory.ZoomSensitivity * multiplier);
+            settings.YawRotateSensitivity = ModOptions.RoundSensitivity(
                 factory.YawRotateSensitivity * multiplier
             );
-            settings.OrbitYawSensitivity = ModOptions.Round2(
+            settings.OrbitYawSensitivity = ModOptions.RoundSensitivity(
                 factory.OrbitYawSensitivity * multiplier
             );
-            settings.OrbitPitchSensitivity = ModOptions.Round2(
+            settings.OrbitPitchSensitivity = ModOptions.RoundSensitivity(
                 factory.OrbitPitchSensitivity * multiplier
             );
 

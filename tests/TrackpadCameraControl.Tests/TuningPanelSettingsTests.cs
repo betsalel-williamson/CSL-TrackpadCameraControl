@@ -185,7 +185,7 @@ namespace TrackpadCameraControl.Tests
         {
             var store = new ModSettingsStore(_path);
             ModSettings loaded = store.LoadOrFactory();
-            Assert.Equal(0.50f, loaded.PanSensitivityX);
+            Assert.Equal(0.005f, loaded.PanSensitivityX);
             Assert.True(loaded.InvertPanX);
             Assert.Equal(7f, loaded.OrbitPitchMin);
             Assert.Equal(90f, loaded.OrbitPitchMax);
@@ -198,7 +198,7 @@ namespace TrackpadCameraControl.Tests
             File.WriteAllText(_path, "not-xml{{{");
             var store = new ModSettingsStore(_path);
             ModSettings loaded = store.LoadOrFactory();
-            Assert.Equal(0.50f, loaded.PanSensitivityX);
+            Assert.Equal(0.005f, loaded.PanSensitivityX);
             Assert.Equal(GesturePreset.MapsPlus, loaded.GesturePreset);
         }
 
@@ -212,10 +212,10 @@ namespace TrackpadCameraControl.Tests
                 var settings = new ModSettings { PanSensitivityX = 9f };
                 store.SaveNow(settings);
                 ModOptions.ResetToFactory(settings);
-                Assert.Equal(0.50f, settings.PanSensitivityX);
+                Assert.Equal(0.005f, settings.PanSensitivityX);
                 Assert.True(settings.InvertPanX);
                 ModSettings loaded = store.LoadOrFactory();
-                Assert.Equal(0.50f, loaded.PanSensitivityX);
+                Assert.Equal(0.005f, loaded.PanSensitivityX);
             }
             finally
             {

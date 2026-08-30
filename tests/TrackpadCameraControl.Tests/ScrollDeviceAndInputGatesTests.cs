@@ -38,8 +38,8 @@ namespace TrackpadCameraControl.Tests
                     out GestureFrame frame
                 )
             );
-            Assert.Equal(20.0f * AppleGestureMapper.ScrollToCentroid, frame.centroidDeltaX);
-            Assert.Equal(-10.0f * AppleGestureMapper.ScrollToCentroid, frame.centroidDeltaY);
+            Assert.Equal(20.0f, frame.centroidDeltaX);
+            Assert.Equal(-10.0f, frame.centroidDeltaY);
         }
 
         [Fact]

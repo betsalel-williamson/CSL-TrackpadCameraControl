@@ -23,14 +23,15 @@ namespace TrackpadCameraControl.Tests
 
             Assert.True(s.InvertPanX);
             Assert.False(s.InvertPanY);
-            Assert.Equal(0.50f, s.PanSensitivityX);
-            Assert.Equal(0.50f, s.PanSensitivityY);
+            Assert.Equal(0.005f, s.PanSensitivityX);
+            Assert.Equal(0.005f, s.PanSensitivityY);
             Assert.Equal(1.00f, s.ZoomSensitivity);
             Assert.Equal(2.00f, s.YawRotateSensitivity);
-            Assert.Equal(10.00f, s.OrbitYawSensitivity);
-            Assert.Equal(10.00f, s.OrbitPitchSensitivity);
+            Assert.Equal(0.10f, s.OrbitYawSensitivity);
+            Assert.Equal(0.10f, s.OrbitPitchSensitivity);
             Assert.Equal(7f, s.OrbitPitchMin);
             Assert.Equal(90f, s.OrbitPitchMax);
+            Assert.Equal(0.1f, s.MotionDeadzone);
         }
 
         [Fact]
@@ -62,21 +63,21 @@ namespace TrackpadCameraControl.Tests
         }
 
         [Fact]
-        public void ApplyPanSensitivityX_RoundsToTwoDecimals()
+        public void ApplyPanSensitivityX_RoundsToFourDecimals()
         {
-            var settings = new ModSettings { PanSensitivityX = 0.50f };
-            ModOptions.ApplyPanSensitivityX(settings, 1.234f);
-            Assert.Equal(1.23f, settings.PanSensitivityX);
+            var settings = new ModSettings { PanSensitivityX = 0.005f };
+            ModOptions.ApplyPanSensitivityX(settings, 0.001234f);
+            Assert.Equal(0.0012f, settings.PanSensitivityX);
         }
 
         [Fact]
         public void ApplyPanSensitivityX_RejectsZeroAndNegative()
         {
-            var settings = new ModSettings { PanSensitivityX = 0.50f };
+            var settings = new ModSettings { PanSensitivityX = 0.005f };
             ModOptions.ApplyPanSensitivityX(settings, 0f);
-            Assert.Equal(0.50f, settings.PanSensitivityX);
+            Assert.Equal(0.005f, settings.PanSensitivityX);
             ModOptions.ApplyPanSensitivityX(settings, -1f);
-            Assert.Equal(0.50f, settings.PanSensitivityX);
+            Assert.Equal(0.005f, settings.PanSensitivityX);
         }
 
         [Fact]
@@ -110,7 +111,16 @@ namespace TrackpadCameraControl.Tests
                 OrbitPitchMax = 90f,
             };
 
-            CameraApplicator.Apply(CameraOp.Orbit, 0f, 30f, 0f, 0f, settings, cam);
+            CameraApplicator.Apply(
+                CameraOp.Orbit,
+                0f,
+                30f,
+                0f,
+                0f,
+                settings,
+                cam,
+                CameraApplicator.InputModality.Button
+            );
 
             Assert.Equal(90f, cam.AngleY, 3);
         }
@@ -127,7 +137,16 @@ namespace TrackpadCameraControl.Tests
                 OrbitPitchMax = 90f,
             };
 
-            CameraApplicator.Apply(CameraOp.Orbit, 0f, -20f, 0f, 0f, settings, cam);
+            CameraApplicator.Apply(
+                CameraOp.Orbit,
+                0f,
+                -20f,
+                0f,
+                0f,
+                settings,
+                cam,
+                CameraApplicator.InputModality.Button
+            );
 
             Assert.Equal(7f, cam.AngleY, 3);
         }
@@ -144,7 +163,16 @@ namespace TrackpadCameraControl.Tests
                 OrbitPitchMax = 7f,
             };
 
-            CameraApplicator.Apply(CameraOp.Orbit, 0f, 100f, 0f, 0f, settings, cam);
+            CameraApplicator.Apply(
+                CameraOp.Orbit,
+                0f,
+                100f,
+                0f,
+                0f,
+                settings,
+                cam,
+                CameraApplicator.InputModality.Button
+            );
 
             Assert.Equal(90f, cam.AngleY, 3);
         }
@@ -161,9 +189,37 @@ namespace TrackpadCameraControl.Tests
                 OrbitPitchMax = 90f,
             };
 
-            CameraApplicator.Apply(CameraOp.Orbit, 0f, -100f, 0f, 0f, settings, cam);
+            CameraApplicator.Apply(
+                CameraOp.Orbit,
+                0f,
+                -100f,
+                0f,
+                0f,
+                settings,
+                cam,
+                CameraApplicator.InputModality.Button
+            );
 
             Assert.True(cam.AngleY > 0f);
+        }
+
+        [Fact]
+        public void ApplyOrbit_Drag_UsesAngleVelocity_NotHardClampPastMax()
+        {
+            // Drag feeds middle mouse button-style velocity (fake integrates immediately).
+            var cam = new FakeCameraController { AngleX = 0f, AngleY = 40f };
+            var settings = new ModSettings
+            {
+                OrbitYawSensitivity = 1f,
+                OrbitPitchSensitivity = 1f,
+                OrbitPitchMin = 7f,
+                OrbitPitchMax = 90f,
+            };
+
+            CameraApplicator.Apply(CameraOp.Orbit, 5f, -3f, 0f, 0f, settings, cam);
+
+            Assert.Equal(5f, cam.AngleX, 3);
+            Assert.Equal(37f, cam.AngleY, 3);
         }
     }
 

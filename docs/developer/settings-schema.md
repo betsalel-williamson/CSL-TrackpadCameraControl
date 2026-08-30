@@ -48,16 +48,18 @@ Used by trackpad gestures (and Assist chrome pads when `EnableAssistChrome` is o
 
 | Field                 | Type  | Factory Default | Hot |
 | --------------------- | ----- | --------------- | --- |
-| PanSensitivityX       | float | 0.50            | yes |
-| PanSensitivityY       | float | 0.50            | yes |
+| PanSensitivityX       | float | 0.005           | yes |
+| PanSensitivityY       | float | 0.005           | yes |
 | ZoomSensitivity       | float | 1.00            | yes |
 | YawRotateSensitivity  | float | 2.00            | yes |
-| OrbitYawSensitivity   | float | 10.00           | yes |
-| OrbitPitchSensitivity | float | 10.00           | yes |
+| OrbitYawSensitivity   | float | 0.10            | yes |
+| OrbitPitchSensitivity | float | 0.10            | yes |
 
-**Numeric policy:** each Sensitivity must be **> 0**; parse/apply and display round to two decimals.
+**Numeric policy:** each Sensitivity must be **> 0**; parse/apply round to **four** decimals (pan/orbit after folding the former 0.01 AppKit scroll unit into defaults).
 
-**Product Sensitivity sliders:** for each axis, UI range is **0.1×–2×** that axis’s factory Default value, with step ≈ **10%** of the factory default (still rounded to two decimals; values must stay **> 0**).
+**Product Sensitivity sliders:** for each axis, UI range is **0.1×–2×** that axis’s factory Default value, with step ≈ **10%** of the factory default (rounded to four decimals; values must stay **> 0**).
+
+**Schema 2:** AppKit scroll deltas are raw; schema 1 files migrate by ×0.01 on pan/orbit Sensitivity and ÷0.01 on MotionDeadzone.
 
 ## Orbit pitch limits
 

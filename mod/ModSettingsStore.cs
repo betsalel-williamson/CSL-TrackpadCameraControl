@@ -10,7 +10,13 @@ namespace TrackpadCameraControl
     /// </summary>
     public sealed class ModSettingsStore
     {
-        public const int CurrentSchemaVersion = 1;
+        public const int CurrentSchemaVersion = 2;
+
+        /// <summary>
+        /// Schema 1 used scroll deltas pre-scaled by 0.01 in AppleGestureMapper and larger
+        /// Sensitivity defaults. Schema 2 uses raw scroll deltas; Sensitivity × 0.01.
+        /// </summary>
+        private const float V1ScrollUnit = 0.01f;
 
         private readonly string _filePath;
         private DateTime _lastWriteUtc = DateTime.MinValue;
@@ -81,6 +87,30 @@ namespace TrackpadCameraControl
                         ? new List<NamedPreset>(envelope.UserPresets)
                         : new List<NamedPreset>();
                 _presetsHydrated = true;
+
+                if (envelope.SchemaVersion < CurrentSchemaVersion)
+                {
+                    MigrateScrollUnitIntoSensitivity(envelope.Current);
+                    for (int i = 0; i < _userPresets.Count; i++)
+                    {
+                        NamedPreset preset = _userPresets[i];
+                        if (preset != null && preset.Settings != null)
+                        {
+                            MigrateScrollUnitIntoSensitivity(preset.Settings);
+                        }
+                    }
+
+                    envelope.SchemaVersion = CurrentSchemaVersion;
+                    try
+                    {
+                        SaveNow(envelope.Current);
+                    }
+                    catch
+                    {
+                        // keep migrated in-memory even if rewrite fails
+                    }
+                }
+
                 return envelope.Current;
             }
             catch
@@ -207,6 +237,27 @@ namespace TrackpadCameraControl
             }
 
             return false;
+        }
+
+        /// <summary>
+        /// Fold former mapper ScrollToCentroid (0.01) into Sensitivity / motion deadzone so
+        /// raw AppKit scroll deltas keep the same feel.
+        /// </summary>
+        internal static void MigrateScrollUnitIntoSensitivity(ModSettings settings)
+        {
+            if (settings == null)
+            {
+                return;
+            }
+
+            settings.PanSensitivityX *= V1ScrollUnit;
+            settings.PanSensitivityY *= V1ScrollUnit;
+            settings.OrbitYawSensitivity *= V1ScrollUnit;
+            settings.OrbitPitchSensitivity *= V1ScrollUnit;
+            if (settings.MotionDeadzone > 0f)
+            {
+                settings.MotionDeadzone /= V1ScrollUnit;
+            }
         }
 
         private void EnsurePresetsLoaded()

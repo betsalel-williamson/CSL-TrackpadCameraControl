@@ -77,6 +77,15 @@ namespace TrackpadCameraControl.Tests
                 z = maxZ;
             }
         }
+
+        /// <summary>
+        /// Test stand-in for middle mouse button velocity: integrate immediately onto angles.
+        /// </summary>
+        public void AddAngleVelocity(float yawDelta, float pitchDelta)
+        {
+            AngleX += yawDelta;
+            AngleY += pitchDelta;
+        }
     }
 
     public class ModSettingsPresetTests

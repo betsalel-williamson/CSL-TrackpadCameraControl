@@ -23,7 +23,7 @@ namespace TrackpadCameraControl.Tests
         {
             Assert.Equal(0.05f, ModOptions.ClampSensitivityToFactoryRange(0.01f, 0.50f));
             Assert.Equal(1.00f, ModOptions.ClampSensitivityToFactoryRange(9f, 0.50f));
-            Assert.Equal(0.55f, ModOptions.ClampSensitivityToFactoryRange(0.551f, 0.50f));
+            Assert.Equal(0.551f, ModOptions.ClampSensitivityToFactoryRange(0.551f, 0.50f));
         }
 
         [Fact]

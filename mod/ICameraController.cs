@@ -20,5 +20,11 @@ namespace TrackpadCameraControl
         /// Test fakes may use an AABB or a custom shape.
         /// </summary>
         void ClampPanTarget(ref float x, ref float z);
+
+        /// <summary>
+        /// Add yaw/pitch into the camera angle velocity (same path as middle mouse button
+        /// drag). Vanilla LateUpdate applies inertia and lerps current toward target.
+        /// </summary>
+        void AddAngleVelocity(float yawDelta, float pitchDelta);
     }
 }

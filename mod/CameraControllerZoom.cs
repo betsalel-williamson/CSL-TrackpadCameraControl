@@ -18,6 +18,7 @@ namespace TrackpadCameraControl
         private static FieldInfo _currentPositionField;
         private static FieldInfo _targetAngleField;
         private static FieldInfo _currentAngleField;
+        private static FieldInfo _angleVelocityField;
 #if !HAS_CITIES
         private static MethodInfo _findObjectOfType;
 #endif
@@ -125,6 +126,46 @@ namespace TrackpadCameraControl
                 // Fail soft: leave proposed pan unclamped.
             }
 #endif
+        }
+
+        /// <summary>
+        /// Feed yaw/pitch the way middle mouse button drag does: accumulate into
+        /// <c>m_angleVelocity</c> and let CameraController LateUpdate damp + lerp.
+        /// Does not write <c>m_currentAngle</c> (avoids teleport jitter).
+        /// </summary>
+        public void AddAngleVelocity(float yawDelta, float pitchDelta)
+        {
+            if (
+                !TryGetController(out object cam)
+                || _angleVelocityField == null
+                || (yawDelta == 0f && pitchDelta == 0f)
+            )
+            {
+                return;
+            }
+
+            object vec = _angleVelocityField.GetValue(cam);
+            if (vec == null)
+            {
+                return;
+            }
+
+            Type vectorType = _angleVelocityField.FieldType;
+            float x = GetVectorComponent(vec, 0);
+            float y = GetVectorComponent(vec, 1);
+            if (float.IsNaN(x))
+            {
+                x = 0f;
+            }
+
+            if (float.IsNaN(y))
+            {
+                y = 0f;
+            }
+
+            object next = SetVectorComponent(vec, vectorType, 0, x + yawDelta);
+            next = SetVectorComponent(next, vectorType, 1, y + pitchDelta);
+            _angleVelocityField.SetValue(cam, next);
         }
 
         private float GetPositionComponent(int index)
@@ -360,6 +401,7 @@ namespace TrackpadCameraControl
                 _currentPositionField = _camType.GetField("m_currentPosition", bf);
                 _targetAngleField = _camType.GetField("m_targetAngle", bf);
                 _currentAngleField = _camType.GetField("m_currentAngle", bf);
+                _angleVelocityField = _camType.GetField("m_angleVelocity", bf);
 
                 _available = _targetSizeField != null;
             }

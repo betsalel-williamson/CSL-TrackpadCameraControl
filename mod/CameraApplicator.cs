@@ -316,35 +316,70 @@ namespace TrackpadCameraControl
                 dpitch = -dpitch;
             }
 
+            // Drag: middle mouse button-style velocity. Button chrome: absolute step.
+            if (modality != InputModality.Button)
+            {
+                float min = settings.OrbitPitchMin;
+                float max = settings.OrbitPitchMax;
+                if (min > max)
+                {
+                    float swap = min;
+                    min = max;
+                    max = swap;
+                }
+
+                if (min < PitchEpsilon)
+                {
+                    min = PitchEpsilon;
+                }
+
+                if (max < min)
+                {
+                    max = min;
+                }
+
+                if (pitch <= min && dpitch < 0f)
+                {
+                    dpitch = 0f;
+                }
+                else if (pitch >= max && dpitch > 0f)
+                {
+                    dpitch = 0f;
+                }
+
+                camera.AddAngleVelocity(dyaw, dpitch);
+                return;
+            }
+
             camera.AngleX = yaw + dyaw;
 
             float nextPitch = pitch + dpitch;
-            float min = settings.OrbitPitchMin;
-            float max = settings.OrbitPitchMax;
-            if (min > max)
+            float buttonMin = settings.OrbitPitchMin;
+            float buttonMax = settings.OrbitPitchMax;
+            if (buttonMin > buttonMax)
             {
-                float swap = min;
-                min = max;
-                max = swap;
+                float swap = buttonMin;
+                buttonMin = buttonMax;
+                buttonMax = swap;
             }
 
-            if (min < PitchEpsilon)
+            if (buttonMin < PitchEpsilon)
             {
-                min = PitchEpsilon;
+                buttonMin = PitchEpsilon;
             }
 
-            if (max < min)
+            if (buttonMax < buttonMin)
             {
-                max = min;
+                buttonMax = buttonMin;
             }
 
-            if (nextPitch < min)
+            if (nextPitch < buttonMin)
             {
-                nextPitch = min;
+                nextPitch = buttonMin;
             }
-            else if (nextPitch > max)
+            else if (nextPitch > buttonMax)
             {
-                nextPitch = max;
+                nextPitch = buttonMax;
             }
 
             camera.AngleY = nextPitch;

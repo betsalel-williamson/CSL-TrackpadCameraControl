@@ -142,7 +142,8 @@ namespace TrackpadCameraControl
         }
 
         /// <summary>
-        /// Sensitivity numeric policy: round to two decimals; no upper cap.
+        /// Sensitivity numeric policy: round to four decimals (supports pan 0.005 after
+        /// folding the old 0.01 scroll unit into defaults); no upper cap.
         /// Non-positive values become 0 (Apply*Sensitivity ignores ≤ 0 separately).
         /// </summary>
         public static float ClampSensitivity(float value)
@@ -152,26 +153,26 @@ namespace TrackpadCameraControl
                 return 0f;
             }
 
-            return Round2(value);
+            return RoundSensitivity(value);
         }
 
         /// <summary>Options Sensitivity slider minimum for a factory default (0.1×).</summary>
         public static float SensitivitySliderMin(float factoryDefault)
         {
-            return Round2(factoryDefault * SensitivitySliderMinFactor);
+            return RoundSensitivity(factoryDefault * SensitivitySliderMinFactor);
         }
 
         /// <summary>Options Sensitivity slider maximum for a factory default (2×).</summary>
         public static float SensitivitySliderMax(float factoryDefault)
         {
-            return Round2(factoryDefault * SensitivitySliderMaxFactor);
+            return RoundSensitivity(factoryDefault * SensitivitySliderMaxFactor);
         }
 
         /// <summary>Options Sensitivity slider step for a factory default (~10%).</summary>
         public static float SensitivitySliderStep(float factoryDefault)
         {
-            float step = Round2(factoryDefault * SensitivitySliderStepFactor);
-            return step > 0f ? step : 0.01f;
+            float step = RoundSensitivity(factoryDefault * SensitivitySliderStepFactor);
+            return step > 0f ? step : 0.0001f;
         }
 
         /// <summary>
@@ -182,9 +183,9 @@ namespace TrackpadCameraControl
         {
             float min = SensitivitySliderMin(factoryDefault);
             float max = SensitivitySliderMax(factoryDefault);
-            if (min < 0.01f)
+            if (min < 0.0001f)
             {
-                min = 0.01f;
+                min = 0.0001f;
             }
 
             if (value < min)
@@ -197,12 +198,18 @@ namespace TrackpadCameraControl
                 value = max;
             }
 
-            return Round2(value);
+            return RoundSensitivity(value);
         }
 
         public static float Round2(float value)
         {
             return (float)Math.Round(value, 2, MidpointRounding.AwayFromZero);
+        }
+
+        /// <summary>Four-decimal round for Sensitivity after scroll-unit fold into defaults.</summary>
+        public static float RoundSensitivity(float value)
+        {
+            return (float)Math.Round(value, 4, MidpointRounding.AwayFromZero);
         }
 
         public static float ClampAlpha(float value)
@@ -292,7 +299,7 @@ namespace TrackpadCameraControl
                 return;
             }
 
-            assign(settings, Round2(value));
+            assign(settings, RoundSensitivity(value));
             AfterFeelFieldChanged(settings);
         }
 

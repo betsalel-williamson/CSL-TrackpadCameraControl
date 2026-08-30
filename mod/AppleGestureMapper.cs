@@ -18,9 +18,6 @@ namespace TrackpadCameraControl
         public const ulong FlagMaskAlternate = 0x00080000;
         public const ulong FlagMaskCommand = 0x00100000;
 
-        /// <summary>Scroll points → centroid-like deltas (contacts are normalized 0–1).</summary>
-        public const float ScrollToCentroid = 0.01f;
-
         public static bool TryMap(
             ulong eventType,
             ulong nsPhase,
@@ -77,8 +74,8 @@ namespace TrackpadCameraControl
                     return false;
                 }
 
-                dx = (float)scrollingDeltaX * ScrollToCentroid;
-                dy = (float)scrollingDeltaY * ScrollToCentroid;
+                dx = (float)scrollingDeltaX;
+                dy = (float)scrollingDeltaY;
             }
             else if (eventType == EventTypeMagnify)
             {

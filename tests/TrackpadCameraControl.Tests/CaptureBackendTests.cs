@@ -78,8 +78,8 @@ namespace TrackpadCameraControl.Tests
             );
             Assert.Equal(2, frame.fingerCount);
             Assert.Equal((int)GesturePhase.Changed, frame.phase);
-            Assert.Equal(20.0f * AppleGestureMapper.ScrollToCentroid, frame.centroidDeltaX);
-            Assert.Equal(-10.0f * AppleGestureMapper.ScrollToCentroid, frame.centroidDeltaY);
+            Assert.Equal(20.0f, frame.centroidDeltaX);
+            Assert.Equal(-10.0f, frame.centroidDeltaY);
             Assert.Equal(0f, frame.pinchScaleDelta);
         }
 

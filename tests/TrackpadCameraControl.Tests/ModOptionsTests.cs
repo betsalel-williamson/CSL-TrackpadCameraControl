@@ -39,7 +39,7 @@ namespace TrackpadCameraControl.Tests
         [Fact]
         public void ClampSensitivity_RoundsPositiveValues()
         {
-            Assert.Equal(1.23f, ModOptions.ClampSensitivity(1.234f));
+            Assert.Equal(1.234f, ModOptions.ClampSensitivity(1.234f));
             Assert.Equal(999f, ModOptions.ClampSensitivity(999f));
         }
 

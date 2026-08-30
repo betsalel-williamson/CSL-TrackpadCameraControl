@@ -36,10 +36,11 @@ namespace TrackpadCameraControl
         public bool OrbitEnabled { get; set; } = true;
         public OrbitTrigger OrbitTrigger { get; set; } = OrbitTrigger.ModifierPlusTwoFinger;
 
-        public float PanSensitivityX { get; set; } = 0.50f;
-        public float PanSensitivityY { get; set; } = 0.50f;
-        public float OrbitYawSensitivity { get; set; } = 10.00f;
-        public float OrbitPitchSensitivity { get; set; } = 10.00f;
+        public float PanSensitivityX { get; set; } = 0.005f;
+        public float PanSensitivityY { get; set; } = 0.005f;
+        // Defaults = former value × 0.01 (old AppleGestureMapper.ScrollToCentroid).
+        public float OrbitYawSensitivity { get; set; } = 0.10f;
+        public float OrbitPitchSensitivity { get; set; } = 0.10f;
         public float ZoomSensitivity { get; set; } = 1.00f;
         public float YawRotateSensitivity { get; set; } = 2.00f;
 
@@ -60,7 +61,7 @@ namespace TrackpadCameraControl
         public bool InvertZoom { get; set; }
         public bool InvertYawRotate { get; set; }
 
-        public float MotionDeadzone { get; set; } = 0.001f;
+        public float MotionDeadzone { get; set; } = 0.1f;
         public float PinchEpsilon { get; set; } = 0.001f;
         public float RotateEpsilon { get; set; } = 0.001f;
         public float FingerCountHysteresis { get; set; } = 0.05f;
