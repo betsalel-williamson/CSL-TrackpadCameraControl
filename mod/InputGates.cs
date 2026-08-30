@@ -94,15 +94,9 @@ namespace TrackpadCameraControl
 
                 OptionsMainPanel options =
                     ColossalFramework.UI.UIView.library != null
-                        ? ColossalFramework.UI.UIView.library.Get<OptionsMainPanel>(
-                            "OptionsPanel"
-                        )
+                        ? ColossalFramework.UI.UIView.library.Get<OptionsMainPanel>("OptionsPanel")
                         : null;
-                if (
-                    options != null
-                    && options.component != null
-                    && options.component.isVisible
-                )
+                if (options != null && options.component != null && options.component.isVisible)
                 {
                     return true;
                 }

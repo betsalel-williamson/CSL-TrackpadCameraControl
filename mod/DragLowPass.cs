@@ -54,7 +54,14 @@ namespace TrackpadCameraControl
             {
                 if (settings.PanFilterEnabled)
                 {
-                    Filter2(settings.PanFilterAlpha, ref _panInit, ref _panX, ref _panY, ref dx, ref dy);
+                    Filter2(
+                        settings.PanFilterAlpha,
+                        ref _panInit,
+                        ref _panX,
+                        ref _panY,
+                        ref dx,
+                        ref dy
+                    );
                 }
                 else
                 {

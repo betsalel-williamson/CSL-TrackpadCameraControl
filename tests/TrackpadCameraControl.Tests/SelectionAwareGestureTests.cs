@@ -125,7 +125,11 @@ namespace TrackpadCameraControl.Tests
                 CameraApplicator.InputModality.Drag,
                 selection
             );
-            FakeCameraController.SimulateVanillaOrbitFrame(cam, inertia: 1f, deltaTimeSeconds: 1f / 60f);
+            FakeCameraController.SimulateVanillaOrbitFrame(
+                cam,
+                inertia: 1f,
+                deltaTimeSeconds: 1f / 60f
+            );
 
             Assert.Equal(100f, cam.TargetX, 3);
             Assert.Equal(5f, cam.TargetY, 3);
@@ -210,7 +214,11 @@ namespace TrackpadCameraControl.Tests
                 CameraApplicator.InputModality.Drag,
                 selection
             );
-            FakeCameraController.SimulateVanillaOrbitFrame(cam, inertia: 1f, deltaTimeSeconds: 1f / 60f);
+            FakeCameraController.SimulateVanillaOrbitFrame(
+                cam,
+                inertia: 1f,
+                deltaTimeSeconds: 1f / 60f
+            );
 
             Assert.Equal(3f, cam.TargetX, 3);
             Assert.Equal(1f, cam.TargetY, 3);

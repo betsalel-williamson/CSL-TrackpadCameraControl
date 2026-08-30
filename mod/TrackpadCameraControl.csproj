@@ -20,8 +20,10 @@
 
         <!-- Product-surface feature flags (compile-time). Default off for ship.
              Enable gated code with: -p:EnableCadGestureStyle=true etc. -->
-        <EnableCadGestureStyle Condition="'$(EnableCadGestureStyle)' == ''">false</EnableCadGestureStyle>
-        <EnableContactsCapture Condition="'$(EnableContactsCapture)' == ''">false</EnableContactsCapture>
+        <EnableCadGestureStyle Condition="'$(EnableCadGestureStyle)' == ''"
+            >false</EnableCadGestureStyle>
+        <EnableContactsCapture Condition="'$(EnableContactsCapture)' == ''"
+            >false</EnableContactsCapture>
         <EnableAssistChrome Condition="'$(EnableAssistChrome)' == ''">false</EnableAssistChrome>
     </PropertyGroup>
 

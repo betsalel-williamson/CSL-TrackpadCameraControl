@@ -138,8 +138,7 @@ namespace TrackpadCameraControl
             float rotEps = settings.RotateEpsilon > 1e-8f ? settings.RotateEpsilon : 0.001f;
             float dead = settings.MotionDeadband > 1e-8f ? settings.MotionDeadband : 0.1f;
             float yawScore = Abs(frame.rotateDelta) / rotEps;
-            float motionScore =
-                Max(Abs(frame.centroidDeltaX), Abs(frame.centroidDeltaY)) / dead;
+            float motionScore = Max(Abs(frame.centroidDeltaX), Abs(frame.centroidDeltaY)) / dead;
             return yawScore > 0f && yawScore >= motionScore;
         }
 

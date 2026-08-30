@@ -42,6 +42,7 @@ namespace TrackpadCameraControl
 
         public float PanGainX { get; set; } = 0.005f;
         public float PanGainY { get; set; } = 0.005f;
+
         // Defaults = former value × 0.01 (old AppleGestureMapper.ScrollToCentroid).
         public float OrbitYawGain { get; set; } = 0.10f;
         public float OrbitPitchGain { get; set; } = 0.10f;

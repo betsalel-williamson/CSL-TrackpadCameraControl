@@ -1,7 +1,7 @@
-using TrackpadCameraControl;
-using Xunit;
 using System;
 using System.IO;
+using TrackpadCameraControl;
+using Xunit;
 
 namespace TrackpadCameraControl.Tests
 {

@@ -95,9 +95,7 @@ namespace TrackpadCameraControl.Tests
             InputGates.MenuOpenOverride = () => false;
             InputGates.PointerOverUiOverride = () => true;
             InputGates.GameFocusedOverride = () => true;
-            Assert.True(
-                InputGates.ShouldSkipModCamera(new ModSettings { IgnoreOverUi = true })
-            );
+            Assert.True(InputGates.ShouldSkipModCamera(new ModSettings { IgnoreOverUi = true }));
         }
 
         [Fact]
@@ -106,9 +104,7 @@ namespace TrackpadCameraControl.Tests
             InputGates.MenuOpenOverride = () => false;
             InputGates.PointerOverUiOverride = () => true;
             InputGates.GameFocusedOverride = () => true;
-            Assert.False(
-                InputGates.ShouldSkipModCamera(new ModSettings { IgnoreOverUi = false })
-            );
+            Assert.False(InputGates.ShouldSkipModCamera(new ModSettings { IgnoreOverUi = false }));
         }
 
         [Fact]
@@ -229,7 +225,11 @@ namespace TrackpadCameraControl.Tests
             InputGates.GameFocusedOverride = () => true;
 
             var inject = new InjectGestureSource();
-            var pipeline = new GesturePipeline(new ModSettings(), inject, new FakeCameraController());
+            var pipeline = new GesturePipeline(
+                new ModSettings(),
+                inject,
+                new FakeCameraController()
+            );
             pipeline.Tick();
 
             Assert.True(VanillaCameraSuppress.MenuOrOverUi);

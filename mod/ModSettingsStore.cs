@@ -54,10 +54,7 @@ namespace TrackpadCameraControl
             }
 
             return Path.Combine(
-                Path.Combine(
-                    Path.Combine(root, "Colossal Order"),
-                    "Cities_Skylines"
-                ),
+                Path.Combine(Path.Combine(root, "Colossal Order"), "Cities_Skylines"),
                 Path.Combine("TrackpadCameraControl", "settings.xml")
             );
         }
@@ -241,10 +238,7 @@ namespace TrackpadCameraControl
             for (int i = _userPresets.Count - 1; i >= 0; i--)
             {
                 NamedPreset preset = _userPresets[i];
-                if (
-                    preset != null
-                    && string.Equals(preset.Name, name, StringComparison.Ordinal)
-                )
+                if (preset != null && string.Equals(preset.Name, name, StringComparison.Ordinal))
                 {
                     _userPresets.RemoveAt(i);
                     return true;
@@ -339,10 +333,7 @@ namespace TrackpadCameraControl
                             new NamedPreset
                             {
                                 Name = lp.Name,
-                                Settings =
-                                    lp.Settings != null
-                                        ? lp.Settings.ToModSettings()
-                                        : null,
+                                Settings = lp.Settings != null ? lp.Settings.ToModSettings() : null,
                             }
                         );
                     }

@@ -94,7 +94,9 @@ namespace TrackpadCameraControl.Tests
             Assert.Equal(FeelProfiles.NameSlow, live.ActiveFeelPresetName);
             FeelExpectation.AssertMatchesScaledFactory(live, FeelProfiles.SlowMultiplier);
             ModSettings scratch;
-            Assert.False(ModOptions.Store.TryGetUserPreset(FeelProfiles.NameNewPreset, out scratch));
+            Assert.False(
+                ModOptions.Store.TryGetUserPreset(FeelProfiles.NameNewPreset, out scratch)
+            );
         }
 
         [Fact]
@@ -123,9 +125,7 @@ namespace TrackpadCameraControl.Tests
             Assert.Equal(0.75f, live.PanGainX);
 
             ModSettings scratch;
-            Assert.True(
-                ModOptions.Store.TryGetUserPreset(FeelProfiles.NameNewPreset, out scratch)
-            );
+            Assert.True(ModOptions.Store.TryGetUserPreset(FeelProfiles.NameNewPreset, out scratch));
             Assert.Equal(0.75f, scratch.PanGainX);
         }
 
@@ -138,9 +138,7 @@ namespace TrackpadCameraControl.Tests
 
             Assert.Equal(FeelProfiles.NameNewPreset, live.ActiveFeelPresetName);
             ModSettings scratch;
-            Assert.True(
-                ModOptions.Store.TryGetUserPreset(FeelProfiles.NameNewPreset, out scratch)
-            );
+            Assert.True(ModOptions.Store.TryGetUserPreset(FeelProfiles.NameNewPreset, out scratch));
             Assert.Equal(0.75f, scratch.PanGainX);
             Assert.Equal(1.50f, scratch.ZoomGain);
         }
@@ -213,9 +211,7 @@ namespace TrackpadCameraControl.Tests
             Assert.Equal(0.80f, named.PanGainX);
 
             ModSettings scratch;
-            Assert.True(
-                ModOptions.Store.TryGetUserPreset(FeelProfiles.NameNewPreset, out scratch)
-            );
+            Assert.True(ModOptions.Store.TryGetUserPreset(FeelProfiles.NameNewPreset, out scratch));
             Assert.Equal(0.90f, scratch.PanGainX);
         }
 

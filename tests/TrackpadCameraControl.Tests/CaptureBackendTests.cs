@@ -41,10 +41,7 @@ namespace TrackpadCameraControl.Tests
         {
             Assert.False(FeatureFlags.EnableContactsCapture);
             var settings = new ModSettings { CaptureBackend = CaptureBackend.Contacts };
-            Assert.Equal(
-                CaptureBackend.AppleGestures,
-                CaptureBackendFlags.Resolve(settings, null)
-            );
+            Assert.Equal(CaptureBackend.AppleGestures, CaptureBackendFlags.Resolve(settings, null));
         }
 
         [Theory]

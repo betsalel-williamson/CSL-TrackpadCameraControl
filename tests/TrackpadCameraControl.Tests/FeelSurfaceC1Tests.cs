@@ -106,11 +106,7 @@ namespace TrackpadCameraControl.Tests
         public void ApplyOrbit_Button_ClampsPitchToVanillaMax()
         {
             var cam = new FakeCameraController { AngleX = 0f, AngleY = 70f };
-            var settings = new ModSettings
-            {
-                OrbitYawGain = 1f,
-                OrbitPitchGain = 1f,
-            };
+            var settings = new ModSettings { OrbitYawGain = 1f, OrbitPitchGain = 1f };
 
             CameraApplicator.Apply(
                 CameraOp.Orbit,
@@ -130,11 +126,7 @@ namespace TrackpadCameraControl.Tests
         public void ApplyOrbit_Button_ClampsPitchToVanillaMin()
         {
             var cam = new FakeCameraController { AngleX = 0f, AngleY = 20f };
-            var settings = new ModSettings
-            {
-                OrbitYawGain = 1f,
-                OrbitPitchGain = 1f,
-            };
+            var settings = new ModSettings { OrbitYawGain = 1f, OrbitPitchGain = 1f };
 
             CameraApplicator.Apply(
                 CameraOp.Orbit,
@@ -206,17 +198,17 @@ namespace TrackpadCameraControl.Tests
         public void ApplyOrbit_Drag_QueuesVelocity_AndStopsAtZeroFloor()
         {
             var cam = new FakeCameraController { AngleX = 0f, AngleY = 0f };
-            var settings = new ModSettings
-            {
-                OrbitYawGain = 1f,
-                OrbitPitchGain = 1f,
-            };
+            var settings = new ModSettings { OrbitYawGain = 1f, OrbitPitchGain = 1f };
 
             CameraApplicator.Apply(CameraOp.Orbit, 5f, -3f, 0f, 0f, settings, cam);
             Assert.Equal(0f, cam.AngleX, 3);
             Assert.Equal(0f, cam.AngleY, 3);
 
-            FakeCameraController.SimulateVanillaOrbitFrame(cam, inertia: 1f, deltaTimeSeconds: 1f / 60f);
+            FakeCameraController.SimulateVanillaOrbitFrame(
+                cam,
+                inertia: 1f,
+                deltaTimeSeconds: 1f / 60f
+            );
 
             Assert.Equal(5f, cam.AngleX, 3);
             // Pitch already at 0; downward delta is zeroed before queue (free-cam guard).
@@ -227,14 +219,14 @@ namespace TrackpadCameraControl.Tests
         public void ApplyOrbit_Drag_QueuesVelocity_WithinRange()
         {
             var cam = new FakeCameraController { AngleX = 0f, AngleY = 40f };
-            var settings = new ModSettings
-            {
-                OrbitYawGain = 1f,
-                OrbitPitchGain = 1f,
-            };
+            var settings = new ModSettings { OrbitYawGain = 1f, OrbitPitchGain = 1f };
 
             CameraApplicator.Apply(CameraOp.Orbit, 5f, -3f, 0f, 0f, settings, cam);
-            FakeCameraController.SimulateVanillaOrbitFrame(cam, inertia: 1f, deltaTimeSeconds: 1f / 60f);
+            FakeCameraController.SimulateVanillaOrbitFrame(
+                cam,
+                inertia: 1f,
+                deltaTimeSeconds: 1f / 60f
+            );
 
             Assert.Equal(5f, cam.AngleX, 3);
             Assert.Equal(37f, cam.AngleY, 3);

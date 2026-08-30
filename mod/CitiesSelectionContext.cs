@@ -39,7 +39,8 @@ namespace TrackpadCameraControl
                 bool placementArmed = IsPlacementTool(TryGetCurrentTool());
                 int relocateId = TryGetRelocateBuildingId();
                 bool hasSelected =
-                    TryGetInstanceSelection(out InstanceID selectedId) && IsInstanceValid(selectedId);
+                    TryGetInstanceSelection(out InstanceID selectedId)
+                    && IsInstanceValid(selectedId);
 
                 SelectionGestureKind kind = SelectionGesturePriority.Resolve(
                     placementArmed,
@@ -91,7 +92,8 @@ namespace TrackpadCameraControl
                 bool placementArmed = IsPlacementTool(TryGetCurrentTool());
                 int relocateId = TryGetRelocateBuildingId();
                 bool hasSelected =
-                    TryGetInstanceSelection(out InstanceID selectedId) && IsInstanceValid(selectedId);
+                    TryGetInstanceSelection(out InstanceID selectedId)
+                    && IsInstanceValid(selectedId);
 
                 SelectionGestureKind kind = SelectionGesturePriority.Resolve(
                     placementArmed,
@@ -177,8 +179,10 @@ namespace TrackpadCameraControl
         private static bool TryRotatePlacementTool(float deltaDegrees)
         {
             ToolBase tool = TryGetCurrentTool();
-            if (tool is BuildingTool buildingTool
-                && (buildingTool.m_prefab != null || buildingTool.m_relocate != 0))
+            if (
+                tool is BuildingTool buildingTool
+                && (buildingTool.m_prefab != null || buildingTool.m_relocate != 0)
+            )
             {
                 // New place: SimulationStep copies m_angle → m_mouseAngle when not in
                 // relocate-ish tool modes. Relocate render uses m_cachedAngle ← m_mouseAngle
@@ -197,7 +201,10 @@ namespace TrackpadCameraControl
             return false;
         }
 
-        private static void ApplyBuildingToolAngleDelta(BuildingTool buildingTool, float deltaDegrees)
+        private static void ApplyBuildingToolAngleDelta(
+            BuildingTool buildingTool,
+            float deltaDegrees
+        )
         {
             EnsureBuildingAngleFields();
             float deltaRad = deltaDegrees * Deg2Rad;
@@ -259,8 +266,14 @@ namespace TrackpadCameraControl
         private static bool TryGetInstanceSelection(out InstanceID id)
         {
             id = default(InstanceID);
-            if (TryReadInstanceIdField(ref _selectedInstanceResolved, ref _selectedInstanceField, "m_selectedInstance", out id)
-                && !id.IsEmpty)
+            if (
+                TryReadInstanceIdField(
+                    ref _selectedInstanceResolved,
+                    ref _selectedInstanceField,
+                    "m_selectedInstance",
+                    out id
+                ) && !id.IsEmpty
+            )
             {
                 return true;
             }
@@ -531,7 +544,11 @@ namespace TrackpadCameraControl
             return false;
         }
 
-        private static bool TryApplyPropYaw(ref PropInstance prop, float deltaDegrees, float deltaRad)
+        private static bool TryApplyPropYaw(
+            ref PropInstance prop,
+            float deltaDegrees,
+            float deltaRad
+        )
         {
             BindingFlags flags =
                 BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;

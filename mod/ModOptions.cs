@@ -51,8 +51,7 @@ namespace TrackpadCameraControl
             "Same pan/pinch/yaw as Maps+. Three-finger drag orbits (may fight OS Mission Control / Spaces).";
 
         /// <summary>Pan section heading: meaning + Maps+ activation.</summary>
-        public const string OpHeadingPan =
-            "Pan — Slide the camera laterally · two-finger drag";
+        public const string OpHeadingPan = "Pan — Slide the camera laterally · two-finger drag";
 
         /// <summary>Zoom section heading: meaning + Maps+ activation.</summary>
         public const string OpHeadingZoom =
@@ -237,12 +236,7 @@ namespace TrackpadCameraControl
 
             string trimmed = text.Trim();
             if (
-                float.TryParse(
-                    trimmed,
-                    NumberStyles.Float,
-                    CultureInfo.InvariantCulture,
-                    out value
-                )
+                float.TryParse(trimmed, NumberStyles.Float, CultureInfo.InvariantCulture, out value)
             )
             {
                 return true;

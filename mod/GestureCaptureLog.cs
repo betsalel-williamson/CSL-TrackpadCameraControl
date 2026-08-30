@@ -10,6 +10,7 @@ namespace TrackpadCameraControl
     {
         public const string EnvVar = "TRACKPAD_CAPTURE_LOG";
         public const string DefaultFileName = "trackpad-camera-control.log";
+
         /// <summary>Prefix of the first line written when a capture log file is opened.</summary>
         public const string OpenedLinePrefix = "capture log opened";
 

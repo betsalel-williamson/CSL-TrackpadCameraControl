@@ -128,15 +128,9 @@ namespace TrackpadCameraControl
             settings.PanGainX = ModOptions.RoundGain(factory.PanGainX * multiplier);
             settings.PanGainY = ModOptions.RoundGain(factory.PanGainY * multiplier);
             settings.ZoomGain = ModOptions.RoundGain(factory.ZoomGain * multiplier);
-            settings.YawRotateGain = ModOptions.RoundGain(
-                factory.YawRotateGain * multiplier
-            );
-            settings.OrbitYawGain = ModOptions.RoundGain(
-                factory.OrbitYawGain * multiplier
-            );
-            settings.OrbitPitchGain = ModOptions.RoundGain(
-                factory.OrbitPitchGain * multiplier
-            );
+            settings.YawRotateGain = ModOptions.RoundGain(factory.YawRotateGain * multiplier);
+            settings.OrbitYawGain = ModOptions.RoundGain(factory.OrbitYawGain * multiplier);
+            settings.OrbitPitchGain = ModOptions.RoundGain(factory.OrbitPitchGain * multiplier);
 
             settings.SignInvertPanX = factory.SignInvertPanX;
             settings.SignInvertPanY = factory.SignInvertPanY;

@@ -9,7 +9,10 @@ namespace TrackpadCameraControl.Tests
         [Fact]
         public void LoadOrFactory_MigratesSchema2SensitivityXmlToGain()
         {
-            string path = Path.Combine(Path.GetTempPath(), "tcc-eng-" + Path.GetRandomFileName() + ".xml");
+            string path = Path.Combine(
+                Path.GetTempPath(),
+                "tcc-eng-" + Path.GetRandomFileName() + ".xml"
+            );
             try
             {
                 File.WriteAllText(
@@ -88,7 +91,10 @@ namespace TrackpadCameraControl.Tests
         [Fact]
         public void LoadOrFactory_MigratesSchema1ScrollUnitThenEngineeringNames()
         {
-            string path = Path.Combine(Path.GetTempPath(), "tcc-s1-" + Path.GetRandomFileName() + ".xml");
+            string path = Path.Combine(
+                Path.GetTempPath(),
+                "tcc-s1-" + Path.GetRandomFileName() + ".xml"
+            );
             try
             {
                 File.WriteAllText(

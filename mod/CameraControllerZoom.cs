@@ -210,7 +210,11 @@ namespace TrackpadCameraControl
                 _pendingPitch = 0f;
             }
 
-            if (!TryGetController(out object cam) || _angleVelocityField == null || (!yaw && !pitch))
+            if (
+                !TryGetController(out object cam)
+                || _angleVelocityField == null
+                || (!yaw && !pitch)
+            )
             {
                 return;
             }

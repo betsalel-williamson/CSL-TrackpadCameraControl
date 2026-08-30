@@ -169,7 +169,13 @@ namespace TrackpadCameraControl
                     }
 
                     string label = presetLabels[sel];
-                    if (string.Equals(label, ModOptions.FeelPresetSaveAsLabel, StringComparison.Ordinal))
+                    if (
+                        string.Equals(
+                            label,
+                            ModOptions.FeelPresetSaveAsLabel,
+                            StringComparison.Ordinal
+                        )
+                    )
                     {
                         ModOptions.SaveNamedFeelPreset(s, saveAsName[0]);
                         return;
@@ -237,18 +243,28 @@ namespace TrackpadCameraControl
                 v => onSensitivity(s, v)
             );
 #if ENABLE_ASSIST_CHROME
-            AddFloatField(helper, buttonLabel, buttonValue, text =>
-            {
-                ModOptions.TryApplyFloat(s, text, onButton);
-            });
+            AddFloatField(
+                helper,
+                buttonLabel,
+                buttonValue,
+                text =>
+                {
+                    ModOptions.TryApplyFloat(s, text, onButton);
+                }
+            );
 #endif
 
 #if ENABLE_CONTACTS_CAPTURE
             helper.AddCheckbox("Low-pass", lpEnabled, onLp);
-            AddFloatField(helper, "Low-pass alpha", lpAlpha, text =>
-            {
-                ModOptions.TryApplyFloat(s, text, onLpAlpha);
-            });
+            AddFloatField(
+                helper,
+                "Low-pass alpha",
+                lpAlpha,
+                text =>
+                {
+                    ModOptions.TryApplyFloat(s, text, onLpAlpha);
+                }
+            );
 #endif
         }
 

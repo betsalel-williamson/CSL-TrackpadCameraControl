@@ -31,12 +31,7 @@ namespace TrackpadCameraControl.Tests
                 return;
             }
 
-            if (
-                float.IsNaN(MinX)
-                || float.IsNaN(MaxX)
-                || float.IsNaN(MinZ)
-                || float.IsNaN(MaxZ)
-            )
+            if (float.IsNaN(MinX) || float.IsNaN(MaxX) || float.IsNaN(MinZ) || float.IsNaN(MaxZ))
             {
                 return;
             }
@@ -205,15 +200,7 @@ namespace TrackpadCameraControl.Tests
                 OrbitPitchGain = 1f,
             };
 
-            CameraApplicator.Apply(
-                CameraOp.Yaw | CameraOp.Orbit,
-                5f,
-                -3f,
-                0f,
-                2f,
-                settings,
-                cam
-            );
+            CameraApplicator.Apply(CameraOp.Yaw | CameraOp.Orbit, 5f, -3f, 0f, 2f, settings, cam);
 
             Assert.Equal(2f, cam.AngleX, 3);
             Assert.Equal(15f, cam.AngleY, 3);
@@ -510,7 +497,11 @@ namespace TrackpadCameraControl.Tests
             var cam = new FakeCameraController { AngleX = 10f, AngleY = 20f };
             cam.AddAngleVelocity(5f, -2f);
 
-            FakeCameraController.SimulateVanillaOrbitFrame(cam, inertia: 1f, deltaTimeSeconds: 1f / 60f);
+            FakeCameraController.SimulateVanillaOrbitFrame(
+                cam,
+                inertia: 1f,
+                deltaTimeSeconds: 1f / 60f
+            );
 
             Assert.Equal(15f, cam.AngleX, 3);
             Assert.Equal(18f, cam.AngleY, 3);
@@ -1027,7 +1018,11 @@ namespace TrackpadCameraControl.Tests
             var settings = new ModSettings { OrbitYawGain = 1f, OrbitPitchGain = 1f };
 
             CameraApplicator.Apply(CameraOp.Orbit, 5f, -2f, 0, 0, settings, cam);
-            FakeCameraController.SimulateVanillaOrbitFrame(cam, inertia: 1f, deltaTimeSeconds: 1f / 60f);
+            FakeCameraController.SimulateVanillaOrbitFrame(
+                cam,
+                inertia: 1f,
+                deltaTimeSeconds: 1f / 60f
+            );
 
             Assert.Equal(15f, cam.AngleX, 3);
             Assert.Equal(18f, cam.AngleY, 3);

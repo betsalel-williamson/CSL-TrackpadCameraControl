@@ -123,16 +123,7 @@ namespace TrackpadCameraControl
                     continue;
                 }
 
-                CameraApplicator.Apply(
-                    ops,
-                    dx,
-                    dy,
-                    pinch,
-                    rotate,
-                    _settings,
-                    _camera,
-                    _selection
-                );
+                CameraApplicator.Apply(ops, dx, dy, pinch, rotate, _settings, _camera, _selection);
                 applied = true;
             }
 

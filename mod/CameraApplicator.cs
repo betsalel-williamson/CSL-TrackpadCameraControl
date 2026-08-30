@@ -30,7 +30,16 @@ namespace TrackpadCameraControl
             ModSettings settings
         )
         {
-            Apply(ops, dx, dy, pinchDelta, rotateDelta, settings, DefaultCamera, InputModality.Drag);
+            Apply(
+                ops,
+                dx,
+                dy,
+                pinchDelta,
+                rotateDelta,
+                settings,
+                DefaultCamera,
+                InputModality.Drag
+            );
         }
 
         public static void Apply(
@@ -43,17 +52,7 @@ namespace TrackpadCameraControl
             ICameraController camera
         )
         {
-            Apply(
-                ops,
-                dx,
-                dy,
-                pinchDelta,
-                rotateDelta,
-                settings,
-                camera,
-                InputModality.Drag,
-                null
-            );
+            Apply(ops, dx, dy, pinchDelta, rotateDelta, settings, camera, InputModality.Drag, null);
         }
 
         public static void Apply(
@@ -198,9 +197,7 @@ namespace TrackpadCameraControl
             }
 
             float delta =
-                modality == InputModality.Button
-                    ? pinchDelta
-                    : pinchDelta * settings.ZoomGain;
+                modality == InputModality.Button ? pinchDelta : pinchDelta * settings.ZoomGain;
             if (settings.SignInvertZoom)
             {
                 delta = -delta;
@@ -236,10 +233,8 @@ namespace TrackpadCameraControl
                 return;
             }
 
-            float mx =
-                modality == InputModality.Button ? dx : dx * settings.PanGainX;
-            float my =
-                modality == InputModality.Button ? dy : dy * settings.PanGainY;
+            float mx = modality == InputModality.Button ? dx : dx * settings.PanGainX;
+            float my = modality == InputModality.Button ? dy : dy * settings.PanGainY;
             if (settings.SignInvertPanX)
             {
                 mx = -mx;
@@ -314,10 +309,8 @@ namespace TrackpadCameraControl
                 }
             }
 
-            float dyaw =
-                modality == InputModality.Button ? dx : dx * settings.OrbitYawGain;
-            float dpitch =
-                modality == InputModality.Button ? dy : dy * settings.OrbitPitchGain;
+            float dyaw = modality == InputModality.Button ? dx : dx * settings.OrbitYawGain;
+            float dpitch = modality == InputModality.Button ? dy : dy * settings.OrbitPitchGain;
             if (settings.SignInvertOrbitYaw)
             {
                 dyaw = -dyaw;

@@ -29,7 +29,10 @@ namespace TrackpadCameraControl.Tests
         {
             VanillaCameraSuppress.Enabled = false;
             Assert.False(
-                VanillaCameraSuppress.ShouldSkipScrollWheel(preciseTrackpad: true, menuOrOverUi: false)
+                VanillaCameraSuppress.ShouldSkipScrollWheel(
+                    preciseTrackpad: true,
+                    menuOrOverUi: false
+                )
             );
         }
 
@@ -38,7 +41,10 @@ namespace TrackpadCameraControl.Tests
         {
             VanillaCameraSuppress.Enabled = true;
             Assert.True(
-                VanillaCameraSuppress.ShouldSkipScrollWheel(preciseTrackpad: true, menuOrOverUi: false)
+                VanillaCameraSuppress.ShouldSkipScrollWheel(
+                    preciseTrackpad: true,
+                    menuOrOverUi: false
+                )
             );
         }
 
@@ -47,7 +53,10 @@ namespace TrackpadCameraControl.Tests
         {
             VanillaCameraSuppress.Enabled = true;
             Assert.False(
-                VanillaCameraSuppress.ShouldSkipScrollWheel(preciseTrackpad: false, menuOrOverUi: false)
+                VanillaCameraSuppress.ShouldSkipScrollWheel(
+                    preciseTrackpad: false,
+                    menuOrOverUi: false
+                )
             );
         }
 
@@ -56,7 +65,10 @@ namespace TrackpadCameraControl.Tests
         {
             VanillaCameraSuppress.Enabled = true;
             Assert.False(
-                VanillaCameraSuppress.ShouldSkipScrollWheel(preciseTrackpad: true, menuOrOverUi: true)
+                VanillaCameraSuppress.ShouldSkipScrollWheel(
+                    preciseTrackpad: true,
+                    menuOrOverUi: true
+                )
             );
         }
 

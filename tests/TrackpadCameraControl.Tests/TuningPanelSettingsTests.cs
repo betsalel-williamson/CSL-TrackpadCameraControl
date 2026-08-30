@@ -10,7 +10,12 @@ namespace TrackpadCameraControl.Tests
         [Fact]
         public void ApplyButton_Pan_UsesButtonStepNotDragScale()
         {
-            var camera = new FakeCameraController { Size = 100f, TargetX = 0f, TargetZ = 0f };
+            var camera = new FakeCameraController
+            {
+                Size = 100f,
+                TargetX = 0f,
+                TargetZ = 0f,
+            };
             var settings = new ModSettings
             {
                 SignInvertPanX = false,
@@ -30,12 +35,13 @@ namespace TrackpadCameraControl.Tests
         [Fact]
         public void ApplyButton_Pan_RespectsInvert()
         {
-            var camera = new FakeCameraController { Size = 100f, TargetX = 0f, TargetZ = 0f };
-            var settings = new ModSettings
+            var camera = new FakeCameraController
             {
-                PanStepX = 0.05f,
-                SignInvertPanX = true,
+                Size = 100f,
+                TargetX = 0f,
+                TargetZ = 0f,
             };
+            var settings = new ModSettings { PanStepX = 0.05f, SignInvertPanX = true };
 
             CameraApplicator.ApplyButton(CameraOp.Pan, 1f, 0f, 0f, 0f, settings, camera);
 
@@ -45,7 +51,12 @@ namespace TrackpadCameraControl.Tests
         [Fact]
         public void ApplyDrag_Pan_UsesDragScale()
         {
-            var camera = new FakeCameraController { Size = 100f, TargetX = 0f, TargetZ = 0f };
+            var camera = new FakeCameraController
+            {
+                Size = 100f,
+                TargetX = 0f,
+                TargetZ = 0f,
+            };
             var settings = new ModSettings
             {
                 SignInvertPanX = false,
@@ -63,11 +74,7 @@ namespace TrackpadCameraControl.Tests
         public void ApplyButton_Zoom_UsesButtonStep()
         {
             var camera = new FakeCameraController { Size = 100f };
-            var settings = new ModSettings
-            {
-                ZoomGain = 10f,
-                ZoomStep = 0.1f,
-            };
+            var settings = new ModSettings { ZoomGain = 10f, ZoomStep = 0.1f };
 
             CameraApplicator.ApplyButton(CameraOp.Zoom, 0f, 0f, 1f, 0f, settings, camera);
 
@@ -140,7 +147,10 @@ namespace TrackpadCameraControl.Tests
 
         public ModSettingsStoreTests()
         {
-            _dir = Path.Combine(Path.GetTempPath(), "tcc-settings-tests-" + Guid.NewGuid().ToString("N"));
+            _dir = Path.Combine(
+                Path.GetTempPath(),
+                "tcc-settings-tests-" + Guid.NewGuid().ToString("N")
+            );
             Directory.CreateDirectory(_dir);
             _path = Path.Combine(_dir, "settings.xml");
         }
@@ -249,9 +259,7 @@ namespace TrackpadCameraControl.Tests
         public void TryApplyFloat_StoresRoundedPositive()
         {
             var settings = new ModSettings { PanGainX = 0.50f };
-            Assert.True(
-                ModOptions.TryApplyFloat(settings, "999", ModOptions.ApplyPanGainX)
-            );
+            Assert.True(ModOptions.TryApplyFloat(settings, "999", ModOptions.ApplyPanGainX));
             Assert.Equal(999f, settings.PanGainX);
         }
 
