@@ -42,20 +42,24 @@ namespace TrackpadCameraControl
 
         /// <summary>
         /// Env wins when set so a launch flag can switch backends without Options UI.
+        /// Without <c>ENABLE_CONTACTS_CAPTURE</c>, product play forces AppleGestures
+        /// (ignore stored Contacts). Maintainer env
+        /// <c>TRACKPAD_CAPTURE_BACKEND=contacts</c> may still override for local debugging.
         /// </summary>
         public static CaptureBackend Resolve(ModSettings settings, string envValue)
         {
+            // Maintainer override: TRACKPAD_CAPTURE_BACKEND may force Contacts even when the
+            // product flag is off; normal play with flag off always uses AppleKit.
             if (TryParse(envValue, out CaptureBackend fromEnv))
             {
                 return fromEnv;
             }
 
-            if (settings == null)
-            {
-                return CaptureBackend.AppleGestures;
-            }
-
-            return settings.CaptureBackend;
+#if ENABLE_CONTACTS_CAPTURE
+            return settings != null ? settings.CaptureBackend : CaptureBackend.AppleGestures;
+#else
+            return CaptureBackend.AppleGestures;
+#endif
         }
 
         public static CaptureBackend Resolve(ModSettings settings)

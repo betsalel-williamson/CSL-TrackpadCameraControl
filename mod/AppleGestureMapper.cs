@@ -4,6 +4,8 @@ namespace TrackpadCameraControl
     public static class AppleGestureMapper
     {
         public const ulong EventTypeRotate = 18;
+        public const ulong EventTypeBeginGesture = 19;
+        public const ulong EventTypeEndGesture = 20;
         public const ulong EventTypeScrollWheel = 22;
         public const ulong EventTypeMagnify = 30;
         public const ulong EventTypeSwipe = 31;
@@ -18,9 +20,6 @@ namespace TrackpadCameraControl
         public const ulong FlagMaskAlternate = 0x00080000;
         public const ulong FlagMaskCommand = 0x00100000;
 
-        /// <summary>Scroll points → centroid-like deltas (contacts are normalized 0–1).</summary>
-        public const float ScrollToCentroid = 0.01f;
-
         public static bool TryMap(
             ulong eventType,
             ulong nsPhase,
@@ -32,10 +31,54 @@ namespace TrackpadCameraControl
             out GestureFrame frame
         )
         {
+            return TryMap(
+                eventType,
+                nsPhase,
+                modifierFlags,
+                scrollingDeltaX,
+                scrollingDeltaY,
+                magnification,
+                rotationDegrees,
+                hasPreciseScrollingDeltas: true,
+                out frame
+            );
+        }
+
+        public static bool TryMap(
+            ulong eventType,
+            ulong nsPhase,
+            ulong modifierFlags,
+            double scrollingDeltaX,
+            double scrollingDeltaY,
+            double magnification,
+            float rotationDegrees,
+            bool hasPreciseScrollingDeltas,
+            out GestureFrame frame
+        )
+        {
             frame = default;
-            if (eventType == EventTypeSwipe)
+            if (eventType == EventTypeSwipe || eventType == EventTypeBeginGesture)
             {
                 return false;
+            }
+
+            // Finger lift: reset orbit latch / rotate ownership when per-gesture Ended was missed.
+            if (eventType == EventTypeEndGesture)
+            {
+                frame = new GestureFrame
+                {
+                    magic = GestureFrame.Magic,
+                    version = GestureFrame.Version,
+                    timestampNs = 0,
+                    fingerCount = 2,
+                    phase = (int)GesturePhase.Ended,
+                    centroidDeltaX = 0f,
+                    centroidDeltaY = 0f,
+                    pinchScaleDelta = 0f,
+                    rotateDelta = 0f,
+                    modifiers = MapModifiers(modifierFlags),
+                };
+                return true;
             }
 
             int fingers = 2;
@@ -46,8 +89,14 @@ namespace TrackpadCameraControl
 
             if (eventType == EventTypeScrollWheel)
             {
-                dx = (float)scrollingDeltaX * ScrollToCentroid;
-                dy = (float)scrollingDeltaY * ScrollToCentroid;
+                // Mouse wheel (non-precise) must not become pan; leave vanilla zoom alone.
+                if (!hasPreciseScrollingDeltas)
+                {
+                    return false;
+                }
+
+                dx = (float)scrollingDeltaX;
+                dy = (float)scrollingDeltaY;
             }
             else if (eventType == EventTypeMagnify)
             {

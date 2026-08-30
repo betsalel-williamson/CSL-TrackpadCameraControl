@@ -41,8 +41,8 @@ namespace TrackpadCameraControl
             }
 
             bool motion =
-                Abs(frame.centroidDeltaX) > settings.MotionDeadzone
-                || Abs(frame.centroidDeltaY) > settings.MotionDeadzone;
+                Abs(frame.centroidDeltaX) > settings.MotionDeadband
+                || Abs(frame.centroidDeltaY) > settings.MotionDeadband;
 
             bool orbitTrigger = orbitLatched || IsOrbitTriggerActive(frame, settings);
             if (settings.OrbitEnabled && orbitTrigger && (motion || orbitLatched))
@@ -93,6 +93,60 @@ namespace TrackpadCameraControl
             return ops & ~CameraOp.Zoom;
         }
 
+        /// <summary>
+        /// Orbit centroid drag already yaws. Concurrent twist can double-write AngleX — but if
+        /// twist dominates centroid motion, prefer Yaw and drop Orbit so rotate does not steal
+        /// scroll <c>dy</c> into pitch.
+        /// </summary>
+        public static CameraOp ExclusiveOrbitVersusYaw(
+            CameraOp ops,
+            GestureFrame frame,
+            ModSettings settings
+        )
+        {
+            if ((ops & CameraOp.Orbit) == 0 || (ops & CameraOp.Yaw) == 0)
+            {
+                return ops;
+            }
+
+            if (IsTwistDominant(frame, settings))
+            {
+                return ops & ~CameraOp.Orbit;
+            }
+
+            return ops & ~CameraOp.Yaw;
+        }
+
+        /// <summary>Backward-compatible overload: prefer orbit (drop yaw) when both present.</summary>
+        public static CameraOp ExclusiveOrbitVersusYaw(CameraOp ops)
+        {
+            return ExclusiveOrbitVersusYaw(ops, default(GestureFrame), null);
+        }
+
+        /// <summary>
+        /// True when two-finger twist outweighs centroid travel (rotate intent vs pan/orbit drag).
+        /// </summary>
+        public static bool IsTwistDominant(GestureFrame frame, ModSettings settings)
+        {
+            if (settings == null)
+            {
+                return Abs(frame.rotateDelta) > 1e-6f
+                    && Abs(frame.rotateDelta) >= Abs(frame.centroidDeltaX)
+                    && Abs(frame.rotateDelta) >= Abs(frame.centroidDeltaY);
+            }
+
+            float rotEps = settings.RotateEpsilon > 1e-8f ? settings.RotateEpsilon : 0.001f;
+            float dead = settings.MotionDeadband > 1e-8f ? settings.MotionDeadband : 0.1f;
+            float yawScore = Abs(frame.rotateDelta) / rotEps;
+            float motionScore = Max(Abs(frame.centroidDeltaX), Abs(frame.centroidDeltaY)) / dead;
+            return yawScore > 0f && yawScore >= motionScore;
+        }
+
+        private static float Max(float a, float b)
+        {
+            return a >= b ? a : b;
+        }
+
         public static bool IsOrbitTriggerActive(GestureFrame frame, ModSettings settings)
         {
             if (settings == null || !settings.OrbitEnabled)
@@ -107,8 +161,8 @@ namespace TrackpadCameraControl
             }
 
             bool motion =
-                Abs(frame.centroidDeltaX) > settings.MotionDeadzone
-                || Abs(frame.centroidDeltaY) > settings.MotionDeadzone;
+                Abs(frame.centroidDeltaX) > settings.MotionDeadband
+                || Abs(frame.centroidDeltaY) > settings.MotionDeadband;
             if (!motion && frame.phase != (int)GesturePhase.Began)
             {
                 // Allow engage on Began with modifier even before first delta samples.

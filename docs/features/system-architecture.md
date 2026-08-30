@@ -2,7 +2,7 @@
 
 ## End-user value
 
-Players feel map-app-like or CAD-like trackpad control inside Cities: Skylines I without buying a mouse, while bindings and feel stay fully tunable for experimentation. Optional Assist UI chrome can drive the same camera ops for assist and pipeline validation (Assist UI ships in a later phase).
+Players feel map-app-like or CAD-like trackpad control inside Cities: Skylines I without buying a mouse, while bindings and feel stay fully tunable for experimentation. Optional Debug chrome can drive the same camera ops for tuning and pipeline validation when `EnableAssistChrome` is on.
 
 ## Context
 
@@ -39,10 +39,10 @@ flowchart LR
 | Gesture session         | Orbit latch and resolve-mode state across frames                                                                                                                          |
 | Binding resolver        | Map primitives + session state to a camera **op set** (pan / zoom / yaw / orbit flags)                                                                                    |
 | Camera applicator       | Apply each enabled op to size, target position, and angles using live settings                                                                                            |
-| Assist UI               | Optional on-screen chrome; emits the same camera ops as gestures; style follows Gesture preset                                                                            |
+| Debug UI                | Floating Debug panel for feel tunables; optional chrome emits the same camera ops as gestures when flagged on                                                             |
 | CS1 mod                 | CitiesHarmony-hosted C#; resolve primitives through live settings; write camera targets                                                                                   |
 | Vanilla camera suppress | Harmony gate while the mod is on: skip vanilla scroll-zoom and mouse-drag rotate; keep edge/keyboard/gamepad. See [vanilla camera suppress](./vanilla-camera-suppress.md) |
-| ModSettings             | Single source of truth for presets, bindings, Assist UI enable, and feel; hot-applied                                                                                     |
+| ModSettings             | Single source of truth for presets, bindings, Debug UI enable, and feel; hot-applied                                                                                      |
 | Unsupported backends    | Same interface; report unsupported                                                                                                                                        |
 
 Platform-specific capture details (for example the first macOS backend) live in [platform backends](./platform-backends.md) and ADR 0001 — not in this high-level picture.
@@ -52,10 +52,10 @@ Platform-specific capture details (for example the first macOS backend) live in 
 1. Backend emits finger count, centroid delta, pinch scale, rotate delta, and modifier flags.
 2. Gesture session updates [orbit latch](../glossary/orbit-latch.md) and resolve-mode session state.
 3. Binding resolver maps primitives to a camera **op set** using the live binding table and session.
-4. Optional [Assist UI](./assist-ui-camera-chrome.md) emits the same camera ops from chrome controls (later phase).
-5. Applicator applies each op in the set to camera target position, angle, and size with settings-driven sensitivity, invert, deadzone, and smoothing.
+4. Optional [Debug UI](./debug-ui-camera-chrome.md) emits the same camera ops from chrome controls when `EnableAssistChrome` is on.
+5. Applicator applies each op in the set to camera target position, angle, and size with settings-driven [drag scale](../glossary/drag-scale.md) / [sensitivity](../glossary/sensitivity.md), [button step](../glossary/button-step.md) for chrome nudges, invert, deadzone, pan city-bounds clamp, and optional [low-pass](../glossary/low-pass.md) (see [apply math](./settings-and-hot-configuration.md#apply-math-contract)). Selection-aware rotate / orbit: [selection-aware gestures](./selection-aware-gestures.md).
 6. While the mod is enabled, [vanilla camera suppress](./vanilla-camera-suppress.md) skips vanilla scroll-zoom and mouse-drag rotate so those paths do not fight gesture writes. Edge pan, keyboard, and gamepad still reach the camera.
-7. One-finger pointer path is left to the game (outside Assist UI chrome).
+7. One-finger pointer path is left to the game (outside Debug chrome).
 
 ## Constraints
 

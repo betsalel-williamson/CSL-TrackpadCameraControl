@@ -15,9 +15,45 @@ namespace TrackpadCameraControl
         public const string E2eInjectEnvVar = "TRACKPAD_E2E_INJECT";
         public const string E2eInjectFlagFileName = "e2e-inject.flag";
 
-        public string Name => "Trackpad Camera Control";
+        /// <summary>Options tab / Content Manager title: mod name + assembly version.</summary>
+        public string Name => OptionsTitle;
+
         public string Description =>
             "Trackpad multitouch camera — pan, orbit, zoom. Vanilla scroll-zoom suppressed while enabled.";
+
+        /// <summary>Mod display title including assembly version (e.g. for Options group header).</summary>
+        public static string OptionsTitle
+        {
+            get
+            {
+                string version = GetAssemblyVersionDisplay();
+                if (string.IsNullOrEmpty(version))
+                {
+                    return "Trackpad Camera Control";
+                }
+
+                return "Trackpad Camera Control " + version;
+            }
+        }
+
+        internal static string GetAssemblyVersionDisplay()
+        {
+            try
+            {
+                Version v = typeof(Mod).Assembly.GetName().Version;
+                if (v == null)
+                {
+                    return null;
+                }
+
+                // Prefer major.minor.build; Revision is often 0 from GenerateAssemblyInfo.
+                return v.ToString(3);
+            }
+            catch
+            {
+                return null;
+            }
+        }
 
         public static ModSettings Settings { get; private set; }
         public static GesturePipeline Pipeline { get; private set; }
@@ -27,15 +63,27 @@ namespace TrackpadCameraControl
         {
             if (Settings == null)
             {
-                Settings = new ModSettings();
+                if (ModOptions.Store == null)
+                {
+                    ModOptions.Store = new ModSettingsStore(ModSettingsStore.DefaultPath());
+                }
+
+                Settings = ModOptions.Store.LoadOrFactory();
             }
 
             return Settings;
         }
 
+        /// <summary>Test helper: inject settings without touching the disk store.</summary>
+        internal static void SetSettingsForTests(ModSettings settings)
+        {
+            Settings = settings;
+        }
+
         internal static void ClearSettingsForTests()
         {
             Settings = null;
+            ModOptions.Store = null;
         }
 
         public void OnEnabled()
@@ -100,8 +148,26 @@ namespace TrackpadCameraControl
             {
                 // ignore
             }
+
+            try
+            {
+                TuningPanelHost.Destroy();
+            }
+            catch
+            {
+                // ignore
+            }
 #endif
             VanillaCameraSuppress.Enabled = false;
+            try
+            {
+                ModOptions.FlushStore(true);
+            }
+            catch
+            {
+                // ignore
+            }
+
             try
             {
                 Pipeline?.Shutdown();
@@ -114,6 +180,7 @@ namespace TrackpadCameraControl
             Pipeline = null;
             Settings = null;
             InjectSource = null;
+            ModOptions.Store = null;
         }
 
         public static bool IsE2eInjectEnabled()
@@ -170,66 +237,15 @@ namespace TrackpadCameraControl
             }
 
             ModSettings s = EnsureSettings();
-            helper.AddGroup("Capture");
-            helper.AddDropdown(
-                "Interpreter",
-                ModOptions.CaptureBackendLabels,
-                ModOptions.CaptureBackendToIndex(s.CaptureBackend),
-                sel => ModOptions.ApplyCaptureBackendIndex(s, sel)
-            );
-
-            helper.AddGroup("Sensitivity");
-            helper.AddSlider(
-                "Pan X",
-                ModOptions.SensitivityMin,
-                ModOptions.SensitivityMax,
-                ModOptions.SensitivityStep,
-                s.PanSensitivityX,
-                v => ModOptions.ApplyPanSensitivityX(s, v)
-            );
-            helper.AddSlider(
-                "Pan Y",
-                ModOptions.SensitivityMin,
-                ModOptions.SensitivityMax,
-                ModOptions.SensitivityStep,
-                s.PanSensitivityY,
-                v => ModOptions.ApplyPanSensitivityY(s, v)
-            );
-            helper.AddSlider(
-                "Orbit yaw",
-                ModOptions.SensitivityMin,
-                ModOptions.SensitivityMax,
-                ModOptions.SensitivityStep,
-                s.OrbitYawSensitivity,
-                v => ModOptions.ApplyOrbitYawSensitivity(s, v)
-            );
-            helper.AddSlider(
-                "Orbit pitch",
-                ModOptions.SensitivityMin,
-                ModOptions.SensitivityMax,
-                ModOptions.SensitivityStep,
-                s.OrbitPitchSensitivity,
-                v => ModOptions.ApplyOrbitPitchSensitivity(s, v)
-            );
-            helper.AddSlider(
-                "Zoom",
-                ModOptions.SensitivityMin,
-                ModOptions.SensitivityMax,
-                ModOptions.SensitivityStep,
-                s.ZoomSensitivity,
-                v => ModOptions.ApplyZoomSensitivity(s, v)
-            );
-            helper.AddSlider(
-                "Yaw rotate",
-                ModOptions.SensitivityMin,
-                ModOptions.SensitivityMax,
-                ModOptions.SensitivityStep,
-                s.YawRotateSensitivity,
-                v => ModOptions.ApplyYawRotateSensitivity(s, v)
-            );
+            OptionsSettingsUi.Build(helper, s);
         }
 #endif
 
+        /// <summary>
+        /// Product surface uses <see cref="CaptureBackendFlags.Resolve"/>: without
+        /// <c>ENABLE_CONTACTS_CAPTURE</c>, AppleKit wins unless maintainer env
+        /// <c>TRACKPAD_CAPTURE_BACKEND=contacts</c> overrides.
+        /// </summary>
         internal static IGestureSource CreateCaptureSource(ModSettings settings)
         {
             if (CaptureBackendFlags.Resolve(settings) == CaptureBackend.AppleGestures)

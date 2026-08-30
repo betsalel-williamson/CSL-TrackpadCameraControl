@@ -5,27 +5,41 @@ namespace TrackpadCameraControl
     {
         private readonly ModSettings _settings;
         private readonly ICameraController _camera;
+        private readonly ISelectionContext _selection;
         private readonly GestureSession _session = new GestureSession();
+        private readonly DragLowPass _lowPass = new DragLowPass();
         private IGestureSource _source;
         private int _reconnectCooldown;
 
         public GesturePipeline(ModSettings settings, IGestureSource source)
-            : this(settings, source, new CameraControllerZoom()) { }
+            : this(settings, source, new CameraControllerZoom(), CitiesSelectionContext.Instance)
+        { }
 
         public GesturePipeline(
             ModSettings settings,
             IGestureSource source,
             ICameraController camera
         )
+            : this(settings, source, camera, CitiesSelectionContext.Instance) { }
+
+        public GesturePipeline(
+            ModSettings settings,
+            IGestureSource source,
+            ICameraController camera,
+            ISelectionContext selection
+        )
         {
             _settings = settings ?? new ModSettings();
             _source = source ?? new InProcessGestureSource();
             _camera = camera ?? new CameraControllerZoom();
+            _selection = selection ?? CitiesSelectionContext.Instance;
         }
 
         public IGestureSource Source => _source;
 
         public ICameraController Camera => _camera;
+
+        public ISelectionContext Selection => _selection;
 
         public bool IsConnected => _source != null && _source.IsConnected;
 
@@ -57,6 +71,9 @@ namespace TrackpadCameraControl
                 E2eInjectFileProtocol.Poll(inject, _camera);
             }
 
+            // Keep vanilla scroll policy in sync with menu / over-UI gates.
+            VanillaCameraSuppress.MenuOrOverUi = InputGates.IsMenuOrOverUi();
+
             if (!_source.IsConnected)
             {
                 if (_reconnectCooldown > 0)
@@ -73,26 +90,40 @@ namespace TrackpadCameraControl
                 }
             }
 
+            bool skipApply = InputGates.ShouldSkipModCamera(_settings);
+
             int safety = 32;
             bool applied = false;
             while (safety-- > 0 && _source.TryDequeue(out GestureFrame frame))
             {
                 frame = GameModifierKeys.Enrich(frame);
+                if (
+                    frame.fingerCount <= 0
+                    || frame.phase == (int)GesturePhase.Ended
+                    || frame.phase == (int)GesturePhase.Cancelled
+                )
+                {
+                    _lowPass.Reset();
+                }
+
                 CameraOp ops = _session.Process(frame, _settings);
                 if (ops == CameraOp.None)
                 {
                     continue;
                 }
 
-                CameraApplicator.Apply(
-                    ops,
-                    frame.centroidDeltaX,
-                    frame.centroidDeltaY,
-                    frame.pinchScaleDelta,
-                    frame.rotateDelta,
-                    _settings,
-                    _camera
-                );
+                float dx = frame.centroidDeltaX;
+                float dy = frame.centroidDeltaY;
+                float pinch = frame.pinchScaleDelta;
+                float rotate = frame.rotateDelta;
+                _lowPass.Filter(ops, _settings, ref dx, ref dy, ref pinch, ref rotate);
+
+                if (skipApply)
+                {
+                    continue;
+                }
+
+                CameraApplicator.Apply(ops, dx, dy, pinch, rotate, _settings, _camera, _selection);
                 applied = true;
             }
 

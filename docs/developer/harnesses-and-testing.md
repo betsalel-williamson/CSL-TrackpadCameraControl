@@ -11,7 +11,7 @@ How contributors validate Trackpad Camera Control without (and with) Cities: Sky
 | **Headless e2e**         | Gesture source → resolve → apply pipeline end-to-end with fake camera      | No          | Local + CI    |
 | **In-game inject smoke** | Synthetic frames into the loaded mod change camera zoom                    | Yes         | Local only    |
 
-Real Multitouch / trackpad hardware is **not** required for CI. Hardware gestures remain a manual check on macOS with the in-process mod (see [local MVP install](./local-mvp-install.md)).
+Real Multitouch / trackpad hardware is **not** required for CI. Hardware gestures remain a manual check on macOS with the in-process mod — follow the [QA checklist](./qa-checklist.md) after local install (see [local MVP install](./local-mvp-install.md)).
 
 To inspect Apple-classified events (scroll, magnify, rotate, swipe) without the mod, run `./scripts/apple-gesture-probe.sh` (C# `src/AppleGestureProbe`) and gesture on the probe window — see `native/mac/README.md`. No Accessibility. That probe does not emit `GestureFrame` values.
 
@@ -30,6 +30,16 @@ They do **not** prove that `MacTrackpadCapture` / Multitouch sampling **fills** 
 | Manual in-process mod + in-game trackpad | Yes — end-to-end hardware path                |
 
 When adding camera ops, require a capture-session (or Multitouch→frame) test for every new primitive the mod consumes — not only pipeline tests with pre-filled frames.
+
+## Coverage blind spot (orbit velocity, 2026-08-30)
+
+Applicator tests must **not** treat `AddAngleVelocity` as an immediate `AngleX`/`AngleY` write. Production queues pending deltas and flushes them from a Harmony postfix on `CameraController.HandleMouseEvents` (after vanilla inertia damp, before integrate). A fake that does `AngleX +=` inside `AddAngleVelocity` will pass while Option-orbit is dead in-game.
+
+| Layer under test                                      | Would catch dead Option-orbit velocity? |
+| ----------------------------------------------------- | --------------------------------------- |
+| Fake that integrates onto angles in `AddAngleVelocity` | No — encodes the bug as success         |
+| Queue + `SimulateVanillaOrbitFrame` (damp→flush→integrate) | Yes — for the queue/flush contract   |
+| Harmony postfix / LateUpdate order                    | No — needs [in-game QA](./qa-checklist.md) |
 
 ## Unit tests
 
@@ -97,5 +107,6 @@ Mod-loaded DLL targets **net35** (Cities: Skylines Unity Mono / mscorlib). Share
 
 ## Related
 
+- [QA checklist (in-game)](./qa-checklist.md) — pass/fail lists after local install
 - [Local MVP install](./local-mvp-install.md) — in-process capture + local mod DLL
 - Design decisions: `docs/superpowers/specs/2026-08-29-csharp-capture-tests-design.md`

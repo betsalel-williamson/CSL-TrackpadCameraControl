@@ -11,6 +11,9 @@ namespace TrackpadCameraControl
         public const string EnvVar = "TRACKPAD_CAPTURE_LOG";
         public const string DefaultFileName = "trackpad-camera-control.log";
 
+        /// <summary>Prefix of the first line written when a capture log file is opened.</summary>
+        public const string OpenedLinePrefix = "capture log opened";
+
         private static readonly object Gate = new object();
         private static StreamWriter _writer;
         private static bool _failed;
@@ -114,7 +117,7 @@ namespace TrackpadCameraControl
                 new FileStream(path, FileMode.Append, FileAccess.Write, FileShare.ReadWrite),
                 new UTF8Encoding(false)
             );
-            _writer.WriteLine("capture log opened path=" + path);
+            _writer.WriteLine(OpenedLinePrefix + " path=" + path);
             _writer.Flush();
         }
 

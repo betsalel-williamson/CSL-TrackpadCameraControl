@@ -1,27 +1,18 @@
-# Gesture presets
+# Gesture style (Maps+)
 
-Presets seed bindings for [pan](../glossary/pan.md), [zoom](../glossary/zoom.md), [yaw](../glossary/yaw.md), and [orbit](../glossary/orbit.md). Options UI will expose a **Gesture preset** dropdown later; until then, Maps+ is the default seed and CAD is applied via preset seed (`ApplyPreset`).
+How fingers map to camera ops is [gesture style](../glossary/gesture-style.md). The shipped style is [Maps+](../glossary/maps-plus-preset.md) on AppleKit — chosen for map-app familiarity and lower conflict with OS three-finger system gestures.
 
-## Maps+ (default)
+**Sensitivity**, Slow / Default / Fast, **New Preset**, Save as…, and Reset are [feel presets](./feel-presets.md), not gesture-style seeds. Changing feel does not change Maps+ bindings.
 
-Aligned with common map-app trackpad use and lower conflict with OS three-finger system gestures:
+## Maps+ (shipped)
 
-- Two-finger drag → pan
-- Pinch → zoom
-- Two-finger rotate → yaw
-- Modifier + two-finger drag → orbit (Option on macOS)
+- Two-finger drag → [pan](../glossary/pan.md) (clamped to city bounds)
+- Pinch → [zoom](../glossary/zoom.md)
+- Two-finger rotate → [yaw](../glossary/yaw.md) the camera, or rotate a **new/relocate ghost** while placing
+- Option (`⌥`)+two-finger drag → [orbit](../glossary/orbit.md) (around the selection when one exists)
 
-Once orbit starts, [orbit latch](../glossary/orbit-latch.md) holds until you lift your fingers.
+Once orbit starts, [orbit latch](../glossary/orbit-latch.md) holds until you lift your fingers. Orbit pitch stays within vanilla pitch range **0–90°** (same as the game; floors at 0 so free-cam cannot go negative).
 
-## CAD
+## CAD (not on the product surface)
 
-Aligned with Blender / Fusion-style viewport control:
-
-- Same pan / pinch / yaw as Maps+
-- Three-finger drag → orbit (same latch until fingers lift)
-
-Three-finger orbit may fight OS system gestures. See [OS gesture conflicts](./os-gesture-conflicts.md).
-
-## Custom
-
-Any manual change after applying a preset. Use **Reset** (when Options UI ships) to restore preset or factory defaults.
+[CAD](../glossary/cad-preset.md) three-finger orbit remains behind `EnableCadGestureStyle`. While that flag is off, there is no Maps+/CAD switcher in Options or the Debug panel. Prefer Maps+ for play; see [OS gesture conflicts](./os-gesture-conflicts.md) if you later enable CAD and fight system gestures.

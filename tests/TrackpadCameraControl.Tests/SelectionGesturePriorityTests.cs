@@ -1,0 +1,107 @@
+using TrackpadCameraControl;
+using Xunit;
+
+namespace TrackpadCameraControl.Tests
+{
+    public class SelectionGesturePriorityTests
+    {
+        [Fact]
+        public void Relocate_BeatsPlacementGhost()
+        {
+            Assert.Equal(
+                SelectionGestureKind.RelocateInstance,
+                SelectionGesturePriority.Resolve(
+                    placementToolArmed: true,
+                    relocateBuildingId: 42,
+                    hasValidSelectedInstance: true
+                )
+            );
+        }
+
+        [Fact]
+        public void Relocate_WithoutPlacementArmed_StillRelocate()
+        {
+            Assert.Equal(
+                SelectionGestureKind.RelocateInstance,
+                SelectionGesturePriority.Resolve(
+                    placementToolArmed: false,
+                    relocateBuildingId: 9,
+                    hasValidSelectedInstance: true
+                )
+            );
+        }
+
+        [Fact]
+        public void PlacementGhost_BeatsSelectedInstance_WhenPlacing()
+        {
+            // Leftover click selection must not steal ghost object-yaw.
+            Assert.Equal(
+                SelectionGestureKind.PlacementGhost,
+                SelectionGesturePriority.Resolve(
+                    placementToolArmed: true,
+                    relocateBuildingId: 0,
+                    hasValidSelectedInstance: true
+                )
+            );
+        }
+
+        [Fact]
+        public void PlacementGhost_WhenArmedWithoutSelection()
+        {
+            Assert.Equal(
+                SelectionGestureKind.PlacementGhost,
+                SelectionGesturePriority.Resolve(
+                    placementToolArmed: true,
+                    relocateBuildingId: 0,
+                    hasValidSelectedInstance: false
+                )
+            );
+        }
+
+        [Fact]
+        public void SelectedInstance_WithoutPlacementTool()
+        {
+            Assert.Equal(
+                SelectionGestureKind.SelectedInstance,
+                SelectionGesturePriority.Resolve(
+                    placementToolArmed: false,
+                    relocateBuildingId: 0,
+                    hasValidSelectedInstance: true
+                )
+            );
+        }
+
+        [Fact]
+        public void None_WhenNothingArmed()
+        {
+            Assert.Equal(
+                SelectionGestureKind.None,
+                SelectionGesturePriority.Resolve(
+                    placementToolArmed: false,
+                    relocateBuildingId: 0,
+                    hasValidSelectedInstance: false
+                )
+            );
+        }
+
+        [Theory]
+        [InlineData(SelectionGestureKind.RelocateInstance, true)]
+        [InlineData(SelectionGestureKind.PlacementGhost, true)]
+        [InlineData(SelectionGestureKind.SelectedInstance, false)]
+        [InlineData(SelectionGestureKind.None, false)]
+        public void AllowsObjectYaw_OnlyGhostModes(SelectionGestureKind kind, bool expected)
+        {
+            Assert.Equal(expected, SelectionGesturePriority.AllowsObjectYaw(kind));
+        }
+
+        [Theory]
+        [InlineData(SelectionGestureKind.RelocateInstance, true)]
+        [InlineData(SelectionGestureKind.PlacementGhost, true)]
+        [InlineData(SelectionGestureKind.SelectedInstance, false)]
+        [InlineData(SelectionGestureKind.None, false)]
+        public void AllowsOrbitPivot_OnlyGhostModes(SelectionGestureKind kind, bool expected)
+        {
+            Assert.Equal(expected, SelectionGesturePriority.AllowsOrbitPivot(kind));
+        }
+    }
+}

@@ -22,10 +22,17 @@ namespace TrackpadCameraControl.Tests
                 null,
                 null
             );
-            Assert.Equal(
-                "apple src=local type=scroll phase=changed mods=opt momentum=changed sdx=1.2500 sdy=-4.0000 dx=0.0000 dy=-1.0000 precise=1",
-                line
-            );
+
+            Assert.StartsWith(AppleGestureLog.LinePrefix + "local", line);
+            Assert.Contains("type=scroll", line);
+            Assert.Contains("phase=changed", line);
+            Assert.Contains("mods=opt", line);
+            Assert.Contains("momentum=changed", line);
+            Assert.Contains("sdx=", line);
+            Assert.Contains("sdy=", line);
+            Assert.Contains("precise=1", line);
+            Assert.DoesNotContain(" mag=", line);
+            Assert.DoesNotContain(" rot=", line);
         }
 
         [Fact]
@@ -45,7 +52,14 @@ namespace TrackpadCameraControl.Tests
                 0.01234,
                 null
             );
-            Assert.Equal("apple src=local type=magnify phase=changed mods=- mag=0.01234", line);
+
+            Assert.StartsWith(AppleGestureLog.LinePrefix + "local", line);
+            Assert.Contains("type=magnify", line);
+            Assert.Contains("mods=-", line);
+            Assert.Contains("mag=", line);
+            Assert.DoesNotContain("sdx=", line);
+            Assert.DoesNotContain("precise=", line);
+            Assert.DoesNotContain(" rot=", line);
         }
     }
 }

@@ -24,36 +24,64 @@ namespace TrackpadCameraControl
         PrimaryOnly,
     }
 
+    /// <summary>
+    /// Live settings model and schema ≥3 XML shape. Persist field names use control-systems
+    /// language (gain, step, deadband, filter, sign invert). Player Options still say Sensitivity.
+    /// </summary>
     public class ModSettings
     {
         public GesturePreset GesturePreset { get; set; } = GesturePreset.MapsPlus;
         public GestureResolveMode GestureResolveMode { get; set; } = GestureResolveMode.Concurrent;
 
+        public bool AssistUiEnabled { get; set; } = false;
         public bool PanEnabled { get; set; } = true;
         public bool ZoomEnabled { get; set; } = true;
         public bool YawEnabled { get; set; } = true;
         public bool OrbitEnabled { get; set; } = true;
         public OrbitTrigger OrbitTrigger { get; set; } = OrbitTrigger.ModifierPlusTwoFinger;
 
-        public float PanSensitivityX { get; set; } = 1f;
-        public float PanSensitivityY { get; set; } = 1f;
-        public float OrbitYawSensitivity { get; set; } = 1f;
-        public float OrbitPitchSensitivity { get; set; } = 1f;
-        public float ZoomSensitivity { get; set; } = 1f;
-        public float YawRotateSensitivity { get; set; } = 1f;
+        public float PanGainX { get; set; } = 0.005f;
+        public float PanGainY { get; set; } = 0.005f;
 
-        public bool InvertPanX { get; set; }
-        public bool InvertPanY { get; set; }
-        public bool InvertOrbitYaw { get; set; }
-        public bool InvertOrbitPitch { get; set; }
-        public bool InvertZoom { get; set; }
-        public bool InvertYawRotate { get; set; }
+        // Defaults = former value × 0.01 (old AppleGestureMapper.ScrollToCentroid).
+        public float OrbitYawGain { get; set; } = 0.10f;
+        public float OrbitPitchGain { get; set; } = 0.10f;
+        public float ZoomGain { get; set; } = 1.00f;
+        public float YawRotateGain { get; set; } = 2.00f;
 
-        public float MotionDeadzone { get; set; } = 0.001f;
+        /// <summary>Schema-retained; orbit clamp uses vanilla 0…90 (see CameraApplicator).</summary>
+        public float OrbitPitchMin { get; set; } = 0f;
+
+        /// <summary>Schema-retained; orbit clamp uses vanilla 0…90 (see CameraApplicator).</summary>
+        public float OrbitPitchMax { get; set; } = 90f;
+
+        public float PanStepX { get; set; } = 0.05f;
+        public float PanStepY { get; set; } = 0.05f;
+        public float OrbitYawStep { get; set; } = 2f;
+        public float OrbitPitchStep { get; set; } = 2f;
+        public float ZoomStep { get; set; } = 0.05f;
+        public float YawRotateStep { get; set; } = 2f;
+
+        public bool SignInvertPanX { get; set; } = true;
+        public bool SignInvertPanY { get; set; }
+        public bool SignInvertOrbitYaw { get; set; }
+        public bool SignInvertOrbitPitch { get; set; }
+        public bool SignInvertZoom { get; set; }
+        public bool SignInvertYawRotate { get; set; }
+
+        public float MotionDeadband { get; set; } = 0.1f;
         public float PinchEpsilon { get; set; } = 0.001f;
         public float RotateEpsilon { get; set; } = 0.001f;
         public float FingerCountHysteresis { get; set; } = 0.05f;
-        public float Smoothing { get; set; } // 0 = off
+
+        public bool PanFilterEnabled { get; set; }
+        public float PanFilterAlpha { get; set; } = 0.3f;
+        public bool ZoomFilterEnabled { get; set; }
+        public float ZoomFilterAlpha { get; set; } = 0.3f;
+        public bool YawFilterEnabled { get; set; }
+        public float YawFilterAlpha { get; set; } = 0.3f;
+        public bool OrbitFilterEnabled { get; set; }
+        public float OrbitFilterAlpha { get; set; } = 0.3f;
 
         public bool RequireGameFocus { get; set; } = true;
         public bool IgnoreOverUi { get; set; } = true;
@@ -67,7 +95,13 @@ namespace TrackpadCameraControl
         public CaptureBackend CaptureBackend { get; set; } = CaptureBackend.AppleGestures;
 
         /// <summary>
+        /// Active feel identity for the preset dropdown (Slow / Default / Fast / New Preset / named).
+        /// </summary>
+        public string ActiveFeelPresetName { get; set; } = FeelProfiles.NameDefault;
+
+        /// <summary>
         /// Seeds orbit trigger (and related defaults) from Maps+ or CAD. Custom is a no-op.
+        /// Does not wipe custom scales or filter settings.
         /// </summary>
         public void ApplyPreset(GesturePreset preset)
         {
@@ -85,6 +119,74 @@ namespace TrackpadCameraControl
             {
                 OrbitTrigger = OrbitTrigger.ThreeFinger;
             }
+        }
+
+        /// <summary>Copy all feel and binding fields from another settings instance.</summary>
+        public void CopyFrom(ModSettings other)
+        {
+            if (other == null)
+            {
+                return;
+            }
+
+            GesturePreset = other.GesturePreset;
+            GestureResolveMode = other.GestureResolveMode;
+            AssistUiEnabled = other.AssistUiEnabled;
+            PanEnabled = other.PanEnabled;
+            ZoomEnabled = other.ZoomEnabled;
+            YawEnabled = other.YawEnabled;
+            OrbitEnabled = other.OrbitEnabled;
+            OrbitTrigger = other.OrbitTrigger;
+
+            PanGainX = other.PanGainX;
+            PanGainY = other.PanGainY;
+            OrbitYawGain = other.OrbitYawGain;
+            OrbitPitchGain = other.OrbitPitchGain;
+            ZoomGain = other.ZoomGain;
+            YawRotateGain = other.YawRotateGain;
+
+            OrbitPitchMin = other.OrbitPitchMin;
+            OrbitPitchMax = other.OrbitPitchMax;
+
+            PanStepX = other.PanStepX;
+            PanStepY = other.PanStepY;
+            OrbitYawStep = other.OrbitYawStep;
+            OrbitPitchStep = other.OrbitPitchStep;
+            ZoomStep = other.ZoomStep;
+            YawRotateStep = other.YawRotateStep;
+
+            SignInvertPanX = other.SignInvertPanX;
+            SignInvertPanY = other.SignInvertPanY;
+            SignInvertOrbitYaw = other.SignInvertOrbitYaw;
+            SignInvertOrbitPitch = other.SignInvertOrbitPitch;
+            SignInvertZoom = other.SignInvertZoom;
+            SignInvertYawRotate = other.SignInvertYawRotate;
+
+            MotionDeadband = other.MotionDeadband;
+            PinchEpsilon = other.PinchEpsilon;
+            RotateEpsilon = other.RotateEpsilon;
+            FingerCountHysteresis = other.FingerCountHysteresis;
+
+            PanFilterEnabled = other.PanFilterEnabled;
+            PanFilterAlpha = other.PanFilterAlpha;
+            ZoomFilterEnabled = other.ZoomFilterEnabled;
+            ZoomFilterAlpha = other.ZoomFilterAlpha;
+            YawFilterEnabled = other.YawFilterEnabled;
+            YawFilterAlpha = other.YawFilterAlpha;
+            OrbitFilterEnabled = other.OrbitFilterEnabled;
+            OrbitFilterAlpha = other.OrbitFilterAlpha;
+
+            RequireGameFocus = other.RequireGameFocus;
+            IgnoreOverUi = other.IgnoreOverUi;
+            BridgeEnabled = other.BridgeEnabled;
+            DebugOverlay = other.DebugOverlay;
+            CaptureBackend = other.CaptureBackend;
+            ActiveFeelPresetName = other.ActiveFeelPresetName;
+        }
+
+        public static ModSettings CreateFactoryDefaults()
+        {
+            return new ModSettings();
         }
     }
 }

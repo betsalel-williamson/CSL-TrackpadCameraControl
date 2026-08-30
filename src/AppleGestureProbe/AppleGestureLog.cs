@@ -6,6 +6,9 @@ namespace AppleGestureProbe
     /// <summary>Formats AppKit gesture probe lines (stderr). No camera binding.</summary>
     public static class AppleGestureLog
     {
+        /// <summary>Wire-format line prefix shared by probe output and tests.</summary>
+        public const string LinePrefix = "apple src=";
+
         public static string Format(
             string source,
             string type,
@@ -22,7 +25,7 @@ namespace AppleGestureProbe
         )
         {
             var sb = new StringBuilder();
-            sb.Append("apple src=")
+            sb.Append(LinePrefix)
                 .Append(source)
                 .Append(" type=")
                 .Append(type)

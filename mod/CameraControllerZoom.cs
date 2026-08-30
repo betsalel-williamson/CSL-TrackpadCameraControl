@@ -18,6 +18,7 @@ namespace TrackpadCameraControl
         private static FieldInfo _currentPositionField;
         private static FieldInfo _targetAngleField;
         private static FieldInfo _currentAngleField;
+        private static FieldInfo _angleVelocityField;
 #if !HAS_CITIES
         private static MethodInfo _findObjectOfType;
 #endif
@@ -29,6 +30,8 @@ namespace TrackpadCameraControl
 
         private object _cachedController;
         private int _missStreak;
+        private float _pendingYaw;
+        private float _pendingPitch;
 
         public bool IsAvailable
         {
@@ -95,6 +98,161 @@ namespace TrackpadCameraControl
             set { SetAngleComponent(1, value); }
         }
 
+        /// <summary>
+        /// Clamp pan to the current unlocked game area (grows with purchases; not a fixed square).
+        /// </summary>
+        public void ClampPanTarget(ref float x, ref float z)
+        {
+#if HAS_CITIES
+            try
+            {
+                GameAreaManager areas = GameAreaManager.instance;
+                if (areas == null)
+                {
+                    return;
+                }
+
+                float y = TargetY;
+                if (float.IsNaN(y))
+                {
+                    y = 0f;
+                }
+
+                Vector3 position = new Vector3(x, y, z);
+                areas.ClampPoint(ref position);
+                x = position.x;
+                z = position.z;
+            }
+            catch
+            {
+                // Fail soft: leave proposed pan unclamped.
+            }
+#endif
+        }
+
+        /// <summary>
+        /// Queue yaw/pitch for middle-mouse-style orbit. Does not write angles or
+        /// <c>m_angleVelocity</c> here — vanilla damps velocity first in UpdateTargetPosition.
+        /// Flush from HandleMouseEvents Harmony postfix (after damp, before integrate).
+        /// </summary>
+        public void AddAngleVelocity(float yawDelta, float pitchDelta)
+        {
+            if (yawDelta == 0f && pitchDelta == 0f)
+            {
+                return;
+            }
+
+            _pendingYaw += yawDelta;
+            _pendingPitch += pitchDelta;
+        }
+
+        /// <summary>
+        /// Write queued deltas into <c>m_angleVelocity</c> as pending / max(dt, 0.001)
+        /// so velocity * dt ≈ pending this frame.
+        /// </summary>
+        public void FlushPendingAngleVelocity(float deltaTimeSeconds)
+        {
+            if (
+                (_pendingYaw == 0f && _pendingPitch == 0f)
+                || !TryGetController(out object cam)
+                || _angleVelocityField == null
+            )
+            {
+                _pendingYaw = 0f;
+                _pendingPitch = 0f;
+                return;
+            }
+
+            float dt = deltaTimeSeconds;
+            if (dt < 0.001f)
+            {
+                dt = 0.001f;
+            }
+
+            float yawDelta = _pendingYaw / dt;
+            float pitchDelta = _pendingPitch / dt;
+            _pendingYaw = 0f;
+            _pendingPitch = 0f;
+
+            object vec = _angleVelocityField.GetValue(cam);
+            if (vec == null)
+            {
+                return;
+            }
+
+            Type vectorType = _angleVelocityField.FieldType;
+            float x = GetVectorComponent(vec, 0);
+            float y = GetVectorComponent(vec, 1);
+            if (float.IsNaN(x))
+            {
+                x = 0f;
+            }
+
+            if (float.IsNaN(y))
+            {
+                y = 0f;
+            }
+
+            object next = SetVectorComponent(vec, vectorType, 0, x + yawDelta);
+            next = SetVectorComponent(next, vectorType, 1, y + pitchDelta);
+            _angleVelocityField.SetValue(cam, next);
+        }
+
+        public void ClearAngleVelocity(bool yaw, bool pitch)
+        {
+            if (yaw)
+            {
+                _pendingYaw = 0f;
+            }
+
+            if (pitch)
+            {
+                _pendingPitch = 0f;
+            }
+
+            if (
+                !TryGetController(out object cam)
+                || _angleVelocityField == null
+                || (!yaw && !pitch)
+            )
+            {
+                return;
+            }
+
+            object vec = _angleVelocityField.GetValue(cam);
+            if (vec == null)
+            {
+                return;
+            }
+
+            Type vectorType = _angleVelocityField.FieldType;
+            float x = GetVectorComponent(vec, 0);
+            float y = GetVectorComponent(vec, 1);
+            if (float.IsNaN(x))
+            {
+                x = 0f;
+            }
+
+            if (float.IsNaN(y))
+            {
+                y = 0f;
+            }
+
+            if (yaw)
+            {
+                x = 0f;
+            }
+
+            if (pitch)
+            {
+                y = 0f;
+            }
+
+            object next = SetVectorComponent(vec, vectorType, 0, x);
+            next = SetVectorComponent(next, vectorType, 1, y);
+            _angleVelocityField.SetValue(cam, next);
+        }
+
         private float GetPositionComponent(int index)
         {
             if (!TryGetController(out object cam) || _targetPositionField == null)
@@ -114,6 +272,8 @@ namespace TrackpadCameraControl
 
             object vec = _targetPositionField.GetValue(cam);
             vec = SetVectorComponent(vec, _targetPositionField.FieldType, index, value);
+            // Pan uses ClampPanTarget (joint XZ via GameAreaManager.ClampPoint) before TargetX/Z
+            // writes so X and Z are not clamped against a stale other axis.
             _targetPositionField.SetValue(cam, vec);
             if (_currentPositionField != null)
             {
@@ -138,12 +298,20 @@ namespace TrackpadCameraControl
                 return;
             }
 
-            object vec = _targetAngleField.GetValue(cam);
-            vec = SetVectorComponent(vec, _targetAngleField.FieldType, index, value);
-            _targetAngleField.SetValue(cam, vec);
+            Type vectorType = _targetAngleField.FieldType;
+            object target = _targetAngleField.GetValue(cam);
+            target = SetVectorComponent(target, vectorType, index, value);
+            _targetAngleField.SetValue(cam, target);
+
+            // Update only this axis on m_currentAngle. Copying the full target vector onto
+            // current (old behavior) snapped pitch whenever rotation wrote AngleX while
+            // current.y was still lerping — felt as pitch pops at twist start/end. Q/E
+            // keyboard rotate does not do that full-vector snap.
             if (_currentAngleField != null)
             {
-                _currentAngleField.SetValue(cam, vec);
+                object current = _currentAngleField.GetValue(cam);
+                current = SetVectorComponent(current, vectorType, index, value);
+                _currentAngleField.SetValue(cam, current);
             }
         }
 
@@ -326,6 +494,7 @@ namespace TrackpadCameraControl
                 _currentPositionField = _camType.GetField("m_currentPosition", bf);
                 _targetAngleField = _camType.GetField("m_targetAngle", bf);
                 _currentAngleField = _camType.GetField("m_currentAngle", bf);
+                _angleVelocityField = _camType.GetField("m_angleVelocity", bf);
 
                 _available = _targetSizeField != null;
             }

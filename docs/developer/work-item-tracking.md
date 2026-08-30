@@ -20,4 +20,9 @@
 
 ## Current phase
 
-**Options UI (sensitivities + capture backend)** — in-game Options expose AppKit vs Contacts (legacy) and per-op sensitivities so feel can be tuned without restart. Next: remaining Options fields, then Assist UI wiring. An Options checkbox to leave vanilla camera on is deferred.
+**Options polish + New Preset + selection rotate** — Debug panel naming, Options layout and Sensitivity sliders, **New Preset** dirty autosave, pitch 0–90°, pan city-bounds clamp, and selection-aware rotate / ⌥-orbit.
+
+Design: [Options polish, New Preset, selection rotate](../superpowers/specs/2026-08-30-options-polish-selection-rotate-design.md).  
+Plan: [Options polish, New Preset, selection rotate](../superpowers/plans/2026-08-30-options-polish-selection-rotate-plan.md).
+
+Prior foundation (shipped on this branch): [AppleKit Maps+ feel surface](../superpowers/specs/2026-08-29-applekit-feel-surface-design.md).

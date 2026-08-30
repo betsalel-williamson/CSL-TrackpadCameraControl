@@ -4,30 +4,88 @@ using Xunit;
 
 namespace TrackpadCameraControl.Tests
 {
+    [Collection(VanillaCameraSuppressCollection.Name)]
     public sealed class VanillaCameraSuppressTests : IDisposable
     {
         public VanillaCameraSuppressTests()
         {
-            VanillaCameraSuppress.Enabled = false;
+            ResetSuppressStatics();
         }
 
         public void Dispose()
         {
+            ResetSuppressStatics();
+        }
+
+        private static void ResetSuppressStatics()
+        {
             VanillaCameraSuppress.Enabled = false;
+            VanillaCameraSuppress.PreciseTrackpadScroll = false;
+            VanillaCameraSuppress.MenuOrOverUi = false;
         }
 
         [Fact]
         public void ShouldSkipScrollWheel_WhenDisabled_ReturnsFalse()
         {
             VanillaCameraSuppress.Enabled = false;
-            Assert.False(VanillaCameraSuppress.ShouldSkipScrollWheel());
+            Assert.False(
+                VanillaCameraSuppress.ShouldSkipScrollWheel(
+                    preciseTrackpad: true,
+                    menuOrOverUi: false
+                )
+            );
         }
 
         [Fact]
-        public void ShouldSkipScrollWheel_WhenEnabled_ReturnsTrue()
+        public void ShouldSkipScrollWheel_WhenEnabledPreciseWorld_ReturnsTrue()
         {
             VanillaCameraSuppress.Enabled = true;
+            Assert.True(
+                VanillaCameraSuppress.ShouldSkipScrollWheel(
+                    preciseTrackpad: true,
+                    menuOrOverUi: false
+                )
+            );
+        }
+
+        [Fact]
+        public void ShouldSkipScrollWheel_WhenEnabledWheel_ReturnsFalse()
+        {
+            VanillaCameraSuppress.Enabled = true;
+            Assert.False(
+                VanillaCameraSuppress.ShouldSkipScrollWheel(
+                    preciseTrackpad: false,
+                    menuOrOverUi: false
+                )
+            );
+        }
+
+        [Fact]
+        public void ShouldSkipScrollWheel_WhenEnabledOverUi_ReturnsFalse()
+        {
+            VanillaCameraSuppress.Enabled = true;
+            Assert.False(
+                VanillaCameraSuppress.ShouldSkipScrollWheel(
+                    preciseTrackpad: true,
+                    menuOrOverUi: true
+                )
+            );
+        }
+
+        [Fact]
+        public void ShouldSkipScrollWheel_Parameterless_UsesSettableState()
+        {
+            VanillaCameraSuppress.Enabled = true;
+            VanillaCameraSuppress.PreciseTrackpadScroll = true;
+            VanillaCameraSuppress.MenuOrOverUi = false;
             Assert.True(VanillaCameraSuppress.ShouldSkipScrollWheel());
+
+            VanillaCameraSuppress.MenuOrOverUi = true;
+            Assert.False(VanillaCameraSuppress.ShouldSkipScrollWheel());
+
+            VanillaCameraSuppress.MenuOrOverUi = false;
+            VanillaCameraSuppress.PreciseTrackpadScroll = false;
+            Assert.False(VanillaCameraSuppress.ShouldSkipScrollWheel());
         }
 
         [Fact]

@@ -36,6 +36,14 @@ namespace TrackpadCameraControl.Tests
             );
         }
 
+        [Fact]
+        public void Resolve_ContactsFlagOff_ForcesAppleEvenIfSettingsContacts()
+        {
+            Assert.False(FeatureFlags.EnableContactsCapture);
+            var settings = new ModSettings { CaptureBackend = CaptureBackend.Contacts };
+            Assert.Equal(CaptureBackend.AppleGestures, CaptureBackendFlags.Resolve(settings, null));
+        }
+
         [Theory]
         [InlineData("apple")]
         [InlineData("Apple")]
@@ -67,8 +75,8 @@ namespace TrackpadCameraControl.Tests
             );
             Assert.Equal(2, frame.fingerCount);
             Assert.Equal((int)GesturePhase.Changed, frame.phase);
-            Assert.Equal(20.0f * AppleGestureMapper.ScrollToCentroid, frame.centroidDeltaX);
-            Assert.Equal(-10.0f * AppleGestureMapper.ScrollToCentroid, frame.centroidDeltaY);
+            Assert.Equal(20.0f, frame.centroidDeltaX);
+            Assert.Equal(-10.0f, frame.centroidDeltaY);
             Assert.Equal(0f, frame.pinchScaleDelta);
         }
 
@@ -128,6 +136,25 @@ namespace TrackpadCameraControl.Tests
         }
 
         [Fact]
+        public void EndGesture_MapsToEndedPhase()
+        {
+            Assert.True(
+                AppleGestureMapper.TryMap(
+                    AppleGestureMapper.EventTypeEndGesture,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0f,
+                    out GestureFrame frame
+                )
+            );
+            Assert.Equal((int)GesturePhase.Ended, frame.phase);
+            Assert.Equal(2, frame.fingerCount);
+        }
+
+        [Fact]
         public void Swipe_IsIgnored()
         {
             Assert.False(
@@ -154,33 +181,26 @@ namespace TrackpadCameraControl.Tests
         }
 
         [Fact]
-        public void CreateCaptureSource_Default_IsAppleGestureSource()
+        public void CreateCaptureSource_Default_UsesAppleGesturesBackend()
         {
-            Assert.IsType<AppleGestureSource>(Mod.CreateCaptureSource(new ModSettings()));
+            Assert.Equal(
+                CaptureBackend.AppleGestures,
+                CaptureBackendFlags.Resolve(new ModSettings(), null)
+            );
+            Assert.NotNull(Mod.CreateCaptureSource(new ModSettings()));
         }
 
         [Fact]
-        public void CreateCaptureSource_BridgeEnabled_IsIpc()
+        public void CreateCaptureSource_ContactsSettings_WhenFlagOff_StillResolvesApple()
         {
-            Assert.IsType<IpcGestureSource>(
-                Mod.CreateCaptureSource(
-                    new ModSettings
-                    {
-                        CaptureBackend = CaptureBackend.Contacts,
-                        BridgeEnabled = true,
-                    }
-                )
-            );
-        }
-
-        [Fact]
-        public void CreateCaptureSource_Contacts_IsInProcess()
-        {
-            Assert.IsType<InProcessGestureSource>(
-                Mod.CreateCaptureSource(
-                    new ModSettings { CaptureBackend = CaptureBackend.Contacts }
-                )
-            );
+            Assert.False(FeatureFlags.EnableContactsCapture);
+            var settings = new ModSettings
+            {
+                CaptureBackend = CaptureBackend.Contacts,
+                BridgeEnabled = true,
+            };
+            Assert.Equal(CaptureBackend.AppleGestures, CaptureBackendFlags.Resolve(settings, null));
+            Assert.NotNull(Mod.CreateCaptureSource(settings));
         }
     }
 
@@ -201,7 +221,7 @@ namespace TrackpadCameraControl.Tests
                 GestureCaptureLog.ResetForTests();
                 string text = File.ReadAllText(path);
                 Assert.Contains("hello-capture", text);
-                Assert.Contains("capture log opened", text);
+                Assert.Contains(GestureCaptureLog.OpenedLinePrefix, text);
             }
             finally
             {

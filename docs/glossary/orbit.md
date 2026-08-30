@@ -1,5 +1,7 @@
 # Orbit
 
-Rotate the camera around a pivot (yaw and pitch together) — the Cities: Skylines I middle-mouse drag feel. Maps+ uses modifier+two-finger drag; CAD uses three-finger drag.
+Rotate the camera around a pivot (yaw and pitch together) — the Cities: Skylines I middle-mouse drag feel.
 
-After engage, [orbit latch](./orbit-latch.md) holds until touch-up: orbit and yaw rotate continue; pan and zoom stay off.
+**Activation (Maps+ / AppleKit):** Option (`⌥`)+two-finger drag. Pitch stays within vanilla **0–90°**. Once orbit starts, [orbit latch](./orbit-latch.md) holds until you lift your fingers. With a **selection**, the camera orbits **around that object**; with no selection, orbit uses the usual camera pivot.
+
+CAD three-finger orbit is behind `EnableCadGestureStyle`.
