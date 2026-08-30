@@ -33,6 +33,7 @@ namespace TrackpadCameraControl.Tests
             Assert.Equal(0f, s.OrbitPitchMin);
             Assert.Equal(90f, s.OrbitPitchMax);
             Assert.Equal(0.1f, s.MotionDeadband);
+            Assert.False(s.AssistUiEnabled);
         }
 
         [Fact]

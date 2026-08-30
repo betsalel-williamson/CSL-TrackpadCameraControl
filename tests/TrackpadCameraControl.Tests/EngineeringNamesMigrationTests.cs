@@ -89,6 +89,40 @@ namespace TrackpadCameraControl.Tests
         }
 
         [Fact]
+        public void LoadOrFactory_LegacyWithoutAssistUiEnabled_DefaultsTrueForMigration()
+        {
+            string path = Path.Combine(
+                Path.GetTempPath(),
+                "tcc-legacy-assist-" + Path.GetRandomFileName() + ".xml"
+            );
+            try
+            {
+                File.WriteAllText(
+                    path,
+                    @"<?xml version=""1.0"" encoding=""utf-8""?>
+<TrackpadCameraControlSettings>
+  <SchemaVersion>2</SchemaVersion>
+  <Current>
+    <PanSensitivityX>0.005</PanSensitivityX>
+    <ActiveFeelPresetName>Default</ActiveFeelPresetName>
+  </Current>
+</TrackpadCameraControlSettings>"
+                );
+
+                var store = new ModSettingsStore(path);
+                ModSettings loaded = store.LoadOrFactory();
+                Assert.True(loaded.AssistUiEnabled);
+            }
+            finally
+            {
+                if (File.Exists(path))
+                {
+                    File.Delete(path);
+                }
+            }
+        }
+
+        [Fact]
         public void LoadOrFactory_MigratesSchema1ScrollUnitThenEngineeringNames()
         {
             string path = Path.Combine(

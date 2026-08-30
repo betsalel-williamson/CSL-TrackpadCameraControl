@@ -33,7 +33,7 @@ namespace TrackpadCameraControl
         public GesturePreset GesturePreset { get; set; } = GesturePreset.MapsPlus;
         public GestureResolveMode GestureResolveMode { get; set; } = GestureResolveMode.Concurrent;
 
-        public bool AssistUiEnabled { get; set; } = true;
+        public bool AssistUiEnabled { get; set; } = false;
         public bool PanEnabled { get; set; } = true;
         public bool ZoomEnabled { get; set; } = true;
         public bool YawEnabled { get; set; } = true;

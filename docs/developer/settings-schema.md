@@ -18,13 +18,13 @@ Schema-retained. With `EnableCadGestureStyle` off, product UI does not expose a 
 
 | Field           | Type | Default                          | Hot |
 | --------------- | ---- | -------------------------------- | --- |
-| AssistUiEnabled | bool | true (development); false (ship) | yes |
+| AssistUiEnabled | bool | false | yes |
 | PanEnabled      | bool | true                             | yes |
 | ZoomEnabled     | bool | true                             | yes |
 | YawEnabled      | bool | true                             | yes |
 | OrbitEnabled    | bool | true                             | yes |
 
-Schema field `AssistUiEnabled` shows or hides the in-game **Debug** panel (feel presets + tunables). Product UI labels it Debug; the schema name stays `AssistUiEnabled`. Development defaults keep it on for easier camera-path validation; shipping defaults turn it off. Assist **chrome** (pads / nudge buttons) is separate and gated by `EnableAssistChrome`.
+Schema field `AssistUiEnabled` shows or hides the in-game **Debug** panel (feel presets + tunables). Product UI labels it Debug; the schema name stays `AssistUiEnabled`. Factory/ship default is **off** so gesture-only players keep a clean viewport; enable it from Options when you want the floating panel. Existing settings.xml that already saved `true` keeps Debug on. Legacy schema 1–2 loads without the element still default **on** via `LegacyModSettings` for migration. Assist **chrome** (pads / nudge buttons) is separate and gated by `EnableAssistChrome`.
 
 ## Gesture resolve mode
 

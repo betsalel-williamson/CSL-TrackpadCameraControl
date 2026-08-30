@@ -196,7 +196,18 @@ namespace TrackpadCameraControl.Tests
             var store = new ModSettingsStore(_path);
             ModSettings loaded = store.LoadOrFactory();
             FeelExpectation.AssertMatchesFactoryFeel(loaded);
+            Assert.False(loaded.AssistUiEnabled);
             Assert.True(File.Exists(_path));
+        }
+
+        [Fact]
+        public void RoundTrip_PreservesAssistUiEnabledTrue()
+        {
+            var store = new ModSettingsStore(_path);
+            store.SaveNow(new ModSettings { AssistUiEnabled = true, PanGainX = 1.25f });
+            ModSettings loaded = store.LoadOrFactory();
+            Assert.True(loaded.AssistUiEnabled);
+            Assert.Equal(1.25f, loaded.PanGainX);
         }
 
         [Fact]
