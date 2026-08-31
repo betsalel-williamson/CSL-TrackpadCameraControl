@@ -60,7 +60,7 @@ Platform-specific capture details (for example the first macOS backend) live in 
 ## Constraints
 
 - Prefer additive camera writes. The Harmony gate is limited to vanilla scroll-zoom and mouse-drag rotate while the mod is on.
-- Coexist with ACME; do not own zoom-limit or saved-position features.
+- Do not own zoom-limit or saved-position features.
 - Fail soft if a backend is missing or fails to start, and if Cities Harmony is missing (gestures may still apply; scroll fight may remain).
 - Interpretation stays in C# so feel changes never require restarting the backend.
 
