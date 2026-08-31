@@ -18,7 +18,7 @@ Until Workshop publishes, treat GitHub Release + local install as the supported 
 - [Cities Harmony](https://steamcommunity.com/sharedfiles/filedetails/?id=2040656402) subscribed and enabled — **required** for [vanilla camera suppress](../glossary/vanilla-camera-suppress.md) (without it, trackpad pan may still fight vanilla scroll-zoom)
 - Trackpad Camera Control installed via a path in the table above
 - A **supported trackpad backend** for your OS (v1 ships macOS AppleKit; other platforms show unsupported until a backend exists)
-- **Tested macOS versions** are listed in the developer [QA checklist](../developer/qa-checklist.md) (known-good table). If your Mac is not listed, try it and share your setup — Workshop comment or a GitHub issue — so we can expand the list.
+- **Tested macOS versions** are listed in the developer QA checklist (`docs/developer/qa-checklist.md`, known-good table). If your Mac is not listed, try it and share your setup — Workshop comment or a GitHub issue — so we can expand the list.
 
 ## Vanilla camera while the mod is on
 
