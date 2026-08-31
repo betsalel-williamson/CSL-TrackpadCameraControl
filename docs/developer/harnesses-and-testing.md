@@ -35,27 +35,49 @@ When adding camera ops, require a capture-session (or Multitouch→frame) test f
 
 Applicator tests must **not** treat `AddAngleVelocity` as an immediate `AngleX`/`AngleY` write. Production queues pending deltas and flushes them from a Harmony postfix on `CameraController.HandleMouseEvents` (after vanilla inertia damp, before integrate). A fake that does `AngleX +=` inside `AddAngleVelocity` will pass while Option-orbit is dead in-game.
 
-| Layer under test                                      | Would catch dead Option-orbit velocity? |
-| ----------------------------------------------------- | --------------------------------------- |
-| Fake that integrates onto angles in `AddAngleVelocity` | No — encodes the bug as success         |
-| Queue + `SimulateVanillaOrbitFrame` (damp→flush→integrate) | Yes — for the queue/flush contract   |
-| Harmony postfix / LateUpdate order                    | No — needs [in-game QA](./qa-checklist.md) |
+| Layer under test                                           | Would catch dead Option-orbit velocity?    |
+| ---------------------------------------------------------- | ------------------------------------------ |
+| Fake that integrates onto angles in `AddAngleVelocity`     | No — encodes the bug as success            |
+| Queue + `SimulateVanillaOrbitFrame` (damp→flush→integrate) | Yes — for the queue/flush contract         |
+| Harmony postfix / LateUpdate order                         | No — needs [in-game QA](./qa-checklist.md) |
 
 ## Unit tests
 
-From the repository root (once the test project exists):
+From the repository root:
 
 ```bash
+npm test
+# or
 dotnet test tests/TrackpadCameraControl.Tests
 ```
 
-Or the whole solution:
+### Coverage (line / branch / method)
+
+Use coverage to **see** what the suite already exercises — and whether the same surface is piled on by many tests — not to chase a percentage.
 
 ```bash
-dotnet test
+npm run test:coverage
 ```
 
-Expect coverage of resolver rules, wire/`GestureFrame` layout assumptions, applicator behavior against a fake zoom seam, and **native-resource pairing** (unmanaged leaks) — no Cities assemblies.
+Coverlet prints a **module summary table** during the test run. The script then writes a **class-level TextSummary** and HTML under `TestResults/coverage-report/` (gitignored):
+
+```bash
+# after npm run test:coverage
+open TestResults/coverage-report/index.html   # macOS
+cat TestResults/coverage-report/Summary.txt
+```
+
+| Signal                                           | How to read it                                                                    |
+| ------------------------------------------------ | --------------------------------------------------------------------------------- |
+| Low % on a product class you care about          | Possible blind spot — add a behavior test only if a real contract is untested     |
+| Very high % on tiny helpers + many similar tests | Likely overlapping / over-specified unit tests — prefer fewer behavior cases      |
+| Capture / Harmony / UI still low                 | Expected — those need session tests or in-game QA, not more fake-frame unit tests |
+
+There is **no coverage fail gate** in CI. The csharp validate job runs CollectCoverage so PR logs include Coverlet’s module table (full HTML report is local via `npm run test:coverage`).
+
+Include filter is the mod assembly (`TrackpadCameraControl`); the test assembly is excluded.
+
+Expect tests to cover resolver rules, wire/`GestureFrame` layout assumptions, applicator behavior against a fake zoom seam, and **native-resource pairing** (unmanaged leaks) — no Cities assemblies.
 
 ## Native leak static analysis
 

@@ -131,8 +131,11 @@ fi
 if [[ "$CSHARP" -eq 1 ]]; then
   echo "==> csharpier check"
   npm run format:csharp:check
-  echo "==> dotnet test"
-  dotnet test TrackpadCameraControl.sln --nologo --verbosity minimal
+  echo "==> dotnet test (with coverage summary)"
+  # Coverlet prints a module table to the log. No % gate — coverage is for spotting
+  # blind spots and over-tested surfaces, not for forcing more tests.
+  mkdir -p TestResults
+  bash scripts/test-coverage.sh
 fi
 
 if [[ "$NATIVE" -eq 1 ]]; then
