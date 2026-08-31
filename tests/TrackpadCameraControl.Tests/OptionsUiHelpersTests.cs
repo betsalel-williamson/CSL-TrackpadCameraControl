@@ -13,6 +13,10 @@ namespace TrackpadCameraControl.Tests
             Assert.Equal(1.00f, ModOptions.SensitivitySliderMax(0.50f));
             Assert.Equal(0.05f, ModOptions.SensitivitySliderStep(0.50f));
 
+            Assert.Equal(0.1f, ModOptions.SensitivitySliderMin(1f));
+            Assert.Equal(2f, ModOptions.SensitivitySliderMax(1f));
+            Assert.Equal(0.1f, ModOptions.SensitivitySliderStep(1f));
+
             Assert.Equal(1.00f, ModOptions.SensitivitySliderMin(10.00f));
             Assert.Equal(20.00f, ModOptions.SensitivitySliderMax(10.00f));
             Assert.Equal(1.00f, ModOptions.SensitivitySliderStep(10.00f));

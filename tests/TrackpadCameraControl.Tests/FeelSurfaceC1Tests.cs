@@ -28,8 +28,8 @@ namespace TrackpadCameraControl.Tests
             Assert.Equal(0.005f, s.PanGainY);
             Assert.Equal(1.00f, s.ZoomGain);
             Assert.Equal(2.00f, s.YawRotateGain);
-            Assert.Equal(0.10f, s.OrbitYawGain);
-            Assert.Equal(0.10f, s.OrbitPitchGain);
+            Assert.Equal(1.00f, s.OrbitYawGain);
+            Assert.Equal(1.00f, s.OrbitPitchGain);
             Assert.Equal(0f, s.OrbitPitchMin);
             Assert.Equal(90f, s.OrbitPitchMax);
             Assert.Equal(0.1f, s.MotionDeadband);
