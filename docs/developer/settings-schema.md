@@ -52,8 +52,8 @@ Used by trackpad gestures (and Assist chrome pads when `EnableAssistChrome` is o
 | PanGainY        | float | 0.005           | yes |
 | ZoomGain        | float | 1.00            | yes |
 | YawRotateGain   | float | 2.00            | yes |
-| OrbitYawGain    | float | 0.10            | yes |
-| OrbitPitchGain  | float | 0.10            | yes |
+| OrbitYawGain    | float | 1.00            | yes |
+| OrbitPitchGain  | float | 1.00            | yes |
 
 **Numeric policy:** each gain must be **> 0**; parse/apply round to **three** decimals (pan/orbit after folding the former 0.01 AppKit scroll unit into defaults).
 

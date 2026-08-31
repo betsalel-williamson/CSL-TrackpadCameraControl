@@ -17,7 +17,7 @@ A **dropdown** lists built-in and named [feel presets](../glossary/feel-preset.m
 
 ## Layout and per-op sections
 
-Sections appear in order **General → Zoom → Pan → Rotate → Orbit**. Rhythm: prior content → horizontal rule → section title → rows.
+Sections appear in order **General → Zoom → Pan → Rotate → Orbit**. Rhythm uses native Colossal **AddGroup**: a short group title with the native glow underline, and controls nested in that group’s Content.
 
 For each camera op, a short heading states **what it means** and **what activates it** on the shipped Maps+ style:
 

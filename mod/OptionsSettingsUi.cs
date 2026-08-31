@@ -9,8 +9,8 @@ namespace TrackpadCameraControl
     /// <summary>
     /// Builds the Options page: General → Zoom → Pan → Rotate → Orbit.
     /// ColossalUI / UIHelperBase limits (best-effort):
-    /// - No real horizontal rule or indent — <see cref="UIHelperBase.AddSpace"/> then
-    ///   <see cref="UIHelperBase.AddGroup"/> approximates “HR → section title → rows”.
+    /// - Sections use nested <see cref="UIHelperBase.AddGroup"/> (short title + native glow);
+    ///   long <see cref="ModOptions.OpHeading*"/> strings are small labels inside group Content.
     /// - Sensitivity uses <see cref="UIHelperBase.AddSlider"/> (0.1×–2× factory, step ≈ 10%).
     /// - Feel presets use a dropdown; Save as… is the last entry plus a name text field
     ///   (dropdown cannot collect a new name alone).
@@ -30,14 +30,11 @@ namespace TrackpadCameraControl
 
             ModSettings factory = ModSettings.CreateFactoryDefaults();
 
-            // Title group: mod name + version (also on IUserMod.Name for the Options tab).
-            helper.AddGroup(Mod.OptionsTitle);
-
             BuildGeneralSection(helper, s);
 
 #if ENABLE_CAD_GESTURE_STYLE
-            SectionBreak(helper, "Gesture style");
-            helper.AddDropdown(
+            UIHelperBase gestureGroup = SectionBreak(helper, "Gesture style");
+            gestureGroup.AddDropdown(
                 "Style",
                 ModOptions.GesturePresetLabels,
                 ModOptions.GesturePresetToIndex(s.GesturePreset),
@@ -46,8 +43,8 @@ namespace TrackpadCameraControl
 #endif
 
 #if ENABLE_CONTACTS_CAPTURE
-            SectionBreak(helper, "Capture");
-            helper.AddDropdown(
+            UIHelperBase captureGroup = SectionBreak(helper, "Capture");
+            captureGroup.AddDropdown(
                 "Interpreter",
                 ModOptions.CaptureBackendLabels,
                 ModOptions.CaptureBackendToIndex(s.CaptureBackend),
@@ -58,6 +55,7 @@ namespace TrackpadCameraControl
             // Product order: General → Zoom → Pan → Rotate → Orbit.
             BuildOpGroup1Axis(
                 helper,
+                "Zoom",
                 ModOptions.OpHeadingZoom,
                 "Sensitivity",
                 s.ZoomGain,
@@ -74,6 +72,7 @@ namespace TrackpadCameraControl
 
             BuildOpGroup(
                 helper,
+                "Pan",
                 ModOptions.OpHeadingPan,
                 "Sensitivity X",
                 s.PanGainX,
@@ -97,6 +96,7 @@ namespace TrackpadCameraControl
 
             BuildOpGroup1Axis(
                 helper,
+                "Rotate",
                 ModOptions.OpHeadingRotate,
                 "Sensitivity",
                 s.YawRotateGain,
@@ -113,6 +113,7 @@ namespace TrackpadCameraControl
 
             BuildOpGroup(
                 helper,
+                "Orbit",
                 ModOptions.OpHeadingOrbit,
                 "Sensitivity yaw",
                 s.OrbitYawGain,
@@ -137,10 +138,10 @@ namespace TrackpadCameraControl
 
         private static void BuildGeneralSection(UIHelperBase helper, ModSettings s)
         {
-            SectionBreak(helper, "General");
+            UIHelperBase group = SectionBreak(helper, "General");
 
             // Schema field remains AssistUiEnabled; product label is Debug.
-            helper.AddCheckbox(
+            group.AddCheckbox(
                 "Show debug panel",
                 s.AssistUiEnabled,
                 v =>
@@ -162,7 +163,7 @@ namespace TrackpadCameraControl
             string[] presetLabels = ModOptions.GetFeelPresetDropdownItems(s);
             string[] saveAsName = new string[] { "" };
 
-            helper.AddDropdown(
+            group.AddDropdown(
                 "Feel preset",
                 presetLabels,
                 ModOptions.IndexOfFeelPresetDropdownItem(presetLabels, s.ActiveFeelPresetName),
@@ -191,7 +192,7 @@ namespace TrackpadCameraControl
             );
 
             // Name field for Save as… (dropdown last entry cannot collect a new name alone).
-            helper.AddTextfield(
+            group.AddTextfield(
                 "Preset name",
                 "",
                 text =>
@@ -203,7 +204,7 @@ namespace TrackpadCameraControl
                     saveAsName[0] = text ?? "";
                 }
             );
-            helper.AddButton(
+            group.AddButton(
                 "Save as…",
                 () =>
                 {
@@ -213,18 +214,54 @@ namespace TrackpadCameraControl
         }
 
         /// <summary>
-        /// Best-effort section rhythm: spacing (stand-in for HR) then AddGroup title.
-        /// UIHelperBase has no indent / rule APIs.
+        /// Opens a nested Options group with a short title (native glow underline).
+        /// Callers must add controls on the returned helper, not the parent.
         /// </summary>
-        private static void SectionBreak(UIHelperBase helper, string title)
+        private static UIHelperBase SectionBreak(UIHelperBase helper, string shortTitle)
         {
-            helper.AddSpace(12);
-            helper.AddGroup(title);
+            return helper.AddGroup(shortTitle);
+        }
+
+        /// <summary>
+        /// Places the long OpHeading description as a small label inside group Content
+        /// (not as the AddGroup title).
+        /// </summary>
+        private static void AddGroupDescription(UIHelperBase group, string text)
+        {
+            if (group == null || string.IsNullOrEmpty(text))
+            {
+                return;
+            }
+
+            UIHelper ui = group as UIHelper;
+            if (ui == null)
+            {
+                return;
+            }
+
+            // UIHelper.self is typed as object in the ICities/Colossal API.
+            UIComponent root = ui.self as UIComponent;
+            if (root == null)
+            {
+                return;
+            }
+
+            UILabel label = root.AddUIComponent<UILabel>();
+            label.name = "OpHeading";
+            label.textScale = 0.85f;
+            label.wordWrap = true;
+            label.autoSize = false;
+            label.autoHeight = true;
+            float contentWidth = root.width > 40f ? root.width - 20f : 500f;
+            label.width = contentWidth;
+            label.text = text;
+            label.PerformLayout();
         }
 
         private static void BuildOpGroup1Axis(
             UIHelperBase helper,
-            string title,
+            string shortTitle,
+            string description,
             string sensitivityLabel,
             float sensitivityValue,
             float factorySensitivity,
@@ -239,9 +276,10 @@ namespace TrackpadCameraControl
         )
         {
             ModSettings s = Mod.EnsureSettings();
-            SectionBreak(helper, title);
+            UIHelperBase group = SectionBreak(helper, shortTitle);
+            AddGroupDescription(group, description);
             AddSensitivityControl(
-                helper,
+                group,
                 sensitivityLabel,
                 sensitivityValue,
                 factorySensitivity,
@@ -249,7 +287,7 @@ namespace TrackpadCameraControl
             );
 #if ENABLE_ASSIST_CHROME
             AddFloatField(
-                helper,
+                group,
                 buttonLabel,
                 buttonValue,
                 text =>
@@ -260,9 +298,9 @@ namespace TrackpadCameraControl
 #endif
 
 #if ENABLE_CONTACTS_CAPTURE
-            helper.AddCheckbox("Low-pass", lpEnabled, onLp);
+            group.AddCheckbox("Low-pass", lpEnabled, onLp);
             AddFloatField(
-                helper,
+                group,
                 "Low-pass alpha",
                 lpAlpha,
                 text =>
@@ -275,7 +313,8 @@ namespace TrackpadCameraControl
 
         private static void BuildOpGroup(
             UIHelperBase helper,
-            string title,
+            string shortTitle,
+            string description,
             string sensitivityALabel,
             float sensitivityA,
             float factoryA,
@@ -297,16 +336,17 @@ namespace TrackpadCameraControl
         )
         {
             ModSettings s = Mod.EnsureSettings();
-            SectionBreak(helper, title);
+            UIHelperBase group = SectionBreak(helper, shortTitle);
+            AddGroupDescription(group, description);
             AddSensitivityControl(
-                helper,
+                group,
                 sensitivityALabel,
                 sensitivityA,
                 factoryA,
                 v => onSensitivityA(s, v)
             );
             AddSensitivityControl(
-                helper,
+                group,
                 sensitivityBLabel,
                 sensitivityB,
                 factoryB,
@@ -314,13 +354,13 @@ namespace TrackpadCameraControl
             );
 #if ENABLE_ASSIST_CHROME
             AddFloatField(
-                helper,
+                group,
                 buttonALabel,
                 buttonA,
                 text => ModOptions.TryApplyFloat(s, text, onButtonA)
             );
             AddFloatField(
-                helper,
+                group,
                 buttonBLabel,
                 buttonB,
                 text => ModOptions.TryApplyFloat(s, text, onButtonB)
@@ -328,9 +368,9 @@ namespace TrackpadCameraControl
 #endif
 
 #if ENABLE_CONTACTS_CAPTURE
-            helper.AddCheckbox("Low-pass", lpEnabled, onLp);
+            group.AddCheckbox("Low-pass", lpEnabled, onLp);
             AddFloatField(
-                helper,
+                group,
                 "Low-pass alpha",
                 lpAlpha,
                 text => ModOptions.TryApplyFloat(s, text, onLpAlpha)

@@ -18,10 +18,10 @@ Built-ins (**Slow**, **Default**, **Fast**) are **immutable** — the mod never 
 
 | Setting | Value |
 | --- | --- |
-| Pan Sensitivity X / Y | 0.50 |
+| Pan Sensitivity X / Y | 0.005 / 0.005 |
 | Zoom Sensitivity | 1.00 |
 | Yaw (rotate) Sensitivity | 2.00 |
-| Orbit yaw / pitch Sensitivity | 10.00 / 10.00 |
+| Orbit yaw / pitch Sensitivity | 1.00 / 1.00 |
 | Gesture style | Maps+ (`⌥`+two-finger orbit) |
 | Capture | AppleKit |
 | Orbit pitch | vanilla **0** / **90** |

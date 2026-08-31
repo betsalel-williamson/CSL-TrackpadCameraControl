@@ -13,6 +13,16 @@
         <RootNamespace>TrackpadCameraControl</RootNamespace>
         <AssemblyName>TrackpadCameraControl</AssemblyName>
         <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
+        <!-- Product version: package.json (Changesets). OptionsTitle reads AssemblyVersion. -->
+        <_PackageJsonPath>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)../package.json'))</_PackageJsonPath>
+        <_PackageJsonContent Condition="Exists('$(_PackageJsonPath)')"
+            >$([System.IO.File]::ReadAllText('$(_PackageJsonPath)'))</_PackageJsonContent>
+        <Version Condition="'$(_PackageJsonContent)' != ''"
+            >$([System.Text.RegularExpressions.Regex]::Match($(_PackageJsonContent), '"version"\s*:\s*"([^"]+)"').Groups[1].Value)</Version>
+        <Version Condition="'$(Version)' == ''">0.0.0</Version>
+        <AssemblyVersion>$(Version)</AssemblyVersion>
+        <FileVersion>$(Version)</FileVersion>
+        <InformationalVersion>$(Version)</InformationalVersion>
         <CitiesManaged Condition="'$(CitiesManaged)' == '' and '$(HOME)' != ''"
             >$(HOME)/Library/Application Support/Steam/steamapps/common/Cities_Skylines/Cities.app/Contents/Resources/Data/Managed</CitiesManaged>
         <!-- Needed so SDK can compile net35 on modern .NET SDK hosts -->

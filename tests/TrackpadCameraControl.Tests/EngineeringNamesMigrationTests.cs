@@ -139,8 +139,8 @@ namespace TrackpadCameraControl.Tests
   <Current>
     <PanSensitivityX>0.50</PanSensitivityX>
     <PanSensitivityY>0.50</PanSensitivityY>
-    <OrbitYawSensitivity>10.00</OrbitYawSensitivity>
-    <OrbitPitchSensitivity>10.00</OrbitPitchSensitivity>
+    <OrbitYawSensitivity>100.00</OrbitYawSensitivity>
+    <OrbitPitchSensitivity>100.00</OrbitPitchSensitivity>
     <MotionDeadzone>0.001</MotionDeadzone>
   </Current>
 </TrackpadCameraControlSettings>"

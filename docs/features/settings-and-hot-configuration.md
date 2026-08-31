@@ -8,7 +8,7 @@ No feel or binding parameter is hardcoded in camera or gesture logic. Defaults e
 
 | Surface                           | Product-surface tunables                                                                 |
 | --------------------------------- | ---------------------------------------------------------------------------------------- |
-| In-game Debug panel               | Feel presets (incl. **New Preset** dirty), Reset, Sensitivity, Debug UI enable |
+| In-game Debug panel               | Feel presets (incl. **New Preset** dirty), Reset, Sensitivity, Show debug panel |
 | Options → Trackpad Camera Control | Feel presets + Sensitivity sliders; window title is mod name + version; **no** pitch angle fields |
 
 One binding layer parses, rounds gains to three decimals (button steps to two), validates Options Sensitivity against the slider contract on player drag, and writes fields. A change on either surface updates live settings immediately and schedules a durable write (autosave).
@@ -19,7 +19,7 @@ Debug chrome pads/buttons and button-step fields appear only when `EnableAssistC
 
 Section order on both product surfaces: **General → Zoom → Pan → Rotate → Orbit**.
 
-Section rhythm (not CSS): prior content → horizontal rule → section title (indented) → control rows (further indented). Sensitivity: label + slider on one row.
+Options section rhythm is native Colossal **AddGroup**: short group title + native glow underline, with controls nested in the group Content. Sensitivity: label + slider on one row.
 
 Product UI does **not** expose Enable-per-op or Reverse. Reverse and per-op enables remain in schema / factory feel data for apply math when set; the mod master on/off is the player enable switch.
 
@@ -49,7 +49,7 @@ Under each op heading (**Zoom**, **Pan**, **Rotate**, **Orbit**) after **General
 - Per-op [Sensitivity](../glossary/sensitivity.md) **slider** (Options only): min **0.1×** that field’s factory default, max **2×**, step ≈ **10%** of factory default; display/apply **three** decimals for Sensitivity gains (button steps **two** decimals)
 - Orbit: schema seeds OrbitPitchMin/Max **0** / **90** (vanilla). Live clamp is hardcoded to that range — not Options/Debug-tunable. Drag floors at **0°**; button writes clamp **0…90**. No yaw angle clamp.
 
-Also: [feel preset](../glossary/feel-preset.md) row (Slow / Default / Fast / New Preset when dirty, Save as… / Load, Reset to factory), Debug UI enabled (panel master switch).
+Also: [feel preset](../glossary/feel-preset.md) row (Slow / Default / Fast / New Preset when dirty, Save as… / Load, Reset to factory), **Show debug panel** (panel master switch; off also hides the floating Debug reopen chip).
 
 ## Tunables (flagged off)
 
