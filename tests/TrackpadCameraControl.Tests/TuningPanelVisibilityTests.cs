@@ -21,6 +21,7 @@ namespace TrackpadCameraControl.Tests
 
         [Theory]
         [InlineData(false, false, false)]
+        // OPTIONS "Show debug panel" off ⇒ no reopen chip even if user previously dismissed (X).
         [InlineData(false, true, false)]
         [InlineData(true, false, false)]
         [InlineData(true, true, true)]

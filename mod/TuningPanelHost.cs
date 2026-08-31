@@ -183,15 +183,15 @@ namespace TrackpadCameraControl
                 }
 
                 Vector3 pos = _root.relativePosition;
-                bool wasVisible = _root.isVisible;
                 Destroy();
                 EnsureCreated();
                 if (_root != null)
                 {
                     _root.relativePosition = pos;
-                    _root.isVisible = wasVisible;
                 }
 
+                // Do not restore prior isVisible — ApplyVisibility owns root + reopen from
+                // AssistUiEnabled and dismiss state (OPTIONS off must hide the Debug chip).
                 ApplyVisibility();
             }
             finally
