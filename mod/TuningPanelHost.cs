@@ -23,7 +23,7 @@ namespace TrackpadCameraControl
         private const float Col1 = PanelWidth - FieldGutter - FieldColumnW;
         private const float ColWidth = FieldColumnW;
         private const float HeaderButtonSize = 32f;
-        private const byte HeaderButtonRestAlpha = 140; // ≈ 0.55 * 255
+        private const float HeaderButtonRestOpacity = 0.55f;
 
         private static UIPanel _root;
         private static UIPanel _titleBar;
@@ -305,21 +305,23 @@ namespace TrackpadCameraControl
                 return;
             }
 
-            SetButtonOpacity(button, HeaderButtonRestAlpha);
-            button.eventMouseEnter += (c, e) => SetButtonOpacity(button, 255);
-            button.eventMouseLeave += (c, e) => SetButtonOpacity(button, HeaderButtonRestAlpha);
-            button.eventMouseDown += (c, e) => SetButtonOpacity(button, 255);
+            SetButtonOpacity(button, HeaderButtonRestOpacity);
+            button.eventMouseEnter += (c, e) => SetButtonOpacity(button, 1f);
+            button.eventMouseLeave += (c, e) => SetButtonOpacity(button, HeaderButtonRestOpacity);
+            button.eventMouseDown += (c, e) => SetButtonOpacity(button, 1f);
         }
 
-        private static void SetButtonOpacity(UIButton button, byte alpha)
+        private static void SetButtonOpacity(UIButton button, float opacity)
         {
             if (button == null)
             {
                 return;
             }
 
+            // ColossalUI respects UIComponent.opacity; keep color.a in sync as fallback.
+            button.opacity = opacity;
             Color32 color = button.color;
-            color.a = alpha;
+            color.a = (byte)Mathf.Clamp(Mathf.RoundToInt(opacity * 255f), 0, 255);
             button.color = color;
         }
 

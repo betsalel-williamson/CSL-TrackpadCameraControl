@@ -250,10 +250,11 @@ namespace TrackpadCameraControl
             label.textScale = 0.85f;
             label.wordWrap = true;
             label.autoSize = false;
+            label.autoHeight = true;
             float contentWidth = root.width > 40f ? root.width - 20f : 500f;
             label.width = contentWidth;
-            label.height = 48f;
             label.text = text;
+            label.PerformLayout();
         }
 
         private static void BuildOpGroup1Axis(
