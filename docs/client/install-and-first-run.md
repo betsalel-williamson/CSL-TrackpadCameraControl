@@ -4,13 +4,13 @@ How players get the mod running. Who this is for: [Personas](./personas.md). Whe
 
 ## Distribution paths
 
-| Path | Who | How |
-| --- | --- | --- |
-| **Beta (current)** | Early adopters / testers | GitHub Release source archive → build/install per `docs/developer/local-mvp-install.md` |
-| **Steam Workshop** | Most players (when published) | Subscribe in Workshop; enable in Content Manager with Cities Harmony |
-| **Local dev** | Contributors | Same install script as beta; see developer guide |
+| Path               | Who                           | How                                                                                     |
+| ------------------ | ----------------------------- | --------------------------------------------------------------------------------------- |
+| **Beta (current)** | Early adopters / testers      | GitHub Release source archive → build/install per `docs/developer/local-mvp-install.md` |
+| **Steam Workshop** | Most players (when published) | Subscribe in Workshop; enable in Content Manager with Cities Harmony                    |
+| **Local dev**      | Contributors                  | Same install script as beta; see developer guide                                        |
 
-Until Workshop publishes, treat GitHub Release + local install as the supported player/tester path. Do not imply a Workshop item exists before it does.
+Until Workshop publishes, treat GitHub Release + local install as the supported player/tester path. Do not imply a Workshop item exists before it does. When published, the Workshop and Content Manager title is **Trackpad Camera Control (macOS)** — paste-ready storefront copy lives in `docs/developer/workshop-storefront.md`.
 
 ## Requirements
 
