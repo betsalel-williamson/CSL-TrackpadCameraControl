@@ -239,7 +239,8 @@ namespace TrackpadCameraControl
                 return;
             }
 
-            UIComponent root = ui.self;
+            // UIHelper.self is typed as object in the ICities/Colossal API.
+            UIComponent root = ui.self as UIComponent;
             if (root == null)
             {
                 return;
