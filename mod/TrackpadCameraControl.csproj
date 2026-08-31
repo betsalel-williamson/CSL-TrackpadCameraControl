@@ -17,8 +17,7 @@
         <_PackageJsonPath>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)../package.json'))</_PackageJsonPath>
         <_PackageJsonContent Condition="Exists('$(_PackageJsonPath)')"
             >$([System.IO.File]::ReadAllText('$(_PackageJsonPath)'))</_PackageJsonContent>
-        <Version
-            Condition="'$(_PackageJsonContent)' != ''"
+        <Version Condition="'$(_PackageJsonContent)' != ''"
             >$([System.Text.RegularExpressions.Regex]::Match($(_PackageJsonContent), '"version"\s*:\s*"([^"]+)"').Groups[1].Value)</Version>
         <Version Condition="'$(Version)' == ''">0.0.0</Version>
         <AssemblyVersion>$(Version)</AssemblyVersion>

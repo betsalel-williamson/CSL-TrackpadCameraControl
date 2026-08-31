@@ -19,6 +19,7 @@ namespace TrackpadCameraControl
         private const float FieldInputW = 72f;
         private const float FieldLabelGap = 4f;
         private const float FieldColumnW = FieldLabelW + FieldLabelGap + FieldInputW;
+
         // Symmetric left/right gutters: right column starts so its input ends at PanelWidth - FieldGutter.
         private const float Col1 = PanelWidth - FieldGutter - FieldColumnW;
         private const float ColWidth = FieldColumnW;
@@ -370,7 +371,10 @@ namespace TrackpadCameraControl
             _feelNameField = _root.AddUIComponent<UITextField>();
             _feelNameField.width = 180f;
             _feelNameField.height = 22f;
-            _feelNameField.relativePosition = new Vector3(Col0 + FieldLabelW + FieldLabelGap, _nextY);
+            _feelNameField.relativePosition = new Vector3(
+                Col0 + FieldLabelW + FieldLabelGap,
+                _nextY
+            );
             _feelNameField.normalBgSprite = "TextFieldPanel";
             _feelNameField.hoveredBgSprite = "TextFieldPanelHovered";
             _feelNameField.focusedBgSprite = "TextFieldPanel";
