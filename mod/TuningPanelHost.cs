@@ -13,15 +13,22 @@ namespace TrackpadCameraControl
     {
         private const float PanelWidth = 560f;
         private const float TitleBarHeight = 32f;
-        private const float Col0 = 12f;
-        private const float Col1 = 286f;
-        private const float ColWidth = 260f;
-        private const float FieldLabelW = 90f;
+        private const float FieldGutter = 12f;
+        private const float Col0 = FieldGutter;
+        private const float FieldLabelW = 132f;
         private const float FieldInputW = 72f;
+        private const float FieldLabelGap = 4f;
+        private const float FieldColumnW = FieldLabelW + FieldLabelGap + FieldInputW;
+        // Symmetric left/right gutters: right column starts so its input ends at PanelWidth - FieldGutter.
+        private const float Col1 = PanelWidth - FieldGutter - FieldColumnW;
+        private const float ColWidth = FieldColumnW;
+        private const float HeaderButtonSize = 32f;
+        private const byte HeaderButtonRestAlpha = 140; // ≈ 0.55 * 255
 
         private static UIPanel _root;
         private static UIPanel _titleBar;
         private static UIButton _closeButton;
+        private static UIButton _optionsButton;
         private static UIButton _reopen;
         private static UILabel _presetDesc;
         private static UILabel _title;
@@ -158,6 +165,7 @@ namespace TrackpadCameraControl
 
             _titleBar = null;
             _closeButton = null;
+            _optionsButton = null;
             _presetDesc = null;
             _title = null;
             _feelNameField = null;
@@ -230,7 +238,8 @@ namespace TrackpadCameraControl
             _titleBar.height = TitleBarHeight;
             _titleBar.relativePosition = Vector3.zero;
             _titleBar.backgroundSprite = "GenericPanel";
-            _titleBar.color = new Color32(40, 40, 40, 255);
+            // Soft translucent strip over MenuPanel2 (not opaque punch-out).
+            _titleBar.color = new Color32(40, 40, 40, 160);
             _titleBar.isInteractive = true;
             _titleBar.eventMouseDown += OnTitleMouseDown;
             _titleBar.eventMouseUp += OnTitleMouseUp;
@@ -241,14 +250,40 @@ namespace TrackpadCameraControl
             // Title text is decorative; drag comes from the title-bar strip.
             _title.isInteractive = false;
 
+            float closeX = _root.width - HeaderButtonSize - 2f;
+            float optionsX = closeX - HeaderButtonSize - 4f;
+
+            _optionsButton = _root.AddUIComponent<UIButton>();
+            _optionsButton.text = string.Empty;
+            _optionsButton.width = HeaderButtonSize;
+            _optionsButton.height = HeaderButtonSize;
+            _optionsButton.relativePosition = new Vector3(optionsX, 0f);
+            _optionsButton.normalBgSprite = "Options";
+            _optionsButton.hoveredBgSprite = "OptionsHovered";
+            _optionsButton.pressedBgSprite = "OptionsPressed";
+            StyleNativeHeaderButton(_optionsButton);
+            _optionsButton.eventClick += (c, e) =>
+            {
+                if (UIView.library != null)
+                {
+                    UIView.library.ShowModal<OptionsMainPanel>("OptionsPanel");
+                }
+            };
+            _optionsButton.eventMouseDown += (c, e) =>
+            {
+                _dragging = false;
+                e.Use();
+            };
+
             _closeButton = _root.AddUIComponent<UIButton>();
-            _closeButton.text = "X";
-            _closeButton.width = 28f;
-            _closeButton.height = 24f;
-            _closeButton.relativePosition = new Vector3(_root.width - 36f, 4f);
-            _closeButton.normalBgSprite = "ButtonMenu";
-            _closeButton.hoveredBgSprite = "ButtonMenuHovered";
-            _closeButton.pressedBgSprite = "ButtonMenuPressed";
+            _closeButton.text = string.Empty;
+            _closeButton.width = HeaderButtonSize;
+            _closeButton.height = HeaderButtonSize;
+            _closeButton.relativePosition = new Vector3(closeX, 0f);
+            _closeButton.normalBgSprite = "buttonclose";
+            _closeButton.hoveredBgSprite = "buttonclosehover";
+            _closeButton.pressedBgSprite = "buttonclosepressed";
+            StyleNativeHeaderButton(_closeButton);
             _closeButton.eventClick += (c, e) => HidePanel();
             _closeButton.eventMouseDown += (c, e) =>
             {
@@ -256,7 +291,36 @@ namespace TrackpadCameraControl
                 _dragging = false;
                 e.Use();
             };
+            _optionsButton.BringToFront();
             _closeButton.BringToFront();
+        }
+
+        /// <summary>
+        /// City Vitals–style header chrome: soft at rest, full opacity on hover/press.
+        /// </summary>
+        private static void StyleNativeHeaderButton(UIButton button)
+        {
+            if (button == null)
+            {
+                return;
+            }
+
+            SetButtonOpacity(button, HeaderButtonRestAlpha);
+            button.eventMouseEnter += (c, e) => SetButtonOpacity(button, 255);
+            button.eventMouseLeave += (c, e) => SetButtonOpacity(button, HeaderButtonRestAlpha);
+            button.eventMouseDown += (c, e) => SetButtonOpacity(button, 255);
+        }
+
+        private static void SetButtonOpacity(UIButton button, byte alpha)
+        {
+            if (button == null)
+            {
+                return;
+            }
+
+            Color32 color = button.color;
+            color.a = alpha;
+            button.color = color;
         }
 
         private static void AddFeelPresetRow(ModSettings s)
@@ -297,14 +361,14 @@ namespace TrackpadCameraControl
             };
             _nextY += 32f;
 
-            UILabel nameLbl = AddLabel(_root, "Name", Col0, _nextY + 2f);
-            nameLbl.width = 40f;
+            UILabel nameLbl = AddLabel(_root, "Name", Col0, _nextY);
+            nameLbl.width = FieldLabelW;
             nameLbl.autoSize = false;
 
             _feelNameField = _root.AddUIComponent<UITextField>();
             _feelNameField.width = 180f;
             _feelNameField.height = 22f;
-            _feelNameField.relativePosition = new Vector3(Col0 + 44f, _nextY);
+            _feelNameField.relativePosition = new Vector3(Col0 + FieldLabelW + FieldLabelGap, _nextY);
             _feelNameField.normalBgSprite = "TextFieldPanel";
             _feelNameField.hoveredBgSprite = "TextFieldPanelHovered";
             _feelNameField.focusedBgSprite = "TextFieldPanel";
@@ -599,12 +663,14 @@ namespace TrackpadCameraControl
             label.text = text;
             label.relativePosition = new Vector3(Col0, _nextY);
             label.textColor = Color.white;
-            label.width = PanelWidth - 24f;
+            // Full content width so long op copy does not collide with Sensitivity fields.
+            label.width = PanelWidth - (FieldGutter * 2f);
+            label.height = 36f;
             label.autoSize = false;
             label.autoHeight = true;
             label.wordWrap = true;
             label.PerformLayout();
-            _nextY += Mathf.Max(22f, label.height + 4f);
+            _nextY += Mathf.Max(28f, label.height + 8f);
         }
 
         private static void AddCheckRow(
@@ -691,14 +757,14 @@ namespace TrackpadCameraControl
             bool useGainFormat = false
         )
         {
-            UILabel lbl = AddLabel(_root, label, x, _nextY + 2f);
+            UILabel lbl = AddLabel(_root, label, x, _nextY);
             lbl.width = FieldLabelW;
             lbl.autoSize = false;
 
             UITextField field = _root.AddUIComponent<UITextField>();
             field.width = FieldInputW;
             field.height = 22f;
-            field.relativePosition = new Vector3(x + FieldLabelW + 4f, _nextY);
+            field.relativePosition = new Vector3(x + FieldLabelW + FieldLabelGap, _nextY);
             field.normalBgSprite = "TextFieldPanel";
             field.hoveredBgSprite = "TextFieldPanelHovered";
             field.focusedBgSprite = "TextFieldPanel";
@@ -754,6 +820,11 @@ namespace TrackpadCameraControl
         private static void OnTitleMouseDown(UIComponent c, UIMouseEventParameter e)
         {
             if (_closeButton != null && e.source == _closeButton)
+            {
+                return;
+            }
+
+            if (_optionsButton != null && e.source == _optionsButton)
             {
                 return;
             }
