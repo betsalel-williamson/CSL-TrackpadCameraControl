@@ -4,7 +4,29 @@ Manual pass/fail lists for Trackpad Camera Control. Unit tests cannot prove Harm
 
 **Session defaults:** Cities Harmony on, this mod enabled, city loaded, game focused, Maps+ gesture style, Default feel preset.
 
-Copy a section into a PR or commit note and check boxes as you go.
+Copy a section into a PR or commit note and check boxes as you go. After a full pass, add a row to **Known good platforms** below (and update [Workshop storefront](./workshop-storefront.md) when the public claim changes).
+
+## Session platform (fill every run)
+
+| Field                                                | Value                             |
+| ---------------------------------------------------- | --------------------------------- |
+| macOS version (e.g. 15.1 Sequoia)                    |                                   |
+| Mac model (e.g. MacBook Pro M2, 2023)                |                                   |
+| Trackpad                                             | Built-in / Magic Trackpad / other |
+| Chip                                                 | Apple silicon / Intel             |
+| Mod version / commit                                 |                                   |
+| Result                                               | Pass / Fail / Partial             |
+| Notes (gestures that failed, Mission Control tweaks) |                                   |
+
+AppKit APIs we use date to ~macOS 10.6; **practical support is “whatever still runs CS1 + a precise trackpad,” proven by this checklist** — not by an untested OS matrix.
+
+## Known good platforms
+
+Maintainer and community reports. Prefer Workshop comments or a GitHub issue titled `platform: …` so we can fold rows here.
+
+| macOS                  | Hardware | Chip | Result | Source                                           |
+| ---------------------- | -------- | ---- | ------ | ------------------------------------------------ |
+| _(none published yet)_ |          |      |        | Add first maintainer pass before Workshop splash |
 
 ## Setup
 
@@ -13,6 +35,7 @@ Copy a section into a PR or commit note and check boxes as you go.
 - [ ] City loaded (not menus-only)
 - [ ] Game window focused
 - [ ] Maps+ / Default feel (Options or Debug panel)
+- [ ] Session platform row filled above
 
 ## Trackpad camera
 
@@ -47,4 +70,5 @@ Copy a section into a PR or commit note and check boxes as you go.
 
 - [Harnesses and testing](./harnesses-and-testing.md) — what unit / e2e prove vs what they miss
 - [Local MVP install](./local-mvp-install.md) — install the mod DLL for playtest
+- [Workshop storefront](./workshop-storefront.md) — public “tested on” claim + community invite
 - [Vanilla camera suppress](../glossary/vanilla-camera-suppress.md) — scroll / mouse-rotate policy

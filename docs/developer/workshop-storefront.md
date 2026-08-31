@@ -49,6 +49,15 @@ Requires
 • Cities Harmony (required for vanilla camera suppress)
 • macOS trackpad (AppleKit capture)
 
+Compatibility (tested platforms)
+• AppKit gesture APIs are old; we only claim what we (or you) have playtested.
+• Maintainer matrix lives in the GitHub QA checklist — update that table when you confirm a pass.
+• Not yet a full OS matrix — older macOS that still runs CS1 may work but is unproven until reported.
+
+Share your setup
+• Leave a Workshop comment or open a GitHub issue with: macOS version, Mac model (or chip), built-in vs Magic Trackpad, and which gestures work (pan / pinch / orbit / rotate).
+• That helps us expand the known-good list for everyone.
+
 Not supported
 • Windows and Linux in this release — the mod may appear in Content Manager, but trackpad gestures will not work. No “coming soon” promise here.
 
@@ -79,6 +88,19 @@ Secondary (description / README; Workshop tag limits may not fit all):
 `middle mouse` · `mmb` · `Cities Skylines` · `CSL`
 
 Do **not** add `windows` or `linux` as capability tags until those backends ship.
+
+## Tested platforms (public claim)
+
+Keep the Workshop **Compatibility** blurb honest: claim only rows that appear in [QA checklist — Known good platforms](./qa-checklist.md). Before the first public splash, complete at least one maintainer Session platform row and copy that into the known-good table.
+
+Invite players (Workshop comments or GitHub issues) to report:
+
+- macOS version (name + number)
+- Mac model or chip (Apple silicon / Intel)
+- Built-in trackpad vs Magic Trackpad
+- Which of pan / pinch / Option-orbit / two-finger rotate worked
+
+Fold solid reports into the QA known-good table and refresh the Workshop description when the claim changes.
 
 ## Rename later (same Workshop item)
 
