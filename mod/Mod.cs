@@ -19,9 +19,12 @@ namespace TrackpadCameraControl
         public string Name => OptionsTitle;
 
         public string Description =>
-            "Trackpad multitouch camera — pan, orbit, zoom. Vanilla scroll-zoom suppressed while enabled.";
+            "macOS trackpad camera — pan, pinch zoom, orbit. No middle mouse. Windows/Linux not supported yet.";
 
-        /// <summary>Mod display title including assembly version (e.g. for Options group header).</summary>
+        /// <summary>
+        /// Mod display title including temporary macOS tag and assembly version
+        /// (e.g. for Options group header / Content Manager).
+        /// </summary>
         public static string OptionsTitle
         {
             get
@@ -29,10 +32,10 @@ namespace TrackpadCameraControl
                 string version = GetAssemblyVersionDisplay();
                 if (string.IsNullOrEmpty(version))
                 {
-                    return "Trackpad Camera Control";
+                    return "Trackpad Camera Control (macOS)";
                 }
 
-                return "Trackpad Camera Control " + version;
+                return "Trackpad Camera Control (macOS) " + version;
             }
         }
 
