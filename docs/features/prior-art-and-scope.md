@@ -8,10 +8,10 @@ No Cities: Skylines I Workshop or GitHub mod implements true multitouch / map-ap
 
 | Work | Overlap | Our stance |
 | --- | --- | --- |
-| ACME | Camera suite, mouse-drag pan, zoom-to-cursor | Coexist; do not reimplement |
+| ACME | Camera suite, mouse-drag pan, zoom-to-cursor | Out of scope; do not reimplement |
 | Joystick Camera Control | Continuous non-mouse axes → camera | Primary prior art for camera math and options patterns |
-| Mouse Drag Camera family | RMB pan | Superseded by ACME; mouse-only |
-| Zoom It! / Zoom To Cursor | Zoom behavior | Leave to ACME |
+| Mouse Drag Camera family | RMB pan | Mouse-only; later camera-suite mods cover this |
+| Zoom It! / Zoom To Cursor | Zoom behavior | Out of scope |
 | Vanilla + OS remappers (e.g. BetterTouchTool, Karabiner) | Synthetic middle mouse | Document as fallback, not our primary path |
 
 ## Scope discipline

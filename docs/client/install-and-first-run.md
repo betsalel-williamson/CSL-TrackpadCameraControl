@@ -42,7 +42,3 @@ Shipped capture is **AppleKit** with [Maps+](../glossary/maps-plus-preset.md) ge
 6. Confirm edge pan (cursor at screen edge) and keyboard camera keys still move the camera.
 
 If gestures do nothing, check that the game is focused and the OS is not consuming the gesture (see [OS gesture conflicts](./os-gesture-conflicts.md)). Contributors can inspect the capture log under the process temp directory.
-
-## Companion mods
-
-[ACME](https://steamcommunity.com/sharedfiles/filedetails/?id=2778750497) is recommended for camera suite features (zoom limits, saved positions). This mod only adds trackpad gestures plus the vanilla camera gate above.

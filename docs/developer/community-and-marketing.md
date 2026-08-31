@@ -6,7 +6,7 @@ Maintainer playbook for **where** Trackpad Camera Control builds buzz, **when** 
 
 Lead with the gap: CS1 camera orbit expects a middle mouse button; trackpad players have asked for map-app-style multitouch for years; no Workshop mod ships true multitouch camera control. Vanilla remaps and OS middle-click tools are partial.
 
-Frame as a serious camera-**input** mod: learn continuous-input patterns from Joystick Camera Control; **coexist** with ACME — do not claim ACME’s suite features. Demo beats essay: short silent clips of pan / pinch / orbit sell the product.
+Frame as a serious camera-**input** mod: learn continuous-input patterns from Joystick Camera Control; do not claim camera-suite features (saved views, zoom-limit overhaul, free-cam). Demo beats essay: short silent clips of pan / pinch / orbit sell the product.
 
 Product names and search keywords: [repository layout](./repository-layout.md). Gap and relatives: `docs/features/prior-art-and-scope.md`. Personas: `docs/client/personas.md`.
 
@@ -50,7 +50,7 @@ Soft channels may run earlier for bug finding; public Reddit/Workshop splash wai
 | --- | --- |
 | Name the middle-mouse / trackpad gap | Promise Windows or Linux before a backend ships |
 | Say macOS-first when that is the truth | Bury Harmony or suppress behavior |
-| Point ACME users at coexistence | Reposition as a full camera suite |
+| Stay a camera-input mod | Reposition as a full camera suite |
 | Lead with a gesture demo | Lead with architecture or bridge internals |
 | Link client install + conflict notes | Dump contributor bootstrap into player posts |
 
@@ -62,7 +62,6 @@ Use these as seeds for Workshop description, Discord soft-launch, and Reddit —
 - **Why now:** True multitouch camera input, not only remapped middle-click.
 - **Presets:** Maps+ (map-app defaults) and CAD (three-finger orbit); sensitivities hot-editable in Options.
 - **Requires:** Cities: Skylines I, Cities Harmony (for vanilla camera suppress), supported trackpad backend for your OS.
-- **With ACME:** Gestures here; suite features there.
 
 ## Distribution cross-links
 
