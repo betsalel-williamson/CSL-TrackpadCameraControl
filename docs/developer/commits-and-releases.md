@@ -50,6 +50,8 @@ npm run version-packages    # apply changesets → version + CHANGELOG (maintain
 
 This package uses Changesets for **version + CHANGELOG** and **GitHub Releases** (source archives for beta testers). Players will eventually install from **Steam Workshop**. This project does **not** publish to the npm registry.
 
+The in-game mod assembly `Version` / `AssemblyVersion` (and therefore `Mod.OptionsTitle`, e.g. `Trackpad Camera Control 0.2.0`) is read from `package.json` `"version"` at **MSBuild** time in `mod/TrackpadCameraControl.csproj`. After `npm run version-packages` bumps `package.json`, the next mod build picks up the new version — no separate sync step.
+
 ## Release workflow
 
 On push to `main`, `.github/workflows/release.yml`:

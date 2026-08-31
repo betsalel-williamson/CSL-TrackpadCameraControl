@@ -1,3 +1,6 @@
+using System;
+using System.IO;
+using System.Text.Json;
 using TrackpadCameraControl;
 using Xunit;
 
@@ -57,8 +60,33 @@ namespace TrackpadCameraControl.Tests
         {
             string title = Mod.OptionsTitle;
             Assert.False(string.IsNullOrEmpty(title));
-            // Version display embeds a dotted assembly version when available.
-            Assert.Contains(".", title);
+            Assert.StartsWith("Trackpad Camera Control", title, StringComparison.Ordinal);
+
+            string packageVersion = ReadPackageJsonVersion();
+            Assert.False(string.IsNullOrEmpty(packageVersion));
+
+            // Assembly Version is synced from package.json at MSBuild time; OptionsTitle
+            // shows major.minor.build (ToString(3)), e.g. "Trackpad Camera Control 0.2.0".
+            string[] parts = packageVersion.Split('.');
+            Assert.True(parts.Length >= 2, "package.json version should be at least major.minor");
+            string majorMinor = parts[0] + "." + parts[1];
+            Assert.Contains(majorMinor, title);
+
+            if (parts.Length >= 3)
+            {
+                string majorMinorBuild = parts[0] + "." + parts[1] + "." + parts[2];
+                Assert.Contains(majorMinorBuild, title);
+            }
+        }
+
+        private static string ReadPackageJsonVersion()
+        {
+            string root = NativeResourceLeakAnalyzer.FindRepoRoot();
+            string path = Path.Combine(root, "package.json");
+            using (JsonDocument doc = JsonDocument.Parse(File.ReadAllText(path)))
+            {
+                return doc.RootElement.GetProperty("version").GetString();
+            }
         }
     }
 }
