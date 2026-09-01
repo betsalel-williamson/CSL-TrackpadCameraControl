@@ -6,13 +6,13 @@ No Cities: Skylines I Workshop or GitHub mod implements true multitouch / map-ap
 
 ## Closest relatives
 
-| Work | Overlap | Our stance |
-| --- | --- | --- |
-| ACME | Camera suite, mouse-drag pan, zoom-to-cursor | Out of scope; do not reimplement |
-| Joystick Camera Control | Continuous non-mouse axes → camera | Primary prior art for camera math and options patterns |
-| Mouse Drag Camera family | RMB pan | Mouse-only; later camera-suite mods cover this |
-| Zoom It! / Zoom To Cursor | Zoom behavior | Out of scope |
-| Vanilla + OS remappers (e.g. BetterTouchTool, Karabiner) | Synthetic middle mouse | Document as fallback, not our primary path |
+| Work                                                     | Overlap                                      | Our stance                                             |
+| -------------------------------------------------------- | -------------------------------------------- | ------------------------------------------------------ |
+| ACME                                                     | Camera suite, mouse-drag pan, zoom-to-cursor | Out of scope; do not reimplement                       |
+| Joystick Camera Control                                  | Continuous non-mouse axes → camera           | Primary prior art for camera math and options patterns |
+| Mouse Drag Camera family                                 | RMB pan                                      | Mouse-only; later camera-suite mods cover this         |
+| Zoom It! / Zoom To Cursor                                | Zoom behavior                                | Out of scope                                           |
+| Vanilla + OS remappers (e.g. BetterTouchTool, Karabiner) | Synthetic middle mouse                       | Document as fallback, not our primary path             |
 
 ## Scope discipline
 
@@ -21,3 +21,5 @@ This mod owns **gesture input + hot binding profiles**. It does not own saved ca
 ## Release gate
 
 Re-check Steam Workshop for trackpad / touchpad / multitouch camera mods before the first public release and update this shard if anything new appears.
+
+**Last re-check (2026-08-30):** Still no Workshop or GitHub mod ships true multitouch / map-app-style multi-gesture camera control for CS1. Closest hits remain ACME (suite / mouse drag), Camera Mouse Drag family (mouse-only), and forum workarounds (vanilla remaps / OS middle-click tools). Verdict unchanged.

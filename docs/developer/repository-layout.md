@@ -25,10 +25,11 @@ CSL-TrackpadCameraControl/
 
 ## Naming
 
-| Surface            | Name                                                            |
-| ------------------ | --------------------------------------------------------------- |
-| Display / Workshop | Trackpad Camera Control                                         |
-| GitHub repo        | CSL-TrackpadCameraControl                                       |
-| npm workspace name | csl-trackpad-camera-control (local tooling only; not published) |
+| Surface                 | Name                                                                        |
+| ----------------------- | --------------------------------------------------------------------------- |
+| Core display name       | Trackpad Camera Control                                                     |
+| Display / Workshop (v1) | Trackpad Camera Control (macOS) — temporary tag; drop when another OS ships |
+| GitHub repo             | CSL-TrackpadCameraControl                                                   |
+| npm workspace name      | csl-trackpad-camera-control (local tooling only; not published)             |
 
-Search keywords: trackpad, touchpad, multitouch, pinch, camera, Cities Skylines, orbit, pan, zoom (plus Mac/Windows as backend tags, not product identity).
+Folder and assembly stay `TrackpadCameraControl` forever. Paste-ready title, description, and SEO tags: [Workshop storefront](./workshop-storefront.md). Search keywords: trackpad, touchpad, multitouch, pinch, camera, mac, macos, macbook, Cities Skylines, orbit, pan, zoom (Mac is a backend/discoverability tag, not durable product identity).

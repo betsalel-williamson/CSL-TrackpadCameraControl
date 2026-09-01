@@ -1,10 +1,10 @@
 # Trackpad Camera Control
 
-**Cities: Skylines I** mod for **trackpad** camera control — pan, orbit, and zoom via multitouch (pinch, two-finger, three-finger), with hot-configurable Options.
+**Cities: Skylines I** mod for **trackpad** camera control — pan, orbit, and zoom via multitouch (pinch, two-finger), with hot-configurable Options.
 
-> Status: **MVP — pinch → zoom proof** on macOS (in-process capture + C# camera path). Full presets / Options come later.
+> Status: **macOS v1** — Maps+ gestures (pan, pinch zoom, orbit) via in-process AppleKit capture. Content Manager / Workshop title: **Trackpad Camera Control (macOS)**.
 >
-> **Implementation status:** macOS first (Contacts and AppleGestures interpreters in the mod DLL). Windows / Linux backends are stubs. High-level design and Options are platform-neutral.
+> **Implementation status:** macOS first. Windows / Linux backends are stubs. High-level design and Options are platform-neutral.
 
 ## Why this exists
 
@@ -12,15 +12,16 @@ CS1 camera orbit expects a middle mouse button. Trackpad players have asked for 
 
 ## Search keywords
 
-`trackpad` · `touchpad` · `multitouch` · `pinch` · `camera` · `orbit` · `pan` · `zoom` · `Cities Skylines` · `CSL` · `Mac` · `Windows`
+`trackpad` · `touchpad` · `multitouch` · `pinch` · `camera` · `orbit` · `pan` · `zoom` · `gesture` · `laptop` · `mac` · `macos` · `macbook` · `Cities Skylines` · `CSL` · `middle mouse` · `mmb`
 
 ## Naming
 
-| Surface    | Name                                                                                            |
-| ---------- | ----------------------------------------------------------------------------------------------- |
-| Display    | **Trackpad Camera Control**                                                                     |
-| Repository | [`CSL-TrackpadCameraControl`](https://github.com/betsalel-williamson/CSL-TrackpadCameraControl) |
-| Parallel   | Named like [Joystick Camera Control](https://github.com/RenaKunisaki/CSL-JoystickCameraControl) |
+| Surface                         | Name                                                                                                                  |
+| ------------------------------- | --------------------------------------------------------------------------------------------------------------------- |
+| Core display                    | **Trackpad Camera Control**                                                                                           |
+| Workshop / Content Manager (v1) | **Trackpad Camera Control (macOS)** — temporary tag; see [Workshop storefront](docs/developer/workshop-storefront.md) |
+| Repository                      | [`CSL-TrackpadCameraControl`](https://github.com/betsalel-williamson/CSL-TrackpadCameraControl)                       |
+| Parallel                        | Named like [Joystick Camera Control](https://github.com/RenaKunisaki/CSL-JoystickCameraControl)                       |
 
 ## Gesture presets (Options)
 
@@ -29,7 +30,7 @@ CS1 camera orbit expects a middle mouse button. Trackpad players have asked for 
 | **Maps+** (default) | Modifier + two-finger drag (Option on macOS) |
 | **CAD**             | Three-finger drag                            |
 
-Both: two-finger drag = pan, pinch = zoom, two-finger rotate = yaw. Every sensitivity and binding is hot-editable — nothing is hardcoded.
+Both: two-finger drag = pan, pinch = zoom, two-finger rotate = yaw. Every sensitivity and binding is hot-editable — nothing is hardcoded. CAD stays behind a product flag until enabled for all players.
 
 ## Docs
 
@@ -41,14 +42,15 @@ npm run docs          # compile + check (lint required)
 npm run format:check  # csharpier + clang-format (see docs/developer/lint-and-format.md)
 ```
 
-| Guide                   | Path                                 |
-| ----------------------- | ------------------------------------ |
-| Features / architecture | [`docs/features/`](docs/features/)   |
-| Player guide            | [`docs/client/`](docs/client/)       |
-| Contributor guide       | [`docs/developer/`](docs/developer/) |
+| Guide                   | Path                                                                                     |
+| ----------------------- | ---------------------------------------------------------------------------------------- |
+| Features / architecture | [`docs/features/`](docs/features/)                                                       |
+| Player guide            | [`docs/client/`](docs/client/)                                                           |
+| Contributor guide       | [`docs/developer/`](docs/developer/)                                                     |
 | Community / marketing   | [`docs/developer/community-and-marketing.md`](docs/developer/community-and-marketing.md) |
-| Personas                | [`docs/client/personas.md`](docs/client/personas.md) |
-| Glossary                | [`docs/glossary/`](docs/glossary/)   |
+| Workshop storefront     | [`docs/developer/workshop-storefront.md`](docs/developer/workshop-storefront.md)         |
+| Personas                | [`docs/client/personas.md`](docs/client/personas.md)                                     |
+| Glossary                | [`docs/glossary/`](docs/glossary/)                                                       |
 
 ## Contributing
 

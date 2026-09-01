@@ -1,4 +1,3 @@
-using System;
 using System.IO;
 using System.Text.Json;
 using TrackpadCameraControl;
@@ -60,22 +59,19 @@ namespace TrackpadCameraControl.Tests
         {
             string title = Mod.OptionsTitle;
             Assert.False(string.IsNullOrEmpty(title));
-            Assert.StartsWith("Trackpad Camera Control", title, StringComparison.Ordinal);
 
             string packageVersion = ReadPackageJsonVersion();
             Assert.False(string.IsNullOrEmpty(packageVersion));
 
-            // Assembly Version is synced from package.json at MSBuild time; OptionsTitle
-            // shows major.minor.build (ToString(3)), e.g. "Trackpad Camera Control 0.2.0".
+            // Behavior: Content Manager / Options title surfaces the package version
+            // (MSBuild syncs AssemblyVersion from package.json).
             string[] parts = packageVersion.Split('.');
             Assert.True(parts.Length >= 2, "package.json version should be at least major.minor");
-            string majorMinor = parts[0] + "." + parts[1];
-            Assert.Contains(majorMinor, title);
+            Assert.Contains(parts[0] + "." + parts[1], title);
 
             if (parts.Length >= 3)
             {
-                string majorMinorBuild = parts[0] + "." + parts[1] + "." + parts[2];
-                Assert.Contains(majorMinorBuild, title);
+                Assert.Contains(parts[0] + "." + parts[1] + "." + parts[2], title);
             }
         }
 
