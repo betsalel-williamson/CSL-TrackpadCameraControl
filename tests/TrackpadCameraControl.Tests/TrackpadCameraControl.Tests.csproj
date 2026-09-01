@@ -24,6 +24,11 @@
         </PackageReference>
     </ItemGroup>
 
+    <!-- Darwin-only test sources (IOKit / hw.model); not compiled on Linux CI. -->
+    <ItemGroup Condition="!$([MSBuild]::IsOSPlatform('OSX'))">
+        <Compile Remove="QaClipboardReport.MacOS.cs" />
+    </ItemGroup>
+
     <ItemGroup>
         <ProjectReference Include="..\..\mod\TrackpadCameraControl.csproj">
             <AdditionalProperties>EnableCitiesRefs=false</AdditionalProperties>

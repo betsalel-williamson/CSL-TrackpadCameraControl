@@ -44,7 +44,7 @@ GitHub Actions (`.github/workflows/ci.yml`). Third-party actions are **pinned by
 | **PR → main**    | **commitlint** (Ubuntu); one **validate** job on **macOS** for docs/format/`dotnet test` (tooling → full suite) |
 | **Push to main** | Full docs + C# + native format on **macOS**                                                                     |
 
-Validate runs on **macOS** so AppKit/IOKit QA paths and Darwin-only assertions match the product host. Pure formatting helpers stay cross-platform; Mac hardware probes fail soft or assert only under `OSPlatform.OSX`.
+Validate runs on **macOS** so AppKit/IOKit QA paths can execute Darwin integration tests. Linux CI would still pass: mac-only sources are omitted at compile time (`QaClipboardReport.MacOS.cs`) and remaining probes use `[MacOsFact]` / `[SkipOnMacOsFact]` skip attributes. Pure formatting helpers stay cross-platform.
 
 `dotnet test` (CI csharp scope) includes native-resource leak pairing — see [harnesses and testing](./harnesses-and-testing.md).
 
