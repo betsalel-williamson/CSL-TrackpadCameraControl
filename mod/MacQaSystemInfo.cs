@@ -42,6 +42,8 @@ namespace TrackpadCameraControl
         private static CFGetTypeIDFn _cfGetTypeID;
         private static CFStringGetTypeIDFn _cfStringGetTypeID;
         private static CFNumberGetTypeIDFn _cfNumberGetTypeID;
+        private static CFBooleanGetTypeIDFn _cfBooleanGetTypeID;
+        private static CFBooleanGetValueFn _cfBooleanGetValue;
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         private delegate IntPtr IOServiceMatchingFn(string name);
@@ -105,6 +107,12 @@ namespace TrackpadCameraControl
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         private delegate IntPtr CFNumberGetTypeIDFn();
+
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        private delegate IntPtr CFBooleanGetTypeIDFn();
+
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        private delegate bool CFBooleanGetValueFn(IntPtr boolean);
 
         internal static void AppendSection(StringBuilder sb)
         {
@@ -253,7 +261,9 @@ namespace TrackpadCameraControl
                     return false;
                 }
 
-                List<string> seen = new List<string>();
+                Dictionary<string, DeviceRecord> devices = new Dictionary<string, DeviceRecord>(
+                    StringComparer.OrdinalIgnoreCase
+                );
                 for (; ; )
                 {
                     uint entry = _ioIteratorNext(iterator);
@@ -264,11 +274,30 @@ namespace TrackpadCameraControl
 
                     try
                     {
-                        ClassifyRegistryEntry(entry, keyboards, mice, trackpads, seen);
+                        ClassifyRegistryEntry(entry, devices);
                     }
                     finally
                     {
                         _ioObjectRelease(entry);
+                    }
+                }
+
+                foreach (KeyValuePair<string, DeviceRecord> pair in devices)
+                {
+                    DeviceRecord record = pair.Value;
+                    if (record.IsKeyboard)
+                    {
+                        keyboards.Add(record.Display);
+                    }
+
+                    if (record.IsMouse && !record.IsTrackpad)
+                    {
+                        mice.Add(record.Display);
+                    }
+
+                    if (record.IsTrackpad)
+                    {
+                        trackpads.Add(record.Display);
                     }
                 }
 
@@ -293,12 +322,18 @@ namespace TrackpadCameraControl
             }
         }
 
+        private struct DeviceRecord
+        {
+            public string Display;
+            public int Score;
+            public bool IsKeyboard;
+            public bool IsMouse;
+            public bool IsTrackpad;
+        }
+
         private static void ClassifyRegistryEntry(
             uint entry,
-            List<string> keyboards,
-            List<string> mice,
-            List<string> trackpads,
-            List<string> seen
+            Dictionary<string, DeviceRecord> devices
         )
         {
             int usagePage = ReadIntProperty(entry, "PrimaryUsagePage");
@@ -313,11 +348,6 @@ namespace TrackpadCameraControl
             }
 
             if (string.IsNullOrEmpty(name) || IsNoiseProduct(name))
-            {
-                return;
-            }
-
-            if (ContainsIgnoreCase(seen, name))
             {
                 return;
             }
@@ -344,21 +374,157 @@ namespace TrackpadCameraControl
                 return;
             }
 
-            seen.Add(name);
-            if (isKeyboard)
+            int vendorId = ReadIntProperty(entry, "VendorID");
+            int productId = ReadIntProperty(entry, "ProductID");
+            int version = ReadIntProperty(entry, "VersionNumber");
+            string transport = ReadStringProperty(entry, "Transport");
+            bool builtIn = ReadBoolProperty(entry, "Built-In");
+            string display = FormatDeviceDisplay(
+                name,
+                vendorId,
+                productId,
+                version,
+                transport,
+                builtIn
+            );
+            int score = ModelInfoScore(vendorId, productId, version, transport, builtIn);
+
+            DeviceRecord record;
+            if (devices.TryGetValue(name, out record))
             {
-                keyboards.Add(name);
+                record.IsKeyboard = record.IsKeyboard || isKeyboard;
+                record.IsMouse = record.IsMouse || isMouse;
+                record.IsTrackpad = record.IsTrackpad || isTrackpad;
+                if (score > record.Score)
+                {
+                    record.Display = display;
+                    record.Score = score;
+                }
+
+                devices[name] = record;
+                return;
             }
 
-            if (isMouse && !isTrackpad)
+            devices[name] = new DeviceRecord
             {
-                mice.Add(name);
+                Display = display,
+                Score = score,
+                IsKeyboard = isKeyboard,
+                IsMouse = isMouse,
+                IsTrackpad = isTrackpad,
+            };
+        }
+
+        /// <summary>
+        /// USB-style model identity for QA (hex VID:PID). Omits serial numbers.
+        /// </summary>
+        internal static string FormatDeviceDisplay(
+            string name,
+            int vendorId,
+            int productId,
+            int versionNumber,
+            string transport,
+            bool builtIn
+        )
+        {
+            if (string.IsNullOrEmpty(name))
+            {
+                return name;
             }
 
-            if (isTrackpad)
+            List<string> parts = new List<string>();
+            string id = FormatModelId(vendorId, productId);
+            if (!string.IsNullOrEmpty(id))
             {
-                trackpads.Add(name);
+                parts.Add(id);
             }
+
+            if (versionNumber > 0)
+            {
+                parts.Add("rev " + versionNumber.ToString("X4"));
+            }
+
+            if (!string.IsNullOrEmpty(transport))
+            {
+                parts.Add(transport);
+            }
+
+            if (builtIn)
+            {
+                parts.Add("built-in");
+            }
+
+            if (parts.Count == 0)
+            {
+                return name;
+            }
+
+            StringBuilder sb = new StringBuilder(name);
+            sb.Append(" (");
+            for (int i = 0; i < parts.Count; i++)
+            {
+                if (i > 0)
+                {
+                    sb.Append(" · ");
+                }
+
+                sb.Append(parts[i]);
+            }
+
+            sb.Append(')');
+            return sb.ToString();
+        }
+
+        internal static string FormatModelId(int vendorId, int productId)
+        {
+            if (vendorId == 0 && productId == 0)
+            {
+                return null;
+            }
+
+            if (vendorId == 0)
+            {
+                return "pid " + productId.ToString("X4");
+            }
+
+            return vendorId.ToString("X4") + ":" + productId.ToString("X4");
+        }
+
+        private static int ModelInfoScore(
+            int vendorId,
+            int productId,
+            int versionNumber,
+            string transport,
+            bool builtIn
+        )
+        {
+            int score = 0;
+            if (vendorId != 0)
+            {
+                score += 4;
+            }
+
+            if (productId != 0)
+            {
+                score += 4;
+            }
+
+            if (versionNumber > 0)
+            {
+                score += 1;
+            }
+
+            if (!string.IsNullOrEmpty(transport))
+            {
+                score += 1;
+            }
+
+            if (builtIn)
+            {
+                score += 1;
+            }
+
+            return score;
         }
 
         private static bool IsNoiseProduct(string name)
@@ -369,19 +535,6 @@ namespace TrackpadCameraControl
                 || name.IndexOf("fingerprint", StringComparison.OrdinalIgnoreCase) >= 0
                 || name.IndexOf("faceid", StringComparison.OrdinalIgnoreCase) >= 0
                 || name.IndexOf("lidar", StringComparison.OrdinalIgnoreCase) >= 0;
-        }
-
-        private static bool ContainsIgnoreCase(List<string> items, string value)
-        {
-            for (int i = 0; i < items.Count; i++)
-            {
-                if (string.Equals(items[i], value, StringComparison.OrdinalIgnoreCase))
-                {
-                    return true;
-                }
-            }
-
-            return false;
         }
 
         private static string FormatDeviceName(string manufacturer, string product)
@@ -454,6 +607,34 @@ namespace TrackpadCameraControl
                 }
 
                 return ReadCfString(valueRef);
+            }
+            finally
+            {
+                _cfRelease(valueRef);
+            }
+        }
+
+        private static bool ReadBoolProperty(uint entry, string key)
+        {
+            IntPtr valueRef = CopyProperty(entry, key);
+            if (valueRef == IntPtr.Zero)
+            {
+                return false;
+            }
+
+            try
+            {
+                if (_cfBooleanGetTypeID == null || _cfBooleanGetValue == null)
+                {
+                    return false;
+                }
+
+                if (_cfGetTypeID(valueRef) != _cfBooleanGetTypeID())
+                {
+                    return false;
+                }
+
+                return _cfBooleanGetValue(valueRef);
             }
             finally
             {
@@ -579,6 +760,14 @@ namespace TrackpadCameraControl
                     _coreFoundation,
                     "CFNumberGetTypeID"
                 );
+                _cfBooleanGetTypeID = LoadFn<CFBooleanGetTypeIDFn>(
+                    _coreFoundation,
+                    "CFBooleanGetTypeID"
+                );
+                _cfBooleanGetValue = LoadFn<CFBooleanGetValueFn>(
+                    _coreFoundation,
+                    "CFBooleanGetValue"
+                );
 
                 _nativeReady =
                     _ioServiceMatching != null
@@ -595,7 +784,9 @@ namespace TrackpadCameraControl
                     && _cfNumberGetValue != null
                     && _cfGetTypeID != null
                     && _cfStringGetTypeID != null
-                    && _cfNumberGetTypeID != null;
+                    && _cfNumberGetTypeID != null
+                    && _cfBooleanGetTypeID != null
+                    && _cfBooleanGetValue != null;
                 return _nativeReady;
             }
             catch

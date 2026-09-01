@@ -26,5 +26,28 @@ namespace TrackpadCameraControl.Tests
             Assert.Contains("--- Input devices ---", text);
             Assert.DoesNotContain("(unable to enumerate input devices)", text);
         }
+
+        [Fact]
+        public void FormatModelId_UsesUsbHexWhenVendorPresent()
+        {
+            Assert.Equal("046D:C24E", MacQaSystemInfo.FormatModelId(0x046D, 0xC24E));
+            Assert.Equal("pid 035A", MacQaSystemInfo.FormatModelId(0, 858));
+            Assert.Null(MacQaSystemInfo.FormatModelId(0, 0));
+        }
+
+        [Fact]
+        public void FormatDeviceDisplay_AppendsModelTransportWithoutSerial()
+        {
+            string display = MacQaSystemInfo.FormatDeviceDisplay(
+                "Logitech G500s Laser Gaming Mouse",
+                0x046D,
+                0xC24E,
+                0x8401,
+                "USB",
+                false
+            );
+            Assert.Equal("Logitech G500s Laser Gaming Mouse (046D:C24E · rev 8401 · USB)", display);
+            Assert.DoesNotContain("Serial", display);
+        }
     }
 }
