@@ -58,6 +58,25 @@ namespace TrackpadCameraControl
             }
         }
 
+        /// <summary>UTC compile time stamped at MSBuild (Debug panel dev confirmation).</summary>
+        internal static string GetAssemblyBuildTimestampUtcDisplay()
+        {
+            try
+            {
+                const string built = BuildInfo.BuildTimestampUtc;
+                if (!string.IsNullOrEmpty(built))
+                {
+                    return built;
+                }
+            }
+            catch
+            {
+                // fail soft
+            }
+
+            return null;
+        }
+
         public static ModSettings Settings { get; private set; }
         public static GesturePipeline Pipeline { get; private set; }
         public static InjectGestureSource InjectSource { get; internal set; }

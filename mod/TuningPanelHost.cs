@@ -113,6 +113,8 @@ namespace TrackpadCameraControl
             BuildYawSection(s);
             BuildOrbitSection(s);
 
+            AddBuildInfoFooter();
+
             _root.height = Mathf.Min(720f, _nextY + 16f);
 
             _reopen = view.AddUIComponent(typeof(UIButton)) as UIButton;
@@ -655,6 +657,25 @@ namespace TrackpadCameraControl
                 null
             );
 #endif
+        }
+
+        private static void AddBuildInfoFooter()
+        {
+            string built = Mod.GetAssemblyBuildTimestampUtcDisplay();
+            if (string.IsNullOrEmpty(built))
+            {
+                return;
+            }
+
+            _nextY += 8f;
+            UILabel label = AddLabel(_root, "Built (UTC): " + built, Col0, _nextY);
+            label.textColor = new Color(1f, 1f, 1f, 0.75f);
+            label.width = PanelWidth - (FieldGutter * 2f);
+            label.autoSize = false;
+            label.autoHeight = true;
+            label.wordWrap = true;
+            label.PerformLayout();
+            _nextY += Mathf.Max(18f, label.height + 4f);
         }
 
         private static void AddSection(string title)
