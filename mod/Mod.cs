@@ -22,14 +22,14 @@ namespace TrackpadCameraControl
             "macOS trackpad camera — pan, pinch zoom, orbit. No middle mouse. Windows/Linux not supported yet.";
 
         /// <summary>
-        /// Mod display title including temporary macOS tag and assembly version
+        /// Mod display title including temporary macOS tag and product semver
         /// (e.g. for Options group header / Content Manager).
         /// </summary>
         public static string OptionsTitle
         {
             get
             {
-                string version = GetAssemblyVersionDisplay();
+                string version = GetProductVersionDisplay();
                 if (string.IsNullOrEmpty(version))
                 {
                     return "Trackpad Camera Control (macOS)";
@@ -39,23 +39,32 @@ namespace TrackpadCameraControl
             }
         }
 
-        internal static string GetAssemblyVersionDisplay()
+        /// <summary>
+        /// Product semver from package.json (BuildInfo / InformationalVersion).
+        /// Not the assembly Major.Minor.* identity Cities uses for auto-reload.
+        /// </summary>
+        internal static string GetProductVersionDisplay()
         {
             try
             {
-                Version v = typeof(Mod).Assembly.GetName().Version;
-                if (v == null)
+                const string product = BuildInfo.ProductVersion;
+                if (!string.IsNullOrEmpty(product))
                 {
-                    return null;
+                    return product;
                 }
-
-                // Prefer major.minor.build; Revision is often 0 from GenerateAssemblyInfo.
-                return v.ToString(3);
             }
             catch
             {
-                return null;
+                // fail soft
             }
+
+            return null;
+        }
+
+        /// <summary>Legacy alias for tests / callers expecting OptionsTitle version source.</summary>
+        internal static string GetAssemblyVersionDisplay()
+        {
+            return GetProductVersionDisplay();
         }
 
         /// <summary>UTC compile time stamped at MSBuild (Debug panel dev confirmation).</summary>
@@ -75,6 +84,28 @@ namespace TrackpadCameraControl
             }
 
             return null;
+        }
+
+        /// <summary>
+        /// Full assembly identity (Major.Minor.Build.Revision). Changes each compile so
+        /// Cities auto-reloads; Debug panel shows this beside Built (UTC).
+        /// </summary>
+        internal static string GetAssemblyIdentityDisplay()
+        {
+            try
+            {
+                Version v = typeof(Mod).Assembly.GetName().Version;
+                if (v == null)
+                {
+                    return null;
+                }
+
+                return v.ToString();
+            }
+            catch
+            {
+                return null;
+            }
         }
 
         public static ModSettings Settings { get; private set; }

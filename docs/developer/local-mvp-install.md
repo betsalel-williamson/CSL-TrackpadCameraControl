@@ -27,15 +27,13 @@ chmod +x scripts/install-mod-local.sh
 
 Requires Cities: Skylines Managed assemblies (default Steam macOS path). Override with `CitiesManaged=…` or `CITIES_MODS=…`.
 
-Restart the game after first install, or use the [mod reload during development](./mod-reload-during-development.md) loop (disable in Content Manager → rebuild → enable). Capture uses **in-process AppKit** inside the mod DLL — there is no companion process to start. Switch to Contacts (legacy) from Options, or `TRACKPAD_CAPTURE_BACKEND=contacts`.
+Restart the game after first install, or keep the game running and rebuild — post-build deploy + `AssemblyVersion` wildcards follow [Paradox Automate](https://skylines.paradoxwikis.com/Advanced_Mod_Setup#Automate) (see [mod reload during development](./mod-reload-during-development.md)). Capture uses **in-process AppKit** inside the mod DLL — there is no companion process to start. Switch to Contacts (legacy) from Options, or `TRACKPAD_CAPTURE_BACKEND=contacts`.
 
-Symlink the DLL for faster rebuilds (one-time):
+Optional symlink instead of post-build copy:
 
 ```bash
 ./scripts/install-mod-local.sh --symlink
 ```
-
-Then rebuild with `dotnet build mod/TrackpadCameraControl.csproj -c Release` (see [mod reload during development](./mod-reload-during-development.md)).
 
 ## Capture log
 

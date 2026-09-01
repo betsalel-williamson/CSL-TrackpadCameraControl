@@ -50,7 +50,9 @@ npm run version-packages    # apply changesets → version + CHANGELOG (maintain
 
 This package uses Changesets for **version + CHANGELOG** and **GitHub Releases** (source archives for beta testers). Players will eventually install from **Steam Workshop**. This project does **not** publish to the npm registry.
 
-The in-game mod assembly `Version` / `AssemblyVersion` (and therefore `Mod.OptionsTitle`, e.g. `Trackpad Camera Control (macOS) 0.2.0`) is read from `package.json` `"version"` at **MSBuild** time in `mod/TrackpadCameraControl.csproj`. After `npm run version-packages` bumps `package.json`, the next mod build picks up the new version — no separate sync step.
+The in-game **product** version (`Mod.OptionsTitle`, e.g. `Trackpad Camera Control (macOS) 0.2.0`) is `package.json` `"version"` stamped into `BuildInfo.ProductVersion` / InformationalVersion at **MSBuild** time. After `npm run version-packages` bumps `package.json`, the next mod build picks up the new semver — no separate sync step.
+
+`AssemblyVersion` is `Major.Minor.*` (build/revision change every compile) so Cities can auto-reload during development — see [mod reload during development](./mod-reload-during-development.md). That identity is **not** the storefront / Options product version.
 
 ## Release workflow
 

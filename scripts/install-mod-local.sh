@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-# Build TrackpadCameraControl.dll and copy into the local CS1 Mods folder (macOS).
+# Build TrackpadCameraControl.dll. Default: MSBuild post-build deploys into the local
+# CS1 Mods folder (Paradox Advanced Mod Setup → Automate).
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 export PATH="${HOME}/.dotnet:${PATH}"
@@ -13,7 +14,8 @@ while [[ $# -gt 0 ]]; do
       ;;
     -h | --help)
       echo "Usage: $0 [--symlink]"
-      echo "  --symlink  Link Mods/TrackpadCameraControl.dll to bin/Release output (dev loop)."
+      echo "  Default: build + post-build copy into Mods (wiki Automate)."
+      echo "  --symlink  Skip post-build copy; link Mods DLL to bin/Release output."
       exit 0
       ;;
     *)
@@ -34,33 +36,37 @@ if [[ ! -f "${MANAGED}/ICities.dll" ]]; then
   exit 1
 fi
 
-dotnet build "${ROOT}/mod/TrackpadCameraControl.csproj" -c Release -p:CitiesManaged="${MANAGED}"
+BUILD_ARGS=(
+  "${ROOT}/mod/TrackpadCameraControl.csproj"
+  -c Release
+  "-p:CitiesManaged=${MANAGED}"
+  "-p:CitiesMods=${MODS}"
+)
+
+if [[ "${SYMLINK}" == 1 ]]; then
+  BUILD_ARGS+=("-p:SkipModDeploy=true")
+fi
+
+dotnet build "${BUILD_ARGS[@]}"
 mkdir -p "${DEST}"
+
 if [[ "${SYMLINK}" == 1 ]]; then
   ln -sf "${DLL_SRC}" "${DEST}/TrackpadCameraControl.dll"
+  PREVIEW="${ROOT}/mod/PreviewImage.png"
+  if [[ -f "${PREVIEW}" ]]; then
+    cp -f "${PREVIEW}" "${DEST}/PreviewImage.png"
+  fi
+  API_DLL="${ROOT}/mod/bin/Release/net35/CitiesHarmony.API.dll"
+  if [[ -f "${API_DLL}" ]]; then
+    cp -f "${API_DLL}" "${DEST}/"
+  fi
   echo "Symlinked → ${DEST}/TrackpadCameraControl.dll"
-else
-  cp -f "${DLL_SRC}" "${DEST}/"
-  echo "Installed → ${DEST}/TrackpadCameraControl.dll"
-fi
-PREVIEW="${ROOT}/mod/PreviewImage.png"
-if [[ -f "${PREVIEW}" ]]; then
-  cp -f "${PREVIEW}" "${DEST}/PreviewImage.png"
-fi
-API_DLL="${ROOT}/mod/bin/Release/net35/CitiesHarmony.API.dll"
-if [[ -f "${API_DLL}" ]]; then
-  cp -f "${API_DLL}" "${DEST}/"
-fi
-# CitiesHarmony.Harmony.dll is provided by the Cities Harmony workshop mod — do not copy it.
-if [[ -f "${DEST}/PreviewImage.png" ]]; then
-  echo "Preview → ${DEST}/PreviewImage.png"
-fi
-if [[ "${SYMLINK}" == 1 ]]; then
-  echo "Dev loop: dotnet build mod/TrackpadCameraControl.csproj -c Release, then disable/enable mod in Content Manager."
   echo "See docs/developer/mod-reload-during-development.md"
 else
-  echo "Restart Cities: Skylines, or use the Content Manager reload loop (see mod-reload-during-development.md)."
+  echo "Build finished (post-build should have deployed to ${DEST})."
+  echo "Cities auto-reloads when AssemblyVersion changes — see mod-reload-during-development.md"
 fi
+
 echo "Capture: in-process AppKit (default). No companion process."
-echo "Options → Trackpad Camera Control: AppKit vs Contacts (legacy), plus sensitivities."
+echo "Debug panel footer: Built (UTC) + asm identity confirm the loaded build."
 echo "Inspect: tail -f \"\${TMPDIR:-/tmp}/trackpad-camera-control.log\""

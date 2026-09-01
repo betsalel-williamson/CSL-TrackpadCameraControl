@@ -1,54 +1,64 @@
 # Mod reload during development
 
-Fast iteration when changing mod code — without treating a full game restart as the default loop.
+Fast iteration when changing mod code. Start from the known Cities workflow ([Advanced Mod Setup → Automate](https://skylines.paradoxwikis.com/Advanced_Mod_Setup#Automate)), then use this repo’s extras (product semver, Debug build stamp).
 
-## What “reload” means in CS1
+## What works (Paradox Automate)
 
-Cities: Skylines loads local mod DLLs from the Colossal **Mods** folder. This mod implements `IUserMod.OnEnabled` / `OnDisabled` — Harmony patches, gesture capture, and the Debug panel arm on enable and tear down on disable.
+1. **Post-build deploy** — a successful `dotnet build` of the mod project copies `TrackpadCameraControl.dll` (and `PreviewImage.png` when present) into the local Mods folder. You do not need a separate copy step for the default loop.
+2. **Automatic reload** — `AssemblyVersion` is `Major.Minor.*` (from `package.json` major.minor). Each compile gets a new build/revision, so Cities can **reload the mod while the game is running** without a full reboot. `Deterministic` is `false` so wildcards are allowed.
 
-There is **no** in-process hot reload of a changed DLL while the assembly stays loaded. After you rebuild, the game must **load the new file** (disable → install → enable, or restart).
+Default Mods path (macOS):
 
-## Recommended dev loop (no full restart)
+`~/Library/Application Support/Colossal Order/Cities_Skylines/Addons/Mods/TrackpadCameraControl`
 
-Use this when the game is already running and you changed C#:
+Override with `CitiesMods=…` or `CITIES_MODS=…`. Skip deploy with `-p:SkipModDeploy=true` (tests already skip via `EnableCitiesRefs=false`).
 
-1. **Exit to the main menu** (unload the city — mod disable/enable is reliable from the menu, not mid-city).
-2. **Content Manager → Mods** → disable **Trackpad Camera Control**.
-3. Rebuild and install:
+## Product semver vs assembly identity
+
+| Field                                             | Source                                                             | Purpose                                    |
+| ------------------------------------------------- | ------------------------------------------------------------------ | ------------------------------------------ |
+| Product version (Options / Content Manager title) | `package.json` → `BuildInfo.ProductVersion` / InformationalVersion | Stable Changesets semver (e.g. `0.2.0`)    |
+| Assembly version                                  | `Major.Minor.*`                                                    | Changes every build so Cities auto-reloads |
+| Built (UTC) + asm                                 | Debug panel footer                                                 | Confirm the new DLL loaded                 |
+
+Do **not** put `1.0.*` wildcards on the **product** / InformationalVersion string — Share and storefront copy stay on Changesets semver.
+
+## Recommended loop (game already running)
+
+1. Keep Cities open (city loaded is fine for many changes; exit to main menu if reload looks stuck).
+2. From the repo root:
 
    ```bash
    ./scripts/install-mod-local.sh
+   # or
+   dotnet build mod/TrackpadCameraControl.csproj -c Release
    ```
 
-   One-time symlink (skip copy on every build):
+3. Watch Content Manager / play — the game should pick up the new assembly version.
+4. Open **Debug** (Options → Show debug panel): **Built (UTC)** and **asm** must change after each rebuild.
 
-   ```bash
-   ./scripts/install-mod-local.sh --symlink
-   ```
+## Fallbacks
 
-   After `--symlink`, later builds only need `dotnet build mod/TrackpadCameraControl.csproj -c Release -p:CitiesManaged=…` — the Mods folder DLL is a link to `mod/bin/Release/net35/TrackpadCameraControl.dll`.
+If auto-reload does not fire:
 
-4. **Content Manager** → enable the mod again (`OnEnabled` runs again; Harmony and capture reconnect).
-5. **Load a city** and verify gestures / Debug panel.
+1. Main menu → Content Manager → disable **Trackpad Camera Control** → enable again.
+2. Full game restart.
+3. If the DLL was locked during copy: disable the mod first, rebuild, then enable.
 
-**Confirm the new build loaded:** open the in-game **Debug** panel (Options → Show debug panel). The footer shows **Built (UTC)** from the assembly compile timestamp — it must change after each rebuild.
+## Optional symlink
 
-## When to restart the game
+When you want the Mods folder to point at `bin/Release` without post-build copy:
 
-Restart Cities entirely if:
+```bash
+./scripts/install-mod-local.sh --symlink
+```
 
-- Disable → enable did not pick up behavior (stale assembly or file lock).
-- `install-mod-local.sh` failed to copy (DLL still open — disable the mod first, then reinstall).
-- You changed Harmony patch targets or static init that only runs at process start.
-- Capture or Options UI looks wedged after several reload cycles.
-
-## File lock notes (macOS)
-
-While the mod is **enabled**, the game may keep `TrackpadCameraControl.dll` open. **Disable the mod in Content Manager before** copying or replacing the DLL (non-symlink installs). Symlink installs still require disable before `dotnet build` overwrites the target if the linker path is locked.
+That sets `SkipModDeploy` and links the DLL. Prefer the default post-build copy unless you need the symlink.
 
 ## Related
 
-- [Local MVP install](./local-mvp-install.md) — first-time Mods folder setup
+- [Local MVP install](./local-mvp-install.md) — first-time Managed path / Harmony
 - [Harnesses and testing](./harnesses-and-testing.md) — unit tests without the game
 - [QA checklist](./qa-checklist.md) — manual gesture pass after reload
 - Capture log: `tail -f "${TMPDIR:-/tmp}/trackpad-camera-control.log"`
+- Upstream: [Advanced Mod Setup → Automate](https://skylines.paradoxwikis.com/Advanced_Mod_Setup#Automate)

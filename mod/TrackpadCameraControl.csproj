@@ -3,6 +3,12 @@
   sources compile into this assembly (in-process). When ICities.dll is found
   (or CitiesManaged=), enables HAS_CITIES. Tests pass EnableCitiesRefs=false
   so the test host does not need ICities.
+
+  Dev deploy / auto-reload follows Paradox Advanced Mod Setup → Automate:
+  https://skylines.paradoxwikis.com/Advanced_Mod_Setup#Automate
+  — post-build copy into Mods + AssemblyVersion Major.Minor.* so CS reloads
+  without a full game restart. Product semver stays on InformationalVersion /
+  BuildInfo.ProductVersion (package.json / Changesets).
 -->
 <Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
@@ -13,19 +19,31 @@
         <RootNamespace>TrackpadCameraControl</RootNamespace>
         <AssemblyName>TrackpadCameraControl</AssemblyName>
         <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
-        <!-- Product version: package.json (Changesets). OptionsTitle reads AssemblyVersion. -->
+        <!-- Product semver: package.json (Changesets). OptionsTitle reads BuildInfo.ProductVersion. -->
         <_PackageJsonPath>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)../package.json'))</_PackageJsonPath>
         <_PackageJsonContent Condition="Exists('$(_PackageJsonPath)')"
             >$([System.IO.File]::ReadAllText('$(_PackageJsonPath)'))</_PackageJsonContent>
         <Version Condition="'$(_PackageJsonContent)' != ''"
             >$([System.Text.RegularExpressions.Regex]::Match($(_PackageJsonContent), '"version"\s*:\s*"([^"]+)"').Groups[1].Value)</Version>
         <Version Condition="'$(Version)' == ''">0.0.0</Version>
-        <AssemblyVersion>$(Version)</AssemblyVersion>
+        <_AsmMajor>$([System.Text.RegularExpressions.Regex]::Match('$(Version)', '^(\d+)\.(\d+)').Groups[1].Value)</_AsmMajor>
+        <_AsmMinor>$([System.Text.RegularExpressions.Regex]::Match('$(Version)', '^(\d+)\.(\d+)').Groups[2].Value)</_AsmMinor>
+        <_AsmMajor Condition="'$(_AsmMajor)' == ''">0</_AsmMajor>
+        <_AsmMinor Condition="'$(_AsmMinor)' == ''">0</_AsmMinor>
+        <!-- Wiki Automate: wildcard build/revision so each compile changes the assembly identity. -->
+        <AssemblyVersion>$(_AsmMajor).$(_AsmMinor).*</AssemblyVersion>
         <FileVersion>$(Version)</FileVersion>
         <InformationalVersion>$(Version)</InformationalVersion>
+        <!-- Required for AssemblyVersion wildcards (wiki + Share-safe non-deterministic net35). -->
+        <Deterministic>false</Deterministic>
         <BuildTimestampUtc>$([System.DateTime]::UtcNow.ToString('yyyy-MM-ddTHH:mm:ssZ'))</BuildTimestampUtc>
         <CitiesManaged Condition="'$(CitiesManaged)' == '' and '$(HOME)' != ''"
             >$(HOME)/Library/Application Support/Steam/steamapps/common/Cities_Skylines/Cities.app/Contents/Resources/Data/Managed</CitiesManaged>
+        <CitiesMods Condition="'$(CitiesMods)' == '' and '$(HOME)' != ''"
+            >$(HOME)/Library/Application Support/Colossal Order/Cities_Skylines/Addons/Mods</CitiesMods>
+        <CitiesMods Condition="'$(CitiesMods)' == '' and '$(LOCALAPPDATA)' != ''"
+            >$(LOCALAPPDATA)\Colossal Order\Cities_Skylines\Addons\Mods</CitiesMods>
+        <ModDeployDir>$(CitiesMods)/TrackpadCameraControl</ModDeployDir>
         <!-- Needed so SDK can compile net35 on modern .NET SDK hosts -->
         <DisableImplicitFrameworkReferences>false</DisableImplicitFrameworkReferences>
 
@@ -47,6 +65,7 @@
             <_BuildInfoLines Include="{" />
             <_BuildInfoLines Include="    internal static class BuildInfo" />
             <_BuildInfoLines Include="    {" />
+            <_BuildInfoLines Include="        internal const string ProductVersion = &quot;$(Version)&quot;%3B" />
             <_BuildInfoLines Include="        internal const string BuildTimestampUtc = &quot;$(BuildTimestampUtc)&quot;%3B" />
             <_BuildInfoLines Include="    }" />
             <_BuildInfoLines Include="}" />
@@ -56,6 +75,30 @@
             <Compile Include="$(_BuildInfoFile)" />
             <FileWrites Include="$(_BuildInfoFile)" />
         </ItemGroup>
+    </Target>
+
+    <!-- Paradox Advanced Mod Setup → Automate: copy DLL into Mods after build. -->
+    <Target
+        Name="DeployToCitiesMods"
+        AfterTargets="Build"
+        Condition="'$(SkipModDeploy)' != 'true' And '$(EnableCitiesRefs)' != 'false' And Exists('$(CitiesManaged)/ICities.dll') And '$(CitiesMods)' != ''"
+    >
+        <MakeDir Directories="$(ModDeployDir)" />
+        <Delete Files="$(ModDeployDir)/$(TargetFileName)" TreatErrorsAsWarnings="true" />
+        <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(ModDeployDir)" OverwriteReadOnlyFiles="true" />
+        <Copy
+            SourceFiles="$(MSBuildThisFileDirectory)PreviewImage.png"
+            DestinationFolder="$(ModDeployDir)"
+            SkipUnchangedFiles="true"
+            Condition="Exists('$(MSBuildThisFileDirectory)PreviewImage.png')"
+        />
+        <Copy
+            SourceFiles="$(TargetDir)CitiesHarmony.API.dll"
+            DestinationFolder="$(ModDeployDir)"
+            SkipUnchangedFiles="true"
+            Condition="Exists('$(TargetDir)CitiesHarmony.API.dll')"
+        />
+        <Message Importance="high" Text="Deployed → $(ModDeployDir)/$(TargetFileName)" />
     </Target>
 
     <PropertyGroup Condition="'$(EnableCadGestureStyle)' == 'true'">
@@ -108,5 +151,8 @@
     <ItemGroup>
         <Compile Include="..\src\TrackpadCapture\*.cs" Link="Capture\%(Filename).cs" />
         <InternalsVisibleTo Include="TrackpadCameraControl.Tests" />
+        <None Include="PreviewImage.png" Condition="Exists('$(MSBuildThisFileDirectory)PreviewImage.png')">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
     </ItemGroup>
 </Project>

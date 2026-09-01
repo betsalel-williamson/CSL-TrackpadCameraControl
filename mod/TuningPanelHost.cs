@@ -662,13 +662,20 @@ namespace TrackpadCameraControl
         private static void AddBuildInfoFooter()
         {
             string built = Mod.GetAssemblyBuildTimestampUtcDisplay();
-            if (string.IsNullOrEmpty(built))
+            string asm = Mod.GetAssemblyIdentityDisplay();
+            if (string.IsNullOrEmpty(built) && string.IsNullOrEmpty(asm))
             {
                 return;
             }
 
+            string line = "Built (UTC): " + (built ?? "?");
+            if (!string.IsNullOrEmpty(asm))
+            {
+                line += "  ·  asm " + asm;
+            }
+
             _nextY += 8f;
-            UILabel label = AddLabel(_root, "Built (UTC): " + built, Col0, _nextY);
+            UILabel label = AddLabel(_root, line, Col0, _nextY);
             label.textColor = new Color(1f, 1f, 1f, 0.75f);
             label.width = PanelWidth - (FieldGutter * 2f);
             label.autoSize = false;

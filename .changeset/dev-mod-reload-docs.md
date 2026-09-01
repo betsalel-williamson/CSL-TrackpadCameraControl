@@ -2,4 +2,4 @@
 "csl-trackpad-camera-control": patch
 ---
 
-Document the Content Manager mod-reload dev loop, add `--symlink` to local install, and show assembly build timestamp (UTC) in the Debug panel footer.
+Follow Paradox Automate for local mod deploy and auto-reload (post-build Mods copy + AssemblyVersion Major.Minor.*), keep product semver on Options/Content Manager title, and show Built (UTC) + asm identity in the Debug panel footer.
