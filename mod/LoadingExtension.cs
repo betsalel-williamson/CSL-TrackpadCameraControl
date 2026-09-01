@@ -18,6 +18,7 @@ namespace TrackpadCameraControl
                     || mode == LoadMode.LoadAsset
                 )
                 {
+                    GameFocusActivation.TryActivate();
                     TuningPanelHost.EnsureCreated();
                     TuningPanelHost.ApplyVisibility();
                 }
