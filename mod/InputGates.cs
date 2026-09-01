@@ -113,7 +113,7 @@ namespace TrackpadCameraControl
 
         public static bool ShouldSuppressVanillaMouseRotate(bool rotateBindingHeld)
         {
-            return ModRuntime.IsModActive() && rotateBindingHeld;
+            return false;
         }
 
         /// <summary>Harmony orbit postfix: flush queued trackpad orbit only on world path.</summary>

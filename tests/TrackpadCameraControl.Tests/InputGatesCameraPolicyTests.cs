@@ -155,10 +155,17 @@ namespace TrackpadCameraControl.Tests
         }
 
         [Fact]
-        public void ShouldSuppressVanillaMouseRotate_WhenEnabledAndRotateHeld_ReturnsTrue()
+        public void ShouldSuppressVanillaMouseRotate_WhenEnabledAndRotateHeld_ReturnsFalse()
         {
             EnableMod();
-            Assert.True(InputGates.ShouldSuppressVanillaMouseRotate(true));
+            Assert.False(InputGates.ShouldSuppressVanillaMouseRotate(true));
+        }
+
+        [Fact]
+        public void ShouldRunVanillaMouseEvents_WhenEnabledAndRotateHeld_ReturnsTrue()
+        {
+            EnableMod();
+            Assert.True(InputGates.ShouldRunVanillaMouseEvents(true));
         }
 
         [Fact]
