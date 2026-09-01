@@ -2,4 +2,4 @@
 "csl-trackpad-camera-control": patch
 ---
 
-Add a copy button (⎘) beside the Debug panel build footer so devs can paste Built (UTC) and asm identity into issues or chat.
+Add a copy button (⎘) beside the Debug panel build footer so devs can paste Built (UTC), asm identity, and optional QA system info (OS, hardware, connected keyboard/mouse/trackpad) into issues or chat.

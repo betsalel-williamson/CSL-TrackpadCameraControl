@@ -27,6 +27,8 @@ namespace TrackpadCameraControl
         private const float HeaderButtonRestOpacity = 0.55f;
         private const float FooterCopyButtonSize = 24f;
 
+        private static bool _includeSystemInfoInCopy = true;
+
         private static UIPanel _root;
         private static UIPanel _titleBar;
         private static UIButton _closeButton;
@@ -692,7 +694,8 @@ namespace TrackpadCameraControl
             copy.hoveredBgSprite = "ButtonMenuHovered";
             copy.pressedBgSprite = "ButtonMenuPressed";
             copy.tooltip = "Copy build info";
-            copy.eventClick += (c, e) => GUIUtility.systemCopyBuffer = line;
+            copy.eventClick += (c, e) =>
+                GUIUtility.systemCopyBuffer = QaClipboardReport.Format(_includeSystemInfoInCopy);
             copy.eventMouseDown += (c, e) =>
             {
                 _dragging = false;
@@ -700,6 +703,37 @@ namespace TrackpadCameraControl
             };
 
             _nextY += Mathf.Max(FooterCopyButtonSize, label.height + 4f);
+            AddLocalCheckRow(
+                "Include system info (OS, devices)",
+                () => _includeSystemInfoInCopy,
+                v =>
+                {
+                    _includeSystemInfoInCopy = v;
+                }
+            );
+        }
+
+        private static void AddLocalCheckRow(string label, Func<bool> get, Action<bool> set)
+        {
+            UICheckBox box = _root.AddUIComponent<UICheckBox>();
+            box.width = PanelWidth - (FieldGutter * 2f);
+            box.height = 20f;
+            box.relativePosition = new Vector3(Col0, _nextY);
+            UISprite uncheckedSprite = box.AddUIComponent<UISprite>();
+            uncheckedSprite.spriteName = "check-unchecked";
+            uncheckedSprite.size = new Vector2(16f, 16f);
+            uncheckedSprite.relativePosition = Vector3.zero;
+            box.checkedBoxObject = box.AddUIComponent<UISprite>();
+            ((UISprite)box.checkedBoxObject).spriteName = "check-checked";
+            box.checkedBoxObject.size = new Vector2(16f, 16f);
+            box.checkedBoxObject.relativePosition = Vector3.zero;
+            UILabel boxLabel = box.AddUIComponent<UILabel>();
+            boxLabel.text = label;
+            boxLabel.relativePosition = new Vector3(22f, 2f);
+            box.label = boxLabel;
+            box.isChecked = get();
+            box.eventCheckChanged += (c, v) => set(v);
+            _nextY += 22f;
         }
 
         private static void AddSection(string title)
