@@ -234,5 +234,25 @@ namespace TrackpadCameraControl.Tests
 
             Assert.True(VanillaCameraSuppress.MenuOrOverUi);
         }
+
+        [Fact]
+        public void Pipeline_ClearsPreciseTrackpadScroll_WhenUnfocused()
+        {
+            InputGates.MenuOpenOverride = () => false;
+            InputGates.PointerOverUiOverride = () => false;
+            InputGates.GameFocusedOverride = () => false;
+
+            VanillaCameraSuppress.PreciseTrackpadScroll = true;
+
+            var inject = new InjectGestureSource();
+            var pipeline = new GesturePipeline(
+                new ModSettings(),
+                inject,
+                new FakeCameraController()
+            );
+            pipeline.Tick();
+
+            Assert.False(VanillaCameraSuppress.PreciseTrackpadScroll);
+        }
     }
 }

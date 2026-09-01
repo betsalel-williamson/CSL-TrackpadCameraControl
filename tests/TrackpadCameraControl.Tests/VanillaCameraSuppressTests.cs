@@ -73,6 +73,19 @@ namespace TrackpadCameraControl.Tests
         }
 
         [Fact]
+        public void ShouldSkipScrollWheel_WhenUnfocused_ReturnsFalse()
+        {
+            VanillaCameraSuppress.Enabled = true;
+            Assert.False(
+                VanillaCameraSuppress.ShouldSkipScrollWheel(
+                    preciseTrackpad: true,
+                    menuOrOverUi: false,
+                    gameFocused: false
+                )
+            );
+        }
+
+        [Fact]
         public void ShouldSkipScrollWheel_Parameterless_UsesSettableState()
         {
             VanillaCameraSuppress.Enabled = true;

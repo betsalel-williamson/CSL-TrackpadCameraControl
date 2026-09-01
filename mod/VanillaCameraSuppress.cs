@@ -25,7 +25,11 @@ namespace TrackpadCameraControl
         /// Suppress vanilla scroll-zoom only for precise trackpad while the world camera path is active.
         /// Mouse wheel and scroll over menus/UI are allowed.
         /// </summary>
-        public static bool ShouldSkipScrollWheel(bool preciseTrackpad, bool menuOrOverUi)
+        public static bool ShouldSkipScrollWheel(
+            bool preciseTrackpad,
+            bool menuOrOverUi,
+            bool gameFocused = true
+        )
         {
             return Enabled && preciseTrackpad && !menuOrOverUi;
         }
