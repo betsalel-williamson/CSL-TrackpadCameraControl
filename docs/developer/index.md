@@ -16,6 +16,7 @@ How to work on **Trackpad Camera Control** — docs, layout, validation, and imp
   - [Feature flags](./feature-flags.md)
   - [Implementation templates](./implementation-templates.md)
   - [Harnesses and testing](./harnesses-and-testing.md)
+  - [State ownership](./state-ownership.md)
   - [QA checklist (in-game)](./qa-checklist.md)
   - [Local MVP install](./local-mvp-install.md)
   - [Mod reload during development](./mod-reload-during-development.md)

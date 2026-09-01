@@ -19,17 +19,17 @@ There is no Options checkbox for this; mod on/off is the switch. Cities Harmony 
 
 ## Policy while the mod is enabled
 
-| Vanilla path | Action |
-| ------------ | ------ |
-| Scroll-zoom from **precise trackpad** scroll (world, gates clear) | Suppress |
-| Scroll-zoom from **mouse wheel** | Keep |
-| Scroll when **menu/Options open** or **pointer over popup** | Keep (UI scroll); mod does not apply camera |
-| Mouse-drag camera rotate (binding on) | Suppress |
-| Edge scrolling | Keep |
-| Keyboard camera keys | Keep |
-| Gamepad / analog | Keep |
-| Free-cam / follow / override | Keep |
-| One-finger tools / UI | Keep |
+| Vanilla path                                                      | Action                                      |
+| ----------------------------------------------------------------- | ------------------------------------------- |
+| Scroll-zoom from **precise trackpad** scroll (world, gates clear) | Suppress                                    |
+| Scroll-zoom from **mouse wheel**                                  | Keep                                        |
+| Scroll when **menu/Options open** or **pointer over popup**       | Keep (UI scroll); mod does not apply camera |
+| Mouse-drag camera rotate (binding on)                             | Suppress                                    |
+| Edge scrolling                                                    | Keep                                        |
+| Keyboard camera keys                                              | Keep                                        |
+| Gamepad / analog                                                  | Keep                                        |
+| Free-cam / follow / override                                      | Keep                                        |
+| One-finger tools / UI                                             | Keep                                        |
 
 ```mermaid
 flowchart LR
@@ -46,6 +46,8 @@ flowchart LR
 ## Relationship to the gesture pipeline
 
 [Vanilla camera suppress](../glossary/vanilla-camera-suppress.md) is a **gate in front of vanilla camera input**, not a replacement for [trackpad camera](./trackpad-camera.md) apply. Menu-open and over-popup gates skip mod apply and leave scroll available to UI. Device split uses precise vs non-precise scrolling deltas.
+
+Harmony reads **frame buffers** on [`VanillaCameraSuppress`](../mod/VanillaCameraSuppress.cs) (`PreciseTrackpadScroll`, `MenuOrOverUi`) — not persisted settings. See [State ownership](../developer/state-ownership.md).
 
 ## Acceptance
 
