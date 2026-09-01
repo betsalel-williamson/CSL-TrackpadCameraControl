@@ -19,7 +19,7 @@ namespace TrackpadCameraControl.Tests
 
         private static void ResetState()
         {
-            VanillaCameraSuppress.Enabled = false;
+            ModRuntime.ClearForTests();
             VanillaCameraSuppress.PreciseTrackpadScroll = false;
             VanillaCameraSuppress.MenuOrOverUi = false;
             InputGates.ResetTestHooks();
@@ -28,7 +28,7 @@ namespace TrackpadCameraControl.Tests
         [Fact]
         public void ShouldSuppressVanillaScrollWheel_WhenDisabled_ReturnsFalse()
         {
-            VanillaCameraSuppress.Enabled = false;
+            ModRuntime.SetModActiveForTests(false);
             Assert.False(
                 InputGates.ShouldSuppressVanillaScrollWheel(
                     preciseTrackpad: true,
@@ -40,7 +40,7 @@ namespace TrackpadCameraControl.Tests
         [Fact]
         public void ShouldSuppressVanillaScrollWheel_WhenEnabledPreciseWorld_ReturnsTrue()
         {
-            VanillaCameraSuppress.Enabled = true;
+            ModRuntime.SetModActiveForTests(true);
             Assert.True(
                 InputGates.ShouldSuppressVanillaScrollWheel(
                     preciseTrackpad: true,
@@ -52,7 +52,7 @@ namespace TrackpadCameraControl.Tests
         [Fact]
         public void ShouldSuppressVanillaScrollWheel_WhenEnabledWheel_ReturnsFalse()
         {
-            VanillaCameraSuppress.Enabled = true;
+            ModRuntime.SetModActiveForTests(true);
             Assert.False(
                 InputGates.ShouldSuppressVanillaScrollWheel(
                     preciseTrackpad: false,
@@ -64,7 +64,7 @@ namespace TrackpadCameraControl.Tests
         [Fact]
         public void ShouldSuppressVanillaScrollWheel_WhenEnabledOverUi_ReturnsFalse()
         {
-            VanillaCameraSuppress.Enabled = true;
+            ModRuntime.SetModActiveForTests(true);
             Assert.False(
                 InputGates.ShouldSuppressVanillaScrollWheel(
                     preciseTrackpad: true,
@@ -76,7 +76,7 @@ namespace TrackpadCameraControl.Tests
         [Fact]
         public void ShouldRunVanillaScrollWheel_WhenUnfocused_ReturnsFalse()
         {
-            VanillaCameraSuppress.Enabled = true;
+            ModRuntime.SetModActiveForTests(true);
             InputGates.GameFocusedOverride = () => false;
             Assert.False(InputGates.ShouldRunVanillaScrollWheel());
         }
@@ -84,7 +84,7 @@ namespace TrackpadCameraControl.Tests
         [Fact]
         public void ShouldRunVanillaMouseEvents_WhenUnfocused_ReturnsFalse()
         {
-            VanillaCameraSuppress.Enabled = true;
+            ModRuntime.SetModActiveForTests(true);
             InputGates.GameFocusedOverride = () => false;
             Assert.False(InputGates.ShouldRunVanillaMouseEvents(true));
             Assert.False(InputGates.ShouldRunVanillaMouseEvents(false));
@@ -93,7 +93,7 @@ namespace TrackpadCameraControl.Tests
         [Fact]
         public void ShouldFlushPendingOrbit_WhenUnfocused_ReturnsFalse()
         {
-            VanillaCameraSuppress.Enabled = true;
+            ModRuntime.SetModActiveForTests(true);
             InputGates.GameFocusedOverride = () => false;
             Assert.False(InputGates.ShouldFlushPendingOrbit());
         }
@@ -101,7 +101,7 @@ namespace TrackpadCameraControl.Tests
         [Fact]
         public void ShouldBlockAllCameraInput_WhenUnfocusedAndModOn_ReturnsTrue()
         {
-            VanillaCameraSuppress.Enabled = true;
+            ModRuntime.SetModActiveForTests(true);
             InputGates.GameFocusedOverride = () => false;
             Assert.True(InputGates.ShouldBlockAllCameraInput());
         }
@@ -116,7 +116,7 @@ namespace TrackpadCameraControl.Tests
         [Fact]
         public void ShouldRunVanillaScrollWheel_UsesFrameFlags()
         {
-            VanillaCameraSuppress.Enabled = true;
+            ModRuntime.SetModActiveForTests(true);
             InputGates.GameFocusedOverride = () => true;
             VanillaCameraSuppress.PreciseTrackpadScroll = true;
             VanillaCameraSuppress.MenuOrOverUi = false;
@@ -133,21 +133,21 @@ namespace TrackpadCameraControl.Tests
         [Fact]
         public void ShouldSuppressVanillaMouseRotate_WhenEnabledAndRotateHeld_ReturnsTrue()
         {
-            VanillaCameraSuppress.Enabled = true;
+            ModRuntime.SetModActiveForTests(true);
             Assert.True(InputGates.ShouldSuppressVanillaMouseRotate(true));
         }
 
         [Fact]
         public void ShouldSuppressVanillaMouseRotate_WhenEnabledAndRotateNotHeld_ReturnsFalse()
         {
-            VanillaCameraSuppress.Enabled = true;
+            ModRuntime.SetModActiveForTests(true);
             Assert.False(InputGates.ShouldSuppressVanillaMouseRotate(false));
         }
 
         [Fact]
         public void ShouldSuppressVanillaMouseRotate_WhenDisabledAndRotateHeld_ReturnsFalse()
         {
-            VanillaCameraSuppress.Enabled = false;
+            ModRuntime.SetModActiveForTests(false);
             Assert.False(InputGates.ShouldSuppressVanillaMouseRotate(true));
         }
     }
