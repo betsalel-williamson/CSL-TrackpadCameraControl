@@ -134,6 +134,8 @@ namespace TrackpadCameraControl
                 _reopen.eventClick += (c, e) => ShowPanel();
                 _reopen.isVisible = false;
             }
+
+            ApplyPanelStackOrder();
         }
 
         public static void ApplyVisibility()
@@ -152,6 +154,8 @@ namespace TrackpadCameraControl
             {
                 _reopen.isVisible = showReopen;
             }
+
+            ApplyPanelStackOrder();
         }
 
         public static void Destroy()

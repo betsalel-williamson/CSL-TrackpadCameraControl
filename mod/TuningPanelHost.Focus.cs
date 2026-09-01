@@ -33,6 +33,11 @@ namespace TrackpadCameraControl
 
         private static void OnPanelMouseDown()
         {
+            if (GameUiContext.Default.IsMenuOrOptionsOpen())
+            {
+                return;
+            }
+
             _root.BringToFront();
         }
 
