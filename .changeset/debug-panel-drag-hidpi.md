@@ -2,4 +2,4 @@
 "trackpad-camera-control": patch
 ---
 
-Fix Debug panel title-bar drag tracking on HiDPI displays by using ColossalUI pointer coordinates.
+Fix Debug panel title-bar drag on HiDPI by applying ColossalUI moveDelta in GUI space instead of Input.mousePosition.

@@ -42,8 +42,6 @@ namespace TrackpadCameraControl
         private static bool _dragging;
         private static bool _handlingSettingsChanged;
         private static bool _rebuildQueued;
-        private static Vector3 _dragPanelStart;
-        private static Vector3 _dragMouseStart;
 
         public static void EnsureCreated()
         {
@@ -935,13 +933,7 @@ namespace TrackpadCameraControl
             }
 
             _dragging = true;
-            if (_root != null)
-            {
-                _dragPanelStart = _root.relativePosition;
-                _root.BringToFront();
-            }
-
-            _dragPointerStart = e.mpos;
+            _root?.BringToFront();
             e.Use();
         }
 
@@ -957,8 +949,8 @@ namespace TrackpadCameraControl
                 return;
             }
 
-            Vector2 delta = e.mpos - _dragPointerStart;
-            _root.relativePosition = _dragPanelStart + new Vector3(delta.x, delta.y, 0f);
+            // moveDelta is in Colossal GUI space (HiDPI-safe); do not use Input.mousePosition.
+            _root.relativePosition += new Vector3(e.moveDelta.x, e.moveDelta.y, 0f);
             e.Use();
         }
     }
