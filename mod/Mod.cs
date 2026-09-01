@@ -22,14 +22,14 @@ namespace TrackpadCameraControl
             "macOS trackpad camera — pan, pinch zoom, orbit. No middle mouse. Windows/Linux not supported yet.";
 
         /// <summary>
-        /// Mod display title including temporary macOS tag and assembly version
+        /// Mod display title including temporary macOS tag and product semver
         /// (e.g. for Options group header / Content Manager).
         /// </summary>
         public static string OptionsTitle
         {
             get
             {
-                string version = GetAssemblyVersionDisplay();
+                string version = GetProductVersionDisplay();
                 if (string.IsNullOrEmpty(version))
                 {
                     return "Trackpad Camera Control (macOS)";
@@ -39,7 +39,58 @@ namespace TrackpadCameraControl
             }
         }
 
+        /// <summary>
+        /// Product semver from package.json (BuildInfo / InformationalVersion).
+        /// Not the assembly Major.Minor.* identity Cities uses for auto-reload.
+        /// </summary>
+        internal static string GetProductVersionDisplay()
+        {
+            try
+            {
+                const string product = BuildInfo.ProductVersion;
+                if (!string.IsNullOrEmpty(product))
+                {
+                    return product;
+                }
+            }
+            catch
+            {
+                // fail soft
+            }
+
+            return null;
+        }
+
+        /// <summary>Legacy alias for tests / callers expecting OptionsTitle version source.</summary>
         internal static string GetAssemblyVersionDisplay()
+        {
+            return GetProductVersionDisplay();
+        }
+
+        /// <summary>UTC compile time stamped at MSBuild (Debug panel dev confirmation).</summary>
+        internal static string GetAssemblyBuildTimestampUtcDisplay()
+        {
+            try
+            {
+                const string built = BuildInfo.BuildTimestampUtc;
+                if (!string.IsNullOrEmpty(built))
+                {
+                    return built;
+                }
+            }
+            catch
+            {
+                // fail soft
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// Full assembly identity (Major.Minor.Build.Revision). Changes each compile so
+        /// Cities auto-reloads; Debug panel shows this beside Built (UTC).
+        /// </summary>
+        internal static string GetAssemblyIdentityDisplay()
         {
             try
             {
@@ -49,8 +100,7 @@ namespace TrackpadCameraControl
                     return null;
                 }
 
-                // Prefer major.minor.build; Revision is often 0 from GenerateAssemblyInfo.
-                return v.ToString(3);
+                return v.ToString();
             }
             catch
             {
@@ -133,6 +183,19 @@ namespace TrackpadCameraControl
             catch
             {
                 Patcher.LogHarmonyMissingOnce();
+            }
+
+            // Auto-reload (Paradox Automate) runs OnDisabled → Destroy then OnEnabled while the
+            // city stays loaded. OnLevelLoaded does not fire again — recreate Debug UI here.
+            // EnsureCreated fails soft when UIView is unavailable (main menu / early boot).
+            try
+            {
+                TuningPanelHost.EnsureCreated();
+                TuningPanelHost.ApplyVisibility();
+            }
+            catch
+            {
+                // fail soft
             }
 #endif
         }

@@ -63,11 +63,14 @@ Related: [lint and format](./lint-and-format.md), [harnesses and testing](./harn
 
 ## After bootstrap
 
-| Command                                       | Purpose                                     |
-| --------------------------------------------- | ------------------------------------------- |
-| `npm run docs`                                | Compile + check MDCP docs                   |
-| `npm run format` / `format:check`             | Format or verify C# / C / docs              |
-| `npm run hooks:pre-commit` / `hooks:pre-push` | Same checks as husky (run manually anytime) |
-| `npm run changeset`                           | Add a release note for releasable work      |
+| Command                                       | Purpose                                           |
+| --------------------------------------------- | ------------------------------------------------- |
+| `npm run docs`                                | Compile + check MDCP docs                         |
+| `npm run format` / `format:check`             | Format or verify C# / C / docs                    |
+| `npm run hooks:pre-commit` / `hooks:pre-push` | Same checks as husky (run manually anytime)       |
+| `npm run changeset`                           | Add a release note for releasable work            |
+| `./scripts/install-mod-local.sh`              | Build + post-build Mods deploy (Paradox Automate) |
+
+In-game iteration (build while game runs): [mod reload during development](./mod-reload-during-development.md).
 
 Related: [lint and format](./lint-and-format.md), [commits and releases](./commits-and-releases.md).

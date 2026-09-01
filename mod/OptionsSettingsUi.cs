@@ -153,6 +153,8 @@ namespace TrackpadCameraControl
                             if (v)
                             {
                                 TuningPanelHost.ClearUserDismiss();
+                                // Create if missing (e.g. after auto-reload Destroy with checkbox already on).
+                                TuningPanelHost.EnsureCreated();
                             }
 
                             TuningPanelHost.ApplyVisibility();

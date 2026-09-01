@@ -1,8 +1,24 @@
 #!/usr/bin/env bash
-# Build TrackpadCameraControl.dll and copy into the local CS1 Mods folder (macOS).
+# Build TrackpadCameraControl.dll. MSBuild post-build deploys into the local
+# CS1 Mods folder (Paradox Advanced Mod Setup → Automate).
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 export PATH="${HOME}/.dotnet:${PATH}"
+
+if [[ $# -gt 0 ]]; then
+  case "$1" in
+    -h | --help)
+      echo "Usage: $0"
+      echo "  Build + post-build copy into Mods (wiki Automate)."
+      exit 0
+      ;;
+    *)
+      echo "Unknown option: $1" >&2
+      echo "Usage: $0" >&2
+      exit 1
+      ;;
+  esac
+fi
 
 MANAGED="${CitiesManaged:-${HOME}/Library/Application Support/Steam/steamapps/common/Cities_Skylines/Cities.app/Contents/Resources/Data/Managed}"
 MODS="${CITIES_MODS:-${HOME}/Library/Application Support/Colossal Order/Cities_Skylines/Addons/Mods}"
@@ -14,16 +30,16 @@ if [[ ! -f "${MANAGED}/ICities.dll" ]]; then
   exit 1
 fi
 
-dotnet build "${ROOT}/mod/TrackpadCameraControl.csproj" -c Release -p:CitiesManaged="${MANAGED}"
+dotnet build \
+  "${ROOT}/mod/TrackpadCameraControl.csproj" \
+  -c Release \
+  "-p:CitiesManaged=${MANAGED}" \
+  "-p:CitiesMods=${MODS}"
+
 mkdir -p "${DEST}"
-cp -f "${ROOT}/mod/bin/Release/net35/TrackpadCameraControl.dll" "${DEST}/"
-API_DLL="${ROOT}/mod/bin/Release/net35/CitiesHarmony.API.dll"
-if [[ -f "${API_DLL}" ]]; then
-  cp -f "${API_DLL}" "${DEST}/"
-fi
-# CitiesHarmony.Harmony.dll is provided by the Cities Harmony workshop mod — do not copy it.
-echo "Installed → ${DEST}/TrackpadCameraControl.dll"
-echo "Restart Cities: Skylines."
+
+echo "Build finished (post-build should have deployed to ${DEST})."
+echo "Cities auto-reloads when AssemblyVersion changes — see mod-reload-during-development.md"
 echo "Capture: in-process AppKit (default). No companion process."
-echo "Options → Trackpad Camera Control: AppKit vs Contacts (legacy), plus sensitivities."
+echo "Debug panel footer: Built (UTC) + asm identity confirm the loaded build."
 echo "Inspect: tail -f \"\${TMPDIR:-/tmp}/trackpad-camera-control.log\""

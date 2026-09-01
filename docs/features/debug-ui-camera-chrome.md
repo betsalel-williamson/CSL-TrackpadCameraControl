@@ -17,8 +17,9 @@ One floating panel while a city is loaded:
 1. Window title: mod name + version. The title bar is the drag handle and hosts native Cities circular **close** and **gear** (Options) controls. Header buttons are translucent at rest and stronger on hover. Gear opens vanilla **OPTIONS**. Closing the panel (while Options still allows Debug) leaves a floating **Debug** reopen chip.
 2. Feel preset row (Slow / Default / Fast / **New Preset** when dirty, Save as… last in the dropdown, Load on select, Reset to factory).
 3. Sections in order **General → Zoom → Pan → Rotate → Orbit**. Label + Sensitivity control share one row.
-4. Chrome pads/buttons only when `EnableAssistChrome` is on.
-5. Closable via the native circular close control; development defaults may keep the panel on.
+4. Footer line: **Built (UTC)** and **asm** identity — confirm the latest compile loaded after auto-reload.
+5. Chrome pads/buttons only when `EnableAssistChrome` is on.
+6. Closable via the native circular close control; development defaults may keep the panel on.
 
 ## Control contract (chrome when flagged on)
 
@@ -42,6 +43,7 @@ Schema may retain an Assist-named field; the product label is **Show debug panel
 - A change in the Debug panel appears immediately in Options (and the reverse); every change autosaves.
 - When `EnableAssistChrome` is on, pads/buttons move the camera through the shared apply path.
 - Turning Show debug panel off removes the panel and the floating Debug reopen chip immediately (no restart).
+- After a mid-city mod auto-reload (assembly version change), with Show debug panel still on, the floating panel is recreated without requiring a city reload or toggling Options.
 - Gestures and Debug UI share one apply path in the same session.
 
 ## Non-goals
