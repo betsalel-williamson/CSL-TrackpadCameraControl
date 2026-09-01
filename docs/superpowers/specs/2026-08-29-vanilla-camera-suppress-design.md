@@ -1,8 +1,10 @@
 # Vanilla camera suppress — Design
 
 **Date:** 2026-08-29  
-**Status:** Approved  
-**Scope:** Harmony-suppress vanilla scroll-zoom and mouse-drag camera rotate while the mod is enabled; keep edge pan, keyboard, and gamepad
+**Status:** Superseded (partial)  
+**Scope:** Harmony-suppress vanilla scroll-zoom from precise trackpad while the mod is enabled; keep mouse wheel, middle-mouse orbit, edge pan, keyboard, and gamepad
+
+> **Superseded (v1, 2026-09):** Mouse-drag rotate suppress was removed — middle-mouse orbit now coexists with trackpad gestures. Scroll suppress (precise trackpad only) and UI/menu gates unchanged. Authoritative contract: [`docs/features/vanilla-camera-suppress.md`](../../features/vanilla-camera-suppress.md).
 
 ## Goal
 

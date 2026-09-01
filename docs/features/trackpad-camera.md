@@ -9,7 +9,7 @@ Give trackpad players the same camera fluency mouse users get from middle-mouse 
 - [Pan](../glossary/pan.md), [orbit](../glossary/orbit.md), [zoom](../glossary/zoom.md), and [yaw](../glossary/yaw.md) without attaching a mouse.
 - One-finger click and drag still drive build tools and UI.
 - Shipped [gesture style](../glossary/gesture-style.md) is [Maps+](../glossary/maps-plus-preset.md) on AppleKit; tune [feel presets](../glossary/feel-preset.md) and [Sensitivity](../glossary/sensitivity.md) hot; values persist across quit.
-- Mouse wheel still zooms; trackpad two-finger pans — see [vanilla camera suppress](./vanilla-camera-suppress.md).
+- Mouse wheel still vanilla-zooms; middle-mouse drag still vanilla-orbit — see [vanilla camera suppress](./vanilla-camera-suppress.md). Trackpad two-finger pans.
 - Optional [Debug panel](./debug-ui-camera-chrome.md) for the same tunables; Debug chrome buttons only when `EnableAssistChrome` is on.
 - With a selection, rotate and Option-orbit follow [selection-aware gestures](./selection-aware-gestures.md).
 
@@ -33,7 +33,7 @@ CAD three-finger orbit remains behind `EnableCadGestureStyle`.
 
 ## Apply path (orbit drag)
 
-Option+two-finger (and Assist drag orbit) **queues** orbit yaw/pitch via `AddAngleVelocity`. Those deltas are **not** written to angles in `OnUpdate`. A Harmony postfix on `CameraController.HandleMouseEvents` flushes them into `m_angleVelocity` after vanilla inertia damp and before integrate — the same slot middle-mouse drag uses. Button chrome orbit still writes `AngleX`/`AngleY` directly.
+Option+two-finger (and Assist drag orbit) **queues** orbit yaw/pitch via `AddAngleVelocity`. Those deltas are **not** written to angles in `OnUpdate`. A Harmony postfix on `CameraController.HandleMouseEvents` flushes them into `m_angleVelocity` after vanilla inertia damp and before integrate — the same slot middle-mouse drag uses. Vanilla middle-mouse drag continues through the original `HandleMouseEvents` prefix; the postfix still merges trackpad Option-orbit pending into `m_angleVelocity`. Button chrome orbit still writes `AngleX`/`AngleY` directly.
 
 Two-finger **rotation** writes `AngleX` (or ghost angles) directly and clears both axes of angle velocity on apply so prior orbit inertia cannot bleed into the twist. Angle writes update **only the edited axis** on `m_targetAngle` / `m_currentAngle` (no full-vector copy), so rotation cannot snap pitch the way a stale `current.y` lerp would.
 
@@ -46,7 +46,7 @@ Two-finger **rotation** writes `AngleX` (or ghost angles) directly and clears bo
 - Orbit latch continues orbit after modifier release until fingers lift.
 - Concurrent resolve allows pan + zoom + yaw in the same frame when not orbit-latched.
 - One-finger building tools remain usable.
-- [Vanilla camera suppress](./vanilla-camera-suppress.md): precise trackpad pan without vanilla zoom; mouse wheel zooms; no mod camera when menus open or pointer over popups.
+- [Vanilla camera suppress](./vanilla-camera-suppress.md): precise trackpad pan without vanilla zoom; mouse wheel zooms; middle-mouse orbit still vanilla; no mod camera when menus open or pointer over popups.
 - Without a platform backend, the mod enables cleanly; keyboard, edge pan, and gamepad stay.
 - If Cities Harmony is missing, the mod enables without crashing; pan may fight vanilla scroll-zoom.
 - While product flags are off: no CAD switcher, no Contacts picker, no low-pass UI, no Debug chrome / button-step fields.

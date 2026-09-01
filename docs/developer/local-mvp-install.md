@@ -55,7 +55,7 @@ The prior native C `make` target under `native/mac/` is retired. The C# `src/Tra
 2. Enable **Trackpad Camera Control** in Content Manager.
 3. Load a city; keep the game focused; pinch and two-finger-drag on the trackpad.
 
-If capture fails to start, the mod stays enabled and gestures do nothing (fail soft). Check the capture log. Vanilla scroll-zoom and mouse-drag rotate stay suppressed until you disable the mod.
+If capture fails to start, the mod stays enabled and gestures do nothing (fail soft). Check the capture log. Vanilla scroll-zoom from precise trackpad may stay suppressed; middle-mouse orbit is not suppressed.
 
 ### Content Manager version warning
 
