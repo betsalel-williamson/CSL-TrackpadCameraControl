@@ -25,6 +25,7 @@ namespace TrackpadCameraControl
         private const float ColWidth = FieldColumnW;
         private const float HeaderButtonSize = 32f;
         private const float HeaderButtonRestOpacity = 0.55f;
+        private const byte PanelBodyAlpha = 160;
         private const float FooterCopyButtonWidth = 64f;
         private const float FooterCopyButtonHeight = 28f;
 
@@ -68,6 +69,7 @@ namespace TrackpadCameraControl
 
             _root.name = "TrackpadCameraDebugPanel";
             _root.backgroundSprite = "MenuPanel2";
+            _root.color = new Color32(40, 40, 40, PanelBodyAlpha);
             _root.width = PanelWidth;
             _root.height = 420f;
             _root.relativePosition = new Vector3(s.DebugPanelPosX, s.DebugPanelPosY, 0f);
@@ -259,7 +261,7 @@ namespace TrackpadCameraControl
             _titleBar.relativePosition = Vector3.zero;
             _titleBar.backgroundSprite = "GenericPanel";
             // Soft translucent strip over MenuPanel2 (not opaque punch-out).
-            _titleBar.color = new Color32(40, 40, 40, 160);
+            _titleBar.color = new Color32(40, 40, 40, PanelBodyAlpha);
             _titleBar.isInteractive = true;
 
             UIDragHandle drag = _titleBar.AddUIComponent<UIDragHandle>();

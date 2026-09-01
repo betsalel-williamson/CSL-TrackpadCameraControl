@@ -14,7 +14,7 @@ Give players an on-screen **Debug** panel (debug menu / floating tuning surface)
 
 One floating panel while a city is loaded:
 
-1. Window title: mod name + version. The title bar is the drag handle and hosts native Cities circular **close** and **gear** (Options) controls. Header buttons are translucent at rest and stronger on hover. Gear opens vanilla **OPTIONS**. Closing the panel (while Options still allows Debug) leaves a floating **Debug** reopen chip.
+1. Window title: mod name + version. The title bar is the drag handle and hosts native Cities circular **close** and **gear** (Options) controls. Header buttons are translucent at rest and stronger on hover. The panel body uses the same soft translucency so the city remains visible underneath. Gear opens vanilla **OPTIONS**. Closing the panel (while Options still allows Debug) leaves a floating **Debug** reopen chip.
 2. Feel preset row (Slow / Default / Fast / **New Preset** when dirty, Save as… last in the dropdown, Load on select, Reset to factory).
 3. Sections in order **General → Zoom → Pan → Rotate → Orbit**. Label + Sensitivity control share one row.
 4. Footer line: **Built (UTC)** and **asm** identity — confirm the latest compile loaded after auto-reload; **Copy** pastes build info to the clipboard. **Include system info (OS, devices)** (default on) adds OS + Mac model, connected keyboard/mouse/trackpad **models** (VID:PID / transport; duplicates as ×N; never serials), and dependency-critical **assembly** versions (Unity, Harmony, game, this mod) for QA. Both the Copy checkbox and title-bar dismiss state **persist across sessions** (schema 4).
