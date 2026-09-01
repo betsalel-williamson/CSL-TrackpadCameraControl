@@ -1,3 +1,4 @@
+using System.Runtime.InteropServices;
 using TrackpadCameraControl;
 using Xunit;
 
@@ -24,11 +25,21 @@ namespace TrackpadCameraControl.Tests
             Assert.False(string.IsNullOrEmpty(text));
             Assert.Contains("--- System ---", text);
             Assert.Contains("OS:", text);
-            Assert.Contains("Model:", text);
             Assert.DoesNotContain("CPU:", text);
             Assert.DoesNotContain("Memory:", text);
             Assert.Contains("--- Input devices ---", text);
-            Assert.DoesNotContain("(unable to enumerate input devices)", text);
+
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+            {
+                // hw.model + IOKit HID enumeration require Darwin.
+                Assert.Contains("Model:", text);
+                Assert.DoesNotContain("(unable to enumerate input devices)", text);
+                Assert.DoesNotContain("(macOS input enumeration unavailable on this host)", text);
+            }
+            else
+            {
+                Assert.Contains("(macOS input enumeration unavailable on this host)", text);
+            }
         }
 
         [Fact]
