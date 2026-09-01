@@ -10,7 +10,7 @@ namespace TrackpadCameraControl
     /// Builds the Options page: General → Zoom → Pan → Rotate → Orbit.
     /// ColossalUI / UIHelperBase limits (best-effort):
     /// - Sections use nested <see cref="UIHelperBase.AddGroup"/> (short title + native glow);
-    ///   long <see cref="ModOptions.OpHeading*"/> strings are small labels inside group Content.
+    ///   long <see cref="ModOptions.OpDescription*"/> strings are small labels inside group Content.
     /// - Sensitivity uses <see cref="UIHelperBase.AddSlider"/> (0.1×–2× factory, step ≈ 10%).
     /// - Feel presets use a dropdown; Save as… is the last entry plus a name text field
     ///   (dropdown cannot collect a new name alone).
@@ -56,7 +56,7 @@ namespace TrackpadCameraControl
             BuildOpGroup1Axis(
                 helper,
                 "Zoom",
-                ModOptions.OpHeadingZoom,
+                ModOptions.OpDescriptionZoom,
                 "Sensitivity",
                 s.ZoomGain,
                 factory.ZoomGain,
@@ -73,7 +73,7 @@ namespace TrackpadCameraControl
             BuildOpGroup(
                 helper,
                 "Pan",
-                ModOptions.OpHeadingPan,
+                ModOptions.OpDescriptionPan,
                 "Sensitivity X",
                 s.PanGainX,
                 factory.PanGainX,
@@ -97,7 +97,7 @@ namespace TrackpadCameraControl
             BuildOpGroup1Axis(
                 helper,
                 "Rotate",
-                ModOptions.OpHeadingRotate,
+                ModOptions.OpDescriptionRotate,
                 "Sensitivity",
                 s.YawRotateGain,
                 factory.YawRotateGain,
@@ -114,7 +114,7 @@ namespace TrackpadCameraControl
             BuildOpGroup(
                 helper,
                 "Orbit",
-                ModOptions.OpHeadingOrbit,
+                ModOptions.OpDescriptionOrbit,
                 "Sensitivity yaw",
                 s.OrbitYawGain,
                 factory.OrbitYawGain,
@@ -134,6 +134,105 @@ namespace TrackpadCameraControl
                 s.OrbitFilterAlpha,
                 ModOptions.ApplyOrbitFilterAlpha
             );
+
+            AttachOpDescriptionRefresher(helper);
+        }
+
+        private static UIComponent _opDescriptionRoot;
+
+        private static void AttachOpDescriptionRefresher(UIHelperBase helper)
+        {
+            UIHelper ui = helper as UIHelper;
+            UIComponent root = ui != null ? ui.self as UIComponent : null;
+            if (root == null)
+            {
+                return;
+            }
+
+            DetachOpDescriptionRefresher();
+            _opDescriptionRoot = root;
+            VanillaCameraKeyLabelsWatch.LabelsChanged += RefreshOpDescriptions;
+        }
+
+        private static void DetachOpDescriptionRefresher()
+        {
+            VanillaCameraKeyLabelsWatch.LabelsChanged -= RefreshOpDescriptions;
+            _opDescriptionRoot = null;
+        }
+
+        private static void RefreshOpDescriptions()
+        {
+            if (_opDescriptionRoot == null)
+            {
+                return;
+            }
+
+            try
+            {
+                if (_opDescriptionRoot.parent == null)
+                {
+                    DetachOpDescriptionRefresher();
+                    return;
+                }
+            }
+            catch
+            {
+                DetachOpDescriptionRefresher();
+                return;
+            }
+
+            SetOpDescriptionLabel(
+                _opDescriptionRoot,
+                "OpHeadingZoom",
+                ModOptions.OpDescriptionZoom
+            );
+            SetOpDescriptionLabel(_opDescriptionRoot, "OpHeadingPan", ModOptions.OpDescriptionPan);
+            SetOpDescriptionLabel(
+                _opDescriptionRoot,
+                "OpHeadingRotate",
+                ModOptions.OpDescriptionRotate
+            );
+            SetOpDescriptionLabel(
+                _opDescriptionRoot,
+                "OpHeadingOrbit",
+                ModOptions.OpDescriptionOrbit
+            );
+        }
+
+        private static void SetOpDescriptionLabel(UIComponent root, string name, string text)
+        {
+            UILabel label = FindRecursive(root, name) as UILabel;
+            if (label == null || label.text == text)
+            {
+                return;
+            }
+
+            label.text = text;
+            label.PerformLayout();
+        }
+
+        private static UIComponent FindRecursive(UIComponent parent, string name)
+        {
+            if (parent == null)
+            {
+                return null;
+            }
+
+            if (parent.name == name)
+            {
+                return parent;
+            }
+
+            foreach (UIComponent child in parent.components)
+            {
+                UIComponent hit = FindRecursive(child, name);
+                if (hit != null)
+                {
+                    return hit;
+                }
+            }
+
+            return null;
         }
 
         private static void BuildGeneralSection(UIHelperBase helper, ModSettings s)
@@ -228,7 +327,7 @@ namespace TrackpadCameraControl
         /// Places the long OpHeading description as a small label inside group Content
         /// (not as the AddGroup title).
         /// </summary>
-        private static void AddGroupDescription(UIHelperBase group, string text)
+        private static void AddGroupDescription(UIHelperBase group, string opId, string text)
         {
             if (group == null || string.IsNullOrEmpty(text))
             {
@@ -249,13 +348,9 @@ namespace TrackpadCameraControl
             }
 
             UILabel label = root.AddUIComponent<UILabel>();
-            label.name = "OpHeading";
+            label.name = "OpHeading" + opId;
             label.textScale = 0.85f;
-            label.wordWrap = true;
-            label.autoSize = false;
-            label.autoHeight = true;
-            float contentWidth = root.width > 40f ? root.width - 20f : 500f;
-            label.width = contentWidth;
+            label.autoSize = true;
             label.text = text;
             label.PerformLayout();
         }
@@ -279,7 +374,7 @@ namespace TrackpadCameraControl
         {
             ModSettings s = Mod.EnsureSettings();
             UIHelperBase group = SectionBreak(helper, shortTitle);
-            AddGroupDescription(group, description);
+            AddGroupDescription(group, shortTitle, description);
             AddSensitivityControl(
                 group,
                 sensitivityLabel,
@@ -339,7 +434,7 @@ namespace TrackpadCameraControl
         {
             ModSettings s = Mod.EnsureSettings();
             UIHelperBase group = SectionBreak(helper, shortTitle);
-            AddGroupDescription(group, description);
+            AddGroupDescription(group, shortTitle, description);
             AddSensitivityControl(
                 group,
                 sensitivityALabel,

@@ -2,7 +2,7 @@
 
 The in-game **Debug** panel is the floating window for [feel presets](./feel-presets.md) and per-op tunables beside the city view. It shares the same live **ModSettings** as Options → Trackpad Camera Control: camera feel updates immediately from either surface; the Debug panel rebuilds its controls when settings change; every change **autosaves**.
 
-Drag the panel by its **title bar** (mod name + version). The title bar uses native Cities chrome: a circular **close** control and a circular **gear** (Options). At rest those header buttons are translucent; on hover they strengthen. The gear opens vanilla **OPTIONS** (the game’s Options window). Closing the panel leaves a floating **Debug** reopen chip when Options still allows the panel.
+Drag the panel by its **title bar** (mod name + version). The title bar uses native Cities chrome: a circular **close** control and a circular **gear** (Options). At rest those header buttons are translucent; on hover they strengthen. Hover the panel for full opacity; move off and it softens so you can see through it. The gear opens vanilla **OPTIONS** (the game’s Options window). Closing the panel leaves a floating **Debug** reopen chip when Options still allows the panel.
 
 ## Turn the panel on or off
 

@@ -264,6 +264,7 @@ namespace TrackpadCameraControl
             try
             {
                 TuningPanelHost.Destroy();
+                VanillaCameraKeyLabelsWatch.Unhook();
             }
             catch
             {
