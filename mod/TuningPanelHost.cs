@@ -39,7 +39,6 @@ namespace TrackpadCameraControl
         private static UIDropDown _feelDropdown;
         private static string[] _feelDropdownItems;
         private static float _nextY;
-        private static bool _dragging;
         private static bool _handlingSettingsChanged;
         private static bool _rebuildQueued;
 
@@ -76,7 +75,6 @@ namespace TrackpadCameraControl
             {
                 _root.BringToFront();
             };
-            _root.eventMouseUp += OnTitleMouseUp;
 
             BuildTitleBar();
 
@@ -176,7 +174,6 @@ namespace TrackpadCameraControl
             _feelNameField = null;
             _feelDropdown = null;
             _feelDropdownItems = null;
-            _dragging = false;
         }
 
         private static void OnSettingsChanged()
@@ -245,7 +242,6 @@ namespace TrackpadCameraControl
 
         private static void HidePanel()
         {
-            _dragging = false;
             ModSettings s = Mod.EnsureSettings();
             ModOptions.ApplyBool(s, x => x.DebugPanelDismissed = true);
             ApplyVisibility();
@@ -263,9 +259,10 @@ namespace TrackpadCameraControl
             // Soft translucent strip over MenuPanel2 (not opaque punch-out).
             _titleBar.color = new Color32(40, 40, 40, 160);
             _titleBar.isInteractive = true;
-            _titleBar.eventMouseDown += OnTitleMouseDown;
-            _titleBar.eventMouseUp += OnTitleMouseUp;
-            _titleBar.eventMouseMove += OnTitleMouseMove;
+
+            UIDragHandle drag = _titleBar.AddUIComponent<UIDragHandle>();
+            drag.target = _root;
+            drag.constrainToScreen = true;
 
             _title = AddLabel(_titleBar, Mod.OptionsTitle, Col0, 8f);
             _title.textScale = 1.1f;
@@ -293,7 +290,6 @@ namespace TrackpadCameraControl
             };
             _optionsButton.eventMouseDown += (c, e) =>
             {
-                _dragging = false;
                 e.Use();
             };
 
@@ -310,7 +306,6 @@ namespace TrackpadCameraControl
             _closeButton.eventMouseDown += (c, e) =>
             {
                 // Close must not start a title-bar drag.
-                _dragging = false;
                 e.Use();
             };
             _optionsButton.BringToFront();
@@ -711,7 +706,6 @@ namespace TrackpadCameraControl
             };
             copy.eventMouseDown += (c, e) =>
             {
-                _dragging = false;
                 e.Use();
             };
 
@@ -918,40 +912,6 @@ namespace TrackpadCameraControl
             label.textColor = Color.white;
             label.autoSize = true;
             return label;
-        }
-
-        private static void OnTitleMouseDown(UIComponent c, UIMouseEventParameter e)
-        {
-            if (_closeButton != null && e.source == _closeButton)
-            {
-                return;
-            }
-
-            if (_optionsButton != null && e.source == _optionsButton)
-            {
-                return;
-            }
-
-            _dragging = true;
-            _root?.BringToFront();
-            e.Use();
-        }
-
-        private static void OnTitleMouseUp(UIComponent c, UIMouseEventParameter e)
-        {
-            _dragging = false;
-        }
-
-        private static void OnTitleMouseMove(UIComponent c, UIMouseEventParameter e)
-        {
-            if (!_dragging || _root == null)
-            {
-                return;
-            }
-
-            // moveDelta is in Colossal GUI space (HiDPI-safe); do not use Input.mousePosition.
-            _root.relativePosition += new Vector3(e.moveDelta.x, e.moveDelta.y, 0f);
-            e.Use();
         }
     }
 }
