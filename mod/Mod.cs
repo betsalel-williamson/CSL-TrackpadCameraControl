@@ -184,6 +184,19 @@ namespace TrackpadCameraControl
             {
                 Patcher.LogHarmonyMissingOnce();
             }
+
+            // Auto-reload (Paradox Automate) runs OnDisabled → Destroy then OnEnabled while the
+            // city stays loaded. OnLevelLoaded does not fire again — recreate Debug UI here.
+            // EnsureCreated fails soft when UIView is unavailable (main menu / early boot).
+            try
+            {
+                TuningPanelHost.EnsureCreated();
+                TuningPanelHost.ApplyVisibility();
+            }
+            catch
+            {
+                // fail soft
+            }
 #endif
         }
 

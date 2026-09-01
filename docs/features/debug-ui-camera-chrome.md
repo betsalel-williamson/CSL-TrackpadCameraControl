@@ -43,6 +43,7 @@ Schema may retain an Assist-named field; the product label is **Show debug panel
 - A change in the Debug panel appears immediately in Options (and the reverse); every change autosaves.
 - When `EnableAssistChrome` is on, pads/buttons move the camera through the shared apply path.
 - Turning Show debug panel off removes the panel and the floating Debug reopen chip immediately (no restart).
+- After a mid-city mod auto-reload (assembly version change), with Show debug panel still on, the floating panel is recreated without requiring a city reload or toggling Options.
 - Gestures and Debug UI share one apply path in the same session.
 
 ## Non-goals

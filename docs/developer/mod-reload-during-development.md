@@ -35,7 +35,12 @@ Do **not** put `1.0.*` wildcards on the **product** / InformationalVersion strin
    ```
 
 3. Watch Content Manager / play — the game should pick up the new assembly version.
-4. Open **Debug** (Options → Show debug panel): **Built (UTC)** and **asm** must change after each rebuild.
+4. Confirm **Debug** reappears if **Show debug panel** was on (OnEnabled recreates it after Destroy; `OnLevelLoaded` alone is not enough mid-city).
+5. Footer **Built (UTC)** and **asm** must change after each rebuild.
+
+## Debug UI across auto-reload
+
+Cities calls `OnDisabled` then `OnEnabled` when the assembly version changes. Disable destroys the Debug panel. Enable must recreate it when a city UI view exists — waiting for the next `OnLevelLoaded` leaves Options “Show debug panel” checked with no panel.
 
 ## Fallbacks
 
