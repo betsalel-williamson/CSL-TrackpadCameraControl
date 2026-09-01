@@ -234,6 +234,43 @@ namespace TrackpadCameraControl.Tests
         }
 
         [Fact]
+        public void RoundTrip_PreservesDebugPanelPosition()
+        {
+            var store = new ModSettingsStore(_path);
+            store.SaveNow(new ModSettings { DebugPanelPosX = 120f, DebugPanelPosY = 88f });
+
+            ModSettings loaded = store.LoadOrFactory();
+            Assert.Equal(120f, loaded.DebugPanelPosX);
+            Assert.Equal(88f, loaded.DebugPanelPosY);
+            Assert.Equal(5, ModSettingsStore.CurrentSchemaVersion);
+        }
+
+        [Fact]
+        public void ResetToFactory_PreservesPanelPosition()
+        {
+            var store = new ModSettingsStore(_path);
+            ModOptions.Store = store;
+            try
+            {
+                var settings = new ModSettings
+                {
+                    PanGainX = 9f,
+                    DebugPanelPosX = 200f,
+                    DebugPanelPosY = 150f,
+                };
+                store.SaveNow(settings);
+                ModOptions.ResetToFactory(settings);
+                FeelExpectation.AssertMatchesFactoryFeel(settings);
+                Assert.Equal(200f, settings.DebugPanelPosX);
+                Assert.Equal(150f, settings.DebugPanelPosY);
+            }
+            finally
+            {
+                ModOptions.Store = null;
+            }
+        }
+
+        [Fact]
         public void ResetToFactory_WritesDefaults()
         {
             var store = new ModSettingsStore(_path);

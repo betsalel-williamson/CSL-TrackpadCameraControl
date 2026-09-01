@@ -70,6 +70,15 @@ Used by trackpad gestures (and Assist chrome pads when `EnableAssistChrome` is o
 | IncludeSystemInfoInCopy | bool | true    | no  |
 | DebugPanelDismissed     | bool | false   | no  |
 
+**Schema 5:** Debug panel position persists in `current`:
+
+| Field          | Type  | Default | Hot |
+| -------------- | ----- | ------- | --- |
+| DebugPanelPosX | float | 40      | no  |
+| DebugPanelPosY | float | 60      | no  |
+
+Reset to factory restores feel fields only — panel position is preserved.
+
 Missing elements on load get factory defaults; schema bump rewrites the envelope.
 
 ## Orbit pitch limits

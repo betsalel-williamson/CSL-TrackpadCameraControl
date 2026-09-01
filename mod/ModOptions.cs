@@ -528,7 +528,11 @@ namespace TrackpadCameraControl
                 return;
             }
 
+            float panelX = settings.DebugPanelPosX;
+            float panelY = settings.DebugPanelPosY;
             settings.CopyFrom(ModSettings.CreateFactoryDefaults());
+            settings.DebugPanelPosX = panelX;
+            settings.DebugPanelPosY = panelY;
             settings.ActiveFeelPresetName = FeelProfiles.NameDefault;
             if (Store != null)
             {
@@ -536,6 +540,23 @@ namespace TrackpadCameraControl
             }
 
             RaiseSettingsChanged();
+        }
+
+        /// <summary>Persist Debug panel position without rebuilding the UI.</summary>
+        public static void ApplyPanelPosition(ModSettings settings, float x, float y)
+        {
+            if (settings == null)
+            {
+                return;
+            }
+
+            settings.DebugPanelPosX = x;
+            settings.DebugPanelPosY = y;
+            if (Store != null)
+            {
+                Store.MarkDirty();
+                Store.FlushIfNeeded(settings, true);
+            }
         }
 
         public static void ApplyFeelDefault(ModSettings settings)
