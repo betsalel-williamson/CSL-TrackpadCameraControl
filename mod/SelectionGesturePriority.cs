@@ -59,12 +59,12 @@ namespace TrackpadCameraControl
         }
 
         /// <summary>
-        /// Option-orbit may re-home look-at only for place/relocate ghosts.
-        /// Otherwise orbit from the current camera Target (no snap to last pivot).
+        /// Option-orbit never re-homes Target — always orbit from the current camera look-at.
+        /// Ghost / selection modes affect object yaw only.
         /// </summary>
         public static bool AllowsOrbitPivot(SelectionGestureKind kind)
         {
-            return AllowsGhostBinding(kind);
+            return false;
         }
 
         private static bool AllowsGhostBinding(SelectionGestureKind kind)

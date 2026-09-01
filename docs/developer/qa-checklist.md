@@ -44,6 +44,7 @@ Maintainer and community reports. Prefer Workshop comments or a GitHub issue tit
 - [ ] Two-finger twist **rotates** heading (no pitch; hard-handoffs leftover orbit coast)
 - [ ] Option (`⌥`)+two-finger drag **orbits** (orbit yaw **and** pitch); twist ignored while Option owns contact
 - [ ] With DefaultTool + a click-selected building: Option-orbit does **not** jump look-at to that building
+- [ ] Relocate building → two-finger **pan away** → Option-orbit does **not** jump look-at to Relocate-click / ghost / old cell
 - [ ] Release Option while fingers still down: orbit **latches** until lift
 - [ ] Lift fingers after Option-orbit: short **coast** then stop (middle-click-like), not a teleport
 - [ ] Pitch stops at **0°** looking down (not negative in normal play); top clamp **90°**
@@ -64,7 +65,7 @@ Maintainer and community reports. Prefer Workshop comments or a GitHub issue tit
 ## Optional (only when flags are on)
 
 - [ ] `EnableAssistChrome`: chrome **button** orbit steps; drag pad orbits like Option+drag
-- [ ] Place/relocate ghost: Option-orbit follows ghost; twist rotates ghost, not leftover click-select
+- [ ] Place/relocate ghost: Option-orbit does **not** snap to ghost; two-finger twist rotates ghost, not leftover click-select
 
 ## Related
 

@@ -9,7 +9,7 @@ How fingers map to camera ops is [gesture style](../glossary/gesture-style.md). 
 - Two-finger drag → [pan](../glossary/pan.md) (clamped to city bounds)
 - Pinch → [zoom](../glossary/zoom.md)
 - Two-finger rotate → [yaw](../glossary/yaw.md) the camera, or rotate a **new/relocate ghost** while placing
-- Option (`⌥`)+two-finger drag → [orbit](../glossary/orbit.md) (around the selection when one exists)
+- Option (`⌥`)+two-finger drag → [orbit](../glossary/orbit.md) from current look-at (including during place/relocate)
 
 Once orbit starts, [orbit latch](../glossary/orbit-latch.md) holds until you lift your fingers. Orbit pitch stays within vanilla pitch range **0–90°** (same as the game; floors at 0 so free-cam cannot go negative).
 

@@ -95,13 +95,13 @@ namespace TrackpadCameraControl.Tests
         }
 
         [Theory]
-        [InlineData(SelectionGestureKind.RelocateInstance, true)]
-        [InlineData(SelectionGestureKind.PlacementGhost, true)]
-        [InlineData(SelectionGestureKind.SelectedInstance, false)]
-        [InlineData(SelectionGestureKind.None, false)]
-        public void AllowsOrbitPivot_OnlyGhostModes(SelectionGestureKind kind, bool expected)
+        [InlineData(SelectionGestureKind.RelocateInstance)]
+        [InlineData(SelectionGestureKind.PlacementGhost)]
+        [InlineData(SelectionGestureKind.SelectedInstance)]
+        [InlineData(SelectionGestureKind.None)]
+        public void AllowsOrbitPivot_NeverRehomesTarget(SelectionGestureKind kind)
         {
-            Assert.Equal(expected, SelectionGesturePriority.AllowsOrbitPivot(kind));
+            Assert.False(SelectionGesturePriority.AllowsOrbitPivot(kind));
         }
     }
 }

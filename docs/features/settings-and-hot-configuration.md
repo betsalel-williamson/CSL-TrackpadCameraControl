@@ -6,9 +6,9 @@ No feel or binding parameter is hardcoded in camera or gesture logic. Defaults e
 
 ## Surfaces
 
-| Surface                           | Product-surface tunables                                                                 |
-| --------------------------------- | ---------------------------------------------------------------------------------------- |
-| In-game Debug panel               | Feel presets (incl. **New Preset** dirty), Reset, Sensitivity, Show debug panel |
+| Surface                           | Product-surface tunables                                                                          |
+| --------------------------------- | ------------------------------------------------------------------------------------------------- |
+| In-game Debug panel               | Feel presets (incl. **New Preset** dirty), Reset, Sensitivity, Show debug panel                   |
 | Options → Trackpad Camera Control | Feel presets + Sensitivity sliders; window title is mod name + version; **no** pitch angle fields |
 
 One binding layer parses, rounds gains to three decimals (button steps to two), validates Options Sensitivity against the slider contract on player drag, and writes fields. A change on either surface updates live settings immediately and schedules a durable write (autosave).
@@ -27,13 +27,13 @@ Product UI does **not** expose Enable-per-op or Reverse. Reverse and per-op enab
 
 A [feel preset](../glossary/feel-preset.md) stores sensitivities, reverse flags, enables, and orbit pitch min/max — **not** [gesture style](../glossary/gesture-style.md).
 
-| Profile | Role |
-| ------- | ---- |
-| Default | Factory / Reset — playtest Maps+ feel ([Sensitivity](../glossary/sensitivity.md) factory defaults) |
-| Slow    | Default sensitivities × 0.75 (three decimals); reverse and pitch limits unchanged |
-| Fast    | Default sensitivities × 1.25 (three decimals); reverse and pitch limits unchanged |
-| New Preset | Scratch identity when the player dirties a built-in or named preset; autosave writes here |
-| Named   | Save as… / Load on the persist `userPresets` envelope |
+| Profile    | Role                                                                                               |
+| ---------- | -------------------------------------------------------------------------------------------------- |
+| Default    | Factory / Reset — playtest Maps+ feel ([Sensitivity](../glossary/sensitivity.md) factory defaults) |
+| Slow       | Default sensitivities × 0.75 (three decimals); reverse and pitch limits unchanged                  |
+| Fast       | Default sensitivities × 1.25 (three decimals); reverse and pitch limits unchanged                  |
+| New Preset | Scratch identity when the player dirties a built-in or named preset; autosave writes here          |
+| Named      | Save as… / Load on the persist `userPresets` envelope                                              |
 
 ### Dirty model and built-ins
 
@@ -67,12 +67,12 @@ Let `raw` be the resolved gesture delta for that axis. Optional [low-pass](../gl
 
 ### Continuous path (trackpad; chrome pads when flagged on)
 
-| Op    | After [Sensitivity](../glossary/sensitivity.md) | Camera write |
-| ----- | ----------------------------------------------- | ------------ |
-| Pan   | `mx = dx * PanSensitivityX`, `my = dy * PanSensitivityY`, then `mx,my *= Size` | Camera-relative XZ, then **clamp target via `ICameraController.ClampPanTarget`** (unlocked game area / `ClampPoint`) |
-| Zoom  | `delta = pinch * ZoomSensitivity` | `Size' = Size * (1 - delta)` (clamped) |
-| Yaw   | `delta = rotate * YawRotateSensitivity` | `AngleX' = AngleX + delta` (no yaw angle clamp). When a selection is active, two-finger rotate targets the object instead — see [selection-aware gestures](./selection-aware-gestures.md). |
-| Orbit | Drag: `AddAngleVelocity(dx * OrbitYawSensitivity, dy * OrbitPitchSensitivity)` (middle mouse button-style; vanilla LateUpdate damps/lerps). Button: absolute angle step + pitch clamp. Place/relocate ghost may re-home Target; otherwise orbit from current look-at. |
+| Op    | After [Sensitivity](../glossary/sensitivity.md)                                                                                                                                                                                               | Camera write                                                                                                                                                                               |
+| ----- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Pan   | `mx = dx * PanSensitivityX`, `my = dy * PanSensitivityY`, then `mx,my *= Size`                                                                                                                                                                | Camera-relative XZ, then **clamp target via `ICameraController.ClampPanTarget`** (unlocked game area / `ClampPoint`)                                                                       |
+| Zoom  | `delta = pinch * ZoomSensitivity`                                                                                                                                                                                                             | `Size' = Size * (1 - delta)` (clamped)                                                                                                                                                     |
+| Yaw   | `delta = rotate * YawRotateSensitivity`                                                                                                                                                                                                       | `AngleX' = AngleX + delta` (no yaw angle clamp). When a selection is active, two-finger rotate targets the object instead — see [selection-aware gestures](./selection-aware-gestures.md). |
+| Orbit | Drag: `AddAngleVelocity(dx * OrbitYawSensitivity, dy * OrbitPitchSensitivity)` (middle mouse button-style; vanilla LateUpdate damps/lerps). Button: absolute angle step + pitch clamp. Orbit always from current look-at (no Target re-home). |
 
 ### Button path (only when `EnableAssistChrome`)
 
