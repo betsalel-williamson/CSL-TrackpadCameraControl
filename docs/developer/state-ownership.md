@@ -52,4 +52,4 @@ User-facing Debug QoL (include system info in Copy, panel dismissed) lives in **
 
 - [Settings schema](./settings-schema.md)
 - [Harnesses and testing](./harnesses-and-testing.md)
-- [Vanilla camera suppress](../features/vanilla-camera-suppress.md)
+- [Vanilla camera suppress](../glossary/vanilla-camera-suppress.md)

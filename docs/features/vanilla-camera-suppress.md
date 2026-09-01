@@ -47,7 +47,7 @@ flowchart LR
 
 [Vanilla camera suppress](../glossary/vanilla-camera-suppress.md) is a **gate in front of vanilla camera input**, not a replacement for [trackpad camera](./trackpad-camera.md) apply. Menu-open and over-popup gates skip mod apply and leave scroll available to UI. Device split uses precise vs non-precise scrolling deltas.
 
-Harmony reads **frame buffers** on [`VanillaCameraSuppress`](../mod/VanillaCameraSuppress.cs) (`PreciseTrackpadScroll`, `MenuOrOverUi`) — not persisted settings. See [State ownership](../developer/state-ownership.md).
+Harmony reads **frame buffers** on [`VanillaCameraSuppress`](../mod/VanillaCameraSuppress.cs) (`PreciseTrackpadScroll`, `MenuOrOverUi`) — not persisted settings. Buffer vs preference boundaries are in the developer **State ownership** shard (`docs/developer/state-ownership.md`).
 
 ## Acceptance
 
