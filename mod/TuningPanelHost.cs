@@ -382,8 +382,7 @@ namespace TrackpadCameraControl
             UIButton reset = MakeMenuButton("Reset", Col0 + 228f, _nextY, 72f);
             reset.eventClick += (c, e) =>
             {
-                // SettingsChanged rebuilds the panel (New Preset / field sync).
-                ModOptions.ResetToFactory(s);
+                ModOptions.ApplyFeelDefault(s);
             };
             _nextY += 32f;
 
