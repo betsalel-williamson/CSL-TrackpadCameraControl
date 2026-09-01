@@ -35,7 +35,7 @@ Do **not** put `1.0.*` wildcards on the **product** / InformationalVersion strin
    ```
 
 3. Watch Content Manager / play — the game should pick up the new assembly version.
-4. If **Show debug panel** is on, the floating **Debug** panel comes back after reload (see [Debug UI across auto-reload](#debug-ui-across-auto-reload)). Footer **Built (UTC)** and **asm** must change after each rebuild.
+4. If **Show debug panel** is on, the floating **Debug** panel comes back after reload (see [Debug UI across auto-reload](#debug-ui-across-auto-reload)). Footer **Built (UTC)** and **asm** must change after each rebuild; **Copy** pastes build info (optionally with OS and input devices when **Include system info** is checked).
 
 ## Debug UI across auto-reload
 

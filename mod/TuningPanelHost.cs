@@ -25,6 +25,10 @@ namespace TrackpadCameraControl
         private const float ColWidth = FieldColumnW;
         private const float HeaderButtonSize = 32f;
         private const float HeaderButtonRestOpacity = 0.55f;
+        private const float FooterCopyButtonWidth = 64f;
+        private const float FooterCopyButtonHeight = 28f;
+
+        private static bool _includeSystemInfoInCopy = true;
 
         private static UIPanel _root;
         private static UIPanel _titleBar;
@@ -661,28 +665,70 @@ namespace TrackpadCameraControl
 
         private static void AddBuildInfoFooter()
         {
-            string built = Mod.GetAssemblyBuildTimestampUtcDisplay();
-            string asm = Mod.GetAssemblyIdentityDisplay();
-            if (string.IsNullOrEmpty(built) && string.IsNullOrEmpty(asm))
+            string line = Mod.GetBuildInfoFooterDisplay();
+            if (string.IsNullOrEmpty(line))
             {
                 return;
             }
 
-            string line = "Built (UTC): " + (built ?? "?");
-            if (!string.IsNullOrEmpty(asm))
-            {
-                line += "  ·  asm " + asm;
-            }
-
             _nextY += 8f;
-            UILabel label = AddLabel(_root, line, Col0, _nextY);
+            float rowY = _nextY;
+            float copyX = PanelWidth - FieldGutter - FooterCopyButtonWidth;
+            float labelWidth = copyX - Col0 - 4f;
+
+            UILabel label = AddLabel(_root, line, Col0, rowY);
             label.textColor = new Color(1f, 1f, 1f, 0.75f);
-            label.width = PanelWidth - (FieldGutter * 2f);
+            label.width = labelWidth;
             label.autoSize = false;
             label.autoHeight = true;
             label.wordWrap = true;
+            label.isInteractive = false;
             label.PerformLayout();
-            _nextY += Mathf.Max(18f, label.height + 4f);
+
+            // Labelled "Copy" — Cities UI fonts do not render clipboard glyphs (blank square).
+            UIButton copy = MakeMenuButton("Copy", copyX, rowY, FooterCopyButtonWidth);
+            copy.height = FooterCopyButtonHeight;
+            copy.tooltip = "Copy build info (and system info when checked)";
+            copy.eventClick += (c, e) =>
+                GUIUtility.systemCopyBuffer = QaClipboardReport.Format(_includeSystemInfoInCopy);
+            copy.eventMouseDown += (c, e) =>
+            {
+                _dragging = false;
+                e.Use();
+            };
+
+            _nextY += Mathf.Max(FooterCopyButtonHeight, label.height + 4f);
+            AddLocalCheckRow(
+                "Include system info (OS, devices)",
+                () => _includeSystemInfoInCopy,
+                v =>
+                {
+                    _includeSystemInfoInCopy = v;
+                }
+            );
+        }
+
+        private static void AddLocalCheckRow(string label, Func<bool> get, Action<bool> set)
+        {
+            UICheckBox box = _root.AddUIComponent<UICheckBox>();
+            box.width = PanelWidth - (FieldGutter * 2f);
+            box.height = 20f;
+            box.relativePosition = new Vector3(Col0, _nextY);
+            UISprite uncheckedSprite = box.AddUIComponent<UISprite>();
+            uncheckedSprite.spriteName = "check-unchecked";
+            uncheckedSprite.size = new Vector2(16f, 16f);
+            uncheckedSprite.relativePosition = Vector3.zero;
+            box.checkedBoxObject = box.AddUIComponent<UISprite>();
+            ((UISprite)box.checkedBoxObject).spriteName = "check-checked";
+            box.checkedBoxObject.size = new Vector2(16f, 16f);
+            box.checkedBoxObject.relativePosition = Vector3.zero;
+            UILabel boxLabel = box.AddUIComponent<UILabel>();
+            boxLabel.text = label;
+            boxLabel.relativePosition = new Vector3(22f, 2f);
+            box.label = boxLabel;
+            box.isChecked = get();
+            box.eventCheckChanged += (c, v) => set(v);
+            _nextY += 22f;
         }
 
         private static void AddSection(string title)

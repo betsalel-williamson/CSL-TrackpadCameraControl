@@ -44,7 +44,8 @@ jobs:
 
   validate:
     name: Validate
-    runs-on: ubuntu-latest
+    # macOS: AppKit / IOKit QA paths and Apple-only assertions need Darwin (not Linux).
+    runs-on: macos-latest
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -67,7 +68,7 @@ jobs:
           dotnet-version: "8.0.x"
 
       - name: Install clang-format
-        run: sudo apt-get update && sudo apt-get install -y clang-format
+        run: brew install clang-format
 
       - run: npm ci
 

@@ -43,5 +43,14 @@ namespace TrackpadCameraControl.Tests
             string[] parts = asm.Split('.');
             Assert.Equal(4, parts.Length);
         }
+
+        [Fact]
+        public void GetBuildInfoFooterDisplay_MatchesFooterShape()
+        {
+            string footer = Mod.GetBuildInfoFooterDisplay();
+            Assert.False(string.IsNullOrEmpty(footer));
+            Assert.StartsWith("Built (UTC):", footer);
+            Assert.Contains("asm ", footer);
+        }
     }
 }
