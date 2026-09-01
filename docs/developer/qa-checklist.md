@@ -4,7 +4,7 @@ Manual pass/fail lists for Trackpad Camera Control. Unit tests cannot prove Harm
 
 **Session defaults:** Cities Harmony on, this mod enabled, city loaded, game focused, Maps+ gesture style, Default feel preset.
 
-Copy a section into a PR or commit note and check boxes as you go. With **Show debug panel** on, click **⎘** in the Debug footer ( **Include system info** checked) to paste OS, model, CPU, and connected keyboard/mouse/trackpad names into the session platform table below. After a full pass, add a row to **Known good platforms** below (and update [Workshop storefront](./workshop-storefront.md) when the public claim changes).
+Copy a section into a PR or commit note and check boxes as you go. With **Show debug panel** on, click **Copy** in the Debug footer (**Include system info** checked) to paste OS, model, CPU, and connected keyboard/mouse/trackpad names into the session platform table below. After a full pass, add a row to **Known good platforms** below (and update [Workshop storefront](./workshop-storefront.md) when the public claim changes).
 
 ## Session platform (fill every run)
 

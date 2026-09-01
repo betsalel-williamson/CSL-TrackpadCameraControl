@@ -25,7 +25,8 @@ namespace TrackpadCameraControl
         private const float ColWidth = FieldColumnW;
         private const float HeaderButtonSize = 32f;
         private const float HeaderButtonRestOpacity = 0.55f;
-        private const float FooterCopyButtonSize = 24f;
+        private const float FooterCopyButtonWidth = 64f;
+        private const float FooterCopyButtonHeight = 28f;
 
         private static bool _includeSystemInfoInCopy = true;
 
@@ -672,7 +673,7 @@ namespace TrackpadCameraControl
 
             _nextY += 8f;
             float rowY = _nextY;
-            float copyX = PanelWidth - FieldGutter - FooterCopyButtonSize;
+            float copyX = PanelWidth - FieldGutter - FooterCopyButtonWidth;
             float labelWidth = copyX - Col0 - 4f;
 
             UILabel label = AddLabel(_root, line, Col0, rowY);
@@ -684,16 +685,10 @@ namespace TrackpadCameraControl
             label.isInteractive = false;
             label.PerformLayout();
 
-            UIButton copy = _root.AddUIComponent<UIButton>();
-            copy.text = "⎘";
-            copy.textScale = 0.9f;
-            copy.width = FooterCopyButtonSize;
-            copy.height = FooterCopyButtonSize;
-            copy.relativePosition = new Vector3(copyX, rowY);
-            copy.normalBgSprite = "ButtonMenu";
-            copy.hoveredBgSprite = "ButtonMenuHovered";
-            copy.pressedBgSprite = "ButtonMenuPressed";
-            copy.tooltip = "Copy build info";
+            // Labelled "Copy" — Cities UI fonts do not render clipboard glyphs (blank square).
+            UIButton copy = MakeMenuButton("Copy", copyX, rowY, FooterCopyButtonWidth);
+            copy.height = FooterCopyButtonHeight;
+            copy.tooltip = "Copy build info (and system info when checked)";
             copy.eventClick += (c, e) =>
                 GUIUtility.systemCopyBuffer = QaClipboardReport.Format(_includeSystemInfoInCopy);
             copy.eventMouseDown += (c, e) =>
@@ -702,7 +697,7 @@ namespace TrackpadCameraControl
                 e.Use();
             };
 
-            _nextY += Mathf.Max(FooterCopyButtonSize, label.height + 4f);
+            _nextY += Mathf.Max(FooterCopyButtonHeight, label.height + 4f);
             AddLocalCheckRow(
                 "Include system info (OS, devices)",
                 () => _includeSystemInfoInCopy,
