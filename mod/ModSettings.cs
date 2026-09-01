@@ -1,4 +1,5 @@
 using System;
+using System.Xml.Serialization;
 
 namespace TrackpadCameraControl
 {
@@ -68,9 +69,35 @@ namespace TrackpadCameraControl
         public bool SignInvertZoom { get; set; }
         public bool SignInvertYawRotate { get; set; }
 
-        public float MotionDeadband { get; set; } = 0.1f;
-        public float PinchEpsilon { get; set; } = 0.001f;
-        public float RotateEpsilon { get; set; } = 0.001f;
+        /// <summary>Centroid |delta| activation threshold (pan / orbit drag); not low-pass filter alpha.</summary>
+        public float MotionDeadband { get; set; } = 0.001f;
+
+        /// <summary>Pinch scale-delta activation threshold (zoom); not low-pass filter alpha.</summary>
+        public float PinchDeadband { get; set; } = 0.001f;
+
+        /// <summary>Twist rotate-delta activation threshold (yaw); not low-pass filter alpha.</summary>
+        public float YawDeadband { get; set; } = 0.001f;
+
+        /// <summary>Schema 3–5 XML: former <c>PinchEpsilon</c> element (deserialize only).</summary>
+        [XmlElement("PinchEpsilon")]
+        public float PinchEpsilonXml
+        {
+            set => PinchDeadband = value;
+            get => 0f;
+        }
+
+        public bool ShouldSerializePinchEpsilonXml() => false;
+
+        /// <summary>Schema 3–5 XML: former <c>RotateEpsilon</c> element (deserialize only).</summary>
+        [XmlElement("RotateEpsilon")]
+        public float RotateEpsilonXml
+        {
+            set => YawDeadband = value;
+            get => 0f;
+        }
+
+        public bool ShouldSerializeRotateEpsilonXml() => false;
+
         public float FingerCountHysteresis { get; set; } = 0.05f;
 
         public bool PanFilterEnabled { get; set; }
@@ -173,8 +200,8 @@ namespace TrackpadCameraControl
             SignInvertYawRotate = other.SignInvertYawRotate;
 
             MotionDeadband = other.MotionDeadband;
-            PinchEpsilon = other.PinchEpsilon;
-            RotateEpsilon = other.RotateEpsilon;
+            PinchDeadband = other.PinchDeadband;
+            YawDeadband = other.YawDeadband;
             FingerCountHysteresis = other.FingerCountHysteresis;
 
             PanFilterEnabled = other.PanFilterEnabled;

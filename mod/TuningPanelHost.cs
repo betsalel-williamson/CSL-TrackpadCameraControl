@@ -83,6 +83,7 @@ namespace TrackpadCameraControl
             ApplyPanelFocusVisual();
 
             _nextY = TitleBarHeight + 8f;
+            ResetTabOrder();
 
             AddSection("Feel presets");
             AddFeelPresetRow(s);
@@ -367,6 +368,7 @@ namespace TrackpadCameraControl
             _feelDropdownItems = ModOptions.GetFeelPresetDropdownItems(s);
 
             _feelDropdown = _root.AddUIComponent<UIDropDown>();
+            AssignTabOrder(_feelDropdown);
             _feelDropdown.width = 220f;
             _feelDropdown.height = 28f;
             _feelDropdown.relativePosition = new Vector3(Col0, _nextY);
@@ -393,6 +395,7 @@ namespace TrackpadCameraControl
             _feelDropdown.eventSelectedIndexChanged += OnFeelDropdownSelected;
 
             UIButton reset = MakeMenuButton("Reset", Col0 + 228f, _nextY, 72f);
+            AssignTabOrder(reset);
             reset.eventClick += (c, e) =>
             {
                 ModOptions.ApplyFeelDefault(s);
@@ -417,7 +420,7 @@ namespace TrackpadCameraControl
             _feelNameField.text = "";
             _feelNameField.selectOnFocus = true;
             _feelNameField.isInteractive = true;
-            _feelNameField.builtinKeyNavigation = true;
+            WireTextFieldSubmit(_feelNameField, () => { });
             _nextY += 30f;
         }
 
@@ -606,8 +609,8 @@ namespace TrackpadCameraControl
             AddFloatPair(
                 s,
                 "Deadband",
-                () => s.PinchEpsilon,
-                ModOptions.ApplyPinchEpsilon,
+                () => s.PinchDeadband,
+                ModOptions.ApplyPinchDeadband,
                 null,
                 null,
                 null,
@@ -665,8 +668,8 @@ namespace TrackpadCameraControl
             AddFloatPair(
                 s,
                 "Deadband",
-                () => s.RotateEpsilon,
-                ModOptions.ApplyRotateEpsilon,
+                () => s.YawDeadband,
+                ModOptions.ApplyYawDeadband,
                 null,
                 null,
                 null,
@@ -958,23 +961,12 @@ namespace TrackpadCameraControl
             field.focusedBgSprite = "TextFieldPanel";
             field.selectionSprite = "EmptySprite";
             field.text = FormatFieldValue(get(), useGainFormat);
-            field.numericalOnly = false;
-            field.allowFloats = true;
             field.selectOnFocus = true;
-            field.submitOnFocusLost = true;
             field.isInteractive = true;
-            field.builtinKeyNavigation = true;
-            field.eventTextSubmitted += (c, text) =>
-            {
-                if (!ModOptions.TryApplyFloat(s, text, apply))
-                {
-                    field.text = FormatFieldValue(get(), useGainFormat);
-                }
-                else
-                {
-                    field.text = FormatFieldValue(get(), useGainFormat);
-                }
-            };
+            WireFloatTextFieldSubmit(
+                field,
+                () => SubmitFloatField(field, s, get, apply, useGainFormat)
+            );
         }
 
         private static string FormatFieldValue(float value, bool useGainFormat)

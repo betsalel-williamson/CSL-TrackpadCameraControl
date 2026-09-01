@@ -29,8 +29,8 @@ namespace TrackpadCameraControl
         public bool InvertYawRotate { get; set; }
 
         public float MotionDeadzone { get; set; } = 0.001f;
-        public float PinchEpsilon { get; set; } = 0.001f;
-        public float RotateEpsilon { get; set; } = 0.001f;
+        public float PinchDeadband { get; set; } = 0.001f;
+        public float YawDeadband { get; set; } = 0.001f;
         public float FingerCountHysteresis { get; set; } = 0.05f;
         public float Smoothing { get; set; } // 0 = off
 

@@ -71,19 +71,19 @@ namespace TrackpadCameraControl.Tests
         }
 
         [Fact]
-        public void ApplyPinchEpsilon_StoresRoundedNonNegative()
+        public void ApplyPinchDeadband_StoresRoundedNonNegative()
         {
             var settings = new ModSettings();
-            ModOptions.ApplyPinchEpsilon(settings, 0.123456f);
-            Assert.Equal(0.123f, settings.PinchEpsilon);
+            ModOptions.ApplyPinchDeadband(settings, 0.123456f);
+            Assert.Equal(0.123f, settings.PinchDeadband);
         }
 
         [Fact]
-        public void ApplyRotateEpsilon_AcceptsZero()
+        public void ApplyYawDeadband_AcceptsZero()
         {
-            var settings = new ModSettings { RotateEpsilon = 0.5f };
-            ModOptions.ApplyRotateEpsilon(settings, 0f);
-            Assert.Equal(0f, settings.RotateEpsilon);
+            var settings = new ModSettings { YawDeadband = 0.5f };
+            ModOptions.ApplyYawDeadband(settings, 0f);
+            Assert.Equal(0f, settings.YawDeadband);
         }
 
         [Fact]

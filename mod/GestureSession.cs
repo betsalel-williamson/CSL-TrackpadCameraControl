@@ -57,7 +57,7 @@ namespace TrackpadCameraControl
             if (
                 !OrbitLatched
                 && settings.YawEnabled
-                && Abs(frame.rotateDelta) > settings.RotateEpsilon
+                && Abs(frame.rotateDelta) > settings.YawDeadband
             )
             {
                 RotateOwned = true;

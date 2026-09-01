@@ -237,27 +237,7 @@ namespace TrackpadCameraControl
 
         public static bool TryParseFloat(string text, out float value)
         {
-            value = 0f;
-            if (string.IsNullOrEmpty(text))
-            {
-                return false;
-            }
-
-            string trimmed = text.Trim();
-            if (
-                float.TryParse(trimmed, NumberStyles.Float, CultureInfo.InvariantCulture, out value)
-            )
-            {
-                return true;
-            }
-
-            // Accept locale decimal separators (e.g. "1,5").
-            return float.TryParse(
-                trimmed,
-                NumberStyles.Float,
-                CultureInfo.CurrentCulture,
-                out value
-            );
+            return NumericFieldInput.TryParseFloatText(text, out value);
         }
 
         public static string FormatFloat(float value)
@@ -400,14 +380,14 @@ namespace TrackpadCameraControl
             ApplyNonNegativeThreshold(settings, value, (s, v) => s.MotionDeadband = v);
         }
 
-        public static void ApplyPinchEpsilon(ModSettings settings, float value)
+        public static void ApplyPinchDeadband(ModSettings settings, float value)
         {
-            ApplyNonNegativeThreshold(settings, value, (s, v) => s.PinchEpsilon = v);
+            ApplyNonNegativeThreshold(settings, value, (s, v) => s.PinchDeadband = v);
         }
 
-        public static void ApplyRotateEpsilon(ModSettings settings, float value)
+        public static void ApplyYawDeadband(ModSettings settings, float value)
         {
-            ApplyNonNegativeThreshold(settings, value, (s, v) => s.RotateEpsilon = v);
+            ApplyNonNegativeThreshold(settings, value, (s, v) => s.YawDeadband = v);
         }
 
         private static void ApplyNonNegativeThreshold(

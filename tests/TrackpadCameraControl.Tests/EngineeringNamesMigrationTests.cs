@@ -141,7 +141,7 @@ namespace TrackpadCameraControl.Tests
     <PanSensitivityY>0.50</PanSensitivityY>
     <OrbitYawSensitivity>100.00</OrbitYawSensitivity>
     <OrbitPitchSensitivity>100.00</OrbitPitchSensitivity>
-    <MotionDeadzone>0.001</MotionDeadzone>
+    <MotionDeadzone>0.00001</MotionDeadzone>
   </Current>
 </TrackpadCameraControlSettings>"
                 );
@@ -159,6 +159,56 @@ namespace TrackpadCameraControl.Tests
                     "<SchemaVersion>" + ModSettingsStore.CurrentSchemaVersion + "</SchemaVersion>",
                     File.ReadAllText(path)
                 );
+            }
+            finally
+            {
+                if (File.Exists(path))
+                {
+                    File.Delete(path);
+                }
+            }
+        }
+
+        [Fact]
+        public void LoadOrFactory_MigratesSchema5PinchEpsilonXmlToDeadbandNames()
+        {
+            string path = Path.Combine(
+                Path.GetTempPath(),
+                "tcc-deadband-" + Path.GetRandomFileName() + ".xml"
+            );
+            try
+            {
+                File.WriteAllText(
+                    path,
+                    @"<?xml version=""1.0"" encoding=""utf-8""?>
+<TrackpadCameraControlSettings xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance"" xmlns:xsd=""http://www.w3.org/2001/XMLSchema"">
+  <SchemaVersion>5</SchemaVersion>
+  <Current>
+    <PanGainX>0.005</PanGainX>
+    <PinchEpsilon>0.042</PinchEpsilon>
+    <RotateEpsilon>0.017</RotateEpsilon>
+    <MotionDeadband>0.003</MotionDeadband>
+    <ActiveFeelPresetName>Default</ActiveFeelPresetName>
+  </Current>
+</TrackpadCameraControlSettings>"
+                );
+
+                var store = new ModSettingsStore(path);
+                ModSettings loaded = store.LoadOrFactory();
+
+                Assert.Equal(0.042f, loaded.PinchDeadband);
+                Assert.Equal(0.017f, loaded.YawDeadband);
+                Assert.Equal(0.003f, loaded.MotionDeadband);
+
+                string rewritten = File.ReadAllText(path);
+                Assert.Contains(
+                    "<SchemaVersion>" + ModSettingsStore.CurrentSchemaVersion + "</SchemaVersion>",
+                    rewritten
+                );
+                Assert.Contains("<PinchDeadband>0.042</PinchDeadband>", rewritten);
+                Assert.Contains("<YawDeadband>0.017</YawDeadband>", rewritten);
+                Assert.DoesNotContain("<PinchEpsilon>", rewritten);
+                Assert.DoesNotContain("<RotateEpsilon>", rewritten);
             }
             finally
             {

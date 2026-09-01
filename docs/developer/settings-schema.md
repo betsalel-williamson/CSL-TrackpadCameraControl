@@ -61,6 +61,8 @@ Used by trackpad gestures (and Assist chrome pads when `EnableAssistChrome` is o
 
 **Schema 2:** AppKit scroll deltas are raw; schema 1 files migrate by ×0.01 on pan/orbit gain and ÷0.01 on motion deadband (legacy element `MotionDeadzone`).
 
+**Schema 6:** `PinchDeadband` / `YawDeadband` replace misnamed `PinchEpsilon` / `RotateEpsilon` (activation deadbands, not filter epsilon). Schema 3–5 files still load those legacy elements; save rewrites schema 6 names.
+
 **Schema 3:** XML element names move to engineering language (`*Gain*`, `*Step*`, `MotionDeadband`, `*Filter*`, `SignInvert*`). Schema 1–2 files deserialize via the legacy shape and rewrite as schema 3.
 
 **Schema 4:** Debug QoL prefs persist in `current`:
@@ -153,11 +155,11 @@ Factory Default feel: Pan Reverse X on, Y off (playtest Maps+).
 | Field                 | Type  | Default seed   | Hot |
 | --------------------- | ----- | -------------- | --- |
 | MotionDeadband        | float | small positive | yes |
-| PinchEpsilon          | float | small positive | yes |
-| RotateEpsilon         | float | small positive | yes |
+| PinchDeadband         | float | small positive | yes |
+| YawDeadband           | float | small positive | yes |
 | FingerCountHysteresis | float | small positive | yes |
 
-Schema-retained; **Debug panel** exposes MotionDeadband, PinchEpsilon, and RotateEpsilon per op section for QA tuning. Options product surface does not show these fields.
+Schema-retained; **Debug panel** exposes MotionDeadband, PinchDeadband, and YawDeadband per op section for QA tuning. Options product surface does not show these fields.
 
 ## Per-op filter / low-pass (Contacts only)
 

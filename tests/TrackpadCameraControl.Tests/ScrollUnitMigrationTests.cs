@@ -46,7 +46,7 @@ namespace TrackpadCameraControl.Tests
             Assert.Equal(preFold.OrbitYawGain, factory.OrbitYawGain, 4);
             Assert.Equal(preFold.OrbitPitchGain, factory.OrbitPitchGain, 4);
             Assert.Equal(preFold.MotionDeadband, factory.MotionDeadband, 4);
-            Assert.Equal(5, ModSettingsStore.CurrentSchemaVersion);
+            Assert.Equal(6, ModSettingsStore.CurrentSchemaVersion);
         }
     }
 }
