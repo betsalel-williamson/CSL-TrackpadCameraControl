@@ -544,6 +544,16 @@ namespace TrackpadCameraControl
                 null
             );
 #endif
+            AddFloatPair(
+                s,
+                "Deadband",
+                () => s.MotionDeadband,
+                ModOptions.ApplyMotionDeadband,
+                null,
+                null,
+                null,
+                gainFormatL: true
+            );
         }
 
         private static void BuildZoomSection(ModSettings s)
@@ -593,6 +603,16 @@ namespace TrackpadCameraControl
                 null
             );
 #endif
+            AddFloatPair(
+                s,
+                "Deadband",
+                () => s.PinchEpsilon,
+                ModOptions.ApplyPinchEpsilon,
+                null,
+                null,
+                null,
+                gainFormatL: true
+            );
         }
 
         private static void BuildYawSection(ModSettings s)
@@ -642,6 +662,16 @@ namespace TrackpadCameraControl
                 null
             );
 #endif
+            AddFloatPair(
+                s,
+                "Deadband",
+                () => s.RotateEpsilon,
+                ModOptions.ApplyRotateEpsilon,
+                null,
+                null,
+                null,
+                gainFormatL: true
+            );
         }
 
         private static void BuildOrbitSection(ModSettings s)
@@ -690,6 +720,16 @@ namespace TrackpadCameraControl
                 null
             );
 #endif
+            AddFloatPair(
+                s,
+                "Deadband",
+                () => s.MotionDeadband,
+                ModOptions.ApplyMotionDeadband,
+                null,
+                null,
+                null,
+                gainFormatL: true
+            );
         }
 
         private static void AddBuildInfoFooter()

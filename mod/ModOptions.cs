@@ -395,6 +395,36 @@ namespace TrackpadCameraControl
             ApplyPositiveGain(settings, value, (s, v) => s.YawRotateGain = v);
         }
 
+        public static void ApplyMotionDeadband(ModSettings settings, float value)
+        {
+            ApplyNonNegativeThreshold(settings, value, (s, v) => s.MotionDeadband = v);
+        }
+
+        public static void ApplyPinchEpsilon(ModSettings settings, float value)
+        {
+            ApplyNonNegativeThreshold(settings, value, (s, v) => s.PinchEpsilon = v);
+        }
+
+        public static void ApplyRotateEpsilon(ModSettings settings, float value)
+        {
+            ApplyNonNegativeThreshold(settings, value, (s, v) => s.RotateEpsilon = v);
+        }
+
+        private static void ApplyNonNegativeThreshold(
+            ModSettings settings,
+            float value,
+            Action<ModSettings, float> assign
+        )
+        {
+            if (settings == null || assign == null || value < 0f)
+            {
+                return;
+            }
+
+            assign(settings, RoundGain(value));
+            AfterFeelFieldChanged(settings);
+        }
+
         public static void ApplyPanStepX(ModSettings settings, float value)
         {
             if (settings == null)

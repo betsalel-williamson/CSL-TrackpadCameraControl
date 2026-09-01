@@ -63,6 +63,22 @@ namespace TrackpadCameraControl.Tests
             FeelExpectation.AssertMatchesFactoryFeel(settings);
             Assert.True(settings.PanEnabled);
         }
+
+        [Fact]
+        public void CopyFeelFields_IncludesDeadbandThresholds()
+        {
+            var source = ModSettings.CreateFactoryDefaults();
+            source.MotionDeadband = 0.42f;
+            source.PinchEpsilon = 0.17f;
+            source.RotateEpsilon = 0.08f;
+
+            var dest = new ModSettings();
+            FeelProfiles.CopyFeelFields(dest, source);
+
+            Assert.Equal(0.42f, dest.MotionDeadband);
+            Assert.Equal(0.17f, dest.PinchEpsilon);
+            Assert.Equal(0.08f, dest.RotateEpsilon);
+        }
     }
 
     [Collection(ModOptionsStoreCollection.Name)]
@@ -117,6 +133,9 @@ namespace TrackpadCameraControl.Tests
             live.OrbitPitchMin = -40f;
             live.OrbitPitchMax = 40f;
             live.PanEnabled = false;
+            live.MotionDeadband = 0.33f;
+            live.PinchEpsilon = 0.22f;
+            live.RotateEpsilon = 0.11f;
 
             Assert.True(ModOptions.SaveNamedFeelPreset(live, "MyFeel"));
 
@@ -134,6 +153,9 @@ namespace TrackpadCameraControl.Tests
             Assert.Equal(-40f, restored.OrbitPitchMin);
             Assert.Equal(40f, restored.OrbitPitchMax);
             Assert.False(restored.PanEnabled);
+            Assert.Equal(0.33f, restored.MotionDeadband);
+            Assert.Equal(0.22f, restored.PinchEpsilon);
+            Assert.Equal(0.11f, restored.RotateEpsilon);
         }
 
         [Fact]

@@ -157,7 +157,7 @@ Factory Default feel: Pan Reverse X on, Y off (playtest Maps+).
 | RotateEpsilon         | float | small positive | yes |
 | FingerCountHysteresis | float | small positive | yes |
 
-Schema-retained; not required on the slim product surface.
+Schema-retained; **Debug panel** exposes MotionDeadband, PinchEpsilon, and RotateEpsilon per op section for QA tuning. Options product surface does not show these fields.
 
 ## Per-op filter / low-pass (Contacts only)
 
