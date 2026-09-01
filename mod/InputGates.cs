@@ -3,8 +3,8 @@ using System;
 namespace TrackpadCameraControl
 {
     /// <summary>
-    /// Gates that skip mod camera apply (menus, pointer-over-UI, unfocused).
-    /// Production probes Colossal UI / Unity focus when HAS_CITIES; tests override via hooks.
+    /// Single policy for mod apply, Harmony vanilla patches, and AppKit capture gates.
+    /// <see cref="VanillaCameraSuppress"/> holds per-frame flags only.
     /// </summary>
     public static class InputGates
     {
@@ -19,50 +19,42 @@ namespace TrackpadCameraControl
             GameFocusedOverride = null;
         }
 
+        /// <summary>Sync suppress flags once per pipeline tick before apply/Harmony reads them.</summary>
+        public static void SyncFrameState()
+        {
+            VanillaCameraSuppress.MenuOrOverUi = IsMenuOrOverUi();
+        }
+
         /// <summary>
-        /// When the mod is on but the game is unfocused, block all camera input (mod and vanilla)
-        /// until focus returns.
+        /// Mod on + unfocused: block mod apply, vanilla Harmony handlers, capture, and orbit flush.
         /// </summary>
-        public static bool ShouldBlockCameraInput()
+        public static bool ShouldBlockAllCameraInput()
         {
             return VanillaCameraSuppress.Enabled && !IsGameFocused();
         }
 
         /// <summary>
-        /// Mod may apply trackpad camera ops and run selective vanilla suppress while focused on the world.
+        /// Mod on + focused + world (not menu/popup): trackpad apply and orbit flush allowed.
         /// </summary>
-        public static bool IsModCameraArmed()
+        public static bool IsModWorldPathActive()
         {
-            if (!VanillaCameraSuppress.Enabled)
-            {
-                return false;
-            }
-
-            if (!IsGameFocused())
-            {
-                return false;
-            }
-
-            if (IsMenuOrOverUi())
-            {
-                return false;
-            }
-
-            return true;
+            return VanillaCameraSuppress.Enabled && IsGameFocused() && !IsMenuOrOverUi();
         }
 
-        /// <summary>Drop sticky mod camera state when the world path is not armed.</summary>
+        /// <summary>Clear sticky suppress/orbit state after focus loss.</summary>
         public static void DisarmTransientCameraState(ICameraController camera)
         {
             VanillaCameraSuppress.PreciseTrackpadScroll = false;
-            if (camera != null)
-            {
-                camera.ClearPendingAngleVelocity();
-            }
+            camera?.ClearPendingAngleVelocity();
         }
 
         public static bool ShouldSkipModCamera(ModSettings settings)
         {
+            if (ShouldBlockAllCameraInput())
+            {
+                return true;
+            }
+
             if (settings == null)
             {
                 settings = new ModSettings();
@@ -86,7 +78,53 @@ namespace TrackpadCameraControl
             return false;
         }
 
-        /// <summary>True when Options or another modal menu is open.</summary>
+        /// <summary>Harmony scroll prefix: false = block vanilla scroll handler.</summary>
+        public static bool ShouldRunVanillaScrollWheel()
+        {
+            if (ShouldBlockAllCameraInput())
+            {
+                return false;
+            }
+
+            return !ShouldSuppressVanillaScrollWheel(
+                VanillaCameraSuppress.PreciseTrackpadScroll,
+                VanillaCameraSuppress.MenuOrOverUi
+            );
+        }
+
+        public static bool ShouldSuppressVanillaScrollWheel(bool preciseTrackpad, bool menuOrOverUi)
+        {
+            return VanillaCameraSuppress.Enabled && preciseTrackpad && !menuOrOverUi;
+        }
+
+        /// <summary>Harmony mouse prefix: false = block edge pan / mouse rotate.</summary>
+        public static bool ShouldRunVanillaMouseEvents(bool rotateBindingHeld)
+        {
+            if (ShouldBlockAllCameraInput())
+            {
+                return false;
+            }
+
+            return !ShouldSuppressVanillaMouseRotate(rotateBindingHeld);
+        }
+
+        public static bool ShouldSuppressVanillaMouseRotate(bool rotateBindingHeld)
+        {
+            return VanillaCameraSuppress.Enabled && rotateBindingHeld;
+        }
+
+        /// <summary>Harmony orbit postfix: flush queued trackpad orbit only on world path.</summary>
+        public static bool ShouldFlushPendingOrbit()
+        {
+            return IsModWorldPathActive();
+        }
+
+        /// <summary>AppKit capture: enqueue only when mod on and focused.</summary>
+        public static bool ShouldCaptureGestures()
+        {
+            return VanillaCameraSuppress.Enabled && IsGameFocused();
+        }
+
         public static bool IsMenuOrOptionsOpen()
         {
             if (MenuOpenOverride != null)
@@ -97,7 +135,6 @@ namespace TrackpadCameraControl
             return DetectMenuOrOptionsOpen();
         }
 
-        /// <summary>True when the pointer is over Colossal UI / an active popup.</summary>
         public static bool IsPointerOverUi()
         {
             if (PointerOverUiOverride != null)
@@ -118,7 +155,6 @@ namespace TrackpadCameraControl
             return DetectGameFocused();
         }
 
-        /// <summary>Menu open or pointer over UI — vanilla scroll should remain available.</summary>
         public static bool IsMenuOrOverUi()
         {
             return IsMenuOrOptionsOpen() || IsPointerOverUi();

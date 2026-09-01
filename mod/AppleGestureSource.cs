@@ -204,7 +204,7 @@ namespace TrackpadCameraControl
                 return nsEvent;
             }
 
-            if (!InputGates.IsGameFocused())
+            if (!InputGates.ShouldCaptureGestures())
             {
                 return nsEvent;
             }

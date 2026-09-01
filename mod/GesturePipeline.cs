@@ -71,9 +71,8 @@ namespace TrackpadCameraControl
                 E2eInjectFileProtocol.Poll(inject, _camera);
             }
 
-            // Keep vanilla scroll policy in sync with menu / over-UI gates.
-            VanillaCameraSuppress.MenuOrOverUi = InputGates.IsMenuOrOverUi();
-            if (!InputGates.IsGameFocused())
+            InputGates.SyncFrameState();
+            if (InputGates.ShouldBlockAllCameraInput())
             {
                 InputGates.DisarmTransientCameraState(_camera);
                 _lowPass.Reset();

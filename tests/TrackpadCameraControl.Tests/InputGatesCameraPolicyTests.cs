@@ -5,19 +5,19 @@ using Xunit;
 namespace TrackpadCameraControl.Tests
 {
     [Collection(VanillaCameraSuppressCollection.Name)]
-    public sealed class VanillaCameraSuppressTests : IDisposable
+    public sealed class InputGatesCameraPolicyTests : IDisposable
     {
-        public VanillaCameraSuppressTests()
+        public InputGatesCameraPolicyTests()
         {
-            ResetSuppressStatics();
+            ResetState();
         }
 
         public void Dispose()
         {
-            ResetSuppressStatics();
+            ResetState();
         }
 
-        private static void ResetSuppressStatics()
+        private static void ResetState()
         {
             VanillaCameraSuppress.Enabled = false;
             VanillaCameraSuppress.PreciseTrackpadScroll = false;
@@ -26,11 +26,11 @@ namespace TrackpadCameraControl.Tests
         }
 
         [Fact]
-        public void ShouldSkipScrollWheel_WhenDisabled_ReturnsFalse()
+        public void ShouldSuppressVanillaScrollWheel_WhenDisabled_ReturnsFalse()
         {
             VanillaCameraSuppress.Enabled = false;
             Assert.False(
-                VanillaCameraSuppress.ShouldSkipScrollWheel(
+                InputGates.ShouldSuppressVanillaScrollWheel(
                     preciseTrackpad: true,
                     menuOrOverUi: false
                 )
@@ -38,11 +38,11 @@ namespace TrackpadCameraControl.Tests
         }
 
         [Fact]
-        public void ShouldSkipScrollWheel_WhenEnabledPreciseWorld_ReturnsTrue()
+        public void ShouldSuppressVanillaScrollWheel_WhenEnabledPreciseWorld_ReturnsTrue()
         {
             VanillaCameraSuppress.Enabled = true;
             Assert.True(
-                VanillaCameraSuppress.ShouldSkipScrollWheel(
+                InputGates.ShouldSuppressVanillaScrollWheel(
                     preciseTrackpad: true,
                     menuOrOverUi: false
                 )
@@ -50,11 +50,11 @@ namespace TrackpadCameraControl.Tests
         }
 
         [Fact]
-        public void ShouldSkipScrollWheel_WhenEnabledWheel_ReturnsFalse()
+        public void ShouldSuppressVanillaScrollWheel_WhenEnabledWheel_ReturnsFalse()
         {
             VanillaCameraSuppress.Enabled = true;
             Assert.False(
-                VanillaCameraSuppress.ShouldSkipScrollWheel(
+                InputGates.ShouldSuppressVanillaScrollWheel(
                     preciseTrackpad: false,
                     menuOrOverUi: false
                 )
@@ -62,11 +62,11 @@ namespace TrackpadCameraControl.Tests
         }
 
         [Fact]
-        public void ShouldSkipScrollWheel_WhenEnabledOverUi_ReturnsFalse()
+        public void ShouldSuppressVanillaScrollWheel_WhenEnabledOverUi_ReturnsFalse()
         {
             VanillaCameraSuppress.Enabled = true;
             Assert.False(
-                VanillaCameraSuppress.ShouldSkipScrollWheel(
+                InputGates.ShouldSuppressVanillaScrollWheel(
                     preciseTrackpad: true,
                     menuOrOverUi: true
                 )
@@ -78,8 +78,7 @@ namespace TrackpadCameraControl.Tests
         {
             VanillaCameraSuppress.Enabled = true;
             InputGates.GameFocusedOverride = () => false;
-            VanillaCameraSuppress.PreciseTrackpadScroll = false;
-            Assert.False(VanillaCameraSuppress.ShouldRunVanillaScrollWheel());
+            Assert.False(InputGates.ShouldRunVanillaScrollWheel());
         }
 
         [Fact]
@@ -87,8 +86,8 @@ namespace TrackpadCameraControl.Tests
         {
             VanillaCameraSuppress.Enabled = true;
             InputGates.GameFocusedOverride = () => false;
-            Assert.False(VanillaCameraSuppress.ShouldRunVanillaMouseEvents(true));
-            Assert.False(VanillaCameraSuppress.ShouldRunVanillaMouseEvents(false));
+            Assert.False(InputGates.ShouldRunVanillaMouseEvents(true));
+            Assert.False(InputGates.ShouldRunVanillaMouseEvents(false));
         }
 
         [Fact]
@@ -96,44 +95,60 @@ namespace TrackpadCameraControl.Tests
         {
             VanillaCameraSuppress.Enabled = true;
             InputGates.GameFocusedOverride = () => false;
-            Assert.False(VanillaCameraSuppress.ShouldFlushPendingOrbit());
+            Assert.False(InputGates.ShouldFlushPendingOrbit());
         }
 
         [Fact]
-        public void ShouldSkipScrollWheel_Parameterless_UsesSettableState()
+        public void ShouldBlockAllCameraInput_WhenUnfocusedAndModOn_ReturnsTrue()
         {
             VanillaCameraSuppress.Enabled = true;
+            InputGates.GameFocusedOverride = () => false;
+            Assert.True(InputGates.ShouldBlockAllCameraInput());
+        }
+
+        [Fact]
+        public void ShouldBlockAllCameraInput_WhenModOff_ReturnsFalse()
+        {
+            InputGates.GameFocusedOverride = () => false;
+            Assert.False(InputGates.ShouldBlockAllCameraInput());
+        }
+
+        [Fact]
+        public void ShouldRunVanillaScrollWheel_UsesFrameFlags()
+        {
+            VanillaCameraSuppress.Enabled = true;
+            InputGates.GameFocusedOverride = () => true;
             VanillaCameraSuppress.PreciseTrackpadScroll = true;
             VanillaCameraSuppress.MenuOrOverUi = false;
-            Assert.True(VanillaCameraSuppress.ShouldSkipScrollWheel());
+            Assert.False(InputGates.ShouldRunVanillaScrollWheel());
 
             VanillaCameraSuppress.MenuOrOverUi = true;
-            Assert.False(VanillaCameraSuppress.ShouldSkipScrollWheel());
+            Assert.True(InputGates.ShouldRunVanillaScrollWheel());
 
             VanillaCameraSuppress.MenuOrOverUi = false;
             VanillaCameraSuppress.PreciseTrackpadScroll = false;
-            Assert.False(VanillaCameraSuppress.ShouldSkipScrollWheel());
+            Assert.True(InputGates.ShouldRunVanillaScrollWheel());
         }
 
         [Fact]
-        public void ShouldSkipMouseHandler_WhenEnabledAndRotateHeld_ReturnsTrue()
+        public void ShouldSuppressVanillaMouseRotate_WhenEnabledAndRotateHeld_ReturnsTrue()
         {
             VanillaCameraSuppress.Enabled = true;
-            Assert.True(VanillaCameraSuppress.ShouldSkipMouseHandler(true));
+            Assert.True(InputGates.ShouldSuppressVanillaMouseRotate(true));
         }
 
         [Fact]
-        public void ShouldSkipMouseHandler_WhenEnabledAndRotateNotHeld_ReturnsFalse()
+        public void ShouldSuppressVanillaMouseRotate_WhenEnabledAndRotateNotHeld_ReturnsFalse()
         {
             VanillaCameraSuppress.Enabled = true;
-            Assert.False(VanillaCameraSuppress.ShouldSkipMouseHandler(false));
+            Assert.False(InputGates.ShouldSuppressVanillaMouseRotate(false));
         }
 
         [Fact]
-        public void ShouldSkipMouseHandler_WhenDisabledAndRotateHeld_ReturnsFalse()
+        public void ShouldSuppressVanillaMouseRotate_WhenDisabledAndRotateHeld_ReturnsFalse()
         {
             VanillaCameraSuppress.Enabled = false;
-            Assert.False(VanillaCameraSuppress.ShouldSkipMouseHandler(true));
+            Assert.False(InputGates.ShouldSuppressVanillaMouseRotate(true));
         }
     }
 }
