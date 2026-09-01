@@ -20,7 +20,9 @@
 
 ## Current phase
 
-**Options polish + New Preset + selection rotate** — Debug panel naming, Options layout and Sensitivity sliders, **New Preset** dirty autosave, pitch 0–90°, pan city-bounds clamp, and selection-aware rotate / ⌥-orbit.
+**v1.0.0 launch QA** — maintainer in-game checklist, Workshop title/description, known-good platform row, Workshop Share checklist (preview image, Harmony required item), and a major changeset so the Changesets version PR becomes **1.0.0**.
+
+In-game pass/fail lists and the recorded pre-release suite: [QA checklist](./qa-checklist.md). Paste-ready Workshop copy: [Workshop storefront](./workshop-storefront.md). Release and Share: [Release process](./release-process.md). Version PR: [commits and releases](./commits-and-releases.md).
 
 Design: [Options polish, New Preset, selection rotate](../superpowers/specs/2026-08-30-options-polish-selection-rotate-design.md).  
 Session plans live under `docs/superpowers/plans/` locally (gitignored) — not durable shards.

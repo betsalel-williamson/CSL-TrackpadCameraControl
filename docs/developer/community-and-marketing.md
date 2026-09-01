@@ -73,3 +73,4 @@ Canonical Workshop / Content Manager title, short description, long description,
 | Versioning and Release jobs         | [Commits and releases](./commits-and-releases.md)       |
 | Workshop vs GitHub Release roles    | [GitHub project controls](./github-project-controls.md) |
 | Workshop title / description / tags | [Workshop storefront](./workshop-storefront.md)         |
+| Release and Workshop Share          | [Release process](./release-process.md)                 |

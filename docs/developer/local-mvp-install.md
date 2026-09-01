@@ -1,16 +1,14 @@
 # Local MVP install (macOS)
 
-Prove gestures with the in-process capture path (mod DLL only) and a local Mods-folder install. This is the **beta / contributor deploy** path until Steam Workshop packaging ships.
-
-Player-facing expectations after install: `docs/client/install-and-first-run.md`. When to point people at Release vs Workshop vs soft Discord: [Community and marketing](./community-and-marketing.md).
+Prove gestures with the in-process capture path (mod DLL only) and a local Mods-folder install. This is the **beta / contributor deploy** path and the folder Content Manager **Share** uploads on Mac. Player-facing install: `docs/client/install-and-first-run.md`. Release and Share checklist: [Release process](./release-process.md).
 
 ## Deploy roles
 
-| Path                          | Role today                                                         |
-| ----------------------------- | ------------------------------------------------------------------ |
-| This local install            | Beta testers and contributors prove the mod on a real game install |
-| GitHub Release source archive | Versioned input to this install (no prebuilt Workshop item yet)    |
-| Steam Workshop                | Future community subscribe path — not this script                  |
+| Path                          | Role today                                                                        |
+| ----------------------------- | --------------------------------------------------------------------------------- |
+| This local install            | Beta testers and contributors prove the mod; Mac **Share** reads this Mods folder |
+| GitHub Release source archive | Versioned input to this install (no prebuilt Workshop item yet until Share)       |
+| Steam Workshop                | After Share — subscribe path for players                                          |
 
 ## Beta from a GitHub Release
 
@@ -27,7 +25,7 @@ chmod +x scripts/install-mod-local.sh
 
 Requires Cities: Skylines Managed assemblies (default Steam macOS path). Override with `CitiesManaged=…` or `CITIES_MODS=…`.
 
-Restart the game after first install, or keep the game running and rebuild — post-build deploy + `AssemblyVersion` wildcards follow [Paradox Automate](https://skylines.paradoxwikis.com/Advanced_Mod_Setup#Automate) (see [mod reload during development](./mod-reload-during-development.md)). Capture runs **in-process AppKit** inside the mod DLL. Switch to Contacts (legacy) from Options, or `TRACKPAD_CAPTURE_BACKEND=contacts`.
+Restart the game after first install, or keep the game running and rebuild — post-build deploy + `AssemblyVersion` wildcards follow [Paradox Automate](https://skylines.paradoxwikis.com/Advanced_Mod_Setup#Automate) (see [mod reload during development](./mod-reload-during-development.md)). The script copies the DLL and **`PreviewImage.png`** (Content Manager / Workshop thumbnail). Capture runs **in-process AppKit** inside the mod DLL — there is no companion process to start. Switch to Contacts (legacy) from Options, or `TRACKPAD_CAPTURE_BACKEND=contacts`.
 
 ## Capture log
 

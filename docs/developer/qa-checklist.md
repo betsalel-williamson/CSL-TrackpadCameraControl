@@ -20,6 +20,33 @@ Copy a section into a PR or commit note and check boxes as you go. With **Show d
 
 AppKit APIs we use date to ~macOS 10.6; **practical support is “whatever still runs CS1 + a precise trackpad,” proven by this checklist** — not by an untested OS matrix.
 
+## v1.0.0 pre-release record
+
+First public macOS tag. Automated suite is recorded here; in-game boxes in the lists below are the remaining splash gate. Copy those lists into the launch PR as you check them. After a full in-game pass, replace the known-good placeholder and refresh [Workshop storefront](./workshop-storefront.md) Compatibility.
+
+### Session platform (this release)
+
+| Field                | Value                                                                                         |
+| -------------------- | --------------------------------------------------------------------------------------------- |
+| macOS version        | 26.5.2 Tahoe                                                                                  |
+| Mac model            | MacBook Air M2, 2022 (Mac14,2)                                                                |
+| Trackpad             | Built-in                                                                                      |
+| Chip                 | Apple silicon (M2)                                                                            |
+| Mod version / commit | Assembly `0.2.0` on this branch until the Changesets version PR; tree from `main` (`bcdfd1d`) |
+| Result               | Automated pass; in-game hardware pass still required before Workshop splash                   |
+| Notes                | Coverlet ~47% line is expected — capture, Harmony timing, and UI stay session-tested          |
+
+### Automated suite (2026-08-31)
+
+| Gate                          | Result                                                                                     |
+| ----------------------------- | ------------------------------------------------------------------------------------------ |
+| `npm test`                    | **206 passed**, 0 failed, 0 skipped                                                        |
+| Coverlet (mod assembly)       | Line 47.23% · Branch 46.82% · Method 54.94% — visibility only; no fail gate                |
+| In-game inject smoke          | Not run this pass (needs a loaded city + `TRACKPAD_E2E_INJECT`)                            |
+| Optional chrome / ghost flags | Not on the v1 product surface (`EnableAssistChrome` off; place/relocate covered when used) |
+
+[Harnesses and testing](./harnesses-and-testing.md) lists what unit / headless e2e cannot prove (Harmony postfix order, hardware Option+drag, capture filling `GestureFrame`).
+
 ## Known good platforms
 
 Maintainer and community reports. Prefer Workshop comments or a GitHub issue titled `platform: …` so we can fold rows here.
@@ -77,4 +104,5 @@ Maintainer and community reports. Prefer Workshop comments or a GitHub issue tit
 - [Harnesses and testing](./harnesses-and-testing.md) — what unit / e2e prove vs what they miss
 - [Local MVP install](./local-mvp-install.md) — install the mod DLL for playtest
 - [Workshop storefront](./workshop-storefront.md) — public “tested on” claim + community invite
+- [Release process](./release-process.md) — version, Share on Mac, preview, Harmony required item
 - [Vanilla camera suppress](../glossary/vanilla-camera-suppress.md) — scroll / mouse-rotate policy

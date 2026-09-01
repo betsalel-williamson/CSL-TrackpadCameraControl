@@ -1,6 +1,6 @@
 # Workshop storefront
 
-Paste-ready **Steam Workshop** and **Content Manager** title, description, and search keywords for Trackpad Camera Control. Announcement sequencing stays in [Community and marketing](./community-and-marketing.md). Naming identity: [Repository layout](./repository-layout.md).
+Paste-ready **Steam Workshop** and **Content Manager** title, description, and search keywords for Trackpad Camera Control. How to ship a Release and Share from a Mac: [Release process](./release-process.md). Announcement sequencing stays in [Community and marketing](./community-and-marketing.md). Naming identity: [Repository layout](./repository-layout.md).
 
 ## Naming policy
 
@@ -21,7 +21,7 @@ Trackpad Camera Control (macOS)
 In-game `IUserMod.Name` / Options title uses the same core + tag, then the assembly version:
 
 ```text
-Trackpad Camera Control (macOS) 0.x.y
+Trackpad Camera Control (macOS) 1.0.0
 ```
 
 ## Short description
@@ -37,6 +37,8 @@ macOS trackpad camera — pan, pinch zoom, orbit. No middle mouse. Windows/Linux
 Paste into the Workshop description field (adjust version notes as needed):
 
 ```text
+Version 1.0.0 — first public macOS release.
+
 macOS-only multitouch camera for Cities: Skylines I. Pan, pinch zoom, and orbit from a laptop trackpad — no three-button mouse.
 
 What you get
@@ -47,7 +49,17 @@ What you get
 Requires
 • Cities: Skylines I
 • Cities Harmony (required for vanilla camera suppress)
+  https://steamcommunity.com/sharedfiles/filedetails/?id=2040656402
 • macOS trackpad (AppleKit capture)
+
+Getting started
+1. Subscribe to Cities Harmony and enable it in Content Manager
+2. Subscribe to this mod and enable it
+3. Load a city, click the game window so it is focused
+4. Two-finger drag to pan, pinch to zoom, Option (⌥)+two-finger to orbit
+5. Options → Trackpad Camera Control to change Sensitivity or Slow / Default / Fast
+
+If gestures do nothing: keep the game focused; turn off Mission Control / three-finger swipes stealing the trackpad (player guide on GitHub).
 
 Compatibility (tested platforms)
 • AppKit gesture APIs are old; we only claim what we (or you) have playtested.
@@ -63,12 +75,6 @@ Not supported
 
 Scope
 • Trackpad gesture input only — not a full camera suite (saved views, zoom-limit overhaul, free-cam).
-
-Install
-1. Subscribe to Cities Harmony and enable it
-2. Subscribe to this mod and enable it in Content Manager
-3. Load a city, keep the game focused
-4. Try two-finger pan and pinch zoom
 
 Conflicts
 • macOS Mission Control / system gestures can steal multitouch — see the player guide OS conflict notes on GitHub if gestures do nothing
@@ -92,6 +98,18 @@ Secondary (description / README; Workshop tag limits may not fit all):
 `middle mouse` · `mmb` · `Cities Skylines` · `CSL`
 
 Do **not** add `windows` or `linux` as capability tags until those backends ship.
+
+## Share dialog (not description body)
+
+Set these in Content Manager **Share** / **Update** ([Release process](./release-process.md)):
+
+| Field          | v1                                                                                       |
+| -------------- | ---------------------------------------------------------------------------------------- |
+| Required items | [Cities Harmony](https://steamcommunity.com/sharedfiles/filedetails/?id=2040656402) only |
+| Preview        | `PreviewImage.png` in the local Mods folder (512×512 PNG)                                |
+| Visibility     | Hidden or friends-only until splash readiness, then public                               |
+
+Do not mark [Skyve](https://steamcommunity.com/sharedfiles/filedetails/?id=2881031511) as required.
 
 ## Tested platforms (public claim)
 

@@ -12,6 +12,18 @@ How players get the mod running. Who this is for: [Personas](./personas.md). Whe
 
 Until Workshop publishes, treat GitHub Release + local install as the supported player/tester path. Do not imply a Workshop item exists before it does. When published, the Workshop and Content Manager title is **Trackpad Camera Control (macOS)** — paste-ready storefront copy lives in `docs/developer/workshop-storefront.md`.
 
+## Getting started (macOS)
+
+v1 is **macOS only**. Windows and Linux can show the mod in Content Manager; trackpad gestures will not work.
+
+1. Subscribe to [Cities Harmony](https://steamcommunity.com/sharedfiles/filedetails/?id=2040656402) and **enable** it.
+2. Install this mod (Workshop subscribe when published, or local DLL via the beta path above) and **enable** it in Content Manager.
+3. Load a city (not menus-only). Click the game window so it is focused.
+4. Two-finger drag **pans**, pinch **zooms**, two-finger twist **rotates** heading, Option (`⌥`)+two-finger drag **orbits**.
+5. Open **Options → Trackpad Camera Control** for Sensitivity and Slow / Default / Fast.
+
+Harmony must be enabled or two-finger pan may still fight vanilla scroll-zoom. [Skyve](https://steamcommunity.com/sharedfiles/filedetails/?id=2881031511) is optional (load order / compatibility helper). It is **not** required; its Mac app needs Wine and is separate from this mod.
+
 ## Requirements
 
 - Cities: Skylines I
