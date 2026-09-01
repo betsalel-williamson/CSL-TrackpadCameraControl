@@ -19,6 +19,48 @@ namespace TrackpadCameraControl
             GameFocusedOverride = null;
         }
 
+        /// <summary>
+        /// When the mod is on but the game is unfocused, block all camera input (mod and vanilla)
+        /// until focus returns.
+        /// </summary>
+        public static bool ShouldBlockCameraInput()
+        {
+            return VanillaCameraSuppress.Enabled && !IsGameFocused();
+        }
+
+        /// <summary>
+        /// Mod may apply trackpad camera ops and run selective vanilla suppress while focused on the world.
+        /// </summary>
+        public static bool IsModCameraArmed()
+        {
+            if (!VanillaCameraSuppress.Enabled)
+            {
+                return false;
+            }
+
+            if (!IsGameFocused())
+            {
+                return false;
+            }
+
+            if (IsMenuOrOverUi())
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        /// <summary>Drop sticky mod camera state when the world path is not armed.</summary>
+        public static void DisarmTransientCameraState(ICameraController camera)
+        {
+            VanillaCameraSuppress.PreciseTrackpadScroll = false;
+            if (camera != null)
+            {
+                camera.ClearPendingAngleVelocity();
+            }
+        }
+
         public static bool ShouldSkipModCamera(ModSettings settings)
         {
             if (settings == null)

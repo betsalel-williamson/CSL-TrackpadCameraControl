@@ -22,6 +22,7 @@ namespace TrackpadCameraControl.Tests
             VanillaCameraSuppress.Enabled = false;
             VanillaCameraSuppress.PreciseTrackpadScroll = false;
             VanillaCameraSuppress.MenuOrOverUi = false;
+            InputGates.ResetTestHooks();
         }
 
         [Fact]
@@ -70,6 +71,32 @@ namespace TrackpadCameraControl.Tests
                     menuOrOverUi: true
                 )
             );
+        }
+
+        [Fact]
+        public void ShouldRunVanillaScrollWheel_WhenUnfocused_ReturnsFalse()
+        {
+            VanillaCameraSuppress.Enabled = true;
+            InputGates.GameFocusedOverride = () => false;
+            VanillaCameraSuppress.PreciseTrackpadScroll = false;
+            Assert.False(VanillaCameraSuppress.ShouldRunVanillaScrollWheel());
+        }
+
+        [Fact]
+        public void ShouldRunVanillaMouseEvents_WhenUnfocused_ReturnsFalse()
+        {
+            VanillaCameraSuppress.Enabled = true;
+            InputGates.GameFocusedOverride = () => false;
+            Assert.False(VanillaCameraSuppress.ShouldRunVanillaMouseEvents(true));
+            Assert.False(VanillaCameraSuppress.ShouldRunVanillaMouseEvents(false));
+        }
+
+        [Fact]
+        public void ShouldFlushPendingOrbit_WhenUnfocused_ReturnsFalse()
+        {
+            VanillaCameraSuppress.Enabled = true;
+            InputGates.GameFocusedOverride = () => false;
+            Assert.False(VanillaCameraSuppress.ShouldFlushPendingOrbit());
         }
 
         [Fact]
