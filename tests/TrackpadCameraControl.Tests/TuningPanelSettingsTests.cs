@@ -211,6 +211,19 @@ namespace TrackpadCameraControl.Tests
         }
 
         [Fact]
+        public void RoundTrip_PreservesDebugQolFields()
+        {
+            var store = new ModSettingsStore(_path);
+            store.SaveNow(
+                new ModSettings { IncludeSystemInfoInCopy = false, DebugPanelDismissed = true }
+            );
+
+            ModSettings loaded = store.LoadOrFactory();
+            Assert.False(loaded.IncludeSystemInfoInCopy);
+            Assert.True(loaded.DebugPanelDismissed);
+        }
+
+        [Fact]
         public void CorruptFile_YieldsFactory()
         {
             File.WriteAllText(_path, "not-xml{{{");

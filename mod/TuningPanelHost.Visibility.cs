@@ -2,8 +2,6 @@ namespace TrackpadCameraControl
 {
     internal static partial class TuningPanelHost
     {
-        private static bool _dismissedByUser;
-
         internal static bool ShouldShowRoot(bool assistEnabled, bool dismissed)
         {
             return assistEnabled && !dismissed;
@@ -16,17 +14,31 @@ namespace TrackpadCameraControl
 
         public static void ClearUserDismiss()
         {
-            _dismissedByUser = false;
+            ModSettings s = Mod.EnsureSettings();
+            if (s == null)
+            {
+                return;
+            }
+
+            s.DebugPanelDismissed = false;
+            ModOptions.NotifyChanged();
         }
 
         internal static bool IsUserDismissedForTests()
         {
-            return _dismissedByUser;
+            ModSettings s = Mod.Settings;
+            return s != null && s.DebugPanelDismissed;
         }
 
         internal static void SetUserDismissedForTests(bool dismissed)
         {
-            _dismissedByUser = dismissed;
+            ModSettings s = Mod.EnsureSettings();
+            if (s == null)
+            {
+                return;
+            }
+
+            s.DebugPanelDismissed = dismissed;
         }
     }
 }

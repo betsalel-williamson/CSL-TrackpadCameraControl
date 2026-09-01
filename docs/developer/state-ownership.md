@@ -46,7 +46,14 @@ Policy decisions live in [`InputGates`](../mod/InputGates.cs), not in this type.
 
 ## Persisted vs session
 
-User-facing Debug QoL (include system info in Copy, panel dismissed) lives in **`ModSettings`** schema ≥4 and `settings.xml` — not static UI fields.
+User-facing Debug QoL lives in **`ModSettings`** schema ≥4 and `settings.xml`:
+
+| Setting                     | Schema field              | Default |
+| --------------------------- | ------------------------- | ------- |
+| Include system info in Copy | `IncludeSystemInfoInCopy` | `true`  |
+| Debug panel dismissed (X)   | `DebugPanelDismissed`     | `false` |
+
+Focus, menu, pointer-over-UI, selection, and camera pose remain derived each frame — not static UI fields.
 
 ## Related
 
