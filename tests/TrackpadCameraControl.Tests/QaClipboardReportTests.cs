@@ -49,5 +49,18 @@ namespace TrackpadCameraControl.Tests
             Assert.Equal("Logitech G500s Laser Gaming Mouse (046D:C24E · rev 8401 · USB)", display);
             Assert.DoesNotContain("Serial", display);
         }
+
+        [Fact]
+        public void FormatDeviceLine_ShowsQuantityForDuplicateModels()
+        {
+            Assert.Equal(
+                "Magic Trackpad (05AC:030E · Bluetooth)",
+                MacQaSystemInfo.FormatDeviceLine("Magic Trackpad (05AC:030E · Bluetooth)", 1)
+            );
+            Assert.Equal(
+                "Magic Trackpad (05AC:030E · Bluetooth) ×2",
+                MacQaSystemInfo.FormatDeviceLine("Magic Trackpad (05AC:030E · Bluetooth)", 2)
+            );
+        }
     }
 }

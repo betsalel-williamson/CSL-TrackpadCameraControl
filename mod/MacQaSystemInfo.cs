@@ -285,19 +285,20 @@ namespace TrackpadCameraControl
                 foreach (KeyValuePair<string, DeviceRecord> pair in devices)
                 {
                     DeviceRecord record = pair.Value;
+                    string line = FormatDeviceLine(record.Display, record.Quantity);
                     if (record.IsKeyboard)
                     {
-                        keyboards.Add(record.Display);
+                        keyboards.Add(line);
                     }
 
                     if (record.IsMouse && !record.IsTrackpad)
                     {
-                        mice.Add(record.Display);
+                        mice.Add(line);
                     }
 
                     if (record.IsTrackpad)
                     {
-                        trackpads.Add(record.Display);
+                        trackpads.Add(line);
                     }
                 }
 
@@ -322,13 +323,38 @@ namespace TrackpadCameraControl
             }
         }
 
-        private struct DeviceRecord
+        private sealed class DeviceRecord
         {
             public string Display;
             public int Score;
             public bool IsKeyboard;
             public bool IsMouse;
             public bool IsTrackpad;
+            public readonly List<string> InstanceKeys = new List<string>();
+
+            public int Quantity
+            {
+                get { return InstanceKeys.Count > 0 ? InstanceKeys.Count : 1; }
+            }
+
+            public void NoteInstance(string instanceKey)
+            {
+                if (string.IsNullOrEmpty(instanceKey))
+                {
+                    // Multiple HID interfaces of one device often omit identity — keep quantity 1.
+                    if (InstanceKeys.Count == 0)
+                    {
+                        InstanceKeys.Add("anon");
+                    }
+
+                    return;
+                }
+
+                if (!ContainsIgnoreCase(InstanceKeys, instanceKey))
+                {
+                    InstanceKeys.Add(instanceKey);
+                }
+            }
         }
 
         private static void ClassifyRegistryEntry(
@@ -388,35 +414,50 @@ namespace TrackpadCameraControl
                 builtIn
             );
             int score = ModelInfoScore(vendorId, productId, version, transport, builtIn);
+            // Instance identity for counting only — never written to the clipboard.
+            string instanceKey = ReadInstanceKey(entry);
 
             DeviceRecord record;
-            if (devices.TryGetValue(name, out record))
+            if (!devices.TryGetValue(name, out record))
             {
-                record.IsKeyboard = record.IsKeyboard || isKeyboard;
-                record.IsMouse = record.IsMouse || isMouse;
-                record.IsTrackpad = record.IsTrackpad || isTrackpad;
-                if (score > record.Score)
-                {
-                    record.Display = display;
-                    record.Score = score;
-                }
-
+                record = new DeviceRecord();
                 devices[name] = record;
-                return;
             }
 
-            devices[name] = new DeviceRecord
+            record.IsKeyboard = record.IsKeyboard || isKeyboard;
+            record.IsMouse = record.IsMouse || isMouse;
+            record.IsTrackpad = record.IsTrackpad || isTrackpad;
+            record.NoteInstance(instanceKey);
+            if (score > record.Score || string.IsNullOrEmpty(record.Display))
             {
-                Display = display,
-                Score = score,
-                IsKeyboard = isKeyboard,
-                IsMouse = isMouse,
-                IsTrackpad = isTrackpad,
-            };
+                record.Display = display;
+                record.Score = score;
+            }
         }
 
         /// <summary>
-        /// USB-style model identity for QA (hex VID:PID). Omits serial numbers.
+        /// Opaque per-device key for quantity only. Prefer LocationID over serial so we never
+        /// need serial in normal USB cases; serial is used only as a last-resort count key.
+        /// </summary>
+        private static string ReadInstanceKey(uint entry)
+        {
+            int locationId = ReadIntProperty(entry, "LocationID");
+            if (locationId != 0)
+            {
+                return "loc:" + locationId.ToString("X");
+            }
+
+            string serial = ReadStringProperty(entry, "SerialNumber");
+            if (!string.IsNullOrEmpty(serial))
+            {
+                return "sn:" + serial;
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// USB-style model identity for QA (hex VID:PID). Never includes serial numbers.
         /// </summary>
         internal static string FormatDeviceDisplay(
             string name,
@@ -473,6 +514,17 @@ namespace TrackpadCameraControl
 
             sb.Append(')');
             return sb.ToString();
+        }
+
+        /// <summary>Append ×N when more than one identical model is connected.</summary>
+        internal static string FormatDeviceLine(string display, int quantity)
+        {
+            if (string.IsNullOrEmpty(display) || quantity <= 1)
+            {
+                return display;
+            }
+
+            return display + " ×" + quantity;
         }
 
         internal static string FormatModelId(int vendorId, int productId)
@@ -535,6 +587,19 @@ namespace TrackpadCameraControl
                 || name.IndexOf("fingerprint", StringComparison.OrdinalIgnoreCase) >= 0
                 || name.IndexOf("faceid", StringComparison.OrdinalIgnoreCase) >= 0
                 || name.IndexOf("lidar", StringComparison.OrdinalIgnoreCase) >= 0;
+        }
+
+        private static bool ContainsIgnoreCase(List<string> items, string value)
+        {
+            for (int i = 0; i < items.Count; i++)
+            {
+                if (string.Equals(items[i], value, StringComparison.OrdinalIgnoreCase))
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         private static string FormatDeviceName(string manufacturer, string product)
