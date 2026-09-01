@@ -157,6 +157,7 @@ namespace TrackpadCameraControl
 
             if (_root != null)
             {
+                SavePanelPosition();
                 UnityEngine.Object.Destroy(_root.gameObject);
                 _root = null;
             }
@@ -264,7 +265,8 @@ namespace TrackpadCameraControl
             UIDragHandle drag = _titleBar.AddUIComponent<UIDragHandle>();
             drag.target = _root;
             drag.constrainToScreen = true;
-            _titleBar.eventMouseUp += (c, e) => SavePanelPosition();
+            // Mouse-up is handled by UIDragHandle, not the title-bar UIPanel.
+            drag.eventMouseUp += (c, e) => SavePanelPosition();
 
             _title = AddLabel(_titleBar, Mod.OptionsTitle, Col0, 8f);
             _title.textScale = 1.1f;
@@ -929,6 +931,7 @@ namespace TrackpadCameraControl
                 return;
             }
 
+            _root.MakePixelPerfect();
             Vector3 p = _root.relativePosition;
             ModOptions.ApplyPanelPosition(s, p.x, p.y);
         }
