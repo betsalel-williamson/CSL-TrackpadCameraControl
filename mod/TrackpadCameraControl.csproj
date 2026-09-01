@@ -85,7 +85,11 @@
     >
         <MakeDir Directories="$(ModDeployDir)" />
         <Delete Files="$(ModDeployDir)/$(TargetFileName)" TreatErrorsAsWarnings="true" />
-        <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(ModDeployDir)" OverwriteReadOnlyFiles="true" />
+        <Copy
+            SourceFiles="$(TargetPath)"
+            DestinationFolder="$(ModDeployDir)"
+            OverwriteReadOnlyFiles="true"
+        />
         <Copy
             SourceFiles="$(MSBuildThisFileDirectory)PreviewImage.png"
             DestinationFolder="$(ModDeployDir)"
@@ -151,7 +155,10 @@
     <ItemGroup>
         <Compile Include="..\src\TrackpadCapture\*.cs" Link="Capture\%(Filename).cs" />
         <InternalsVisibleTo Include="TrackpadCameraControl.Tests" />
-        <None Include="PreviewImage.png" Condition="Exists('$(MSBuildThisFileDirectory)PreviewImage.png')">
+        <None
+            Include="PreviewImage.png"
+            Condition="Exists('$(MSBuildThisFileDirectory)PreviewImage.png')"
+        >
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
     </ItemGroup>
