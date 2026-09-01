@@ -8,15 +8,18 @@ namespace TrackpadCameraControl
     /// </summary>
     public static class InputGates
     {
-        public static Func<bool> MenuOpenOverride { get; set; }
-        public static Func<bool> PointerOverUiOverride { get; set; }
-        public static Func<bool> GameFocusedOverride { get; set; }
+        private static IGameUiContext _context;
 
-        public static void ResetTestHooks()
+        /// <summary>Game UI / focus probe seam. Null uses <see cref="GameUiContext.Default"/>.</summary>
+        public static IGameUiContext Context
         {
-            MenuOpenOverride = null;
-            PointerOverUiOverride = null;
-            GameFocusedOverride = null;
+            get { return _context ?? GameUiContext.Default; }
+            set { _context = value; }
+        }
+
+        internal static IGameUiContext ContextOrNull
+        {
+            get { return _context; }
         }
 
         /// <summary>Sync suppress flags once per pipeline tick before apply/Harmony reads them.</summary>
@@ -127,95 +130,22 @@ namespace TrackpadCameraControl
 
         public static bool IsMenuOrOptionsOpen()
         {
-            if (MenuOpenOverride != null)
-            {
-                return MenuOpenOverride();
-            }
-
-            return DetectMenuOrOptionsOpen();
+            return Context.IsMenuOrOptionsOpen();
         }
 
         public static bool IsPointerOverUi()
         {
-            if (PointerOverUiOverride != null)
-            {
-                return PointerOverUiOverride();
-            }
-
-            return DetectPointerOverUi();
+            return Context.IsPointerOverUi();
         }
 
         public static bool IsGameFocused()
         {
-            if (GameFocusedOverride != null)
-            {
-                return GameFocusedOverride();
-            }
-
-            return DetectGameFocused();
+            return Context.IsGameFocused();
         }
 
         public static bool IsMenuOrOverUi()
         {
             return IsMenuOrOptionsOpen() || IsPointerOverUi();
-        }
-
-        private static bool DetectMenuOrOptionsOpen()
-        {
-#if HAS_CITIES
-            try
-            {
-                if (ColossalFramework.UI.UIView.HasModalInput())
-                {
-                    return true;
-                }
-
-                OptionsMainPanel options =
-                    ColossalFramework.UI.UIView.library != null
-                        ? ColossalFramework.UI.UIView.library.Get<OptionsMainPanel>("OptionsPanel")
-                        : null;
-                if (options != null && options.component != null && options.component.isVisible)
-                {
-                    return true;
-                }
-            }
-            catch
-            {
-                // fail soft: treat as not open
-            }
-#endif
-            return false;
-        }
-
-        private static bool DetectPointerOverUi()
-        {
-#if HAS_CITIES
-            try
-            {
-                return ColossalFramework.UI.UIView.IsInsideUI();
-            }
-            catch
-            {
-                // fail soft
-            }
-#endif
-            return false;
-        }
-
-        private static bool DetectGameFocused()
-        {
-#if HAS_CITIES
-            try
-            {
-                return UnityEngine.Application.isFocused;
-            }
-            catch
-            {
-                return true;
-            }
-#else
-            return true;
-#endif
         }
     }
 }

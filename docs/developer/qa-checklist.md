@@ -34,6 +34,7 @@ Maintainer and community reports. Prefer Workshop comments or a GitHub issue tit
 - [ ] Trackpad Camera Control enabled in Content Manager
 - [ ] City loaded (not menus-only)
 - [ ] Game window focused
+- [ ] Cold boot → load city: no OS hardware cursor overlaying the in-game cursor; one-finger tools work without alt-tab first
 - [ ] Maps+ / Default feel (Options or Debug panel)
 - [ ] Session platform row filled above
 

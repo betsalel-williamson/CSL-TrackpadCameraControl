@@ -47,7 +47,7 @@ namespace TrackpadCameraControl.Tests
 
         public NewPresetDirtyAutosaveTests()
         {
-            Mod.ClearSettingsForTests();
+            ModTestState.Reset();
             _dir = Path.Combine(
                 Path.GetTempPath(),
                 "tcc-new-preset-" + Guid.NewGuid().ToString("N")
@@ -58,8 +58,7 @@ namespace TrackpadCameraControl.Tests
 
         public void Dispose()
         {
-            Mod.ClearSettingsForTests();
-            ModOptions.ClearSettingsChangedForTests();
+            ModTestState.Reset();
             try
             {
                 if (Directory.Exists(_dir))
@@ -77,9 +76,7 @@ namespace TrackpadCameraControl.Tests
         {
             var store = new ModSettingsStore(_path);
             ModOptions.Store = store;
-            live = ModSettings.CreateFactoryDefaults();
-            Mod.SetSettingsForTests(live);
-            store.SaveNow(live);
+            live = store.LoadOrFactory();
             return store;
         }
 

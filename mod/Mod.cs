@@ -171,28 +171,6 @@ namespace TrackpadCameraControl
             return _settingsCache;
         }
 
-        internal static void SetSettingsForTests(ModSettings settings)
-        {
-            _settingsCache = settings;
-        }
-
-        internal static void SetRuntimeForTests(ModRuntime runtime)
-        {
-            Runtime = runtime;
-        }
-
-        internal static void ClearRuntimeForTests()
-        {
-            Runtime = null;
-        }
-
-        internal static void ClearSettingsForTests()
-        {
-            _settingsCache = null;
-            ModOptions.Store = null;
-            ClearRuntimeForTests();
-        }
-
         public void OnEnabled()
         {
             try
@@ -297,6 +275,10 @@ namespace TrackpadCameraControl
             Runtime = null;
             _settingsCache = null;
             ModOptions.Store = null;
+            InputGates.Context = null;
+            GestureCaptureLog.Close();
+            GestureCaptureLog.PathResolver = null;
+            ModOptions.ResetSettingsChangedHandlers();
         }
 
         public static bool IsE2eInjectEnabled()

@@ -17,13 +17,20 @@ namespace TrackpadCameraControl
         private static readonly object Gate = new object();
         private static StreamWriter _writer;
         private static bool _failed;
-        internal static string PathOverride;
+        private static Func<string> _pathResolver;
+
+        /// <summary>Optional path resolver (defaults to env / temp file).</summary>
+        public static Func<string> PathResolver
+        {
+            get { return _pathResolver; }
+            set { _pathResolver = value; }
+        }
 
         public static string ResolvePath()
         {
-            if (!string.IsNullOrEmpty(PathOverride))
+            if (_pathResolver != null)
             {
-                return PathOverride;
+                return _pathResolver();
             }
 
             string env = Environment.GetEnvironmentVariable(EnvVar);
@@ -90,7 +97,8 @@ namespace TrackpadCameraControl
             );
         }
 
-        internal static void ResetForTests()
+        /// <summary>Close the log writer (mod disable / test teardown).</summary>
+        public static void Close()
         {
             lock (Gate)
             {

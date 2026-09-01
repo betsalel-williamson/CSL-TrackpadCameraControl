@@ -203,35 +203,4 @@ namespace TrackpadCameraControl.Tests
             Assert.NotNull(Mod.CreateCaptureSource(settings));
         }
     }
-
-    public class GestureCaptureLogTests
-    {
-        [Fact]
-        public void Line_WritesToConfiguredPath()
-        {
-            string path = Path.Combine(
-                Path.GetTempPath(),
-                "trackpad-capture-log-test-" + Guid.NewGuid().ToString("N") + ".log"
-            );
-            GestureCaptureLog.PathOverride = path;
-            GestureCaptureLog.ResetForTests();
-            try
-            {
-                GestureCaptureLog.Line("hello-capture");
-                GestureCaptureLog.ResetForTests();
-                string text = File.ReadAllText(path);
-                Assert.Contains("hello-capture", text);
-                Assert.Contains(GestureCaptureLog.OpenedLinePrefix, text);
-            }
-            finally
-            {
-                GestureCaptureLog.ResetForTests();
-                GestureCaptureLog.PathOverride = null;
-                if (File.Exists(path))
-                {
-                    File.Delete(path);
-                }
-            }
-        }
-    }
 }

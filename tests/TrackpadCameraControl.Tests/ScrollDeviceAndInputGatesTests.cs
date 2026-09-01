@@ -9,18 +9,16 @@ namespace TrackpadCameraControl.Tests
     {
         public ScrollDeviceAndInputGatesTests()
         {
-            ModRuntime.ClearForTests();
+            ModTestState.Reset();
             VanillaCameraSuppress.PreciseTrackpadScroll = false;
             VanillaCameraSuppress.MenuOrOverUi = false;
-            InputGates.ResetTestHooks();
         }
 
         public void Dispose()
         {
-            ModRuntime.ClearForTests();
+            ModTestState.Reset();
             VanillaCameraSuppress.PreciseTrackpadScroll = false;
             VanillaCameraSuppress.MenuOrOverUi = false;
-            InputGates.ResetTestHooks();
         }
 
         [Fact]
@@ -83,108 +81,109 @@ namespace TrackpadCameraControl.Tests
         [Fact]
         public void InputGates_MenuOpen_SkipsModCamera()
         {
-            InputGates.MenuOpenOverride = () => true;
-            InputGates.PointerOverUiOverride = () => false;
-            InputGates.GameFocusedOverride = () => true;
-            Assert.True(InputGates.ShouldSkipModCamera(new ModSettings()));
+            var ui = new FakeGameUiContext { MenuOrOptionsOpen = true, GameFocused = true };
+            using (new InputGatesContextScope(ui))
+            {
+                Assert.True(InputGates.ShouldSkipModCamera(new ModSettings()));
+            }
         }
 
         [Fact]
         public void InputGates_IgnoreOverUi_AndPointerOverUi_Skips()
         {
-            InputGates.MenuOpenOverride = () => false;
-            InputGates.PointerOverUiOverride = () => true;
-            InputGates.GameFocusedOverride = () => true;
-            Assert.True(InputGates.ShouldSkipModCamera(new ModSettings { IgnoreOverUi = true }));
+            var ui = new FakeGameUiContext { PointerOverUi = true, GameFocused = true };
+            using (new InputGatesContextScope(ui))
+            {
+                Assert.True(
+                    InputGates.ShouldSkipModCamera(new ModSettings { IgnoreOverUi = true })
+                );
+            }
         }
 
         [Fact]
         public void InputGates_IgnoreOverUiOff_PointerOverUi_DoesNotSkip()
         {
-            InputGates.MenuOpenOverride = () => false;
-            InputGates.PointerOverUiOverride = () => true;
-            InputGates.GameFocusedOverride = () => true;
-            Assert.False(InputGates.ShouldSkipModCamera(new ModSettings { IgnoreOverUi = false }));
+            var ui = new FakeGameUiContext { PointerOverUi = true, GameFocused = true };
+            using (new InputGatesContextScope(ui))
+            {
+                Assert.False(
+                    InputGates.ShouldSkipModCamera(new ModSettings { IgnoreOverUi = false })
+                );
+            }
         }
 
         [Fact]
         public void InputGates_RequireGameFocus_Unfocused_Skips()
         {
-            InputGates.MenuOpenOverride = () => false;
-            InputGates.PointerOverUiOverride = () => false;
-            InputGates.GameFocusedOverride = () => false;
-            Assert.True(
-                InputGates.ShouldSkipModCamera(new ModSettings { RequireGameFocus = true })
-            );
+            var ui = new FakeGameUiContext { GameFocused = false };
+            using (new InputGatesContextScope(ui))
+            {
+                Assert.True(
+                    InputGates.ShouldSkipModCamera(new ModSettings { RequireGameFocus = true })
+                );
+            }
         }
 
         [Fact]
         public void InputGates_RequireGameFocusOff_Unfocused_DoesNotSkip()
         {
-            InputGates.MenuOpenOverride = () => false;
-            InputGates.PointerOverUiOverride = () => false;
-            InputGates.GameFocusedOverride = () => false;
-            Assert.False(
-                InputGates.ShouldSkipModCamera(new ModSettings { RequireGameFocus = false })
-            );
+            var ui = new FakeGameUiContext { GameFocused = false };
+            using (new InputGatesContextScope(ui))
+            {
+                Assert.False(
+                    InputGates.ShouldSkipModCamera(new ModSettings { RequireGameFocus = false })
+                );
+            }
         }
 
         [Fact]
         public void InputGates_WorldFocused_DoesNotSkip()
         {
-            InputGates.MenuOpenOverride = () => false;
-            InputGates.PointerOverUiOverride = () => false;
-            InputGates.GameFocusedOverride = () => true;
-            Assert.False(InputGates.ShouldSkipModCamera(new ModSettings()));
+            using (new InputGatesContextScope(new FakeGameUiContext()))
+            {
+                Assert.False(InputGates.ShouldSkipModCamera(new ModSettings()));
+            }
         }
 
         [Fact]
         public void Pipeline_WhenGateSkips_DoesNotApplyCamera()
         {
-            InputGates.MenuOpenOverride = () => true;
-            InputGates.PointerOverUiOverride = () => false;
-            InputGates.GameFocusedOverride = () => true;
-
-            var settings = new ModSettings
+            var ui = new FakeGameUiContext { MenuOrOptionsOpen = true, GameFocused = true };
+            using (new InputGatesContextScope(ui))
             {
-                PanEnabled = true,
-                MotionDeadband = 0.001f,
-                PanGainX = 1f,
-                PanGainY = 1f,
-            };
-            var inject = new InjectGestureSource();
-            var cam = new FakeCameraController
-            {
-                Size = 1f,
-                TargetX = 0f,
-                TargetZ = 0f,
-            };
-            var pipeline = new GesturePipeline(settings, inject, cam);
-
-            inject.Enqueue(
-                new GestureFrame
-                {
-                    magic = GestureFrame.Magic,
-                    version = GestureFrame.Version,
-                    fingerCount = 2,
-                    phase = (int)GesturePhase.Changed,
-                    centroidDeltaX = 0.2f,
-                }
-            );
-
-            pipeline.Tick();
-
-            Assert.Equal(0f, cam.TargetX);
-            Assert.Equal(0f, cam.TargetZ);
+                RunPipelinePanAssert(staysStill: true);
+            }
         }
 
         [Fact]
         public void Pipeline_WhenGateAllows_AppliesCamera()
         {
-            InputGates.MenuOpenOverride = () => false;
-            InputGates.PointerOverUiOverride = () => false;
-            InputGates.GameFocusedOverride = () => true;
+            using (new InputGatesContextScope(new FakeGameUiContext()))
+            {
+                RunPipelinePanAssert(staysStill: false);
+            }
+        }
 
+        [Fact]
+        public void Pipeline_Tick_UpdatesSuppressMenuOrOverUiFromGates()
+        {
+            var ui = new FakeGameUiContext { MenuOrOptionsOpen = true, GameFocused = true };
+            using (new InputGatesContextScope(ui))
+            {
+                var inject = new InjectGestureSource();
+                var pipeline = new GesturePipeline(
+                    new ModSettings(),
+                    inject,
+                    new FakeCameraController()
+                );
+                pipeline.Tick();
+
+                Assert.True(VanillaCameraSuppress.MenuOrOverUi);
+            }
+        }
+
+        private static void RunPipelinePanAssert(bool staysStill)
+        {
             var settings = new ModSettings
             {
                 PanEnabled = true,
@@ -214,25 +213,15 @@ namespace TrackpadCameraControl.Tests
 
             pipeline.Tick();
 
-            Assert.True(cam.TargetX != 0f || cam.TargetZ != 0f);
-        }
-
-        [Fact]
-        public void Pipeline_Tick_UpdatesSuppressMenuOrOverUiFromGates()
-        {
-            InputGates.MenuOpenOverride = () => true;
-            InputGates.PointerOverUiOverride = () => false;
-            InputGates.GameFocusedOverride = () => true;
-
-            var inject = new InjectGestureSource();
-            var pipeline = new GesturePipeline(
-                new ModSettings(),
-                inject,
-                new FakeCameraController()
-            );
-            pipeline.Tick();
-
-            Assert.True(VanillaCameraSuppress.MenuOrOverUi);
+            if (staysStill)
+            {
+                Assert.Equal(0f, cam.TargetX);
+                Assert.Equal(0f, cam.TargetZ);
+            }
+            else
+            {
+                Assert.True(cam.TargetX != 0f || cam.TargetZ != 0f);
+            }
         }
     }
 }
