@@ -9,7 +9,7 @@ Capability design for **Trackpad Camera Control** — Cities: Skylines I trackpa
   - [Suppress vanilla camera input](./vanilla-camera-suppress.md)
   - [System architecture](./system-architecture.md)
   - [Platform backends](./platform-backends.md)
-  - [IPC gesture primitives](./ipc-gesture-primitives.md)
+  - [Gesture primitives](./ipc-gesture-primitives.md)
   - [Settings and hot configuration](./settings-and-hot-configuration.md)
   - [Debug UI camera chrome](./debug-ui-camera-chrome.md)
   - [Prior art and scope](./prior-art-and-scope.md)

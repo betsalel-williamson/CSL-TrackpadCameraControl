@@ -1,4 +1,4 @@
-# IPC gesture primitives
+# Gesture primitives
 
 ## Intent
 
