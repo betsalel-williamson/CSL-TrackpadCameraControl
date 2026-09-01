@@ -108,6 +108,27 @@ namespace TrackpadCameraControl
             }
         }
 
+        /// <summary>
+        /// Debug panel footer line (Built UTC + asm). Null when neither stamp is available.
+        /// </summary>
+        internal static string GetBuildInfoFooterDisplay()
+        {
+            string built = GetAssemblyBuildTimestampUtcDisplay();
+            string asm = GetAssemblyIdentityDisplay();
+            if (string.IsNullOrEmpty(built) && string.IsNullOrEmpty(asm))
+            {
+                return null;
+            }
+
+            string line = "Built (UTC): " + (built ?? "?");
+            if (!string.IsNullOrEmpty(asm))
+            {
+                line += "  ·  asm " + asm;
+            }
+
+            return line;
+        }
+
         public static ModSettings Settings { get; private set; }
         public static GesturePipeline Pipeline { get; private set; }
         public static InjectGestureSource InjectSource { get; internal set; }

@@ -25,6 +25,7 @@ namespace TrackpadCameraControl
         private const float ColWidth = FieldColumnW;
         private const float HeaderButtonSize = 32f;
         private const float HeaderButtonRestOpacity = 0.55f;
+        private const float FooterCopyButtonSize = 24f;
 
         private static UIPanel _root;
         private static UIPanel _titleBar;
@@ -661,28 +662,44 @@ namespace TrackpadCameraControl
 
         private static void AddBuildInfoFooter()
         {
-            string built = Mod.GetAssemblyBuildTimestampUtcDisplay();
-            string asm = Mod.GetAssemblyIdentityDisplay();
-            if (string.IsNullOrEmpty(built) && string.IsNullOrEmpty(asm))
+            string line = Mod.GetBuildInfoFooterDisplay();
+            if (string.IsNullOrEmpty(line))
             {
                 return;
             }
 
-            string line = "Built (UTC): " + (built ?? "?");
-            if (!string.IsNullOrEmpty(asm))
-            {
-                line += "  ·  asm " + asm;
-            }
-
             _nextY += 8f;
-            UILabel label = AddLabel(_root, line, Col0, _nextY);
+            float rowY = _nextY;
+            float copyX = PanelWidth - FieldGutter - FooterCopyButtonSize;
+            float labelWidth = copyX - Col0 - 4f;
+
+            UILabel label = AddLabel(_root, line, Col0, rowY);
             label.textColor = new Color(1f, 1f, 1f, 0.75f);
-            label.width = PanelWidth - (FieldGutter * 2f);
+            label.width = labelWidth;
             label.autoSize = false;
             label.autoHeight = true;
             label.wordWrap = true;
+            label.isInteractive = false;
             label.PerformLayout();
-            _nextY += Mathf.Max(18f, label.height + 4f);
+
+            UIButton copy = _root.AddUIComponent<UIButton>();
+            copy.text = "⎘";
+            copy.textScale = 0.9f;
+            copy.width = FooterCopyButtonSize;
+            copy.height = FooterCopyButtonSize;
+            copy.relativePosition = new Vector3(copyX, rowY);
+            copy.normalBgSprite = "ButtonMenu";
+            copy.hoveredBgSprite = "ButtonMenuHovered";
+            copy.pressedBgSprite = "ButtonMenuPressed";
+            copy.tooltip = "Copy build info";
+            copy.eventClick += (c, e) => GUIUtility.systemCopyBuffer = line;
+            copy.eventMouseDown += (c, e) =>
+            {
+                _dragging = false;
+                e.Use();
+            };
+
+            _nextY += Mathf.Max(FooterCopyButtonSize, label.height + 4f);
         }
 
         private static void AddSection(string title)
