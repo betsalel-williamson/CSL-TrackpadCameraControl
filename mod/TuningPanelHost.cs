@@ -43,7 +43,7 @@ namespace TrackpadCameraControl
         private static bool _handlingSettingsChanged;
         private static bool _rebuildQueued;
         private static Vector3 _dragPanelStart;
-        private static Vector2 _dragPointerStart;
+        private static Vector3 _dragMouseStart;
 
         public static void EnsureCreated()
         {
