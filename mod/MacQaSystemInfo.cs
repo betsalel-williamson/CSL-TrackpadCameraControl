@@ -312,7 +312,7 @@ namespace TrackpadCameraControl
                 name = ReadStringProperty(entry, "USB Product Name");
             }
 
-            if (string.IsNullOrEmpty(name))
+            if (string.IsNullOrEmpty(name) || IsNoiseProduct(name))
             {
                 return;
             }
@@ -322,16 +322,21 @@ namespace TrackpadCameraControl
                 return;
             }
 
-            bool isKeyboard =
-                (usagePage == 0x01 && usage == 0x06)
-                || name.IndexOf("keyboard", StringComparison.OrdinalIgnoreCase) >= 0;
-            bool isMouse =
-                (usagePage == 0x01 && (usage == 0x02 || usage == 0x01))
-                || name.IndexOf("mouse", StringComparison.OrdinalIgnoreCase) >= 0;
-            bool isTrackpad =
-                usagePage == 0x0D
-                || name.IndexOf("trackpad", StringComparison.OrdinalIgnoreCase) >= 0
+            bool nameSaysKeyboard =
+                name.IndexOf("keyboard", StringComparison.OrdinalIgnoreCase) >= 0;
+            bool nameSaysMouse = name.IndexOf("mouse", StringComparison.OrdinalIgnoreCase) >= 0;
+            bool nameSaysTrackpad =
+                name.IndexOf("trackpad", StringComparison.OrdinalIgnoreCase) >= 0
                 || name.IndexOf("touchpad", StringComparison.OrdinalIgnoreCase) >= 0;
+
+            // Product name wins when HID primary usage is a secondary interface (gaming mice, etc.).
+            bool isKeyboard =
+                nameSaysKeyboard
+                || (usagePage == 0x01 && usage == 0x06 && !nameSaysMouse && !nameSaysTrackpad);
+            bool isMouse =
+                nameSaysMouse
+                || (usagePage == 0x01 && (usage == 0x02 || usage == 0x01) && !nameSaysKeyboard);
+            bool isTrackpad = nameSaysTrackpad || usagePage == 0x0D;
 
             // Built-in Mac boards often report as one HID device (keyboard + trackpad).
             if (!isKeyboard && !isMouse && !isTrackpad)
@@ -354,6 +359,16 @@ namespace TrackpadCameraControl
             {
                 trackpads.Add(name);
             }
+        }
+
+        private static bool IsNoiseProduct(string name)
+        {
+            return name.IndexOf("backlight", StringComparison.OrdinalIgnoreCase) >= 0
+                || name.IndexOf("headset", StringComparison.OrdinalIgnoreCase) >= 0
+                || name.IndexOf("ambient light", StringComparison.OrdinalIgnoreCase) >= 0
+                || name.IndexOf("fingerprint", StringComparison.OrdinalIgnoreCase) >= 0
+                || name.IndexOf("faceid", StringComparison.OrdinalIgnoreCase) >= 0
+                || name.IndexOf("lidar", StringComparison.OrdinalIgnoreCase) >= 0;
         }
 
         private static bool ContainsIgnoreCase(List<string> items, string value)
