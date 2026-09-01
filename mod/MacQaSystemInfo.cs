@@ -14,11 +14,97 @@ namespace TrackpadCameraControl
     /// </summary>
     internal static class MacQaSystemInfo
     {
+        private const string LibSystem = "/usr/lib/libSystem.dylib";
         private const string CoreFoundationPath =
             "/System/Library/Frameworks/CoreFoundation.framework/CoreFoundation";
         private const string IOKitPath = "/System/Library/Frameworks/IOKit.framework/IOKit";
         private const uint CfStringEncodingUtf8 = 0x08000100;
+        private const int CfNumberSInt32Type = 3;
         private const int CfNumberIntType = 9;
+
+        private static bool _nativeResolved;
+        private static bool _nativeReady;
+        private static IntPtr _ioKit;
+        private static IntPtr _coreFoundation;
+
+        private static IOServiceMatchingFn _ioServiceMatching;
+        private static IOServiceGetMatchingServicesFn _ioServiceGetMatchingServices;
+        private static IOIteratorNextFn _ioIteratorNext;
+        private static IOObjectReleaseFn _ioObjectRelease;
+        private static IORegistryEntryCreateCFPropertyFn _ioRegistryEntryCreateCFProperty;
+        private static CFReleaseFn _cfRelease;
+        private static CFStringCreateWithCStringFn _cfStringCreateWithCString;
+        private static CFStringGetCStringPtrFn _cfStringGetCStringPtr;
+        private static CFStringGetLengthFn _cfStringGetLength;
+        private static CFStringGetMaximumSizeForEncodingFn _cfStringGetMaximumSizeForEncoding;
+        private static CFStringGetCStringFn _cfStringGetCString;
+        private static CFNumberGetValueFn _cfNumberGetValue;
+        private static CFGetTypeIDFn _cfGetTypeID;
+        private static CFStringGetTypeIDFn _cfStringGetTypeID;
+        private static CFNumberGetTypeIDFn _cfNumberGetTypeID;
+
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        private delegate IntPtr IOServiceMatchingFn(string name);
+
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        private delegate int IOServiceGetMatchingServicesFn(
+            uint mainPort,
+            IntPtr matching,
+            out uint iterator
+        );
+
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        private delegate uint IOIteratorNextFn(uint iterator);
+
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        private delegate int IOObjectReleaseFn(uint obj);
+
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        private delegate IntPtr IORegistryEntryCreateCFPropertyFn(
+            uint entry,
+            IntPtr key,
+            IntPtr allocator,
+            uint options
+        );
+
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        private delegate void CFReleaseFn(IntPtr cf);
+
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        private delegate IntPtr CFStringCreateWithCStringFn(
+            IntPtr alloc,
+            string cStr,
+            uint encoding
+        );
+
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        private delegate IntPtr CFStringGetCStringPtrFn(IntPtr theString, uint encoding);
+
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        private delegate int CFStringGetLengthFn(IntPtr theString);
+
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        private delegate int CFStringGetMaximumSizeForEncodingFn(int length, uint encoding);
+
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        private delegate bool CFStringGetCStringFn(
+            IntPtr theString,
+            IntPtr buffer,
+            int bufferSize,
+            uint encoding
+        );
+
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        private delegate bool CFNumberGetValueFn(IntPtr number, int theType, out int value);
+
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        private delegate IntPtr CFGetTypeIDFn(IntPtr cf);
+
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        private delegate IntPtr CFStringGetTypeIDFn();
+
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        private delegate IntPtr CFNumberGetTypeIDFn();
 
         internal static void AppendSection(StringBuilder sb)
         {
@@ -105,9 +191,14 @@ namespace TrackpadCameraControl
             List<string> keyboards = new List<string>();
             List<string> mice = new List<string>();
             List<string> trackpads = new List<string>();
-            if (!TryCollectHidDevices(keyboards, mice, trackpads))
+            string error;
+            if (!TryCollectHidDevices(keyboards, mice, trackpads, out error))
             {
-                sb.AppendLine("(unable to enumerate input devices)");
+                sb.AppendLine(
+                    string.IsNullOrEmpty(error)
+                        ? "(unable to enumerate input devices)"
+                        : "(unable to enumerate input devices: " + error + ")"
+                );
                 return;
             }
 
@@ -131,116 +222,151 @@ namespace TrackpadCameraControl
         private static bool TryCollectHidDevices(
             List<string> keyboards,
             List<string> mice,
-            List<string> trackpads
+            List<string> trackpads,
+            out string error
         )
         {
-            IntPtr manager = IntPtr.Zero;
-            IntPtr deviceSet = IntPtr.Zero;
-            IntPtr[] deviceBuffer = null;
+            error = null;
+            if (!EnsureNative())
+            {
+                error = "IOKit unavailable";
+                return false;
+            }
+
+            IntPtr matching = IntPtr.Zero;
+            uint iterator = 0;
             try
             {
-                manager = IOHIDManagerCreate(IntPtr.Zero, 0);
-                if (manager == IntPtr.Zero)
+                // Consumed by IOServiceGetMatchingServices on success — do not CFRelease.
+                matching = _ioServiceMatching("IOHIDDevice");
+                if (matching == IntPtr.Zero)
                 {
+                    error = "IOServiceMatching failed";
                     return false;
                 }
 
-                IOHIDManagerSetDeviceMatching(manager, IntPtr.Zero);
-                if (IOHIDManagerOpen(manager, 0) != 0)
+                int kr = _ioServiceGetMatchingServices(0, matching, out iterator);
+                matching = IntPtr.Zero;
+                if (kr != 0)
                 {
+                    error = "IOServiceGetMatchingServices " + kr;
                     return false;
                 }
 
-                deviceSet = IOHIDManagerCopyDevices(manager);
-                if (deviceSet == IntPtr.Zero)
+                List<string> seen = new List<string>();
+                for (; ; )
                 {
-                    return true;
-                }
+                    uint entry = _ioIteratorNext(iterator);
+                    if (entry == 0)
+                    {
+                        break;
+                    }
 
-                long count = CFSetGetCount(deviceSet);
-                if (count <= 0)
-                {
-                    return true;
-                }
-
-                deviceBuffer = new IntPtr[count];
-                CFSetGetValues(deviceSet, deviceBuffer);
-                HashSet<string> seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-                for (int i = 0; i < count; i++)
-                {
-                    ClassifyDevice(deviceBuffer[i], keyboards, mice, trackpads, seen);
+                    try
+                    {
+                        ClassifyRegistryEntry(entry, keyboards, mice, trackpads, seen);
+                    }
+                    finally
+                    {
+                        _ioObjectRelease(entry);
+                    }
                 }
 
                 return true;
             }
-            catch
+            catch (Exception ex)
             {
+                error = ex.GetType().Name;
                 return false;
             }
             finally
             {
-                deviceBuffer = null;
-                if (deviceSet != IntPtr.Zero)
+                if (iterator != 0)
                 {
-                    CFRelease(deviceSet);
+                    _ioObjectRelease(iterator);
                 }
 
-                if (manager != IntPtr.Zero)
+                if (matching != IntPtr.Zero)
                 {
-                    IOHIDManagerClose(manager, 0);
-                    CFRelease(manager);
+                    _cfRelease(matching);
                 }
             }
         }
 
-        private static void ClassifyDevice(
-            IntPtr device,
+        private static void ClassifyRegistryEntry(
+            uint entry,
             List<string> keyboards,
             List<string> mice,
             List<string> trackpads,
-            HashSet<string> seen
+            List<string> seen
         )
         {
-            if (device == IntPtr.Zero)
+            int usagePage = ReadIntProperty(entry, "PrimaryUsagePage");
+            int usage = ReadIntProperty(entry, "PrimaryUsage");
+            string name = FormatDeviceName(
+                ReadStringProperty(entry, "Manufacturer"),
+                ReadStringProperty(entry, "Product")
+            );
+            if (string.IsNullOrEmpty(name))
             {
-                return;
+                name = ReadStringProperty(entry, "USB Product Name");
             }
 
-            int usagePage = ReadIntProperty(device, "PrimaryUsagePage");
-            int usage = ReadIntProperty(device, "PrimaryUsage");
-            string name = FormatDeviceName(
-                ReadStringProperty(device, "Manufacturer"),
-                ReadStringProperty(device, "Product")
-            );
             if (string.IsNullOrEmpty(name))
             {
                 return;
             }
 
-            if (!seen.Add(name))
+            if (ContainsIgnoreCase(seen, name))
             {
                 return;
             }
 
-            if (usagePage == 0x01 && usage == 0x06)
-            {
-                keyboards.Add(name);
-                return;
-            }
-
-            if (usagePage == 0x01 && (usage == 0x02 || usage == 0x01))
-            {
-                mice.Add(name);
-                return;
-            }
-
-            if (
+            bool isKeyboard =
+                (usagePage == 0x01 && usage == 0x06)
+                || name.IndexOf("keyboard", StringComparison.OrdinalIgnoreCase) >= 0;
+            bool isMouse =
+                (usagePage == 0x01 && (usage == 0x02 || usage == 0x01))
+                || name.IndexOf("mouse", StringComparison.OrdinalIgnoreCase) >= 0;
+            bool isTrackpad =
                 usagePage == 0x0D
                 || name.IndexOf("trackpad", StringComparison.OrdinalIgnoreCase) >= 0
-            )
+                || name.IndexOf("touchpad", StringComparison.OrdinalIgnoreCase) >= 0;
+
+            // Built-in Mac boards often report as one HID device (keyboard + trackpad).
+            if (!isKeyboard && !isMouse && !isTrackpad)
+            {
+                return;
+            }
+
+            seen.Add(name);
+            if (isKeyboard)
+            {
+                keyboards.Add(name);
+            }
+
+            if (isMouse && !isTrackpad)
+            {
+                mice.Add(name);
+            }
+
+            if (isTrackpad)
             {
                 trackpads.Add(name);
             }
+        }
+
+        private static bool ContainsIgnoreCase(List<string> items, string value)
+        {
+            for (int i = 0; i < items.Count; i++)
+            {
+                if (string.Equals(items[i], value, StringComparison.OrdinalIgnoreCase))
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         private static string FormatDeviceName(string manufacturer, string product)
@@ -263,54 +389,51 @@ namespace TrackpadCameraControl
             return manufacturer + " " + product;
         }
 
-        private static int ReadIntProperty(IntPtr device, string key)
+        private static int ReadIntProperty(uint entry, string key)
         {
-            IntPtr keyRef = IntPtr.Zero;
-            IntPtr valueRef = IntPtr.Zero;
+            IntPtr valueRef = CopyProperty(entry, key);
+            if (valueRef == IntPtr.Zero)
+            {
+                return 0;
+            }
+
             try
             {
-                keyRef = CFStringCreateWithCString(IntPtr.Zero, key, CfStringEncodingUtf8);
-                if (keyRef == IntPtr.Zero)
-                {
-                    return 0;
-                }
-
-                valueRef = IOHIDDeviceGetProperty(device, keyRef);
-                if (valueRef == IntPtr.Zero)
+                if (_cfGetTypeID(valueRef) != _cfNumberGetTypeID())
                 {
                     return 0;
                 }
 
                 int value;
-                if (!CFNumberGetValue(valueRef, CfNumberIntType, out value))
+                if (_cfNumberGetValue(valueRef, CfNumberSInt32Type, out value))
                 {
-                    return 0;
+                    return value;
                 }
 
-                return value;
+                if (_cfNumberGetValue(valueRef, CfNumberIntType, out value))
+                {
+                    return value;
+                }
+
+                return 0;
             }
             finally
             {
-                if (keyRef != IntPtr.Zero)
-                {
-                    CFRelease(keyRef);
-                }
+                _cfRelease(valueRef);
             }
         }
 
-        private static string ReadStringProperty(IntPtr device, string key)
+        private static string ReadStringProperty(uint entry, string key)
         {
-            IntPtr keyRef = IntPtr.Zero;
+            IntPtr valueRef = CopyProperty(entry, key);
+            if (valueRef == IntPtr.Zero)
+            {
+                return null;
+            }
+
             try
             {
-                keyRef = CFStringCreateWithCString(IntPtr.Zero, key, CfStringEncodingUtf8);
-                if (keyRef == IntPtr.Zero)
-                {
-                    return null;
-                }
-
-                IntPtr valueRef = IOHIDDeviceGetProperty(device, keyRef);
-                if (valueRef == IntPtr.Zero)
+                if (_cfGetTypeID(valueRef) != _cfStringGetTypeID())
                 {
                     return null;
                 }
@@ -319,10 +442,25 @@ namespace TrackpadCameraControl
             }
             finally
             {
-                if (keyRef != IntPtr.Zero)
-                {
-                    CFRelease(keyRef);
-                }
+                _cfRelease(valueRef);
+            }
+        }
+
+        private static IntPtr CopyProperty(uint entry, string key)
+        {
+            IntPtr keyRef = _cfStringCreateWithCString(IntPtr.Zero, key, CfStringEncodingUtf8);
+            if (keyRef == IntPtr.Zero)
+            {
+                return IntPtr.Zero;
+            }
+
+            try
+            {
+                return _ioRegistryEntryCreateCFProperty(entry, keyRef, IntPtr.Zero, 0);
+            }
+            finally
+            {
+                _cfRelease(keyRef);
             }
         }
 
@@ -333,19 +471,19 @@ namespace TrackpadCameraControl
                 return null;
             }
 
-            IntPtr direct = CFStringGetCStringPtr(cfString, CfStringEncodingUtf8);
+            IntPtr direct = _cfStringGetCStringPtr(cfString, CfStringEncodingUtf8);
             if (direct != IntPtr.Zero)
             {
                 return Marshal.PtrToStringAnsi(direct);
             }
 
-            int length = CFStringGetLength(cfString);
+            int length = _cfStringGetLength(cfString);
             if (length <= 0)
             {
                 return null;
             }
 
-            int byteLength = CFStringGetMaximumSizeForEncoding(length, CfStringEncodingUtf8);
+            int byteLength = _cfStringGetMaximumSizeForEncoding(length, CfStringEncodingUtf8);
             if (byteLength <= 0)
             {
                 return null;
@@ -354,7 +492,7 @@ namespace TrackpadCameraControl
             IntPtr buffer = Marshal.AllocHGlobal(byteLength);
             try
             {
-                if (!CFStringGetCString(cfString, buffer, byteLength, CfStringEncodingUtf8))
+                if (!_cfStringGetCString(cfString, buffer, byteLength, CfStringEncodingUtf8))
                 {
                     return null;
                 }
@@ -365,6 +503,103 @@ namespace TrackpadCameraControl
             {
                 Marshal.FreeHGlobal(buffer);
             }
+        }
+
+        private static bool EnsureNative()
+        {
+            if (_nativeResolved)
+            {
+                return _nativeReady;
+            }
+
+            _nativeResolved = true;
+            try
+            {
+                _ioKit = dlopen(IOKitPath, 1);
+                _coreFoundation = dlopen(CoreFoundationPath, 1);
+                if (_ioKit == IntPtr.Zero || _coreFoundation == IntPtr.Zero)
+                {
+                    return false;
+                }
+
+                _ioServiceMatching = LoadFn<IOServiceMatchingFn>(_ioKit, "IOServiceMatching");
+                _ioServiceGetMatchingServices = LoadFn<IOServiceGetMatchingServicesFn>(
+                    _ioKit,
+                    "IOServiceGetMatchingServices"
+                );
+                _ioIteratorNext = LoadFn<IOIteratorNextFn>(_ioKit, "IOIteratorNext");
+                _ioObjectRelease = LoadFn<IOObjectReleaseFn>(_ioKit, "IOObjectRelease");
+                _ioRegistryEntryCreateCFProperty = LoadFn<IORegistryEntryCreateCFPropertyFn>(
+                    _ioKit,
+                    "IORegistryEntryCreateCFProperty"
+                );
+                _cfRelease = LoadFn<CFReleaseFn>(_coreFoundation, "CFRelease");
+                _cfStringCreateWithCString = LoadFn<CFStringCreateWithCStringFn>(
+                    _coreFoundation,
+                    "CFStringCreateWithCString"
+                );
+                _cfStringGetCStringPtr = LoadFn<CFStringGetCStringPtrFn>(
+                    _coreFoundation,
+                    "CFStringGetCStringPtr"
+                );
+                _cfStringGetLength = LoadFn<CFStringGetLengthFn>(
+                    _coreFoundation,
+                    "CFStringGetLength"
+                );
+                _cfStringGetMaximumSizeForEncoding = LoadFn<CFStringGetMaximumSizeForEncodingFn>(
+                    _coreFoundation,
+                    "CFStringGetMaximumSizeForEncoding"
+                );
+                _cfStringGetCString = LoadFn<CFStringGetCStringFn>(
+                    _coreFoundation,
+                    "CFStringGetCString"
+                );
+                _cfNumberGetValue = LoadFn<CFNumberGetValueFn>(_coreFoundation, "CFNumberGetValue");
+                _cfGetTypeID = LoadFn<CFGetTypeIDFn>(_coreFoundation, "CFGetTypeID");
+                _cfStringGetTypeID = LoadFn<CFStringGetTypeIDFn>(
+                    _coreFoundation,
+                    "CFStringGetTypeID"
+                );
+                _cfNumberGetTypeID = LoadFn<CFNumberGetTypeIDFn>(
+                    _coreFoundation,
+                    "CFNumberGetTypeID"
+                );
+
+                _nativeReady =
+                    _ioServiceMatching != null
+                    && _ioServiceGetMatchingServices != null
+                    && _ioIteratorNext != null
+                    && _ioObjectRelease != null
+                    && _ioRegistryEntryCreateCFProperty != null
+                    && _cfRelease != null
+                    && _cfStringCreateWithCString != null
+                    && _cfStringGetCStringPtr != null
+                    && _cfStringGetLength != null
+                    && _cfStringGetMaximumSizeForEncoding != null
+                    && _cfStringGetCString != null
+                    && _cfNumberGetValue != null
+                    && _cfGetTypeID != null
+                    && _cfStringGetTypeID != null
+                    && _cfNumberGetTypeID != null;
+                return _nativeReady;
+            }
+            catch
+            {
+                _nativeReady = false;
+                return false;
+            }
+        }
+
+        private static T LoadFn<T>(IntPtr lib, string name)
+            where T : class
+        {
+            IntPtr sym = dlsym(lib, name);
+            if (sym == IntPtr.Zero)
+            {
+                return null;
+            }
+
+            return (T)(object)Marshal.GetDelegateForFunctionPointer(sym, typeof(T));
         }
 
         private static string TryReadSysctl(string name)
@@ -378,21 +613,22 @@ namespace TrackpadCameraControl
             try
             {
                 Marshal.WriteIntPtr(lengthPtr, IntPtr.Zero);
-                if (sysctlbyname(name, IntPtr.Zero, lengthPtr, IntPtr.Zero, IntPtr.Zero) != 0)
+                if (sysctlbyname(name, IntPtr.Zero, lengthPtr, IntPtr.Zero, 0) != 0)
                 {
                     return null;
                 }
 
-                int length = Marshal.ReadInt32(lengthPtr);
-                if (length <= 0)
+                long lengthLong = Marshal.ReadIntPtr(lengthPtr).ToInt64();
+                if (lengthLong <= 0 || lengthLong > int.MaxValue)
                 {
                     return null;
                 }
 
+                int length = (int)lengthLong;
                 IntPtr buffer = Marshal.AllocHGlobal(length);
                 try
                 {
-                    if (sysctlbyname(name, buffer, lengthPtr, IntPtr.Zero, IntPtr.Zero) != 0)
+                    if (sysctlbyname(name, buffer, lengthPtr, IntPtr.Zero, 0) != 0)
                     {
                         return null;
                     }
@@ -418,70 +654,22 @@ namespace TrackpadCameraControl
                 return false;
             }
 
-            return File.Exists("/System/Library/Frameworks/IOKit.framework/IOKit");
+            return File.Exists(IOKitPath);
         }
 
-        [DllImport(IOKitPath)]
-        private static extern IntPtr IOHIDManagerCreate(IntPtr allocator, int options);
+        [DllImport(LibSystem)]
+        private static extern IntPtr dlopen(string path, int mode);
 
-        [DllImport(IOKitPath)]
-        private static extern void IOHIDManagerSetDeviceMatching(IntPtr manager, IntPtr matching);
+        [DllImport(LibSystem)]
+        private static extern IntPtr dlsym(IntPtr handle, string symbol);
 
-        [DllImport(IOKitPath)]
-        private static extern int IOHIDManagerOpen(IntPtr manager, int options);
-
-        [DllImport(IOKitPath)]
-        private static extern int IOHIDManagerClose(IntPtr manager, int options);
-
-        [DllImport(IOKitPath)]
-        private static extern IntPtr IOHIDManagerCopyDevices(IntPtr manager);
-
-        [DllImport(IOKitPath)]
-        private static extern IntPtr IOHIDDeviceGetProperty(IntPtr device, IntPtr key);
-
-        [DllImport(CoreFoundationPath)]
-        private static extern long CFSetGetCount(IntPtr theSet);
-
-        [DllImport(CoreFoundationPath)]
-        private static extern void CFSetGetValues(IntPtr theSet, IntPtr[] values);
-
-        [DllImport(CoreFoundationPath)]
-        private static extern void CFRelease(IntPtr cf);
-
-        [DllImport(CoreFoundationPath)]
-        private static extern IntPtr CFStringCreateWithCString(
-            IntPtr alloc,
-            string cStr,
-            uint encoding
-        );
-
-        [DllImport(CoreFoundationPath)]
-        private static extern IntPtr CFStringGetCStringPtr(IntPtr theString, uint encoding);
-
-        [DllImport(CoreFoundationPath)]
-        private static extern int CFStringGetLength(IntPtr theString);
-
-        [DllImport(CoreFoundationPath)]
-        private static extern int CFStringGetMaximumSizeForEncoding(int length, uint encoding);
-
-        [DllImport(CoreFoundationPath)]
-        private static extern bool CFStringGetCString(
-            IntPtr theString,
-            IntPtr buffer,
-            int bufferSize,
-            uint encoding
-        );
-
-        [DllImport(CoreFoundationPath)]
-        private static extern bool CFNumberGetValue(IntPtr number, int theType, out int value);
-
-        [DllImport("/usr/lib/libSystem.dylib")]
+        [DllImport(LibSystem)]
         private static extern int sysctlbyname(
             string name,
             IntPtr oldp,
             IntPtr oldlenp,
             IntPtr newp,
-            IntPtr newlen
+            ulong newlen
         );
     }
 }

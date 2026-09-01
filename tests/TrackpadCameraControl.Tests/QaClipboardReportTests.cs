@@ -24,6 +24,7 @@ namespace TrackpadCameraControl.Tests
             Assert.Contains("--- System ---", text);
             Assert.Contains("OS:", text);
             Assert.Contains("--- Input devices ---", text);
+            Assert.DoesNotContain("(unable to enumerate input devices)", text);
         }
     }
 }
