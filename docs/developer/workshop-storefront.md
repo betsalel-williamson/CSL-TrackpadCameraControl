@@ -61,8 +61,8 @@ Share your setup
 Not supported
 • Windows and Linux in this release — the mod may appear in Content Manager, but trackpad gestures will not work. No “coming soon” promise here.
 
-With ACME
-• Gestures here; camera suite features (zoom limits, saved positions) stay with ACME. They coexist.
+Scope
+• Trackpad gesture input only — not a full camera suite (saved views, zoom-limit overhaul, free-cam).
 
 Install
 1. Subscribe to Cities Harmony and enable it

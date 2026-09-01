@@ -6,7 +6,7 @@ Who this product is for, and which guide surfaces match each job.
 
 Cities: Skylines I player who builds on a **laptop trackpad** (often macOS) and wants map-app-style camera control without a three-button mouse. Middle-mouse orbit and OS “fake middle click” workarounds feel incomplete.
 
-**Needs:** clear install path, gesture presets that match muscle memory, honest OS conflict notes, ACME coexistence.
+**Needs:** clear install path, gesture presets that match muscle memory, honest OS conflict notes.
 
 **Guide home:** this client guide — [install and first run](./install-and-first-run.md), [gesture presets](./gesture-presets.md), [OS gesture conflicts](./os-gesture-conflicts.md).
 
@@ -25,14 +25,6 @@ Willing to install from a **GitHub Release** source archive before Steam Worksho
 **Needs:** exact beta install steps, version warnings explained, a place to give feedback without Workshop reviews yet.
 
 **Guide home:** [Install and first run](./install-and-first-run.md) for in-game expectations. Build/copy steps live in the developer guide (`docs/developer/local-mvp-install.md`). Announcement sequencing lives in `docs/developer/community-and-marketing.md`.
-
-## Companion — ACME camera suite user
-
-Already uses ACME (or similar) for zoom limits, saved cameras, or other suite features. Wants trackpad gestures **without** replacing that suite.
-
-**Needs:** coexistence messaging — this mod owns gesture input + bindings, not ACME’s camera suite scope.
-
-**Guide home:** [Install and first run](./install-and-first-run.md) companion-mods note. Product scope lives in the features guide (`docs/features/prior-art-and-scope.md`).
 
 ## Out of scope for this guide
 

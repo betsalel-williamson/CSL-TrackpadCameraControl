@@ -62,7 +62,7 @@ Download a [GitHub Release](https://github.com/betsalel-williamson/CSL-TrackpadC
 
 ## Prior art
 
-Coexists with [ACME](https://steamcommunity.com/sharedfiles/filedetails/?id=2778750497) (camera suite). Learns continuous-input patterns from Joystick Camera Control. Does **not** reimplement ACME features.
+Learns continuous-input patterns from [Joystick Camera Control](https://github.com/RenaKunisaki/CSL-JoystickCameraControl). This mod owns trackpad gesture input, not a full camera suite.
 
 ## Platform
 
@@ -81,6 +81,6 @@ This is an unofficial, fan-made project. It is **not** affiliated with, endorsed
 - **Cities: Skylines** and related marks are trademarks or registered trademarks of Paradox Interactive AB and/or Colossal Order Ltd.
 - **Mac**, **macOS**, **Magic Trackpad**, and related marks are trademarks of Apple Inc.
 - **Windows** and related marks are trademarks of Microsoft Corporation.
-- Other product names mentioned (for example ACME, Cities Harmony, Blender, Fusion) remain the property of their respective owners and are used only for identification or comparison.
+- Other product names mentioned (for example Cities Harmony, Blender, Fusion) remain the property of their respective owners and are used only for identification or comparison.
 
 Use of these names does not imply any relationship with or endorsement by the trademark holders. Cities: Skylines is required to use this mod and must be obtained separately through legitimate channels.
