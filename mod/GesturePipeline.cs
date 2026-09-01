@@ -73,6 +73,10 @@ namespace TrackpadCameraControl
 
             // Keep vanilla scroll policy in sync with menu / over-UI gates.
             VanillaCameraSuppress.MenuOrOverUi = InputGates.IsMenuOrOverUi();
+            if (!InputGates.IsGameFocused())
+            {
+                VanillaCameraSuppress.PreciseTrackpadScroll = false;
+            }
 
             if (!_source.IsConnected)
             {

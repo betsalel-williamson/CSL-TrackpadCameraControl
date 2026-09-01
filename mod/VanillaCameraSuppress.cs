@@ -18,7 +18,11 @@ namespace TrackpadCameraControl
 
         public static bool ShouldSkipScrollWheel()
         {
-            return ShouldSkipScrollWheel(PreciseTrackpadScroll, MenuOrOverUi);
+            return ShouldSkipScrollWheel(
+                PreciseTrackpadScroll,
+                MenuOrOverUi,
+                InputGates.IsGameFocused()
+            );
         }
 
         /// <summary>
@@ -31,7 +35,7 @@ namespace TrackpadCameraControl
             bool gameFocused = true
         )
         {
-            return Enabled && preciseTrackpad && !menuOrOverUi;
+            return Enabled && preciseTrackpad && !menuOrOverUi && gameFocused;
         }
 
         public static bool ShouldSkipMouseHandler(bool rotateBindingHeld)

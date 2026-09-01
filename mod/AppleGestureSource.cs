@@ -218,7 +218,8 @@ namespace TrackpadCameraControl
                 sdy = objc_msgSend_f64(nsEvent, sel_registerName("scrollingDeltaY"));
                 precise = objc_msgSend_bool(nsEvent, sel_registerName("hasPreciseScrollingDeltas"));
                 // Drive vanilla suppress: precise trackpad → may skip zoom; wheel → allow.
-                VanillaCameraSuppress.PreciseTrackpadScroll = precise;
+                // Do not set sticky precise state while unfocused (pipeline also clears on tick).
+                VanillaCameraSuppress.PreciseTrackpadScroll = precise && InputGates.IsGameFocused();
             }
             else if (type == AppleGestureMapper.EventTypeMagnify)
             {
