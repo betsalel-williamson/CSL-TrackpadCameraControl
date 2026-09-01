@@ -6,16 +6,10 @@ namespace TrackpadCameraControl.Tests
     [Collection(VanillaCameraSuppressCollection.Name)]
     public sealed class ModRuntimeTests
     {
-        public ModRuntimeTests()
-        {
-            ModRuntime.ClearForTests();
-        }
-
         [Fact]
         public void Shutdown_ClearsHarmonyBuffersAndDeactivates()
         {
-            var runtime = ModRuntime.CreateForTests(active: true);
-            Mod.SetRuntimeForTests(runtime);
+            var runtime = new ModRuntime(new ModSettings(), new InProcessGestureSource());
             VanillaCameraSuppress.PreciseTrackpadScroll = true;
             VanillaCameraSuppress.MenuOrOverUi = true;
 
@@ -29,23 +23,25 @@ namespace TrackpadCameraControl.Tests
         [Fact]
         public void Pipeline_UsesSingleCameraInstance()
         {
-            var runtime = ModRuntime.CreateForTests();
+            var runtime = new ModRuntime(new ModSettings(), new InProcessGestureSource());
             Assert.Same(runtime.Pipeline.Camera, runtime.Pipeline.Camera);
         }
 
         [Fact]
         public void IsModActive_WhenRuntimeMissing_ReturnsFalse()
         {
-            ModRuntime.ClearForTests();
+            var mod = new Mod();
+            mod.OnDisabled();
             Assert.False(ModRuntime.IsModActive());
         }
 
         [Fact]
-        public void IsModActive_WhenRuntimeActive_ReturnsTrue()
+        public void IsModActive_WhenModEnabled_ReturnsTrue()
         {
-            ModRuntime.SetModActiveForTests(true);
-            Assert.True(ModRuntime.IsModActive());
-            ModRuntime.ClearForTests();
+            using (new ModTestHarness())
+            {
+                Assert.True(ModRuntime.IsModActive());
+            }
         }
     }
 }

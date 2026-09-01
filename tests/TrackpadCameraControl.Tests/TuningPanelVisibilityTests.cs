@@ -35,17 +35,17 @@ namespace TrackpadCameraControl.Tests
         }
 
         [Fact]
-        public void ClearUserDismiss_ClearsSessionFlag()
+        public void ClearUserDismiss_ClearsPersistedFlag()
         {
-            TuningPanelHost.SetUserDismissedForTests(true);
+            Mod.SetSettingsForTests(new ModSettings { DebugPanelDismissed = true });
             try
             {
                 TuningPanelHost.ClearUserDismiss();
-                Assert.False(TuningPanelHost.IsUserDismissedForTests());
+                Assert.False(Mod.Settings.DebugPanelDismissed);
             }
             finally
             {
-                TuningPanelHost.SetUserDismissedForTests(false);
+                Mod.ClearSettingsForTests();
             }
         }
     }

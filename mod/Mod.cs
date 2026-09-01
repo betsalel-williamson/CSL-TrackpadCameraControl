@@ -176,21 +176,10 @@ namespace TrackpadCameraControl
             _settingsCache = settings;
         }
 
-        internal static void SetRuntimeForTests(ModRuntime runtime)
-        {
-            Runtime = runtime;
-        }
-
-        internal static void ClearRuntimeForTests()
-        {
-            Runtime = null;
-        }
-
         internal static void ClearSettingsForTests()
         {
             _settingsCache = null;
             ModOptions.Store = null;
-            ClearRuntimeForTests();
         }
 
         public void OnEnabled()

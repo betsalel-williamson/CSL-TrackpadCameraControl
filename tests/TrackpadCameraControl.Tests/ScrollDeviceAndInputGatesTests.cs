@@ -9,7 +9,7 @@ namespace TrackpadCameraControl.Tests
     {
         public ScrollDeviceAndInputGatesTests()
         {
-            ModRuntime.ClearForTests();
+            new Mod().OnDisabled();
             VanillaCameraSuppress.PreciseTrackpadScroll = false;
             VanillaCameraSuppress.MenuOrOverUi = false;
             InputGates.ResetTestHooks();
@@ -17,7 +17,8 @@ namespace TrackpadCameraControl.Tests
 
         public void Dispose()
         {
-            ModRuntime.ClearForTests();
+            new Mod().OnDisabled();
+            Mod.ClearSettingsForTests();
             VanillaCameraSuppress.PreciseTrackpadScroll = false;
             VanillaCameraSuppress.MenuOrOverUi = false;
             InputGates.ResetTestHooks();

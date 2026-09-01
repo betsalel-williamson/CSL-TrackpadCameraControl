@@ -23,22 +23,5 @@ namespace TrackpadCameraControl
             s.DebugPanelDismissed = false;
             ModOptions.NotifyChanged();
         }
-
-        internal static bool IsUserDismissedForTests()
-        {
-            ModSettings s = Mod.Settings;
-            return s != null && s.DebugPanelDismissed;
-        }
-
-        internal static void SetUserDismissedForTests(bool dismissed)
-        {
-            ModSettings s = Mod.EnsureSettings();
-            if (s == null)
-            {
-                return;
-            }
-
-            s.DebugPanelDismissed = dismissed;
-        }
     }
 }
