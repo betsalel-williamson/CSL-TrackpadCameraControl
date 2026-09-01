@@ -40,6 +40,6 @@ mkdir -p "${DEST}"
 
 echo "Build finished (post-build should have deployed to ${DEST})."
 echo "Cities auto-reloads when AssemblyVersion changes — see mod-reload-during-development.md"
-echo "Capture: in-process AppKit (default). No companion process."
+echo "Capture: in-process AppKit (default, mod DLL). Optional TrackpadBridge socket experiment in src/TrackpadBridge."
 echo "Debug panel footer: Built (UTC) + asm identity confirm the loaded build."
 echo "Inspect: tail -f \"\${TMPDIR:-/tmp}/trackpad-camera-control.log\""
