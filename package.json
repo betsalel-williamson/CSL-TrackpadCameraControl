@@ -29,6 +29,7 @@
     "format:check": "npm run format:csharp:check && npm run format:native:check",
     "docs": "npm run docs:compile && npm run docs:check",
     "test": "dotnet test TrackpadCameraControl.sln --nologo --verbosity minimal",
+    "test:coverage": "bash scripts/test-coverage.sh",
     "hooks:pre-commit": "bash scripts/hooks-pre-commit.sh",
     "hooks:pre-push": "bash scripts/hooks-pre-push.sh",
     "changeset": "changeset",

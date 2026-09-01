@@ -19,6 +19,10 @@ native/mac/AppleGestureProbe
 .worktrees/
 .specstory/
 *.tgz
+TestResults/
+coverage*.json
+coverage*.xml
+coverage*.cobertura.xml
 
 # OpenTofu / Terraform (infra/github)
 .terraform/
