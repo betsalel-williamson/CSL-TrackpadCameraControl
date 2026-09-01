@@ -275,6 +275,10 @@ namespace TrackpadCameraControl
             Runtime = null;
             _settingsCache = null;
             ModOptions.Store = null;
+            InputGates.Context = null;
+            GestureCaptureLog.Close();
+            GestureCaptureLog.PathResolver = null;
+            ModOptions.ResetSettingsChangedHandlers();
         }
 
         public static bool IsE2eInjectEnabled()

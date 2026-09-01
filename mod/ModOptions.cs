@@ -72,8 +72,8 @@ namespace TrackpadCameraControl
         /// </summary>
         public static event Action SettingsChanged;
 
-        /// <summary>Test helper: drop all SettingsChanged subscribers.</summary>
-        internal static void ClearSettingsChangedForTests()
+        /// <summary>Drop all <see cref="SettingsChanged"/> handlers (mod disable).</summary>
+        internal static void ResetSettingsChangedHandlers()
         {
             SettingsChanged = null;
         }

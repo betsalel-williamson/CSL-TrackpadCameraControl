@@ -22,9 +22,9 @@ namespace TrackpadCameraControl.Tests
         {
             _harness?.Dispose();
             _harness = null;
+            ModTestState.Reset();
             VanillaCameraSuppress.PreciseTrackpadScroll = false;
             VanillaCameraSuppress.MenuOrOverUi = false;
-            InputGates.ResetTestHooks();
         }
 
         private void EnableMod()
@@ -84,57 +84,74 @@ namespace TrackpadCameraControl.Tests
         public void ShouldRunVanillaScrollWheel_WhenUnfocused_ReturnsFalse()
         {
             EnableMod();
-            InputGates.GameFocusedOverride = () => false;
-            Assert.False(InputGates.ShouldRunVanillaScrollWheel());
+            var ui = new FakeGameUiContext { GameFocused = false };
+            using (new InputGatesContextScope(ui))
+            {
+                Assert.False(InputGates.ShouldRunVanillaScrollWheel());
+            }
         }
 
         [Fact]
         public void ShouldRunVanillaMouseEvents_WhenUnfocused_ReturnsFalse()
         {
             EnableMod();
-            InputGates.GameFocusedOverride = () => false;
-            Assert.False(InputGates.ShouldRunVanillaMouseEvents(true));
-            Assert.False(InputGates.ShouldRunVanillaMouseEvents(false));
+            var ui = new FakeGameUiContext { GameFocused = false };
+            using (new InputGatesContextScope(ui))
+            {
+                Assert.False(InputGates.ShouldRunVanillaMouseEvents(true));
+                Assert.False(InputGates.ShouldRunVanillaMouseEvents(false));
+            }
         }
 
         [Fact]
         public void ShouldFlushPendingOrbit_WhenUnfocused_ReturnsFalse()
         {
             EnableMod();
-            InputGates.GameFocusedOverride = () => false;
-            Assert.False(InputGates.ShouldFlushPendingOrbit());
+            var ui = new FakeGameUiContext { GameFocused = false };
+            using (new InputGatesContextScope(ui))
+            {
+                Assert.False(InputGates.ShouldFlushPendingOrbit());
+            }
         }
 
         [Fact]
         public void ShouldBlockAllCameraInput_WhenUnfocusedAndModOn_ReturnsTrue()
         {
             EnableMod();
-            InputGates.GameFocusedOverride = () => false;
-            Assert.True(InputGates.ShouldBlockAllCameraInput());
+            var ui = new FakeGameUiContext { GameFocused = false };
+            using (new InputGatesContextScope(ui))
+            {
+                Assert.True(InputGates.ShouldBlockAllCameraInput());
+            }
         }
 
         [Fact]
         public void ShouldBlockAllCameraInput_WhenModOff_ReturnsFalse()
         {
-            InputGates.GameFocusedOverride = () => false;
-            Assert.False(InputGates.ShouldBlockAllCameraInput());
+            var ui = new FakeGameUiContext { GameFocused = false };
+            using (new InputGatesContextScope(ui))
+            {
+                Assert.False(InputGates.ShouldBlockAllCameraInput());
+            }
         }
 
         [Fact]
         public void ShouldRunVanillaScrollWheel_UsesFrameFlags()
         {
             EnableMod();
-            InputGates.GameFocusedOverride = () => true;
-            VanillaCameraSuppress.PreciseTrackpadScroll = true;
-            VanillaCameraSuppress.MenuOrOverUi = false;
-            Assert.False(InputGates.ShouldRunVanillaScrollWheel());
+            using (new InputGatesContextScope(new FakeGameUiContext()))
+            {
+                VanillaCameraSuppress.PreciseTrackpadScroll = true;
+                VanillaCameraSuppress.MenuOrOverUi = false;
+                Assert.False(InputGates.ShouldRunVanillaScrollWheel());
 
-            VanillaCameraSuppress.MenuOrOverUi = true;
-            Assert.True(InputGates.ShouldRunVanillaScrollWheel());
+                VanillaCameraSuppress.MenuOrOverUi = true;
+                Assert.True(InputGates.ShouldRunVanillaScrollWheel());
 
-            VanillaCameraSuppress.MenuOrOverUi = false;
-            VanillaCameraSuppress.PreciseTrackpadScroll = false;
-            Assert.True(InputGates.ShouldRunVanillaScrollWheel());
+                VanillaCameraSuppress.MenuOrOverUi = false;
+                VanillaCameraSuppress.PreciseTrackpadScroll = false;
+                Assert.True(InputGates.ShouldRunVanillaScrollWheel());
+            }
         }
 
         [Fact]

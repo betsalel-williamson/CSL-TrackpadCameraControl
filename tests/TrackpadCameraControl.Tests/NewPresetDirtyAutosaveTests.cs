@@ -59,7 +59,6 @@ namespace TrackpadCameraControl.Tests
         public void Dispose()
         {
             ModTestState.Reset();
-            ModOptions.ClearSettingsChangedForTests();
             try
             {
                 if (Directory.Exists(_dir))
