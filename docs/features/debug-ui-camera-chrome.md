@@ -39,7 +39,7 @@ Schema may retain an Assist-named field; the product label is **Show debug panel
 
 ## Acceptance criteria
 
-- With Show debug panel on, the floating panel shows feel presets and tunables while a city is loaded; title bar drag moves the whole panel; native circular close and gear appear in the title bar (translucent at rest, stronger on hover); gear opens vanilla OPTIONS.
+- With Show debug panel on, the floating panel shows feel presets and tunables while a city is loaded; title bar drag moves the whole panel 1:1 with the cursor; native circular close and gear appear in the title bar (translucent at rest, stronger on hover); gear opens vanilla OPTIONS.
 - A change in the Debug panel appears immediately in Options (and the reverse); every change autosaves.
 - When `EnableAssistChrome` is on, pads/buttons move the camera through the shared apply path.
 - Turning Show debug panel off removes the panel and the floating Debug reopen chip immediately (no restart).

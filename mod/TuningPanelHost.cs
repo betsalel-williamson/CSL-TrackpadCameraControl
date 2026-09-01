@@ -937,11 +937,11 @@ namespace TrackpadCameraControl
             _dragging = true;
             if (_root != null)
             {
-                _dragPanelStart = _root.absolutePosition;
+                _dragPanelStart = _root.relativePosition;
                 _root.BringToFront();
             }
 
-            _dragMouseStart = Input.mousePosition;
+            _dragPointerStart = e.mpos;
             e.Use();
         }
 
@@ -957,8 +957,8 @@ namespace TrackpadCameraControl
                 return;
             }
 
-            Vector3 delta = Input.mousePosition - _dragMouseStart;
-            _root.absolutePosition = _dragPanelStart + new Vector3(delta.x, -delta.y, 0f);
+            Vector2 delta = e.mpos - _dragPointerStart;
+            _root.relativePosition = _dragPanelStart + new Vector3(delta.x, delta.y, 0f);
             e.Use();
         }
     }
