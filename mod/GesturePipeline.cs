@@ -167,7 +167,10 @@ namespace TrackpadCameraControl
                 var inject = new InjectGestureSource();
                 inject.Connect();
                 SetSource(inject);
-                Mod.InjectSource = inject;
+                if (Mod.Runtime != null)
+                {
+                    Mod.Runtime.Inject = inject;
+                }
             }
             catch
             {

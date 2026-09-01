@@ -11,7 +11,7 @@ namespace TrackpadCameraControl
             _ = simulationTimeDelta;
             try
             {
-                Mod.Pipeline?.Tick();
+                Mod.Runtime?.Pipeline?.Tick();
             }
             catch
             {

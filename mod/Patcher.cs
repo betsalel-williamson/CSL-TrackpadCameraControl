@@ -135,7 +135,8 @@ namespace TrackpadCameraControl
 
             try
             {
-                ICameraController camera = Mod.Pipeline != null ? Mod.Pipeline.Camera : null;
+                ICameraController camera =
+                    Mod.Runtime?.Pipeline != null ? Mod.Runtime.Pipeline.Camera : null;
                 if (camera == null)
                 {
                     return;

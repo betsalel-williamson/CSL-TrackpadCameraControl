@@ -129,67 +129,96 @@ namespace TrackpadCameraControl
             return line;
         }
 
-        public static ModSettings Settings { get; private set; }
-        public static GesturePipeline Pipeline { get; private set; }
-        public static InjectGestureSource InjectSource { get; internal set; }
+        public static ModRuntime Runtime { get; private set; }
+
+        /// <summary>Shim for call sites expecting <c>Mod.Pipeline</c>.</summary>
+        public static GesturePipeline Pipeline => Runtime?.Pipeline;
+
+        /// <summary>Shim for call sites expecting <c>Mod.InjectSource</c>.</summary>
+        public static InjectGestureSource InjectSource
+        {
+            get => Runtime?.Inject;
+            internal set
+            {
+                if (Runtime != null)
+                {
+                    Runtime.Inject = value;
+                }
+            }
+        }
+
+        public static ModSettings Settings => Runtime?.Settings ?? EnsureSettingsInternal();
 
         internal static ModSettings EnsureSettings()
         {
-            if (Settings == null)
+            return Settings;
+        }
+
+        private static ModSettings _settingsCache;
+
+        private static ModSettings EnsureSettingsInternal()
+        {
+            if (_settingsCache == null)
             {
                 if (ModOptions.Store == null)
                 {
                     ModOptions.Store = new ModSettingsStore(ModSettingsStore.DefaultPath());
                 }
 
-                Settings = ModOptions.Store.LoadOrFactory();
+                _settingsCache = ModOptions.Store.LoadOrFactory();
             }
 
-            return Settings;
+            return _settingsCache;
         }
 
-        /// <summary>Test helper: inject settings without touching the disk store.</summary>
         internal static void SetSettingsForTests(ModSettings settings)
         {
-            Settings = settings;
+            _settingsCache = settings;
+        }
+
+        internal static void SetRuntimeForTests(ModRuntime runtime)
+        {
+            Runtime = runtime;
+        }
+
+        internal static void ClearRuntimeForTests()
+        {
+            Runtime = null;
         }
 
         internal static void ClearSettingsForTests()
         {
-            Settings = null;
+            _settingsCache = null;
             ModOptions.Store = null;
+            ClearRuntimeForTests();
         }
 
         public void OnEnabled()
         {
-            VanillaCameraSuppress.Enabled = true;
             try
             {
-                EnsureSettings();
+                EnsureSettingsInternal();
+                ModSettings settings = _settingsCache;
                 GestureCaptureLog.Line(
-                    "mod enabled backend=" + CaptureBackendFlags.Resolve(Settings)
+                    "mod enabled backend=" + CaptureBackendFlags.Resolve(settings)
                 );
                 IGestureSource source;
                 if (IsE2eInjectEnabled())
                 {
-                    InjectSource = new InjectGestureSource();
-                    source = InjectSource;
+                    source = new InjectGestureSource();
                 }
                 else
                 {
-                    InjectSource = null;
-                    source = CreateCaptureSource(Settings);
+                    source = CreateCaptureSource(settings);
                 }
 
-                Pipeline = new GesturePipeline(Settings, source);
-                source.Connect();
+                Runtime = new ModRuntime(settings, source);
             }
             catch
             {
                 // Fail soft: gestures may be unavailable; suppress stays on while the mod is enabled.
-                EnsureSettings();
-                InjectSource = null;
-                Pipeline = new GesturePipeline(Settings, new InProcessGestureSource());
+                EnsureSettingsInternal();
+                Runtime = new ModRuntime(_settingsCache, new InProcessGestureSource());
             }
 
 #if HAS_CITIES
@@ -245,7 +274,8 @@ namespace TrackpadCameraControl
                 // ignore
             }
 #endif
-            VanillaCameraSuppress.Enabled = false;
+            VanillaCameraSuppress.PreciseTrackpadScroll = false;
+            VanillaCameraSuppress.MenuOrOverUi = false;
             try
             {
                 ModOptions.FlushStore(true);
@@ -257,16 +287,15 @@ namespace TrackpadCameraControl
 
             try
             {
-                Pipeline?.Shutdown();
+                Runtime?.Shutdown();
             }
             catch
             {
                 // ignore
             }
 
-            Pipeline = null;
-            Settings = null;
-            InjectSource = null;
+            Runtime = null;
+            _settingsCache = null;
             ModOptions.Store = null;
         }
 

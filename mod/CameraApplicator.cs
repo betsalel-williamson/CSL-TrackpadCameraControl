@@ -4,7 +4,6 @@ namespace TrackpadCameraControl
 {
     public static class CameraApplicator
     {
-        private static readonly CameraControllerZoom DefaultCamera = new CameraControllerZoom();
         private const float Deg2Rad = (float)(Math.PI / 180.0);
 
         /// <summary>
@@ -19,27 +18,6 @@ namespace TrackpadCameraControl
         {
             Drag,
             Button,
-        }
-
-        public static void Apply(
-            CameraOp ops,
-            float dx,
-            float dy,
-            float pinchDelta,
-            float rotateDelta,
-            ModSettings settings
-        )
-        {
-            Apply(
-                ops,
-                dx,
-                dy,
-                pinchDelta,
-                rotateDelta,
-                settings,
-                DefaultCamera,
-                InputModality.Drag
-            );
         }
 
         public static void Apply(

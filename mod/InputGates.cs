@@ -30,7 +30,7 @@ namespace TrackpadCameraControl
         /// </summary>
         public static bool ShouldBlockAllCameraInput()
         {
-            return VanillaCameraSuppress.Enabled && !IsGameFocused();
+            return ModRuntime.IsModActive() && !IsGameFocused();
         }
 
         /// <summary>
@@ -38,7 +38,7 @@ namespace TrackpadCameraControl
         /// </summary>
         public static bool IsModWorldPathActive()
         {
-            return VanillaCameraSuppress.Enabled && IsGameFocused() && !IsMenuOrOverUi();
+            return ModRuntime.IsModActive() && IsGameFocused() && !IsMenuOrOverUi();
         }
 
         /// <summary>Clear sticky suppress/orbit state after focus loss.</summary>
@@ -94,7 +94,7 @@ namespace TrackpadCameraControl
 
         public static bool ShouldSuppressVanillaScrollWheel(bool preciseTrackpad, bool menuOrOverUi)
         {
-            return VanillaCameraSuppress.Enabled && preciseTrackpad && !menuOrOverUi;
+            return ModRuntime.IsModActive() && preciseTrackpad && !menuOrOverUi;
         }
 
         /// <summary>Harmony mouse prefix: false = block edge pan / mouse rotate.</summary>
@@ -110,7 +110,7 @@ namespace TrackpadCameraControl
 
         public static bool ShouldSuppressVanillaMouseRotate(bool rotateBindingHeld)
         {
-            return VanillaCameraSuppress.Enabled && rotateBindingHeld;
+            return ModRuntime.IsModActive() && rotateBindingHeld;
         }
 
         /// <summary>Harmony orbit postfix: flush queued trackpad orbit only on world path.</summary>
@@ -122,7 +122,7 @@ namespace TrackpadCameraControl
         /// <summary>AppKit capture: enqueue only when mod on and focused.</summary>
         public static bool ShouldCaptureGestures()
         {
-            return VanillaCameraSuppress.Enabled && IsGameFocused();
+            return ModRuntime.IsModActive() && IsGameFocused();
         }
 
         public static bool IsMenuOrOptionsOpen()
