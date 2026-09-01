@@ -17,8 +17,7 @@ namespace TrackpadCameraControl.Tests
 
         public void Dispose()
         {
-            new Mod().OnDisabled();
-            Mod.ClearSettingsForTests();
+            ModTestState.Reset();
             VanillaCameraSuppress.PreciseTrackpadScroll = false;
             VanillaCameraSuppress.MenuOrOverUi = false;
             InputGates.ResetTestHooks();

@@ -65,7 +65,7 @@ namespace TrackpadCameraControl.Tests
         [Fact]
         public void EnsureSettings_ReusesExisting()
         {
-            Mod.ClearSettingsForTests();
+            ModTestState.Reset();
             try
             {
                 string dir = Path.Combine(
@@ -82,7 +82,7 @@ namespace TrackpadCameraControl.Tests
             }
             finally
             {
-                Mod.ClearSettingsForTests();
+                ModTestState.Reset();
             }
         }
     }

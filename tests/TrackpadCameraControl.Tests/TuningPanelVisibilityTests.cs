@@ -3,6 +3,7 @@ using Xunit;
 
 namespace TrackpadCameraControl.Tests
 {
+    [Collection(ModOptionsStoreCollection.Name)]
     public class TuningPanelVisibilityTests
     {
         [Theory]
@@ -37,15 +38,10 @@ namespace TrackpadCameraControl.Tests
         [Fact]
         public void ClearUserDismiss_ClearsPersistedFlag()
         {
-            Mod.SetSettingsForTests(new ModSettings { DebugPanelDismissed = true });
-            try
+            using (ModSettingsTestContext.With(new ModSettings { DebugPanelDismissed = true }))
             {
                 TuningPanelHost.ClearUserDismiss();
                 Assert.False(Mod.Settings.DebugPanelDismissed);
-            }
-            finally
-            {
-                Mod.ClearSettingsForTests();
             }
         }
     }

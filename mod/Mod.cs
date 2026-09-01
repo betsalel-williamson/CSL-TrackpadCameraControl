@@ -171,17 +171,6 @@ namespace TrackpadCameraControl
             return _settingsCache;
         }
 
-        internal static void SetSettingsForTests(ModSettings settings)
-        {
-            _settingsCache = settings;
-        }
-
-        internal static void ClearSettingsForTests()
-        {
-            _settingsCache = null;
-            ModOptions.Store = null;
-        }
-
         public void OnEnabled()
         {
             try
