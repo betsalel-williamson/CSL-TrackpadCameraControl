@@ -37,8 +37,17 @@ Option+two-finger (and Assist drag orbit) **queues** orbit yaw/pitch via `AddAng
 
 Two-finger **rotation** writes `AngleX` (or ghost angles) directly and clears both axes of angle velocity on apply so prior orbit inertia cannot bleed into the twist. Angle writes update **only the edited axis** on `m_targetAngle` / `m_currentAngle` (no full-vector copy), so rotation cannot snap pitch the way a stale `current.y` lerp would.
 
+## Init and readiness
+
+- **Mod enable** (`OnEnabled`): create `ModRuntime`, patch Harmony, select capture backend — do not require the Debug panel.
+- **City load** (`LoadingExtension.OnLevelLoaded`): request boot focus and **arm** capture connect once the gameplay scene is ready.
+- **Each frame** (`GestureThreading`): `GesturePipeline.Tick()` connects/reconnects the backend while the mod is active and the game is focused; brief retry after load is normal.
+- **Debug panel** is optional tuning UI only — factory default off; opening it is not required for gesture play.
+- **Cities Harmony** is required for scroll suppress and Option-orbit velocity flush; without it pan may fight vanilla scroll-zoom and orbit may not integrate.
+
 ## Acceptance criteria (current)
 
+- After loading a city (no Debug panel, no Options visit), pan, zoom, **rotation**, and `⌥`+two-finger orbit work within a few seconds while the game window is focused.
 - With AppleKit and Maps+ defaults, pan, zoom, **rotation**, and `⌥`+two-finger orbit work in-game; pan stays within the unlocked game area; orbit pitch stays within **0°**–**90°**; rotation is not angle-clamped; starting rotation hard-handoffs leftover orbit coast.
 - Selection-aware rotate / Option-orbit match [selection-aware gestures](./selection-aware-gestures.md).
 - Slow / Default / Fast stay immutable; dirty edits use **New Preset** per [settings and hot configuration](./settings-and-hot-configuration.md); Sensitivity uses the slider contract (0.1×–2× factory default).

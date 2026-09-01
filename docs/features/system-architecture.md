@@ -34,7 +34,7 @@ flowchart LR
 
 | Component               | Responsibility                                                                                                                                                                                             |
 | ----------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Platform backend        | Capture OS trackpad contacts / gestures; emit raw primitives while the game is focused                                                                                                                     |
+| Platform backend        | Capture OS trackpad contacts / gestures; arm/connect on city load; emit raw primitives while the game is focused                                                                                           |
 | Gesture source          | Deliver primitives into the mod from in-process capture (Contacts or AppleGestures); see ADR 0001                                                                                                          |
 | Gesture session         | Orbit latch and resolve-mode state across frames                                                                                                                                                           |
 | Binding resolver        | Map primitives + session state to a camera **op set** (pan / zoom / yaw / orbit flags)                                                                                                                     |
@@ -56,6 +56,13 @@ Platform-specific capture details (for example the first macOS backend) live in 
 5. Applicator applies each op in the set to camera target position, angle, and size with settings-driven [drag scale](../glossary/drag-scale.md) / [sensitivity](../glossary/sensitivity.md), [button step](../glossary/button-step.md) for chrome nudges, invert, deadzone, pan city-bounds clamp, and optional [low-pass](../glossary/low-pass.md) (see [apply math](./settings-and-hot-configuration.md#apply-math-contract)). Selection-aware rotate / orbit: [selection-aware gestures](./selection-aware-gestures.md).
 6. While the mod is enabled, [vanilla camera suppress](./vanilla-camera-suppress.md) skips vanilla scroll-zoom from precise trackpad so that path does not fight gesture writes. Mouse wheel, middle-mouse orbit, edge pan, keyboard, and gamepad still reach the camera.
 7. One-finger pointer path is left to the game (outside Debug chrome).
+
+## Lifecycle (enable → load → tick)
+
+1. **Content Manager enable** — `Mod.OnEnabled`: settings load, `ModRuntime` + default capture source, Harmony patches apply.
+2. **City load** — `LoadingExtension.OnLevelLoaded`: boot focus activation; **arm gesture capture** for the loaded scene (independent of Debug UI).
+3. **Simulation tick** — `GestureThreading.OnUpdate`: `GesturePipeline.Tick()` syncs input gates, connects capture if needed, resolves primitives, applies camera ops.
+4. **Debug UI** — optional; `TuningPanelHost.EnsureCreated()` is for the floating panel only and does not gate capture readiness.
 
 ## Constraints
 

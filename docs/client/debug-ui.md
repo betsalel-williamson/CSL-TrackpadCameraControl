@@ -28,4 +28,4 @@ There are no Enable-per-op or Reverse controls on the product surface. Pad/butto
 3. Turn **Show debug panel** off and confirm both the panel and the Debug reopen chip disappear.
 4. If gestures do nothing after tuning, check the backend and [OS gesture conflicts](./os-gesture-conflicts.md).
 
-The Debug panel does not replace installing or connecting a trackpad backend for gesture play.
+The Debug panel is for tuning only. Gesture capture arms on city load; you do not need to open Debug for gestures to work.
