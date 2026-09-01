@@ -14,6 +14,7 @@ namespace TrackpadCameraControl.Tests
             Assert.Contains("Mod:", text);
             Assert.DoesNotContain("--- System ---", text);
             Assert.DoesNotContain("--- Input devices ---", text);
+            Assert.DoesNotContain("--- Assemblies ---", text);
         }
 
         [Fact]
@@ -23,8 +24,31 @@ namespace TrackpadCameraControl.Tests
             Assert.False(string.IsNullOrEmpty(text));
             Assert.Contains("--- System ---", text);
             Assert.Contains("OS:", text);
+            Assert.Contains("Model:", text);
+            Assert.DoesNotContain("CPU:", text);
+            Assert.DoesNotContain("Memory:", text);
             Assert.Contains("--- Input devices ---", text);
             Assert.DoesNotContain("(unable to enumerate input devices)", text);
+        }
+
+        [Fact]
+        public void Format_WithSystemInfo_IncludesAssembliesSection()
+        {
+            string text = QaClipboardReport.Format(true);
+            Assert.Contains("--- Assemblies ---", text);
+            Assert.Contains("TrackpadCameraControl:", text);
+            Assert.Contains("UnityEngine:", text);
+            Assert.Contains("0Harmony:", text);
+            Assert.Contains("CitiesHarmony.API:", text);
+        }
+
+        [Fact]
+        public void FormatAssemblyVersion_ReturnsMissingForUnknown()
+        {
+            Assert.Equal(
+                "missing",
+                QaAssemblyVersions.FormatAssemblyVersion("DefinitelyNotLoaded.Assembly.XYZ")
+            );
         }
 
         [Fact]

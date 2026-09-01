@@ -26,6 +26,7 @@ namespace TrackpadCameraControl
             if (includeSystemInfo)
             {
                 MacQaSystemInfo.AppendSection(sb);
+                QaAssemblyVersions.AppendSection(sb);
             }
 
             if (sb.Length == 0)

@@ -154,21 +154,8 @@ namespace TrackpadCameraControl
                 if (!string.IsNullOrEmpty(model))
                 {
                     sb.AppendLine("Model: " + model);
+                    return;
                 }
-
-                string cpu = SystemInfo.processorType;
-                if (!string.IsNullOrEmpty(cpu))
-                {
-                    sb.AppendLine("CPU: " + cpu);
-                }
-
-                int memoryMb = SystemInfo.systemMemorySize;
-                if (memoryMb > 0)
-                {
-                    sb.AppendLine("Memory: " + memoryMb + " MB");
-                }
-
-                return;
             }
             catch
             {
@@ -179,12 +166,6 @@ namespace TrackpadCameraControl
             if (!string.IsNullOrEmpty(hwModel))
             {
                 sb.AppendLine("Model: " + hwModel);
-            }
-
-            string machine = TryReadSysctl("hw.machine");
-            if (!string.IsNullOrEmpty(machine))
-            {
-                sb.AppendLine("Machine: " + machine);
             }
         }
 
