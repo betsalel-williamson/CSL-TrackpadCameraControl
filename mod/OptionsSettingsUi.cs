@@ -213,6 +213,12 @@ namespace TrackpadCameraControl
                     ModOptions.SaveNamedFeelPreset(s, saveAsName[0]);
                 }
             );
+
+            group.AddCheckbox(
+                "Keep cinematic playing on ⌘-Tab",
+                s.CinematicBackgroundPlayback,
+                v => ModOptions.ApplyBool(s, x => x.CinematicBackgroundPlayback = v)
+            );
         }
 
         /// <summary>

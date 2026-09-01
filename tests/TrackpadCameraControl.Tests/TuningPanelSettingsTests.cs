@@ -224,6 +224,17 @@ namespace TrackpadCameraControl.Tests
         }
 
         [Fact]
+        public void RoundTrip_PreservesCinematicBackgroundPlayback()
+        {
+            var store = new ModSettingsStore(_path);
+            store.SaveNow(new ModSettings { CinematicBackgroundPlayback = true });
+
+            ModSettings loaded = store.LoadOrFactory();
+            Assert.True(loaded.CinematicBackgroundPlayback);
+            Assert.Equal(6, ModSettingsStore.CurrentSchemaVersion);
+        }
+
+        [Fact]
         public void CorruptFile_YieldsFactory()
         {
             File.WriteAllText(_path, "not-xml{{{");

@@ -109,6 +109,17 @@ namespace TrackpadCameraControl
             AddCaptureBackendButtons(s);
 #endif
 
+            AddSection("Quality of life");
+            AddCheckRow(
+                s,
+                () => s.CinematicBackgroundPlayback,
+                v => ModOptions.ApplyBool(s, x => x.CinematicBackgroundPlayback = v),
+                "Keep cinematic on ⌘-Tab",
+                null,
+                null,
+                null
+            );
+
             // Shipped section order: Zoom → Pan → Rotate → Orbit (feel presets = General above).
             BuildZoomSection(s);
             BuildPanSection(s);

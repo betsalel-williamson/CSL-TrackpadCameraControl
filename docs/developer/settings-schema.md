@@ -70,6 +70,14 @@ Used by trackpad gestures (and Assist chrome pads when `EnableAssistChrome` is o
 | IncludeSystemInfoInCopy | bool | true    | no  |
 | DebugPanelDismissed     | bool | false   | no  |
 
+**Schema 6:** QoL toggle in `current`:
+
+| Field                       | Type | Default | Hot |
+| --------------------------- | ---- | ------- | --- |
+| CinematicBackgroundPlayback | bool | false   | no  |
+
+When on, built-in cinematic playback ignores modifier-only keys so ⌘-Tab does not stop the path.
+
 Missing elements on load get factory defaults; schema bump rewrites the envelope.
 
 ## Orbit pitch limits

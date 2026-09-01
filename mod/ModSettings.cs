@@ -84,6 +84,12 @@ namespace TrackpadCameraControl
 
         public bool RequireGameFocus { get; set; } = true;
         public bool IgnoreOverUi { get; set; } = true;
+
+        /// <summary>
+        /// When on, built-in cinematic playback ignores modifier-only keys (⌘-Tab) so it keeps playing in the background.
+        /// </summary>
+        public bool CinematicBackgroundPlayback { get; set; }
+
         public bool BridgeEnabled { get; set; }
         public bool DebugOverlay { get; set; }
 
@@ -183,6 +189,7 @@ namespace TrackpadCameraControl
 
             RequireGameFocus = other.RequireGameFocus;
             IgnoreOverUi = other.IgnoreOverUi;
+            CinematicBackgroundPlayback = other.CinematicBackgroundPlayback;
             BridgeEnabled = other.BridgeEnabled;
             DebugOverlay = other.DebugOverlay;
             CaptureBackend = other.CaptureBackend;
