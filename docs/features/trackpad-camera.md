@@ -25,6 +25,13 @@ Give trackpad players the same camera fluency mouse users get from middle-mouse 
 
 CAD three-finger orbit remains behind `EnableCadGestureStyle`.
 
+## Input gates
+
+Shared with [vanilla camera suppress](./vanilla-camera-suppress.md) and [settings and hot configuration](./settings-and-hot-configuration.md):
+
+- **Menu / Options open** or **pointer over popup:** no mod camera ops; UI owns two-finger scroll.
+- **Game unfocused:** no mod camera apply (default `RequireGameFocus`); precise trackpad suppress does not run; returning focus does not replay a stale trackpad pan.
+
 ## Resolve mode and orbit latch
 
 - [Gesture resolve mode](../glossary/gesture-resolve-mode.md) controls whether multiple camera ops can apply from one frame (default: Concurrent).
@@ -46,7 +53,7 @@ Two-finger **rotation** writes `AngleX` (or ghost angles) directly and clears bo
 - Orbit latch continues orbit after modifier release until fingers lift.
 - Concurrent resolve allows pan + zoom + yaw in the same frame when not orbit-latched.
 - One-finger building tools remain usable.
-- [Vanilla camera suppress](./vanilla-camera-suppress.md): precise trackpad pan without vanilla zoom; mouse wheel zooms; no mod camera when menus open or pointer over popups.
+- [Vanilla camera suppress](./vanilla-camera-suppress.md): precise trackpad pan without vanilla zoom when focused; mouse wheel zooms; no mod camera when unfocused, menus open, or pointer over popups.
 - Without a platform backend, the mod enables cleanly; keyboard, edge pan, and gamepad stay.
 - If Cities Harmony is missing, the mod enables without crashing; pan may fight vanilla scroll-zoom.
 - While product flags are off: no CAD switcher, no Contacts picker, no low-pass UI, no Debug chrome / button-step fields.

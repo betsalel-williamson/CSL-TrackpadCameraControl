@@ -61,6 +61,7 @@ Maintainer and community reports. Prefer Workshop comments or a GitHub issue tit
 
 - [ ] Options open: two-finger scrolls Options; city does not pan/orbit from the mod
 - [ ] Pointer over Debug panel (or another popup): two-finger scrolls/drags UI, not city camera
+- [ ] Game window unfocused (click another app): two-finger trackpad does not pan/orbit/zoom the city; refocus and verify gestures work again
 
 ## Optional (only when flags are on)
 

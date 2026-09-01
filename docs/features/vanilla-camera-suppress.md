@@ -12,6 +12,7 @@ There is no Options checkbox for this; mod on/off is the switch. Cities Harmony 
 - Real mouse wheel still vanilla-zooms.
 - Options / other menus open: two-finger scrolls the UI; the city does not pan from the mod.
 - Cursor over any active popup (Debug panel or other mods): two-finger scrolls/drags UI, not camera; keyboard may still move the camera unless a text field is focused.
+- Game window unfocused: no mod camera ops; precise trackpad scroll does not suppress vanilla zoom (sticky trackpad state does not carry over).
 - Mouse-drag vanilla camera rotate does not run while the rotate-camera binding is held and the mod is on.
 - Edge scrolling, keyboard move/rotate/zoom, and analog/gamepad camera still work.
 - One-finger tools stay with the game.
@@ -19,17 +20,18 @@ There is no Options checkbox for this; mod on/off is the switch. Cities Harmony 
 
 ## Policy while the mod is enabled
 
-| Vanilla path | Action |
-| ------------ | ------ |
-| Scroll-zoom from **precise trackpad** scroll (world, gates clear) | Suppress |
-| Scroll-zoom from **mouse wheel** | Keep |
-| Scroll when **menu/Options open** or **pointer over popup** | Keep (UI scroll); mod does not apply camera |
-| Mouse-drag camera rotate (binding on) | Suppress |
-| Edge scrolling | Keep |
-| Keyboard camera keys | Keep |
-| Gamepad / analog | Keep |
-| Free-cam / follow / override | Keep |
-| One-finger tools / UI | Keep |
+| Vanilla path                                                                  | Action                                      |
+| ----------------------------------------------------------------------------- | ------------------------------------------- |
+| Scroll-zoom from **precise trackpad** scroll (world **focused**, gates clear) | Suppress                                    |
+| Scroll-zoom from **mouse wheel**                                              | Keep                                        |
+| Scroll when **game unfocused**                                                | Keep (no suppress; mod apply skipped)       |
+| Scroll when **menu/Options open** or **pointer over popup**                   | Keep (UI scroll); mod does not apply camera |
+| Mouse-drag camera rotate (binding on)                                         | Suppress                                    |
+| Edge scrolling                                                                | Keep                                        |
+| Keyboard camera keys                                                          | Keep                                        |
+| Gamepad / analog                                                              | Keep                                        |
+| Free-cam / follow / override                                                  | Keep                                        |
+| One-finger tools / UI                                                         | Keep                                        |
 
 ```mermaid
 flowchart LR
@@ -45,11 +47,12 @@ flowchart LR
 
 ## Relationship to the gesture pipeline
 
-[Vanilla camera suppress](../glossary/vanilla-camera-suppress.md) is a **gate in front of vanilla camera input**, not a replacement for [trackpad camera](./trackpad-camera.md) apply. Menu-open and over-popup gates skip mod apply and leave scroll available to UI. Device split uses precise vs non-precise scrolling deltas.
+[Vanilla camera suppress](../glossary/vanilla-camera-suppress.md) is a **gate in front of vanilla camera input**, not a replacement for [trackpad camera](./trackpad-camera.md) apply. Menu-open, over-popup, and **game-focus** gates skip mod apply; suppress runs only when the game window is focused and the world path is active. Device split uses precise vs non-precise scrolling deltas; sticky precise-trackpad state clears when unfocused.
 
 ## Acceptance
 
 - World + focused: two-finger pan does not also vanilla-zoom; mouse wheel zooms.
+- Game unfocused: two-finger trackpad does not pan the city and does not suppress vanilla scroll-zoom.
 - Options open: two-finger scrolls Options; city does not pan from the mod.
 - Cursor over Assist or another popup: two-finger does not pan the city.
 - Holding the vanilla rotate-camera mouse binding does not mouse-drag-rotate while the mod is on.
