@@ -26,6 +26,7 @@ There are no Enable-per-op or Reverse controls on the product surface. Pad/butto
 1. With Debug on, change a Sensitivity or feel preset and confirm gestures respond immediately.
 2. Change a value in Options and confirm the Debug panel rebuilds to match; change in Debug and confirm gestures update immediately — reopen Options to see slider positions catch up.
 3. Turn **Show debug panel** off and confirm both the panel and the Debug reopen chip disappear.
-4. If gestures do nothing after tuning, check the backend and [OS gesture conflicts](./os-gesture-conflicts.md).
+4. **Reset to factory** while the panel is open — preset returns to Default and the panel stays visible (no OPTIONS toggle needed).
+5. If gestures do nothing after tuning, check the backend and [OS gesture conflicts](./os-gesture-conflicts.md).
 
 The Debug panel is for tuning only. Gesture capture arms on city load; you do not need to open Debug for gestures to work.

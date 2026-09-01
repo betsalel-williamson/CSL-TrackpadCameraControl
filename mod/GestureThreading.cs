@@ -12,6 +12,9 @@ namespace TrackpadCameraControl
             try
             {
                 Mod.Runtime?.Pipeline?.Tick();
+#if HAS_CITIES
+                TuningPanelHost.ProcessPendingUiRebuild();
+#endif
             }
             catch
             {

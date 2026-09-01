@@ -36,6 +36,7 @@ Maintainer and community reports. Prefer Workshop comments or a GitHub issue tit
 - [ ] Game window focused
 - [ ] Cold boot → load city: no OS hardware cursor overlaying the in-game cursor; one-finger tools work without alt-tab first
 - [ ] Fresh city load: pan, pinch, rotate, and Option-orbit work without opening Debug panel or Options
+- [ ] Debug panel **Reset** restores Default preset while panel stays open
 - [ ] Maps+ / Default feel (Options or Debug panel)
 - [ ] Session platform row filled above
 

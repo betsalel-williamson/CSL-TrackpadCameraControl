@@ -41,8 +41,9 @@ namespace TrackpadCameraControl
         private static float _nextY;
         private static bool _dragging;
         private static bool _handlingSettingsChanged;
+        private static bool _rebuildQueued;
         private static Vector3 _dragPanelStart;
-        private static Vector3 _dragMouseStart;
+        private static Vector2 _dragPointerStart;
 
         public static void EnsureCreated()
         {
@@ -187,15 +188,33 @@ namespace TrackpadCameraControl
                 return;
             }
 
+            if (_root == null)
+            {
+                ApplyVisibility();
+                return;
+            }
+
+            _rebuildQueued = true;
+        }
+
+        /// <summary>Run queued panel rebuild outside UI event handlers (e.g. after Reset).</summary>
+        public static void ProcessPendingUiRebuild()
+        {
+            if (!_rebuildQueued || _handlingSettingsChanged)
+            {
+                return;
+            }
+
+            _rebuildQueued = false;
+            if (_root == null)
+            {
+                ApplyVisibility();
+                return;
+            }
+
             _handlingSettingsChanged = true;
             try
             {
-                if (_root == null)
-                {
-                    ApplyVisibility();
-                    return;
-                }
-
                 Vector3 pos = _root.relativePosition;
                 Destroy();
                 EnsureCreated();
@@ -204,8 +223,6 @@ namespace TrackpadCameraControl
                     _root.relativePosition = pos;
                 }
 
-                // Do not restore prior isVisible — ApplyVisibility owns root + reopen from
-                // AssistUiEnabled and dismiss state (OPTIONS off must hide the Debug chip).
                 ApplyVisibility();
             }
             finally
