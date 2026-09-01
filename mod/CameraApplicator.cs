@@ -286,29 +286,7 @@ namespace TrackpadCameraControl
                 return;
             }
 
-            // Re-home look-at only when selection reports a pivot (place/relocate ghost).
-            // Otherwise leave Target alone so Option-orbit continues from the current camera look-at.
-            if (
-                selection != null
-                && selection.TryGetSelectedWorldPosition(out float sx, out float sy, out float sz)
-            )
-            {
-                if (!float.IsNaN(sx))
-                {
-                    camera.TargetX = sx;
-                }
-
-                if (!float.IsNaN(sy))
-                {
-                    camera.TargetY = sy;
-                }
-
-                if (!float.IsNaN(sz))
-                {
-                    camera.TargetZ = sz;
-                }
-            }
-
+            // Option-orbit always uses the current camera look-at (Target unchanged here).
             float dyaw = modality == InputModality.Button ? dx : dx * settings.OrbitYawGain;
             float dpitch = modality == InputModality.Button ? dy : dy * settings.OrbitPitchGain;
             if (settings.SignInvertOrbitYaw)

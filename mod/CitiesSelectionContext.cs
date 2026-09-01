@@ -8,8 +8,8 @@ namespace TrackpadCameraControl
 {
     /// <summary>
     /// Best-effort CS1 selection context.
-    /// Object yaw and orbit look-at re-home: relocate / new-placement ghosts only.
-    /// Click-selected instances do not steal yaw or snap orbit Target (orbit from current camera look-at).
+    /// Object yaw: relocate / new-placement ghosts only.
+    /// Click-selected instances do not steal yaw. Option-orbit never re-homes Target.
     /// Hover is not used. All paths fail soft.
     /// </summary>
     public sealed class CitiesSelectionContext : ISelectionContext
@@ -33,49 +33,7 @@ namespace TrackpadCameraControl
             x = 0f;
             y = 0f;
             z = 0f;
-#if HAS_CITIES
-            try
-            {
-                bool placementArmed = IsPlacementTool(TryGetCurrentTool());
-                int relocateId = TryGetRelocateBuildingId();
-                bool hasSelected =
-                    TryGetInstanceSelection(out InstanceID selectedId)
-                    && IsInstanceValid(selectedId);
-
-                SelectionGestureKind kind = SelectionGesturePriority.Resolve(
-                    placementArmed,
-                    relocateId,
-                    hasSelected
-                );
-
-                // Only ghost modes may re-home the camera look-at. SelectedInstance would snap
-                // Option-orbit back to the last clicked/orbit pivot after the player has panned away.
-                if (!SelectionGesturePriority.AllowsOrbitPivot(kind))
-                {
-                    return false;
-                }
-
-                if (kind == SelectionGestureKind.RelocateInstance)
-                {
-                    // Ghost sits at the cursor; buffer still holds the pre-commit cell.
-                    if (TryGetToolPlacementPosition(out x, out y, out z))
-                    {
-                        return true;
-                    }
-
-                    InstanceID relocate = default(InstanceID);
-                    relocate.Building = (ushort)relocateId;
-                    return TryGetInstancePosition(relocate, out x, out y, out z);
-                }
-
-                // PlacementGhost
-                return TryGetToolPlacementPosition(out x, out y, out z);
-            }
-            catch
-            {
-                // fail soft
-            }
-#endif
+            // Option-orbit never re-homes Target (see SelectionGesturePriority.AllowsOrbitPivot).
             return false;
         }
 

@@ -118,7 +118,7 @@ namespace TrackpadCameraControl.Tests
         }
 
         [Fact]
-        public void Orbit_WithSelection_PivotsTargetThenOrbits()
+        public void Orbit_WithSelection_LeavesTargetThenOrbits()
         {
             var cam = new FakeCameraController
             {
@@ -160,15 +160,15 @@ namespace TrackpadCameraControl.Tests
                 deltaTimeSeconds: 1f / 60f
             );
 
-            Assert.Equal(100f, cam.TargetX, 3);
-            Assert.Equal(5f, cam.TargetY, 3);
-            Assert.Equal(-50f, cam.TargetZ, 3);
+            Assert.Equal(0f, cam.TargetX, 3);
+            Assert.Equal(0f, cam.TargetY, 3);
+            Assert.Equal(0f, cam.TargetZ, 3);
             Assert.Equal(15f, cam.AngleX, 3);
             Assert.Equal(28f, cam.AngleY, 3);
         }
 
         [Fact]
-        public void Orbit_WithSelection_ZeroDelta_StillRefreshesTarget()
+        public void Orbit_WithSelection_ZeroDelta_LeavesTarget()
         {
             var cam = new FakeCameraController
             {
@@ -205,9 +205,9 @@ namespace TrackpadCameraControl.Tests
                 selection
             );
 
-            Assert.Equal(100f, cam.TargetX, 3);
-            Assert.Equal(5f, cam.TargetY, 3);
-            Assert.Equal(-50f, cam.TargetZ, 3);
+            Assert.Equal(3f, cam.TargetX, 3);
+            Assert.Equal(1f, cam.TargetY, 3);
+            Assert.Equal(4f, cam.TargetZ, 3);
             Assert.Equal(10f, cam.AngleX, 3);
             Assert.Equal(30f, cam.AngleY, 3);
         }

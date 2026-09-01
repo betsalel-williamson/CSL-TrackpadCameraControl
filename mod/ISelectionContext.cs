@@ -1,15 +1,13 @@
 namespace TrackpadCameraControl
 {
     /// <summary>
-    /// Seam for "is a placeable / city object selected?" used by selection-aware
-    /// yaw (object rotate) and Option-orbit (pivot on selection). Production:
-    /// <see cref="CitiesSelectionContext"/>; tests use a fake.
+    /// Seam for selection-aware object yaw. Production: <see cref="CitiesSelectionContext"/>; tests use a fake.
+    /// Option-orbit does not re-home Target — <see cref="TryGetSelectedWorldPosition"/> is retained for the seam only.
     /// </summary>
     public interface ISelectionContext
     {
         /// <summary>
-        /// World position of the current selection (orbit pivot). Returns false when
-        /// nothing is selected or APIs are unavailable.
+        /// Reserved seam hook. Option-orbit never re-homes Target; always returns false.
         /// </summary>
         bool TryGetSelectedWorldPosition(out float x, out float y, out float z);
 
