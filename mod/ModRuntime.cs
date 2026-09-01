@@ -18,7 +18,6 @@ namespace TrackpadCameraControl
             var camera = new CameraControllerZoom();
             Pipeline = new GesturePipeline(Settings, source, camera);
             Inject = source as InjectGestureSource;
-            Pipeline.Source.Connect();
         }
 
         /// <summary>True while the mod is enabled in Content Manager.</summary>

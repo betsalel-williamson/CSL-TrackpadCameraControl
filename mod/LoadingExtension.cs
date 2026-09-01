@@ -19,6 +19,7 @@ namespace TrackpadCameraControl
                 )
                 {
                     GameFocusActivation.TryActivate();
+                    Mod.ArmCaptureOnLevelLoaded();
                     TuningPanelHost.EnsureCreated();
                     TuningPanelHost.ApplyVisibility();
                 }

@@ -62,4 +62,31 @@ namespace TrackpadCameraControl.Tests
             GestureCaptureLog.PathResolver = _previousResolver;
         }
     }
+
+    internal sealed class RecordingGestureSource : IGestureSource
+    {
+        public int ConnectCount { get; private set; }
+
+        public int DisconnectCount { get; private set; }
+
+        public bool IsConnected { get; private set; }
+
+        public void Connect()
+        {
+            ConnectCount++;
+            IsConnected = true;
+        }
+
+        public void Disconnect()
+        {
+            DisconnectCount++;
+            IsConnected = false;
+        }
+
+        public bool TryDequeue(out GestureFrame frame)
+        {
+            frame = default;
+            return false;
+        }
+    }
 }
