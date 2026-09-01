@@ -4,12 +4,12 @@ How contributors validate Trackpad Camera Control without (and with) Cities: Sky
 
 ## Tiers
 
-| Tier                     | What it proves                                                             | Needs game? | Where it runs |
-| ------------------------ | -------------------------------------------------------------------------- | ----------- | ------------- |
-| **Unit** (xUnit)         | Frame layout, binding resolver, camera apply with fakes                    | No          | Local + CI    |
-| **Native leak static**   | Pair native acquires with releases (GCHandle, CFString, devices, monitors) | No          | Local + CI    |
-| **Headless e2e**         | Gesture source → resolve → apply pipeline end-to-end with fake camera      | No          | Local + CI    |
-| **In-game inject smoke** | Synthetic frames into the loaded mod change camera zoom                    | Yes         | Local only    |
+| Tier                     | What it proves                                                                                  | Needs game? | Where it runs               |
+| ------------------------ | ----------------------------------------------------------------------------------------------- | ----------- | --------------------------- |
+| **Unit** (xUnit)         | Frame layout, binding resolver, camera apply with fakes; Mac-only QA probes assert under Darwin | No          | Local + CI (macOS Validate) |
+| **Native leak static**   | Pair native acquires with releases (GCHandle, CFString, devices, monitors)                      | No          | Local + CI                  |
+| **Headless e2e**         | Gesture source → resolve → apply pipeline end-to-end with fake camera                           | No          | Local + CI                  |
+| **In-game inject smoke** | Synthetic frames into the loaded mod change camera zoom                                         | Yes         | Local only                  |
 
 Real Multitouch / trackpad hardware is **not** required for CI. Hardware gestures remain a manual check on macOS with the in-process mod — follow the [QA checklist](./qa-checklist.md) after local install (see [local MVP install](./local-mvp-install.md)). During active development, prefer the [mod reload during development](./mod-reload-during-development.md) loop over a full restart when possible.
 
