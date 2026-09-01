@@ -12,11 +12,12 @@ namespace TrackpadCameraControl
     public sealed class ModSettingsStore
     {
         /// <summary>
+        /// Schema 4 adds Debug QoL prefs (IncludeSystemInfoInCopy, DebugPanelDismissed).
         /// Schema 3 persists control-systems field names (gain, step, deadband, filter, sign invert).
         /// Schema 2 used Sensitivity / ButtonScale / Deadzone / LowPass / Invert element names.
         /// Schema 1 also used pre-scaled AppKit scroll (migrate ×0.01 into pan/orbit gain).
         /// </summary>
-        public const int CurrentSchemaVersion = 3;
+        public const int CurrentSchemaVersion = 4;
 
         /// <summary>
         /// Former AppleGestureMapper.ScrollToCentroid scale. Schema 1 used pre-scaled scroll

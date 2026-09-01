@@ -16,13 +16,13 @@ Schema-retained. With `EnableCadGestureStyle` off, product UI does not expose a 
 
 ## Enables
 
-| Field           | Type | Default                          | Hot |
-| --------------- | ---- | -------------------------------- | --- |
-| AssistUiEnabled | bool | false | yes |
-| PanEnabled      | bool | true                             | yes |
-| ZoomEnabled     | bool | true                             | yes |
-| YawEnabled      | bool | true                             | yes |
-| OrbitEnabled    | bool | true                             | yes |
+| Field           | Type | Default | Hot |
+| --------------- | ---- | ------- | --- |
+| AssistUiEnabled | bool | false   | yes |
+| PanEnabled      | bool | true    | yes |
+| ZoomEnabled     | bool | true    | yes |
+| YawEnabled      | bool | true    | yes |
+| OrbitEnabled    | bool | true    | yes |
 
 Schema field `AssistUiEnabled` shows or hides the in-game **Debug** panel (feel presets + tunables). Product UI labels it Debug; the schema name stays `AssistUiEnabled`. Factory/ship default is **off** so gesture-only players keep a clean viewport; enable it from Options when you want the floating panel. Existing settings.xml that already saved `true` keeps Debug on. Legacy schema 1–2 loads without the element still default **on** via `LegacyModSettings` for migration. Assist **chrome** (pads / nudge buttons) is separate and gated by `EnableAssistChrome`.
 
@@ -46,14 +46,14 @@ Maps+ uses ModifierPlusTwoFinger (Option on macOS). CAD would use ThreeFinger wh
 
 Used by trackpad gestures (and Assist chrome pads when `EnableAssistChrome` is on). Options labels say **Sensitivity**; schema/XML fields use `*Gain*`.
 
-| Field           | Type  | Factory Default | Hot |
-| --------------- | ----- | --------------- | --- |
-| PanGainX        | float | 0.005           | yes |
-| PanGainY        | float | 0.005           | yes |
-| ZoomGain        | float | 1.00            | yes |
-| YawRotateGain   | float | 2.00            | yes |
-| OrbitYawGain    | float | 1.00            | yes |
-| OrbitPitchGain  | float | 1.00            | yes |
+| Field          | Type  | Factory Default | Hot |
+| -------------- | ----- | --------------- | --- |
+| PanGainX       | float | 0.005           | yes |
+| PanGainY       | float | 0.005           | yes |
+| ZoomGain       | float | 1.00            | yes |
+| YawRotateGain  | float | 2.00            | yes |
+| OrbitYawGain   | float | 1.00            | yes |
+| OrbitPitchGain | float | 1.00            | yes |
 
 **Numeric policy:** each gain must be **> 0**; parse/apply round to **three** decimals (pan/orbit after folding the former 0.01 AppKit scroll unit into defaults).
 
@@ -62,6 +62,15 @@ Used by trackpad gestures (and Assist chrome pads when `EnableAssistChrome` is o
 **Schema 2:** AppKit scroll deltas are raw; schema 1 files migrate by ×0.01 on pan/orbit gain and ÷0.01 on motion deadband (legacy element `MotionDeadzone`).
 
 **Schema 3:** XML element names move to engineering language (`*Gain*`, `*Step*`, `MotionDeadband`, `*Filter*`, `SignInvert*`). Schema 1–2 files deserialize via the legacy shape and rewrite as schema 3.
+
+**Schema 4:** Debug QoL prefs persist in `current`:
+
+| Field                   | Type | Default | Hot |
+| ----------------------- | ---- | ------- | --- |
+| IncludeSystemInfoInCopy | bool | true    | no  |
+| DebugPanelDismissed     | bool | false   | no  |
+
+Missing elements on load get factory defaults; schema bump rewrites the envelope.
 
 ## Orbit pitch limits
 
@@ -95,22 +104,22 @@ Let `raw` be the resolved gesture delta for that axis (centroid, pinch, or rotat
 
 ### Continuous path (trackpad; chrome pads when flagged on)
 
-| Op    | After gain                                                                                     | Camera write                                                              |
-| ----- | ---------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------- |
-| Pan   | `mx = dx * PanGainX`, `my = dy * PanGainY`, then `mx,my *= Size`                               | Camera-relative XZ: `target += right*mx + forward*my`                     |
-| Zoom  | `delta = pinch * ZoomGain`                                                                     | `Size' = Size * (1 - delta)` (clamped)                                    |
-| Yaw   | `delta = rotate * YawRotateGain`                                                               | `AngleX' = AngleX + delta`                                                |
-| Orbit | `dyaw = dx * OrbitYawGain`, `dpitch = dy * OrbitPitchGain`                                     | `AngleX' += dyaw`, `AngleY' += dpitch`, then clamp pitch to min / max     |
+| Op    | After gain                                                       | Camera write                                                          |
+| ----- | ---------------------------------------------------------------- | --------------------------------------------------------------------- |
+| Pan   | `mx = dx * PanGainX`, `my = dy * PanGainY`, then `mx,my *= Size` | Camera-relative XZ: `target += right*mx + forward*my`                 |
+| Zoom  | `delta = pinch * ZoomGain`                                       | `Size' = Size * (1 - delta)` (clamped)                                |
+| Yaw   | `delta = rotate * YawRotateGain`                                 | `AngleX' = AngleX + delta`                                            |
+| Orbit | `dyaw = dx * OrbitYawGain`, `dpitch = dy * OrbitPitchGain`       | `AngleX' += dyaw`, `AngleY' += dpitch`, then clamp pitch to min / max |
 
 ### Button path (chrome nudges only; `EnableAssistChrome`)
 
 Build a one-shot delta from the button step and a sign (`±1`), then apply sign invert and the same camera write as above. **Do not** multiply by gain. Skip filter (low-pass).
 
-| Op    | One-shot input before sign invert                              |
-| ----- | -------------------------------------------------------------- |
-| Pan   | `dx = signX * PanStepX`, `dy = signY * PanStepY`               |
-| Zoom  | `pinch = sign * ZoomStep`                                      |
-| Yaw   | `rotate = sign * YawRotateStep`                                |
+| Op    | One-shot input before sign invert                                |
+| ----- | ---------------------------------------------------------------- |
+| Pan   | `dx = signX * PanStepX`, `dy = signY * PanStepY`                 |
+| Zoom  | `pinch = sign * ZoomStep`                                        |
+| Yaw   | `rotate = sign * YawRotateStep`                                  |
 | Orbit | `dx = signYaw * OrbitYawStep`, `dy = signPitch * OrbitPitchStep` |
 
 ### Filter / low-pass (continuous only; Contacts)
@@ -119,14 +128,14 @@ When enabled for an op under Contacts capture: first sample seeds state; later `
 
 ## Sign invert (polarity)
 
-| Field                 | Type | Factory Default | Hot |
-| --------------------- | ---- | --------------- | --- |
-| SignInvertPanX        | bool | true            | yes |
-| SignInvertPanY        | bool | false           | yes |
-| SignInvertOrbitYaw    | bool | false           | yes |
-| SignInvertOrbitPitch  | bool | false           | yes |
-| SignInvertZoom        | bool | false           | yes |
-| SignInvertYawRotate   | bool | false           | yes |
+| Field                | Type | Factory Default | Hot |
+| -------------------- | ---- | --------------- | --- |
+| SignInvertPanX       | bool | true            | yes |
+| SignInvertPanY       | bool | false           | yes |
+| SignInvertOrbitYaw   | bool | false           | yes |
+| SignInvertOrbitPitch | bool | false           | yes |
+| SignInvertZoom       | bool | false           | yes |
+| SignInvertYawRotate  | bool | false           | yes |
 
 Factory Default feel: Pan Reverse X on, Y off (playtest Maps+).
 
@@ -145,16 +154,16 @@ Schema-retained; not required on the slim product surface.
 
 EMA on continuous deltas after resolve, before apply — see glossary **low-pass**. Product UI and processing when `EnableContactsCapture` is on. Buttons skip filter. Schema fields use `*Filter*`; Options may still say **Low-pass**. The former single `Smoothing` field is retired.
 
-| Field               | Type      | Default | Hot |
-| ------------------- | --------- | ------- | --- |
-| PanFilterEnabled    | bool      | false   | yes |
-| PanFilterAlpha      | float 0–1 | 0.30    | yes |
-| ZoomFilterEnabled   | bool      | false   | yes |
-| ZoomFilterAlpha     | float 0–1 | 0.30    | yes |
-| YawFilterEnabled    | bool      | false   | yes |
-| YawFilterAlpha      | float 0–1 | 0.30    | yes |
-| OrbitFilterEnabled  | bool      | false   | yes |
-| OrbitFilterAlpha    | float 0–1 | 0.30    | yes |
+| Field              | Type      | Default | Hot |
+| ------------------ | --------- | ------- | --- |
+| PanFilterEnabled   | bool      | false   | yes |
+| PanFilterAlpha     | float 0–1 | 0.30    | yes |
+| ZoomFilterEnabled  | bool      | false   | yes |
+| ZoomFilterAlpha    | float 0–1 | 0.30    | yes |
+| YawFilterEnabled   | bool      | false   | yes |
+| YawFilterAlpha     | float 0–1 | 0.30    | yes |
+| OrbitFilterEnabled | bool      | false   | yes |
+| OrbitFilterAlpha   | float 0–1 | 0.30    | yes |
 
 ## Gates and capture
 
@@ -174,25 +183,25 @@ EMA on continuous deltas after resolve, before apply — see glossary **low-pass
 
 Primary player model: **[feel presets](../glossary/feel-preset.md)** (sensitivities, reverse, enables, pitch limits) — not gesture-style seeds.
 
-| Profile | Contract |
-| ------- | -------- |
-| Default / Reset to factory | Factory Default table above (SignInvertPanX true; gain seeds; OrbitPitchMin/Max 0–90 schema seeds) |
-| Slow | Default gain fields × **0.75**; reverse and pitch limits unchanged; round to three decimals (`RoundGain`) |
-| Fast | Default gain fields × **1.25**; reverse and pitch limits unchanged; round to three decimals (`RoundGain`) |
-| **New Preset** | Scratch identity when the player dirties an active built-in or named preset; autosave writes here; built-ins Slow / Default / Fast are never overwritten |
-| Named Save as… / Load | Full feel set in `userPresets[]`; after Save as…, the named preset is selected; further edits dirty back to **New Preset** |
+| Profile                    | Contract                                                                                                                                                 |
+| -------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Default / Reset to factory | Factory Default table above (SignInvertPanX true; gain seeds; OrbitPitchMin/Max 0–90 schema seeds)                                                       |
+| Slow                       | Default gain fields × **0.75**; reverse and pitch limits unchanged; round to three decimals (`RoundGain`)                                                |
+| Fast                       | Default gain fields × **1.25**; reverse and pitch limits unchanged; round to three decimals (`RoundGain`)                                                |
+| **New Preset**             | Scratch identity when the player dirties an active built-in or named preset; autosave writes here; built-ins Slow / Default / Fast are never overwritten |
+| Named Save as… / Load      | Full feel set in `userPresets[]`; after Save as…, the named preset is selected; further edits dirty back to **New Preset**                               |
 
-| Field | Type | Role | Hot |
-| ----- | ---- | ---- | --- |
+| Field                | Type   | Role                                                                                              | Hot |
+| -------------------- | ------ | ------------------------------------------------------------------------------------------------- | --- |
 | ActiveFeelPresetName | string | Active feel identity in the preset dropdown (built-in name, named user preset, or **New Preset**) | yes |
 
 Live settings load and save through a versioned XML file under the Cities user-data tree (`…/TrackpadCameraControl/settings.xml`):
 
-| Element        | Role                                                        |
-| -------------- | ----------------------------------------------------------- |
-| schemaVersion  | Envelope version                                            |
-| current        | Full ModSettings blob (includes active feel preset name)    |
-| userPresets[]  | Named feel profiles for Save as… / Load                     |
+| Element       | Role                                                     |
+| ------------- | -------------------------------------------------------- |
+| schemaVersion | Envelope version                                         |
+| current       | Full ModSettings blob (includes active feel preset name) |
+| userPresets[] | Named feel profiles for Save as… / Load                  |
 
 Missing or corrupt file → factory defaults (no crash), then persist the recovered blob. **Reset to factory** restores schema defaults into `current` and writes the file.
 

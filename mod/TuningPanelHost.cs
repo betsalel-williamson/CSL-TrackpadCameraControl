@@ -28,8 +28,6 @@ namespace TrackpadCameraControl
         private const float FooterCopyButtonWidth = 64f;
         private const float FooterCopyButtonHeight = 28f;
 
-        private static bool _includeSystemInfoInCopy = true;
-
         private static UIPanel _root;
         private static UIPanel _titleBar;
         private static UIButton _closeButton;
@@ -141,8 +139,9 @@ namespace TrackpadCameraControl
         {
             ModSettings s = Mod.Settings;
             bool assistEnabled = s != null && s.AssistUiEnabled;
-            bool showRoot = ShouldShowRoot(assistEnabled, _dismissedByUser);
-            bool showReopen = ShouldShowReopen(assistEnabled, _dismissedByUser);
+            bool dismissed = s != null && s.DebugPanelDismissed;
+            bool showRoot = ShouldShowRoot(assistEnabled, dismissed);
+            bool showReopen = ShouldShowReopen(assistEnabled, dismissed);
             if (_root != null)
             {
                 _root.isVisible = showRoot;
@@ -217,8 +216,8 @@ namespace TrackpadCameraControl
 
         private static void ShowPanel()
         {
-            _dismissedByUser = false;
             ModSettings s = Mod.EnsureSettings();
+            ModOptions.ApplyBool(s, x => x.DebugPanelDismissed = false);
             s.AssistUiEnabled = true;
             ModOptions.NotifyChanged();
             if (_root == null)
@@ -232,7 +231,8 @@ namespace TrackpadCameraControl
         private static void HidePanel()
         {
             _dragging = false;
-            _dismissedByUser = true;
+            ModSettings s = Mod.EnsureSettings();
+            ModOptions.ApplyBool(s, x => x.DebugPanelDismissed = true);
             ApplyVisibility();
             ModOptions.FlushStore(true);
         }
@@ -690,7 +690,11 @@ namespace TrackpadCameraControl
             copy.height = FooterCopyButtonHeight;
             copy.tooltip = "Copy build info (and system info when checked)";
             copy.eventClick += (c, e) =>
-                GUIUtility.systemCopyBuffer = QaClipboardReport.Format(_includeSystemInfoInCopy);
+            {
+                ModSettings copySettings = Mod.Settings;
+                bool includeSystem = copySettings == null || copySettings.IncludeSystemInfoInCopy;
+                GUIUtility.systemCopyBuffer = QaClipboardReport.Format(includeSystem);
+            };
             copy.eventMouseDown += (c, e) =>
             {
                 _dragging = false;
@@ -700,10 +704,15 @@ namespace TrackpadCameraControl
             _nextY += Mathf.Max(FooterCopyButtonHeight, label.height + 4f);
             AddLocalCheckRow(
                 "Include system info (OS, devices)",
-                () => _includeSystemInfoInCopy,
+                () =>
+                {
+                    ModSettings copySettings = Mod.Settings;
+                    return copySettings == null || copySettings.IncludeSystemInfoInCopy;
+                },
                 v =>
                 {
-                    _includeSystemInfoInCopy = v;
+                    ModSettings copySettings = Mod.EnsureSettings();
+                    ModOptions.ApplyBool(copySettings, x => x.IncludeSystemInfoInCopy = v);
                 }
             );
         }

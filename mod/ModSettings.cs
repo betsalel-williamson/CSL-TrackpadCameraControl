@@ -87,6 +87,12 @@ namespace TrackpadCameraControl
         public bool BridgeEnabled { get; set; }
         public bool DebugOverlay { get; set; }
 
+        /// <summary>Debug panel Copy: include OS / device enumeration in clipboard report.</summary>
+        public bool IncludeSystemInfoInCopy { get; set; } = true;
+
+        /// <summary>User closed Debug panel via title-bar X; reopen chip shown when Assist on.</summary>
+        public bool DebugPanelDismissed { get; set; }
+
         /// <summary>
         /// AppleGestures = in-process AppKit (default). Contacts = in-process MultitouchSupport.
         /// Overridden by TRACKPAD_CAPTURE_BACKEND when that env var is set.
@@ -181,6 +187,8 @@ namespace TrackpadCameraControl
             DebugOverlay = other.DebugOverlay;
             CaptureBackend = other.CaptureBackend;
             ActiveFeelPresetName = other.ActiveFeelPresetName;
+            IncludeSystemInfoInCopy = other.IncludeSystemInfoInCopy;
+            DebugPanelDismissed = other.DebugPanelDismissed;
         }
 
         public static ModSettings CreateFactoryDefaults()
