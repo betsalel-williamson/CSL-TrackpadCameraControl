@@ -70,7 +70,6 @@ Related: [lint and format](./lint-and-format.md), [harnesses and testing](./harn
 | `npm run hooks:pre-commit` / `hooks:pre-push` | Same checks as husky (run manually anytime)       |
 | `npm run changeset`                           | Add a release note for releasable work            |
 | `./scripts/install-mod-local.sh`              | Build + post-build Mods deploy (Paradox Automate) |
-| `./scripts/install-mod-local.sh --symlink`    | Optional: symlink Mods DLL to bin/Release         |
 
 In-game iteration (build while game runs): [mod reload during development](./mod-reload-during-development.md).
 

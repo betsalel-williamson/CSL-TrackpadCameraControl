@@ -29,12 +29,6 @@ Requires Cities: Skylines Managed assemblies (default Steam macOS path). Overrid
 
 Restart the game after first install, or keep the game running and rebuild — post-build deploy + `AssemblyVersion` wildcards follow [Paradox Automate](https://skylines.paradoxwikis.com/Advanced_Mod_Setup#Automate) (see [mod reload during development](./mod-reload-during-development.md)). Capture uses **in-process AppKit** inside the mod DLL — there is no companion process to start. Switch to Contacts (legacy) from Options, or `TRACKPAD_CAPTURE_BACKEND=contacts`.
 
-Optional symlink instead of post-build copy:
-
-```bash
-./scripts/install-mod-local.sh --symlink
-```
-
 ## Capture log
 
 Frames and start/fail lines append to a log file so you can inspect without IPC:

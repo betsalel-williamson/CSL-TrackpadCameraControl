@@ -35,12 +35,13 @@ Do **not** put `1.0.*` wildcards on the **product** / InformationalVersion strin
    ```
 
 3. Watch Content Manager / play — the game should pick up the new assembly version.
-4. Confirm **Debug** reappears if **Show debug panel** was on (OnEnabled recreates it after Destroy; `OnLevelLoaded` alone is not enough mid-city).
-5. Footer **Built (UTC)** and **asm** must change after each rebuild.
+4. If **Show debug panel** is on, the floating **Debug** panel comes back after reload (see below). Footer **Built (UTC)** and **asm** must change after each rebuild.
 
 ## Debug UI across auto-reload
 
-Cities calls `OnDisabled` then `OnEnabled` when the assembly version changes. Disable destroys the Debug panel. Enable must recreate it when a city UI view exists — waiting for the next `OnLevelLoaded` leaves Options “Show debug panel” checked with no panel.
+When Cities reloads the assembly it runs `OnDisabled` then `OnEnabled` while the city stays loaded (`OnLevelLoaded` does not fire again).
+
+**Current behavior:** `OnEnabled` calls `TuningPanelHost.EnsureCreated()` and `ApplyVisibility()`. With **Show debug panel** on and a city UI view available, the floating Debug panel is recreated immediately — no city reload and no Options toggle required. Footer **Built (UTC)** / **asm** update with the new compile. On the main menu or early boot (no `UIView`), `EnsureCreated` fails soft and the panel appears on the next successful create path.
 
 ## Fallbacks
 
@@ -49,16 +50,6 @@ If auto-reload does not fire:
 1. Main menu → Content Manager → disable **Trackpad Camera Control** → enable again.
 2. Full game restart.
 3. If the DLL was locked during copy: disable the mod first, rebuild, then enable.
-
-## Optional symlink
-
-When you want the Mods folder to point at `bin/Release` without post-build copy:
-
-```bash
-./scripts/install-mod-local.sh --symlink
-```
-
-That sets `SkipModDeploy` and links the DLL. Prefer the default post-build copy unless you need the symlink.
 
 ## Related
 
