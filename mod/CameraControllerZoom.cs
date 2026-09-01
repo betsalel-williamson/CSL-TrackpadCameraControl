@@ -198,6 +198,12 @@ namespace TrackpadCameraControl
             _angleVelocityField.SetValue(cam, next);
         }
 
+        public void ClearPendingAngleVelocity()
+        {
+            _pendingYaw = 0f;
+            _pendingPitch = 0f;
+        }
+
         public void ClearAngleVelocity(bool yaw, bool pitch)
         {
             if (yaw)

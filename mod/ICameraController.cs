@@ -34,6 +34,9 @@ namespace TrackpadCameraControl
         /// </summary>
         void FlushPendingAngleVelocity(float deltaTimeSeconds);
 
+        /// <summary>Discard queued orbit deltas (e.g. when the game loses focus).</summary>
+        void ClearPendingAngleVelocity();
+
         /// <summary>
         /// Zero orbit angle velocity so a prior Option-orbit coast cannot keep changing
         /// heading or pitch during a two-finger <b>rotation</b> (hard handoff).

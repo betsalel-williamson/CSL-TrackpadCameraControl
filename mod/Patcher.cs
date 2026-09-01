@@ -107,7 +107,7 @@ namespace TrackpadCameraControl
     {
         public static bool Prefix()
         {
-            return !VanillaCameraSuppress.ShouldSkipScrollWheel();
+            return InputGates.ShouldRunVanillaScrollWheel();
         }
     }
 
@@ -118,9 +118,7 @@ namespace TrackpadCameraControl
 
         public static bool Prefix(CameraController __instance)
         {
-            return !VanillaCameraSuppress.ShouldSkipMouseHandler(
-                IsCameraMouseRotateHeld(__instance)
-            );
+            return InputGates.ShouldRunVanillaMouseEvents(IsCameraMouseRotateHeld(__instance));
         }
 
         /// <summary>
@@ -130,6 +128,11 @@ namespace TrackpadCameraControl
         /// </summary>
         public static void Postfix()
         {
+            if (!InputGates.ShouldFlushPendingOrbit())
+            {
+                return;
+            }
+
             try
             {
                 ICameraController camera = Mod.Pipeline != null ? Mod.Pipeline.Camera : null;

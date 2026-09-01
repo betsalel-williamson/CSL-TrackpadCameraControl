@@ -107,6 +107,12 @@ namespace TrackpadCameraControl.Tests
             PendingPitch = 0f;
         }
 
+        public void ClearPendingAngleVelocity()
+        {
+            PendingYaw = 0f;
+            PendingPitch = 0f;
+        }
+
         public void ClearAngleVelocity(bool yaw, bool pitch)
         {
             if (yaw)

@@ -204,6 +204,11 @@ namespace TrackpadCameraControl
                 return nsEvent;
             }
 
+            if (!InputGates.ShouldCaptureGestures())
+            {
+                return nsEvent;
+            }
+
             ulong type = objc_msgSend_ulong(nsEvent, sel_registerName("type"));
             ulong phase = objc_msgSend_ulong(nsEvent, sel_registerName("phase"));
             ulong mods = objc_msgSend_ulong(nsEvent, sel_registerName("modifierFlags"));
