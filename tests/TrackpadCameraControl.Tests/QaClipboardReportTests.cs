@@ -1,4 +1,3 @@
-using System.Runtime.InteropServices;
 using TrackpadCameraControl;
 using Xunit;
 
@@ -19,7 +18,7 @@ namespace TrackpadCameraControl.Tests
         }
 
         [Fact]
-        public void Format_WithSystemInfo_IncludesSystemSections()
+        public void Format_WithSystemInfo_IncludesCommonSystemSections()
         {
             string text = QaClipboardReport.Format(true);
             Assert.False(string.IsNullOrEmpty(text));
@@ -28,18 +27,13 @@ namespace TrackpadCameraControl.Tests
             Assert.DoesNotContain("CPU:", text);
             Assert.DoesNotContain("Memory:", text);
             Assert.Contains("--- Input devices ---", text);
+        }
 
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
-            {
-                // hw.model + IOKit HID enumeration require Darwin.
-                Assert.Contains("Model:", text);
-                Assert.DoesNotContain("(unable to enumerate input devices)", text);
-                Assert.DoesNotContain("(macOS input enumeration unavailable on this host)", text);
-            }
-            else
-            {
-                Assert.Contains("(macOS input enumeration unavailable on this host)", text);
-            }
+        [SkipOnMacOsFact]
+        public void Format_WithSystemInfo_OffMac_ShowsEnumerationUnavailable()
+        {
+            string text = QaClipboardReport.Format(true);
+            Assert.Contains("(macOS input enumeration unavailable on this host)", text);
         }
 
         [Fact]
@@ -48,9 +42,26 @@ namespace TrackpadCameraControl.Tests
             string text = QaClipboardReport.Format(true);
             Assert.Contains("--- Assemblies ---", text);
             Assert.Contains("TrackpadCameraControl:", text);
-            Assert.Contains("UnityEngine:", text);
             Assert.Contains("0Harmony:", text);
             Assert.Contains("CitiesHarmony.API:", text);
+        }
+
+        [Fact]
+        public void Format_WithSystemInfo_OmitsUninformativeUnityAssemblyStamps()
+        {
+            string text = QaClipboardReport.Format(true);
+            Assert.DoesNotContain("UnityEngine:", text);
+            Assert.DoesNotContain("Assembly-CSharp:", text);
+        }
+
+        [Fact]
+        public void ShouldEmitVersionLine_RejectsZeroButKeepsMissing()
+        {
+            Assert.False(QaAssemblyVersions.ShouldEmitVersionLine(null));
+            Assert.False(QaAssemblyVersions.ShouldEmitVersionLine(""));
+            Assert.True(QaAssemblyVersions.ShouldEmitVersionLine("missing"));
+            Assert.False(QaAssemblyVersions.ShouldEmitVersionLine("0.0.0.0"));
+            Assert.True(QaAssemblyVersions.ShouldEmitVersionLine("2.0.1.0"));
         }
 
         [Fact]

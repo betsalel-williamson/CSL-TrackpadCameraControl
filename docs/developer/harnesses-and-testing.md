@@ -4,12 +4,12 @@ How contributors validate Trackpad Camera Control without (and with) Cities: Sky
 
 ## Tiers
 
-| Tier                     | What it proves                                                                                  | Needs game? | Where it runs               |
-| ------------------------ | ----------------------------------------------------------------------------------------------- | ----------- | --------------------------- |
-| **Unit** (xUnit)         | Frame layout, binding resolver, camera apply with fakes; Mac-only QA probes assert under Darwin | No          | Local + CI (macOS Validate) |
-| **Native leak static**   | Pair native acquires with releases (GCHandle, CFString, devices, monitors)                      | No          | Local + CI                  |
-| **Headless e2e**         | Gesture source → resolve → apply pipeline end-to-end with fake camera                           | No          | Local + CI                  |
-| **In-game inject smoke** | Synthetic frames into the loaded mod change camera zoom                                         | Yes         | Local only                  |
+| Tier                     | What it proves                                                                                  | Needs game? | Where it runs |
+| ------------------------ | ----------------------------------------------------------------------------------------------- | ----------- | ------------- |
+| **Unit** (xUnit)         | Frame layout, binding resolver, camera apply with fakes; Mac-only QA probes assert under Darwin | No          | Local + CI    |
+| **Native leak static**   | Pair native acquires with releases (GCHandle, CFString, devices, monitors)                      | No          | Local + CI    |
+| **Headless e2e**         | Gesture source → resolve → apply pipeline end-to-end with fake camera                           | No          | Local + CI    |
+| **In-game inject smoke** | Synthetic frames into the loaded mod change camera zoom                                         | Yes         | Local only    |
 
 Real Multitouch / trackpad hardware is **not** required for CI. Hardware gestures remain a manual check on macOS with the in-process mod — follow the [QA checklist](./qa-checklist.md) after local install (see [local MVP install](./local-mvp-install.md)). During active development, prefer the [mod reload during development](./mod-reload-during-development.md) loop over a full restart when possible.
 
@@ -78,6 +78,17 @@ There is **no coverage fail gate** in CI. The csharp validate job runs CollectCo
 Include filter is the mod assembly (`TrackpadCameraControl`); the test assembly is excluded.
 
 Expect tests to cover resolver rules, wire/`GestureFrame` layout assumptions, applicator behavior against a fake zoom seam, and **native-resource pairing** (unmanaged leaks) — no Cities assemblies.
+
+### macOS-only tests
+
+Darwin integration probes (IOKit / `hw.model`) use two gates so Linux CI stays green:
+
+| Gate                | Mechanism                                                               | Example                      |
+| ------------------- | ----------------------------------------------------------------------- | ---------------------------- |
+| **Skip at runtime** | `[MacOsFact]` / `[SkipOnMacOsFact]` in `PlatformTestFacts.cs`           | Off-Mac fallback message     |
+| **Omit at compile** | `Compile Remove` in `TrackpadCameraControl.Tests.csproj` when not `OSX` | `QaClipboardReport.MacOS.cs` |
+
+Pure string formatters (`FormatModelId`, device display lines) stay cross-platform in `QaClipboardReportTests.cs`.
 
 ## Native leak static analysis
 

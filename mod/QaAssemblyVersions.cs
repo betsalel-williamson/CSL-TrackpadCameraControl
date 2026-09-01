@@ -22,8 +22,6 @@ namespace TrackpadCameraControl
                 sb.AppendLine("Unity: " + unity);
             }
 
-            AppendNamed(sb, "UnityEngine");
-            AppendNamed(sb, "Assembly-CSharp");
             AppendNamed(sb, "ICities");
             AppendNamed(sb, "CitiesHarmony.API");
             AppendNamed(sb, "0Harmony");
@@ -32,7 +30,20 @@ namespace TrackpadCameraControl
 
         private static void AppendNamed(StringBuilder sb, string simpleName)
         {
-            sb.AppendLine(simpleName + ": " + FormatAssemblyVersion(simpleName));
+            string version = FormatAssemblyVersion(simpleName);
+            if (!ShouldEmitVersionLine(version))
+            {
+                return;
+            }
+
+            sb.AppendLine(simpleName + ": " + version);
+        }
+
+        /// <summary>Omit Unity default <c>0.0.0.0</c> stamps; keep <c>missing</c> for parity checks.</summary>
+        internal static bool ShouldEmitVersionLine(string version)
+        {
+            return !string.IsNullOrEmpty(version)
+                && !string.Equals(version, "0.0.0.0", StringComparison.Ordinal);
         }
 
         /// <summary>Loaded assembly version, or <c>missing</c>.</summary>

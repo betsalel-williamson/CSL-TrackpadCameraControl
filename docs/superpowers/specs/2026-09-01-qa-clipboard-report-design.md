@@ -21,8 +21,6 @@ Trackpad: <model display> [×N]
 
 --- Assemblies ---
 Unity: <Application.unityVersion when HAS_CITIES>
-UnityEngine: <loaded asm version or missing>
-Assembly-CSharp: <…>
 ICities: <…>
 CitiesHarmony.API: <…>
 0Harmony: <…>
@@ -56,6 +54,8 @@ TrackpadCameraControl: <asm identity>
 
 - Resolve by **loaded** assembly name when possible (`AppDomain.CurrentDomain.GetAssemblies()`), else `missing`
 - Prefer `GetName().Version`; fail soft
+- Omit `UnityEngine` and `Assembly-CSharp` — Unity stamps them `0.0.0.0`; runtime is covered by `Unity:` line
+- Skip any loaded assembly whose version is exactly `0.0.0.0`; keep `missing` for whitelist entries not loaded
 - `Application.unityVersion` only under `#if HAS_CITIES`
 - Do not dump all loaded mods — whitelist above only
 
