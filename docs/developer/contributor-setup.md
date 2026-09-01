@@ -69,5 +69,6 @@ Related: [lint and format](./lint-and-format.md), [harnesses and testing](./harn
 | `npm run format` / `format:check`             | Format or verify C# / C / docs              |
 | `npm run hooks:pre-commit` / `hooks:pre-push` | Same checks as husky (run manually anytime) |
 | `npm run changeset`                           | Add a release note for releasable work      |
+| `./scripts/install-mod-local.sh --symlink`    | One-time symlink into CS1 Mods folder       |
 
-Related: [lint and format](./lint-and-format.md), [commits and releases](./commits-and-releases.md).
+In-game iteration (disable → rebuild → enable): [mod reload during development](./mod-reload-during-development.md).

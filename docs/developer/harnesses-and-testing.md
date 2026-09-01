@@ -11,7 +11,7 @@ How contributors validate Trackpad Camera Control without (and with) Cities: Sky
 | **Headless e2e**         | Gesture source → resolve → apply pipeline end-to-end with fake camera      | No          | Local + CI    |
 | **In-game inject smoke** | Synthetic frames into the loaded mod change camera zoom                    | Yes         | Local only    |
 
-Real Multitouch / trackpad hardware is **not** required for CI. Hardware gestures remain a manual check on macOS with the in-process mod — follow the [QA checklist](./qa-checklist.md) after local install (see [local MVP install](./local-mvp-install.md)).
+Real Multitouch / trackpad hardware is **not** required for CI. Hardware gestures remain a manual check on macOS with the in-process mod — follow the [QA checklist](./qa-checklist.md) after local install (see [local MVP install](./local-mvp-install.md)). During active development, prefer the [mod reload during development](./mod-reload-during-development.md) loop over a full restart when possible.
 
 To inspect Apple-classified events (scroll, magnify, rotate, swipe) without the mod, run `./scripts/apple-gesture-probe.sh` (C# `src/AppleGestureProbe`) and gesture on the probe window — see `native/mac/README.md`. No Accessibility. That probe does not emit `GestureFrame` values.
 

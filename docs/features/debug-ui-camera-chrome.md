@@ -17,8 +17,9 @@ One floating panel while a city is loaded:
 1. Window title: mod name + version. The title bar is the drag handle and hosts native Cities circular **close** and **gear** (Options) controls. Header buttons are translucent at rest and stronger on hover. Gear opens vanilla **OPTIONS**. Closing the panel (while Options still allows Debug) leaves a floating **Debug** reopen chip.
 2. Feel preset row (Slow / Default / Fast / **New Preset** when dirty, Save as… last in the dropdown, Load on select, Reset to factory).
 3. Sections in order **General → Zoom → Pan → Rotate → Orbit**. Label + Sensitivity control share one row.
-4. Chrome pads/buttons only when `EnableAssistChrome` is on.
-5. Closable via the native circular close control; development defaults may keep the panel on.
+4. Footer line: **Built (UTC)** — assembly compile timestamp (confirms the latest dev build loaded after a Content Manager reload).
+5. Chrome pads/buttons only when `EnableAssistChrome` is on.
+6. Closable via the native circular close control; development defaults may keep the panel on.
 
 ## Control contract (chrome when flagged on)
 
