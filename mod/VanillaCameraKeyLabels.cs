@@ -4,7 +4,7 @@ using System.Collections.Generic;
 namespace TrackpadCameraControl
 {
     /// <summary>
-    /// Builds op-heading copy with live keymapping labels from Cities Options bindings.
+    /// Builds op-heading copy with live gesture bindings (settings) and keymapping labels.
     /// </summary>
     internal static partial class VanillaCameraKeyLabels
     {
@@ -31,7 +31,7 @@ namespace TrackpadCameraControl
         }
 
         /// <summary>
-        /// Third op-heading line. Prefer <c>Keymapping(s): {bindings}</c>;
+        /// Keymapping line. Prefer <c>Keymapping(s): {bindings}</c>;
         /// when unbound, still name the concept (<c>Keymapping(s): none</c>).
         /// </summary>
         internal static string FormatVanillaActionLine(string bindings)
@@ -44,29 +44,76 @@ namespace TrackpadCameraControl
             return "Keymapping(s): " + bindings;
         }
 
-        private static string BuildDescription(
-            string meaning,
-            string mapsPlus,
-            string keymappingBindings
-        )
+        /// <summary>
+        /// Gesture line from a settings binding pair.
+        /// </summary>
+        internal static string FormatGestureLine(TrackpadGestureBinding binding)
         {
-            return meaning + "\n" + mapsPlus + "\n" + FormatVanillaActionLine(keymappingBindings);
+            string label = TrackpadGestureCatalog.ToDisplayLabel(binding);
+            if (string.IsNullOrEmpty(label))
+            {
+                return "Gesture(s): none";
+            }
+
+            return "Gesture(s): " + label;
         }
 
-        private static string BuildHeading(
-            string title,
+        /// <summary>
+        /// Gesture line for an op; when orbit trigger is Both, joins Maps+ and CAD orbit labels.
+        /// </summary>
+        internal static string FormatGestureLineForOp(ModSettings settings, CameraOp op)
+        {
+            if (
+                op == CameraOp.Orbit
+                && settings != null
+                && settings.OrbitTrigger == OrbitTrigger.Both
+            )
+            {
+                string a = TrackpadGestureCatalog.ToDisplayLabel(
+                    TrackpadGestureCatalog.MapsPlusOrbit
+                );
+                string b = TrackpadGestureCatalog.ToDisplayLabel(TrackpadGestureCatalog.CadOrbit);
+                string joined = JoinBindingLabels(new[] { a, b });
+                if (string.IsNullOrEmpty(joined))
+                {
+                    return "Gesture(s): none";
+                }
+
+                return "Gesture(s): " + joined;
+            }
+
+            return FormatGestureLine(TrackpadGestureCatalog.GetBinding(settings, op));
+        }
+
+        private static string BuildDescription(
             string meaning,
-            string mapsPlus,
+            string gestureLine,
             string keymappingBindings
         )
         {
-            return title + "\n" + BuildDescription(meaning, mapsPlus, keymappingBindings);
+            return meaning
+                + "\n"
+                + gestureLine
+                + "\n"
+                + FormatVanillaActionLine(keymappingBindings);
+        }
+
+        private static ModSettings LabelSettings()
+        {
+            try
+            {
+                return Mod.EnsureSettings() ?? ModSettings.CreateFactoryDefaults();
+            }
+            catch
+            {
+                return ModSettings.CreateFactoryDefaults();
+            }
         }
 
         public static string OpDescriptionZoom =>
             BuildDescription(
                 "Change camera distance / size",
-                "Pinch",
+                FormatGestureLineForOp(LabelSettings(), CameraOp.Zoom),
                 ResolveZoomVanillaBindings()
             );
 
@@ -75,7 +122,7 @@ namespace TrackpadCameraControl
         public static string OpDescriptionPan =>
             BuildDescription(
                 "Slide the camera laterally",
-                "Two-finger drag",
+                FormatGestureLineForOp(LabelSettings(), CameraOp.Pan),
                 ResolvePanVanillaBindings()
             );
 
@@ -84,7 +131,7 @@ namespace TrackpadCameraControl
         public static string OpDescriptionRotate =>
             BuildDescription(
                 "Yaw the camera or rotate a place/relocate ghost",
-                "Two-finger rotate",
+                FormatGestureLineForOp(LabelSettings(), CameraOp.Yaw),
                 ResolveRotateVanillaBindings()
             );
 
@@ -93,7 +140,7 @@ namespace TrackpadCameraControl
         public static string OpDescriptionOrbit =>
             BuildDescription(
                 "Pitch + yaw around the pivot",
-                "Option (⌥)+two-finger drag",
+                FormatGestureLineForOp(LabelSettings(), CameraOp.Orbit),
                 ResolveOrbitVanillaBindings()
             );
 

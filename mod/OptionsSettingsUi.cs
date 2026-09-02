@@ -152,11 +152,13 @@ namespace TrackpadCameraControl
             DetachOpDescriptionRefresher();
             _opDescriptionRoot = root;
             VanillaCameraKeyLabelsWatch.LabelsChanged += RefreshOpDescriptions;
+            ModOptions.SettingsChanged += RefreshOpDescriptions;
         }
 
         private static void DetachOpDescriptionRefresher()
         {
             VanillaCameraKeyLabelsWatch.LabelsChanged -= RefreshOpDescriptions;
+            ModOptions.SettingsChanged -= RefreshOpDescriptions;
             _opDescriptionRoot = null;
         }
 

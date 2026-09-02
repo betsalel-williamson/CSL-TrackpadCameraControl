@@ -41,6 +41,26 @@ namespace TrackpadCameraControl
         public bool OrbitEnabled { get; set; } = true;
         public OrbitTrigger OrbitTrigger { get; set; } = OrbitTrigger.ModifierPlusTwoFinger;
 
+        /// <summary>
+        /// Schema 7: per-op trackpad gesture bindings (composable gesture + modifier).
+        /// Seeded by Maps+/CAD <see cref="ApplyPreset"/>; no remap UI yet.
+        /// </summary>
+        public TrackpadGesture ZoomGesture { get; set; } = TrackpadGesture.Pinch;
+
+        public GestureModifierKey ZoomGestureModifier { get; set; } = GestureModifierKey.None;
+
+        public TrackpadGesture PanGesture { get; set; } = TrackpadGesture.TwoFingerDrag;
+
+        public GestureModifierKey PanGestureModifier { get; set; } = GestureModifierKey.None;
+
+        public TrackpadGesture YawGesture { get; set; } = TrackpadGesture.TwoFingerRotate;
+
+        public GestureModifierKey YawGestureModifier { get; set; } = GestureModifierKey.None;
+
+        public TrackpadGesture OrbitGesture { get; set; } = TrackpadGesture.TwoFingerDrag;
+
+        public GestureModifierKey OrbitGestureModifier { get; set; } = GestureModifierKey.Option;
+
         public float PanGainX { get; set; } = 0.005f;
         public float PanGainY { get; set; } = 0.005f;
 
@@ -137,7 +157,7 @@ namespace TrackpadCameraControl
         public string ActiveFeelPresetName { get; set; } = FeelProfiles.NameDefault;
 
         /// <summary>
-        /// Seeds orbit trigger (and related defaults) from Maps+ or CAD. Custom is a no-op.
+        /// Seeds per-op gesture bindings + orbit trigger from Maps+ or CAD. Custom is a no-op.
         /// Does not wipe custom scales or filter settings.
         /// </summary>
         public void ApplyPreset(GesturePreset preset)
@@ -150,11 +170,11 @@ namespace TrackpadCameraControl
             GesturePreset = preset;
             if (preset == GesturePreset.MapsPlus)
             {
-                OrbitTrigger = OrbitTrigger.ModifierPlusTwoFinger;
+                TrackpadGestureCatalog.ApplyMapsPlusDefaults(this);
             }
             else if (preset == GesturePreset.CAD)
             {
-                OrbitTrigger = OrbitTrigger.ThreeFinger;
+                TrackpadGestureCatalog.ApplyCadDefaults(this);
             }
         }
 
@@ -174,6 +194,15 @@ namespace TrackpadCameraControl
             YawEnabled = other.YawEnabled;
             OrbitEnabled = other.OrbitEnabled;
             OrbitTrigger = other.OrbitTrigger;
+
+            ZoomGesture = other.ZoomGesture;
+            ZoomGestureModifier = other.ZoomGestureModifier;
+            PanGesture = other.PanGesture;
+            PanGestureModifier = other.PanGestureModifier;
+            YawGesture = other.YawGesture;
+            YawGestureModifier = other.YawGestureModifier;
+            OrbitGesture = other.OrbitGesture;
+            OrbitGestureModifier = other.OrbitGestureModifier;
 
             PanGainX = other.PanGainX;
             PanGainY = other.PanGainY;

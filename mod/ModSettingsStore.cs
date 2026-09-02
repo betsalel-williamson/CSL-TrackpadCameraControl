@@ -12,6 +12,7 @@ namespace TrackpadCameraControl
     public sealed class ModSettingsStore
     {
         /// <summary>
+        /// Schema 7 persists per-op trackpad gesture bindings (Zoom/Pan/Yaw/Orbit gesture + modifier).
         /// Schema 6 renames pinch/yaw activation thresholds to PinchDeadband / YawDeadband (was PinchEpsilon / RotateEpsilon).
         /// Schema 5 adds persisted Debug panel position (DebugPanelPosX/Y).
         /// Schema 4 adds Debug QoL prefs (IncludeSystemInfoInCopy, DebugPanelDismissed).
@@ -19,7 +20,7 @@ namespace TrackpadCameraControl
         /// Schema 2 used Sensitivity / ButtonScale / Deadzone / LowPass / Invert element names.
         /// Schema 1 also used pre-scaled AppKit scroll (migrate ×0.01 into pan/orbit gain).
         /// </summary>
-        public const int CurrentSchemaVersion = 6;
+        public const int CurrentSchemaVersion = 7;
 
         /// <summary>
         /// Former AppleGestureMapper.ScrollToCentroid scale. Schema 1 used pre-scaled scroll

@@ -63,6 +63,8 @@ Used by trackpad gestures (and Assist chrome pads when `EnableAssistChrome` is o
 
 **Schema 6:** `PinchDeadband` / `YawDeadband` replace misnamed `PinchEpsilon` / `RotateEpsilon` (activation deadbands, not filter epsilon). Schema 3–5 files still load those legacy elements; save rewrites schema 6 names.
 
+**Schema 7:** Per-op trackpad gesture bindings (`ZoomGesture` / `ZoomGestureModifier`, and the same for Pan / Yaw / Orbit). Seeded by Maps+/CAD `ApplyPreset`; no remap UI yet. Missing elements load Maps+ factory defaults.
+
 **Schema 3:** XML element names move to engineering language (`*Gain*`, `*Step*`, `MotionDeadband`, `*Filter*`, `SignInvert*`). Schema 1–2 files deserialize via the legacy shape and rewrite as schema 3.
 
 **Schema 4:** Debug QoL prefs persist in `current`:
@@ -149,6 +151,23 @@ When enabled for an op under Contacts capture: first sample seeds state; later `
 | SignInvertYawRotate  | bool | false           | yes |
 
 Factory Default feel: Pan Reverse X on, Y off (playtest Maps+).
+
+## Gesture bindings (schema 7)
+
+Composable **gesture + optional modifier** per camera op. Source of truth for **Gesture(s):** op-heading lines. Defaults come from Maps+/CAD preset tables via `ApplyPreset` (no edit UI yet).
+
+| Field                | Type                    | Maps+ default   | Hot |
+| -------------------- | ----------------------- | --------------- | --- |
+| ZoomGesture          | enum TrackpadGesture    | Pinch           | yes |
+| ZoomGestureModifier  | enum GestureModifierKey | None            | yes |
+| PanGesture           | enum TrackpadGesture    | TwoFingerDrag   | yes |
+| PanGestureModifier   | enum GestureModifierKey | None            | yes |
+| YawGesture           | enum TrackpadGesture    | TwoFingerRotate | yes |
+| YawGestureModifier   | enum GestureModifierKey | None            | yes |
+| OrbitGesture         | enum TrackpadGesture    | TwoFingerDrag   | yes |
+| OrbitGestureModifier | enum GestureModifierKey | Option          | yes |
+
+CAD `ApplyPreset` keeps Zoom/Pan/Yaw the same and sets Orbit to ThreeFingerDrag + None (and syncs `OrbitTrigger`). Drag = continuous deltas; Swipe/Tap enum values are catalog stubs for future ports.
 
 ## Thresholds
 
