@@ -34,7 +34,7 @@ Maintainer and community reports. Prefer Workshop comments or a GitHub issue tit
 - [ ] Trackpad Camera Control enabled in Content Manager
 - [ ] City loaded (not menus-only)
 - [ ] Game window focused
-- [ ] Cold boot → load city: no OS hardware cursor overlaying the in-game cursor; one-finger tools work without alt-tab first
+- [ ] Cold boot → load city: no OS hardware cursor overlaying the in-game cursor; one-finger tools work without alt-tab first. (Mod hardens with AppKit activate + key-window + short cursor re-hide; residual dual-cursor after that → known CS1/Unity Mac quirk, alt-tab workaround.)
 - [ ] Fresh city load: pan, pinch, rotate, and Option-orbit work without opening Debug panel or Options
 - [ ] Debug panel **Reset** restores Default preset while panel stays open
 - [ ] Maps+ / Default feel (Options or Debug panel)

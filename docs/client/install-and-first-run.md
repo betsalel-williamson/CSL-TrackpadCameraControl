@@ -37,7 +37,7 @@ Shipped capture is **AppleKit** with [Maps+](../glossary/maps-plus-preset.md) ge
 
 1. Subscribe and enable **Cities Harmony**.
 2. Enable **Trackpad Camera Control** in Content Manager.
-3. Load a city or start a new game. The mod activates game focus on load so the OS cursor should not sit over the in-game cursor — if tools misclick until you alt-tab once, report it (`docs/developer/qa-checklist.md`, Setup — cold boot row).
+3. Load a city or start a new game. On load the mod activates the game (`NSApplication` + key window) and briefly re-hides the OS cursor so it should not sit over the in-game cursor. If tools still misclick until you alt-tab once, that is a known CS1/Unity Mac focus quirk — report it (`docs/developer/qa-checklist.md`, Setup — cold boot row).
 4. Within a few seconds of the city appearing, with the game focused, try two-finger drag (pan), pinch (zoom), two-finger rotate (yaw / rotate selection), and Option (`⌥`)+two-finger drag (orbit). Trackpad pan should not also vanilla-zoom; a real mouse wheel should still zoom. If you use a mouse, middle-click drag should still orbit the camera while trackpad gestures are active.
 5. You do not need to open the Debug panel or Options first — gestures work out of the box; the Debug panel is optional for live tuning (factory default off).
 6. Open Options → Trackpad Camera Control to adjust Sensitivity sliders or Slow / Default / Fast from the feel dropdown. Orbit pitch matches the game **0–90°**.
