@@ -23,7 +23,7 @@ Give trackpad players the same camera fluency mouse users get from middle-mouse 
 | Two-finger rotate            | **Rotation** (not orbit yaw): camera heading or place/relocate ghost — see [yaw](../glossary/yaw.md) / [selection-aware gestures](./selection-aware-gestures.md). Does not use the orbit velocity channel. Starting rotation clears leftover orbit coast (hard handoff).                       |
 | Option (`⌥`)+two-finger drag | [Orbit](../glossary/orbit.md) from **current** look-at (**orbit yaw** + pitch via velocity), including during place/relocate (no Target re-home). Pitch follows vanilla **0°–90°** (floors at 0). No yaw angle clamp. With Option held, two-finger rotate is ignored (orbit owns the contact). |
 
-CAD three-finger orbit is a **future** gesture style (not a v1 player choice). Schema and experimental compile flags may still retain it — see [feature flags](../developer/feature-flags.md).
+CAD three-finger orbit is a **future** gesture style (not a v1 player choice). Schema and experimental compile flags may still retain it — see [product flags ADR](./adr/0003-feel-profiles-and-product-flags.md).
 
 ## Resolve mode and orbit latch
 

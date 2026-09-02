@@ -36,6 +36,7 @@
       ".tmp/**",
       ".specstory/**",
       ".agents/**",
+      ".probe/**",
       "docs/superpowers/**",
       ".probe/**",
       ".worktrees/**",

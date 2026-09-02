@@ -13,7 +13,7 @@ No feel or binding parameter is hardcoded in camera or gesture logic. Defaults e
 
 One binding layer parses, rounds gains to three decimals (button steps to two), validates Options Sensitivity against the slider contract on player drag, and writes fields. A change on either surface updates live settings immediately and schedules a durable write (autosave).
 
-Debug chrome pads/buttons and button-step fields appear only when `EnableAssistChrome` is on. Capture-backend picker and [low-pass](../glossary/low-pass.md) appear only when `EnableContactsCapture` is on. A CAD / Maps+ gesture-style switcher is **future** (not a v1 player surface); experimental builds may compile it via `EnableCadGestureStyle`. See [feature flags](./adr/0003-feel-profiles-and-product-flags.md).
+Debug chrome pads/buttons and button-step fields appear only when `EnableAssistChrome` is on. Capture-backend picker and [low-pass](../glossary/low-pass.md) appear only when `EnableContactsCapture` is on. A CAD / Maps+ gesture-style switcher is **future** (not a v1 player surface); experimental builds may compile it via `EnableCadGestureStyle`. See [feel profiles and product flags](./adr/0003-feel-profiles-and-product-flags.md).
 
 ## Layout (contract)
 
