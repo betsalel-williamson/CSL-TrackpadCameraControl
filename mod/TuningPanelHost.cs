@@ -444,6 +444,9 @@ namespace TrackpadCameraControl
             _feelNameField.hoveredBgSprite = "TextFieldPanelHovered";
             _feelNameField.focusedBgSprite = "TextFieldPanel";
             _feelNameField.selectionSprite = "EmptySprite";
+            // Colossal UIHorizontalAlignment has Left/Center/Right only (no Start/RTL).
+            // Default UITextField text is centered; LTR should be left (start) aligned.
+            _feelNameField.horizontalAlignment = UIHorizontalAlignment.Left;
             _feelNameField.text = "";
             _feelNameField.selectOnFocus = true;
             _feelNameField.isInteractive = true;

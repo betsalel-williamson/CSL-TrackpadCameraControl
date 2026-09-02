@@ -293,7 +293,7 @@ namespace TrackpadCameraControl
             );
 
             // Name field for Save as… (dropdown last entry cannot collect a new name alone).
-            group.AddTextfield(
+            object presetNameCreated = group.AddTextfield(
                 "Preset name",
                 "",
                 text =>
@@ -305,6 +305,12 @@ namespace TrackpadCameraControl
                     saveAsName[0] = text ?? "";
                 }
             );
+            UITextField presetNameField = presetNameCreated as UITextField;
+            if (presetNameField != null)
+            {
+                // Match Debug feel name: start-aligned for LTR (Colossal has no RTL Start).
+                presetNameField.horizontalAlignment = UIHorizontalAlignment.Left;
+            }
             group.AddButton(
                 "Save as…",
                 () =>
