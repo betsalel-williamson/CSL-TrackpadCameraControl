@@ -194,6 +194,30 @@ namespace TrackpadCameraControl.Tests
         }
 
         [Fact]
+        public void SuggestFeelSaveAsName_FromDirtyNewPreset_UsesNextNumberedSeries()
+        {
+            OpenStoreWithLive(out ModSettings live);
+            Assert.Equal("New Preset 1", ModOptions.NextNumberedNewPresetName());
+
+            ModOptions.ApplyPanGainX(live, 0.80f);
+            Assert.Equal("New Preset 1", ModOptions.SuggestFeelSaveAsName(live));
+
+            Assert.True(ModOptions.SaveNamedFeelPreset(live, "New Preset 1"));
+            ModOptions.ApplyPanGainX(live, 0.70f);
+            Assert.Equal(FeelProfiles.NameNewPreset, live.ActiveFeelPresetName);
+            Assert.Equal("New Preset 2", ModOptions.SuggestFeelSaveAsName(live));
+        }
+
+        [Fact]
+        public void SuggestFeelSaveAsName_FromNamedPreset_OffersOverwrite()
+        {
+            OpenStoreWithLive(out ModSettings live);
+            ModOptions.ApplyPanGainX(live, 0.80f);
+            Assert.True(ModOptions.SaveNamedFeelPreset(live, "CityCruise"));
+            Assert.Equal("CityCruise", ModOptions.SuggestFeelSaveAsName(live));
+        }
+
+        [Fact]
         public void AfterSaveAs_FurtherEdit_DirtiesToNewPresetAgain()
         {
             OpenStoreWithLive(out ModSettings live);

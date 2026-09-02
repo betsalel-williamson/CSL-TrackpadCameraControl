@@ -77,8 +77,7 @@ namespace TrackpadCameraControl
 
             field.submitOnFocusLost = true;
             field.canFocus = true;
-            // We own Tab; Colossal builtin would also move focus and skip a stop.
-            field.builtinKeyNavigation = false;
+            // Keep builtinKeyNavigation on so digits/keypad still insert; we only Use() Tab/Enter.
             if (includeInTabOrder)
             {
                 RegisterTabStop(field, tabScope);

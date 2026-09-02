@@ -22,8 +22,6 @@ namespace TrackpadCameraControl
 
             component.canFocus = true;
             component.tabIndex = _nextTabIndex++;
-            // Tab cycling is owned by NumericTextFieldUi; builtin would double-advance.
-            component.builtinKeyNavigation = false;
         }
 
         private static void WireTextFieldSubmit(

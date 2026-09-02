@@ -767,6 +767,68 @@ namespace TrackpadCameraControl
             return Store.ListUserPresetNames();
         }
 
+        /// <summary>
+        /// Suggested Save as… name: overwrite the active named preset, otherwise the next
+        /// unused <c>New Preset N</c> (N starts at 1).
+        /// </summary>
+        public static string SuggestFeelSaveAsName(ModSettings settings)
+        {
+            if (
+                settings != null
+                && !string.IsNullOrEmpty(settings.ActiveFeelPresetName)
+                && !FeelProfiles.IsBuiltInName(settings.ActiveFeelPresetName)
+                && !string.Equals(
+                    settings.ActiveFeelPresetName,
+                    FeelProfiles.NameNewPreset,
+                    StringComparison.Ordinal
+                )
+            )
+            {
+                return settings.ActiveFeelPresetName;
+            }
+
+            return NextNumberedNewPresetName();
+        }
+
+        /// <summary>Next unused name in the series New Preset 1, New Preset 2, …</summary>
+        public static string NextNumberedNewPresetName()
+        {
+            string prefix = FeelProfiles.NameNewPreset + " ";
+            int max = 0;
+            string[] named = ListNamedFeelPresetNames();
+            if (named != null)
+            {
+                for (int i = 0; i < named.Length; i++)
+                {
+                    string name = named[i];
+                    if (
+                        string.IsNullOrEmpty(name)
+                        || !name.StartsWith(prefix, StringComparison.Ordinal)
+                    )
+                    {
+                        continue;
+                    }
+
+                    string rest = name.Substring(prefix.Length);
+                    int n;
+                    if (
+                        int.TryParse(
+                            rest,
+                            NumberStyles.Integer,
+                            CultureInfo.InvariantCulture,
+                            out n
+                        )
+                        && n > max
+                    )
+                    {
+                        max = n;
+                    }
+                }
+            }
+
+            return prefix + (max + 1).ToString(CultureInfo.InvariantCulture);
+        }
+
         /// <summary>True when the active feel identity is the dirty New Preset scratch slot.</summary>
         public static bool IsFeelDirtyNewPreset(ModSettings settings)
         {

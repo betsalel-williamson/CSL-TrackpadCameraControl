@@ -32,7 +32,7 @@ Built-ins (**Slow**, **Default**, **Fast**) are **immutable** — the mod never 
 
 Selecting an entry in the dropdown **loads** that profile immediately.
 
-If you edit while a built-in (or any named preset) is active, the active identity becomes **New Preset** and the change **autosaves** there. **Save as…** (next to Reset on Debug; in Options General) becomes **enabled** when you are on New Preset. Click it to open a name dialog (editable name, Cancel / OK). You cannot save as Slow / Default / Fast; saving over another named preset replaces it without a confirm. Cancel leaves New Preset unsaved as a named profile. Named profiles persist with your other mod settings across quit.
+If you edit while a built-in (or any named preset) is active, the active identity becomes **New Preset** and the change **autosaves** there (Options and Debug dropdowns update live). **Save as…** (next to Reset on Debug; in Options General) becomes **enabled** when you are on New Preset. Click it to open a name dialog prefilled with the next free **New Preset 1**, **New Preset 2**, … (or the current named preset if you dirty a named profile). Type or edit the name, then Cancel / OK. You cannot save as Slow / Default / Fast; saving over another named preset replaces it without a confirm. Cancel leaves New Preset unsaved as a named profile. Named profiles persist with your other mod settings across quit.
 
 ## Reset to factory
 

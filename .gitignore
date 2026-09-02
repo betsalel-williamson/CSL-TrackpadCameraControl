@@ -16,6 +16,7 @@ native/mac/AppleGestureProbe
 .env.*
 !.env.example
 .tmp/
+.tmp-*/
 .caches/
 .worktrees/
 .specstory/

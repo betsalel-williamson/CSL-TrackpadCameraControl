@@ -24,7 +24,11 @@ namespace TrackpadCameraControl
     internal static class OptionsSettingsUi
     {
         private static readonly List<Action> SensitivitySliderRefreshes = new List<Action>(8);
-        private static Action _saveAsEnabledSync;
+        private static Action _feelPresetSync;
+        private static UIDropDown _feelPresetDropdown;
+        private static string[] _feelPresetDropdownItems;
+        private static UIButton _saveAsButton;
+        private static bool _feelPresetDropdownSyncing;
 
         public static void Build(UIHelperBase helper, ModSettings s)
         {
@@ -34,6 +38,7 @@ namespace TrackpadCameraControl
             }
 
             SensitivitySliderRefreshes.Clear();
+            DetachFeelPresetSync();
 
             ModSettings factory = ModSettings.CreateFactoryDefaults();
 
@@ -299,47 +304,94 @@ namespace TrackpadCameraControl
                     )
             );
 
-            string[] presetLabels = ModOptions.GetFeelPresetDropdownItems(s);
+            _feelPresetDropdownItems = ModOptions.GetFeelPresetDropdownItems(s);
 
-            group.AddDropdown(
+            object dropdownCreated = group.AddDropdown(
                 "Feel preset",
-                presetLabels,
-                ModOptions.IndexOfFeelPresetDropdownItem(presetLabels, s.ActiveFeelPresetName),
+                _feelPresetDropdownItems,
+                ModOptions.IndexOfFeelPresetDropdownItem(
+                    _feelPresetDropdownItems,
+                    s.ActiveFeelPresetName
+                ),
                 sel =>
                 {
-                    if (sel < 0 || sel >= presetLabels.Length)
+                    if (_feelPresetDropdownSyncing)
                     {
                         return;
                     }
 
-                    ModOptions.ApplyFeelPresetDropdownChoice(s, presetLabels[sel]);
+                    if (
+                        _feelPresetDropdownItems == null
+                        || sel < 0
+                        || sel >= _feelPresetDropdownItems.Length
+                    )
+                    {
+                        return;
+                    }
+
+                    ModOptions.ApplyFeelPresetDropdownChoice(s, _feelPresetDropdownItems[sel]);
                 }
             );
+            _feelPresetDropdown = dropdownCreated as UIDropDown;
 
             object saveAsCreated = group.AddButton(
                 "Save as…",
                 () =>
                 {
-                    FeelSaveAsDialog.Show(s, null);
+                    FeelSaveAsDialog.Show(Mod.EnsureSettings() ?? s, null);
                 }
             );
-            UIButton saveAsButton = saveAsCreated as UIButton;
-            if (saveAsButton != null)
-            {
-                if (_saveAsEnabledSync != null)
-                {
-                    ModOptions.SettingsChanged -= _saveAsEnabledSync;
-                }
+            _saveAsButton = saveAsCreated as UIButton;
+            AttachFeelPresetSync();
+            RefreshFeelPresetControls();
+        }
 
-                _saveAsEnabledSync = () =>
+        private static void DetachFeelPresetSync()
+        {
+            if (_feelPresetSync != null)
+            {
+                ModOptions.SettingsChanged -= _feelPresetSync;
+                _feelPresetSync = null;
+            }
+        }
+
+        private static void AttachFeelPresetSync()
+        {
+            DetachFeelPresetSync();
+            _feelPresetSync = RefreshFeelPresetControls;
+            ModOptions.SettingsChanged += _feelPresetSync;
+        }
+
+        private static void RefreshFeelPresetControls()
+        {
+            ModSettings live = Mod.Settings;
+            if (live == null)
+            {
+                return;
+            }
+
+            if (_feelPresetDropdown != null)
+            {
+                string[] items = ModOptions.GetFeelPresetDropdownItems(live);
+                _feelPresetDropdownItems = items;
+                _feelPresetDropdownSyncing = true;
+                try
                 {
-                    if (saveAsButton != null)
-                    {
-                        saveAsButton.isEnabled = ModOptions.IsFeelDirtyNewPreset(Mod.Settings ?? s);
-                    }
-                };
-                saveAsButton.isEnabled = ModOptions.IsFeelDirtyNewPreset(s);
-                ModOptions.SettingsChanged += _saveAsEnabledSync;
+                    _feelPresetDropdown.items = items;
+                    _feelPresetDropdown.selectedIndex = ModOptions.IndexOfFeelPresetDropdownItem(
+                        items,
+                        live.ActiveFeelPresetName
+                    );
+                }
+                finally
+                {
+                    _feelPresetDropdownSyncing = false;
+                }
+            }
+
+            if (_saveAsButton != null)
+            {
+                _saveAsButton.isEnabled = ModOptions.IsFeelDirtyNewPreset(live);
             }
         }
 
