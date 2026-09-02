@@ -43,7 +43,7 @@ namespace TrackpadCameraControl
         public bool AssistUiEnabled { get; set; } = false;
         public bool PanEnabled { get; set; } = true;
         public bool ZoomEnabled { get; set; } = true;
-        public bool YawEnabled { get; set; } = true;
+        public bool RotateEnabled { get; set; } = true;
         public bool OrbitEnabled { get; set; } = true;
         public OrbitTrigger OrbitTrigger { get; set; } = OrbitTrigger.ModifierPlusTwoFinger;
 
@@ -94,7 +94,7 @@ namespace TrackpadCameraControl
         public float OrbitYawGain { get; set; } = 1.00f;
         public float OrbitPitchGain { get; set; } = 1.00f;
         public float ZoomGain { get; set; } = 1.00f;
-        public float YawRotateGain { get; set; } = 2.00f;
+        public float RotateGain { get; set; } = 2.00f;
 
         /// <summary>Schema-retained; orbit clamp uses vanilla 0…90 (see CameraApplicator).</summary>
         public float OrbitPitchMin { get; set; } = 0f;
@@ -107,14 +107,14 @@ namespace TrackpadCameraControl
         public float OrbitYawStep { get; set; } = 2f;
         public float OrbitPitchStep { get; set; } = 2f;
         public float ZoomStep { get; set; } = 0.05f;
-        public float YawRotateStep { get; set; } = 2f;
+        public float RotateStep { get; set; } = 2f;
 
         public bool SignInvertPanX { get; set; } = true;
         public bool SignInvertPanY { get; set; }
         public bool SignInvertOrbitYaw { get; set; }
         public bool SignInvertOrbitPitch { get; set; }
         public bool SignInvertZoom { get; set; }
-        public bool SignInvertYawRotate { get; set; }
+        public bool SignInvertRotate { get; set; }
 
         /// <summary>Centroid |delta| activation threshold (pan / orbit drag); not low-pass filter alpha.</summary>
         public float MotionDeadband { get; set; } = 0.001f;
@@ -123,7 +123,7 @@ namespace TrackpadCameraControl
         public float PinchDeadband { get; set; } = 0.001f;
 
         /// <summary>Twist rotate-delta activation threshold (Rotate op); not low-pass filter alpha.</summary>
-        public float YawDeadband { get; set; } = 0.001f;
+        public float RotateDeadband { get; set; } = 0.001f;
 
         /// <summary>Schema 3–5 XML: former <c>PinchEpsilon</c> element (deserialize only).</summary>
         [XmlElement("PinchEpsilon")]
@@ -139,11 +139,81 @@ namespace TrackpadCameraControl
         [XmlElement("RotateEpsilon")]
         public float RotateEpsilonXml
         {
-            set => YawDeadband = value;
+            set => RotateDeadband = value;
             get => 0f;
         }
 
         public bool ShouldSerializeRotateEpsilonXml() => false;
+
+        /// <summary>Schema 3–8 XML: former <c>YawDeadband</c> element (deserialize only).</summary>
+        [XmlElement("YawDeadband")]
+        public float YawDeadbandXml
+        {
+            set => RotateDeadband = value;
+            get => 0f;
+        }
+
+        public bool ShouldSerializeYawDeadbandXml() => false;
+
+        /// <summary>Schema 3–8 XML: former <c>YawEnabled</c> element (deserialize only).</summary>
+        [XmlElement("YawEnabled")]
+        public bool YawEnabledXml
+        {
+            set => RotateEnabled = value;
+            get => false;
+        }
+
+        public bool ShouldSerializeYawEnabledXml() => false;
+
+        /// <summary>Schema 3–8 XML: former <c>YawRotateGain</c> element (deserialize only).</summary>
+        [XmlElement("YawRotateGain")]
+        public float YawRotateGainXml
+        {
+            set => RotateGain = value;
+            get => 0f;
+        }
+
+        public bool ShouldSerializeYawRotateGainXml() => false;
+
+        /// <summary>Schema 3–8 XML: former <c>YawRotateStep</c> element (deserialize only).</summary>
+        [XmlElement("YawRotateStep")]
+        public float YawRotateStepXml
+        {
+            set => RotateStep = value;
+            get => 0f;
+        }
+
+        public bool ShouldSerializeYawRotateStepXml() => false;
+
+        /// <summary>Schema 3–8 XML: former <c>SignInvertYawRotate</c> element (deserialize only).</summary>
+        [XmlElement("SignInvertYawRotate")]
+        public bool SignInvertYawRotateXml
+        {
+            set => SignInvertRotate = value;
+            get => false;
+        }
+
+        public bool ShouldSerializeSignInvertYawRotateXml() => false;
+
+        /// <summary>Schema 3–8 XML: former <c>YawFilterEnabled</c> element (deserialize only).</summary>
+        [XmlElement("YawFilterEnabled")]
+        public bool YawFilterEnabledXml
+        {
+            set => RotateFilterEnabled = value;
+            get => false;
+        }
+
+        public bool ShouldSerializeYawFilterEnabledXml() => false;
+
+        /// <summary>Schema 3–8 XML: former <c>YawFilterAlpha</c> element (deserialize only).</summary>
+        [XmlElement("YawFilterAlpha")]
+        public float YawFilterAlphaXml
+        {
+            set => RotateFilterAlpha = value;
+            get => 0f;
+        }
+
+        public bool ShouldSerializeYawFilterAlphaXml() => false;
 
         public float FingerCountHysteresis { get; set; } = 0.05f;
 
@@ -151,8 +221,8 @@ namespace TrackpadCameraControl
         public float PanFilterAlpha { get; set; } = 0.3f;
         public bool ZoomFilterEnabled { get; set; }
         public float ZoomFilterAlpha { get; set; } = 0.3f;
-        public bool YawFilterEnabled { get; set; }
-        public float YawFilterAlpha { get; set; } = 0.3f;
+        public bool RotateFilterEnabled { get; set; }
+        public float RotateFilterAlpha { get; set; } = 0.3f;
         public bool OrbitFilterEnabled { get; set; }
         public float OrbitFilterAlpha { get; set; } = 0.3f;
 
@@ -226,7 +296,7 @@ namespace TrackpadCameraControl
             AssistUiEnabled = other.AssistUiEnabled;
             PanEnabled = other.PanEnabled;
             ZoomEnabled = other.ZoomEnabled;
-            YawEnabled = other.YawEnabled;
+            RotateEnabled = other.RotateEnabled;
             OrbitEnabled = other.OrbitEnabled;
             OrbitTrigger = other.OrbitTrigger;
 
@@ -244,7 +314,7 @@ namespace TrackpadCameraControl
             OrbitYawGain = other.OrbitYawGain;
             OrbitPitchGain = other.OrbitPitchGain;
             ZoomGain = other.ZoomGain;
-            YawRotateGain = other.YawRotateGain;
+            RotateGain = other.RotateGain;
 
             OrbitPitchMin = other.OrbitPitchMin;
             OrbitPitchMax = other.OrbitPitchMax;
@@ -254,26 +324,26 @@ namespace TrackpadCameraControl
             OrbitYawStep = other.OrbitYawStep;
             OrbitPitchStep = other.OrbitPitchStep;
             ZoomStep = other.ZoomStep;
-            YawRotateStep = other.YawRotateStep;
+            RotateStep = other.RotateStep;
 
             SignInvertPanX = other.SignInvertPanX;
             SignInvertPanY = other.SignInvertPanY;
             SignInvertOrbitYaw = other.SignInvertOrbitYaw;
             SignInvertOrbitPitch = other.SignInvertOrbitPitch;
             SignInvertZoom = other.SignInvertZoom;
-            SignInvertYawRotate = other.SignInvertYawRotate;
+            SignInvertRotate = other.SignInvertRotate;
 
             MotionDeadband = other.MotionDeadband;
             PinchDeadband = other.PinchDeadband;
-            YawDeadband = other.YawDeadband;
+            RotateDeadband = other.RotateDeadband;
             FingerCountHysteresis = other.FingerCountHysteresis;
 
             PanFilterEnabled = other.PanFilterEnabled;
             PanFilterAlpha = other.PanFilterAlpha;
             ZoomFilterEnabled = other.ZoomFilterEnabled;
             ZoomFilterAlpha = other.ZoomFilterAlpha;
-            YawFilterEnabled = other.YawFilterEnabled;
-            YawFilterAlpha = other.YawFilterAlpha;
+            RotateFilterEnabled = other.RotateFilterEnabled;
+            RotateFilterAlpha = other.RotateFilterAlpha;
             OrbitFilterEnabled = other.OrbitFilterEnabled;
             OrbitFilterAlpha = other.OrbitFilterAlpha;
 

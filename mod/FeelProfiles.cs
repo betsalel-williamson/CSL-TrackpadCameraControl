@@ -84,7 +84,7 @@ namespace TrackpadCameraControl
 
             dest.PanEnabled = source.PanEnabled;
             dest.ZoomEnabled = source.ZoomEnabled;
-            dest.YawEnabled = source.YawEnabled;
+            dest.RotateEnabled = source.RotateEnabled;
             dest.OrbitEnabled = source.OrbitEnabled;
 
             dest.SignInvertPanX = source.SignInvertPanX;
@@ -92,12 +92,12 @@ namespace TrackpadCameraControl
             dest.SignInvertOrbitYaw = source.SignInvertOrbitYaw;
             dest.SignInvertOrbitPitch = source.SignInvertOrbitPitch;
             dest.SignInvertZoom = source.SignInvertZoom;
-            dest.SignInvertYawRotate = source.SignInvertYawRotate;
+            dest.SignInvertRotate = source.SignInvertRotate;
 
             dest.PanGainX = source.PanGainX;
             dest.PanGainY = source.PanGainY;
             dest.ZoomGain = source.ZoomGain;
-            dest.YawRotateGain = source.YawRotateGain;
+            dest.RotateGain = source.RotateGain;
             dest.OrbitYawGain = source.OrbitYawGain;
             dest.OrbitPitchGain = source.OrbitPitchGain;
 
@@ -106,7 +106,7 @@ namespace TrackpadCameraControl
 
             dest.MotionDeadband = source.MotionDeadband;
             dest.PinchDeadband = source.PinchDeadband;
-            dest.YawDeadband = source.YawDeadband;
+            dest.RotateDeadband = source.RotateDeadband;
         }
 
         /// <summary>Snapshot feel fields into a new ModSettings instance.</summary>
@@ -133,7 +133,7 @@ namespace TrackpadCameraControl
             settings.PanGainX = ModOptions.RoundGain(factory.PanGainX * multiplier);
             settings.PanGainY = ModOptions.RoundGain(factory.PanGainY * multiplier);
             settings.ZoomGain = ModOptions.RoundGain(factory.ZoomGain * multiplier);
-            settings.YawRotateGain = ModOptions.RoundGain(factory.YawRotateGain * multiplier);
+            settings.RotateGain = ModOptions.RoundGain(factory.RotateGain * multiplier);
             settings.OrbitYawGain = ModOptions.RoundGain(factory.OrbitYawGain * multiplier);
             settings.OrbitPitchGain = ModOptions.RoundGain(factory.OrbitPitchGain * multiplier);
 
@@ -142,7 +142,7 @@ namespace TrackpadCameraControl
             settings.SignInvertOrbitYaw = factory.SignInvertOrbitYaw;
             settings.SignInvertOrbitPitch = factory.SignInvertOrbitPitch;
             settings.SignInvertZoom = factory.SignInvertZoom;
-            settings.SignInvertYawRotate = factory.SignInvertYawRotate;
+            settings.SignInvertRotate = factory.SignInvertRotate;
 
             settings.OrbitPitchMin = factory.OrbitPitchMin;
             settings.OrbitPitchMax = factory.OrbitPitchMax;

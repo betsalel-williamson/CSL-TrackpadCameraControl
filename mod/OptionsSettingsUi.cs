@@ -99,16 +99,16 @@ namespace TrackpadCameraControl
                 "Rotate",
                 ModOptions.OpDescriptionRotate,
                 "Sensitivity",
-                s.YawRotateGain,
-                factory.YawRotateGain,
-                ModOptions.ApplyYawRotateGain,
+                s.RotateGain,
+                factory.RotateGain,
+                ModOptions.ApplyRotateGain,
                 "Button step",
-                s.YawRotateStep,
-                ModOptions.ApplyYawRotateStep,
-                s.YawFilterEnabled,
-                v => ModOptions.ApplyBool(s, x => x.YawFilterEnabled = v),
-                s.YawFilterAlpha,
-                ModOptions.ApplyYawFilterAlpha
+                s.RotateStep,
+                ModOptions.ApplyRotateStep,
+                s.RotateFilterEnabled,
+                v => ModOptions.ApplyBool(s, x => x.RotateFilterEnabled = v),
+                s.RotateFilterAlpha,
+                ModOptions.ApplyRotateFilterAlpha
             );
 
             BuildOpGroup(

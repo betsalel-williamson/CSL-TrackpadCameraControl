@@ -96,7 +96,7 @@ namespace TrackpadCameraControl
 
             if ((ops & CameraOp.Rotate) != 0)
             {
-                rotate = rotateSign * settings.YawRotateStep;
+                rotate = rotateSign * settings.RotateStep;
             }
 
             Apply(ops, dx, dy, pinch, rotate, settings, camera, InputModality.Button, null);
@@ -157,7 +157,7 @@ namespace TrackpadCameraControl
 
             if ((ops & CameraOp.Rotate) != 0)
             {
-                ApplyYawRotate(rotateDelta, settings, camera, modality, selection);
+                ApplyRotate(rotateDelta, settings, camera, modality, selection);
             }
         }
 
@@ -310,7 +310,7 @@ namespace TrackpadCameraControl
         /// Hard handoff: clears leftover orbit yaw+pitch velocity so prior Option-orbit coast
         /// cannot bleed into the twist.
         /// </summary>
-        private static void ApplyYawRotate(
+        private static void ApplyRotate(
             float rotateDelta,
             ModSettings settings,
             ICameraController camera,
@@ -319,10 +319,8 @@ namespace TrackpadCameraControl
         )
         {
             float delta =
-                modality == InputModality.Button
-                    ? rotateDelta
-                    : rotateDelta * settings.YawRotateGain;
-            if (settings.SignInvertYawRotate)
+                modality == InputModality.Button ? rotateDelta : rotateDelta * settings.RotateGain;
+            if (settings.SignInvertRotate)
             {
                 delta = -delta;
             }

@@ -116,7 +116,7 @@ namespace TrackpadCameraControl
             // Shipped section order: Zoom → Pan → Rotate → Orbit (feel presets = General above).
             BuildZoomSection(s);
             BuildPanSection(s);
-            BuildYawSection(s);
+            BuildRotateSection(s);
             BuildOrbitSection(s);
 
             AddBuildInfoFooter();
@@ -660,26 +660,26 @@ namespace TrackpadCameraControl
             );
         }
 
-        private static void BuildYawSection(ModSettings s)
+        private static void BuildRotateSection(ModSettings s)
         {
             AddOpHeading(() => ModOptions.OpHeadingRotate);
 #if ENABLE_ASSIST_CHROME
             AddFloatPair(
                 s,
                 "Sensitivity",
-                () => s.YawRotateGain,
-                ModOptions.ApplyYawRotateGain,
+                () => s.RotateGain,
+                ModOptions.ApplyRotateGain,
                 "Btn",
-                () => s.YawRotateStep,
-                ModOptions.ApplyYawRotateStep,
+                () => s.RotateStep,
+                ModOptions.ApplyRotateStep,
                 gainFormatL: true
             );
 #else
             AddFloatPair(
                 s,
                 "Sensitivity",
-                () => s.YawRotateGain,
-                ModOptions.ApplyYawRotateGain,
+                () => s.RotateGain,
+                ModOptions.ApplyRotateGain,
                 null,
                 null,
                 null,
@@ -690,8 +690,8 @@ namespace TrackpadCameraControl
 #if ENABLE_CONTACTS_CAPTURE
             AddCheckRow(
                 s,
-                () => s.YawFilterEnabled,
-                v => s.YawFilterEnabled = v,
+                () => s.RotateFilterEnabled,
+                v => s.RotateFilterEnabled = v,
                 "Low-pass",
                 null,
                 null,
@@ -700,8 +700,8 @@ namespace TrackpadCameraControl
             AddFloatPair(
                 s,
                 "LP α",
-                () => s.YawFilterAlpha,
-                ModOptions.ApplyYawFilterAlpha,
+                () => s.RotateFilterAlpha,
+                ModOptions.ApplyRotateFilterAlpha,
                 null,
                 null,
                 null
@@ -710,8 +710,8 @@ namespace TrackpadCameraControl
             AddFloatPair(
                 s,
                 "Deadband",
-                () => s.YawDeadband,
-                ModOptions.ApplyYawDeadband,
+                () => s.RotateDeadband,
+                ModOptions.ApplyRotateDeadband,
                 null,
                 null,
                 null,

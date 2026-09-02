@@ -55,7 +55,7 @@ namespace TrackpadCameraControl.Tests
                 Assert.Equal(0.12f, loaded.OrbitYawGain);
                 Assert.Equal(0.11f, loaded.OrbitPitchGain);
                 Assert.Equal(1.5f, loaded.ZoomGain);
-                Assert.Equal(2.5f, loaded.YawRotateGain);
+                Assert.Equal(2.5f, loaded.RotateGain);
                 Assert.Equal(0.07f, loaded.PanStepX);
                 Assert.Equal(0.2f, loaded.MotionDeadband);
                 Assert.False(loaded.SignInvertPanX);
@@ -197,7 +197,7 @@ namespace TrackpadCameraControl.Tests
                 ModSettings loaded = store.LoadOrFactory();
 
                 Assert.Equal(0.042f, loaded.PinchDeadband);
-                Assert.Equal(0.017f, loaded.YawDeadband);
+                Assert.Equal(0.017f, loaded.RotateDeadband);
                 Assert.Equal(0.003f, loaded.MotionDeadband);
 
                 string rewritten = File.ReadAllText(path);
@@ -206,7 +206,7 @@ namespace TrackpadCameraControl.Tests
                     rewritten
                 );
                 Assert.Contains("<PinchDeadband>0.042</PinchDeadband>", rewritten);
-                Assert.Contains("<YawDeadband>0.017</YawDeadband>", rewritten);
+                Assert.Contains("<RotateDeadband>0.017</RotateDeadband>", rewritten);
                 Assert.DoesNotContain("<PinchEpsilon>", rewritten);
                 Assert.DoesNotContain("<RotateEpsilon>", rewritten);
             }
@@ -257,6 +257,63 @@ namespace TrackpadCameraControl.Tests
                 Assert.Contains("<RotateGestureModifier>Option</RotateGestureModifier>", rewritten);
                 Assert.DoesNotContain("<YawGesture>", rewritten);
                 Assert.DoesNotContain("<YawGestureModifier>", rewritten);
+            }
+            finally
+            {
+                if (File.Exists(path))
+                {
+                    File.Delete(path);
+                }
+            }
+        }
+
+        [Fact]
+        public void LoadOrFactory_MigratesSchema8YawRotateFeelFieldsToRotateNames()
+        {
+            string path = Path.Combine(
+                Path.GetTempPath(),
+                "tcc-rotate-feel-" + Path.GetRandomFileName() + ".xml"
+            );
+            try
+            {
+                File.WriteAllText(
+                    path,
+                    @"<?xml version=""1.0"" encoding=""utf-8""?>
+<TrackpadCameraControlSettings xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance"" xmlns:xsd=""http://www.w3.org/2001/XMLSchema"">
+  <SchemaVersion>8</SchemaVersion>
+  <Current>
+    <YawEnabled>false</YawEnabled>
+    <YawRotateGain>3.5</YawRotateGain>
+    <YawRotateStep>4.25</YawRotateStep>
+    <SignInvertYawRotate>true</SignInvertYawRotate>
+    <YawDeadband>0.09</YawDeadband>
+    <YawFilterEnabled>true</YawFilterEnabled>
+    <YawFilterAlpha>0.4</YawFilterAlpha>
+    <ActiveFeelPresetName>Default</ActiveFeelPresetName>
+  </Current>
+</TrackpadCameraControlSettings>"
+                );
+
+                var store = new ModSettingsStore(path);
+                ModSettings loaded = store.LoadOrFactory();
+
+                Assert.False(loaded.RotateEnabled);
+                Assert.Equal(3.5f, loaded.RotateGain);
+                Assert.Equal(4.25f, loaded.RotateStep);
+                Assert.True(loaded.SignInvertRotate);
+                Assert.Equal(0.09f, loaded.RotateDeadband);
+                Assert.True(loaded.RotateFilterEnabled);
+                Assert.Equal(0.4f, loaded.RotateFilterAlpha);
+
+                string rewritten = File.ReadAllText(path);
+                Assert.Contains(
+                    "<SchemaVersion>" + ModSettingsStore.CurrentSchemaVersion + "</SchemaVersion>",
+                    rewritten
+                );
+                Assert.Contains("<RotateGain>3.5</RotateGain>", rewritten);
+                Assert.Contains("<RotateDeadband>0.09</RotateDeadband>", rewritten);
+                Assert.DoesNotContain("<YawRotateGain>", rewritten);
+                Assert.DoesNotContain("<YawDeadband>", rewritten);
             }
             finally
             {

@@ -370,9 +370,9 @@ namespace TrackpadCameraControl
             ApplyPositiveGain(settings, value, (s, v) => s.ZoomGain = v);
         }
 
-        public static void ApplyYawRotateGain(ModSettings settings, float value)
+        public static void ApplyRotateGain(ModSettings settings, float value)
         {
-            ApplyPositiveGain(settings, value, (s, v) => s.YawRotateGain = v);
+            ApplyPositiveGain(settings, value, (s, v) => s.RotateGain = v);
         }
 
         public static void ApplyMotionDeadband(ModSettings settings, float value)
@@ -385,9 +385,9 @@ namespace TrackpadCameraControl
             ApplyNonNegativeThreshold(settings, value, (s, v) => s.PinchDeadband = v);
         }
 
-        public static void ApplyYawDeadband(ModSettings settings, float value)
+        public static void ApplyRotateDeadband(ModSettings settings, float value)
         {
-            ApplyNonNegativeThreshold(settings, value, (s, v) => s.YawDeadband = v);
+            ApplyNonNegativeThreshold(settings, value, (s, v) => s.RotateDeadband = v);
         }
 
         private static void ApplyNonNegativeThreshold(
@@ -460,14 +460,14 @@ namespace TrackpadCameraControl
             NotifyChanged(settings);
         }
 
-        public static void ApplyYawRotateStep(ModSettings settings, float value)
+        public static void ApplyRotateStep(ModSettings settings, float value)
         {
             if (settings == null)
             {
                 return;
             }
 
-            settings.YawRotateStep = ClampScale(value);
+            settings.RotateStep = ClampScale(value);
             NotifyChanged(settings);
         }
 
@@ -493,14 +493,14 @@ namespace TrackpadCameraControl
             NotifyChanged(settings);
         }
 
-        public static void ApplyYawFilterAlpha(ModSettings settings, float value)
+        public static void ApplyRotateFilterAlpha(ModSettings settings, float value)
         {
             if (settings == null)
             {
                 return;
             }
 
-            settings.YawFilterAlpha = ClampAlpha(value);
+            settings.RotateFilterAlpha = ClampAlpha(value);
             NotifyChanged(settings);
         }
 

@@ -24,7 +24,7 @@ namespace TrackpadCameraControl.Tests
             Assert.Equal(ScaledGain(factory.PanGainX, multiplier), actual.PanGainX);
             Assert.Equal(ScaledGain(factory.PanGainY, multiplier), actual.PanGainY);
             Assert.Equal(ScaledGain(factory.ZoomGain, multiplier), actual.ZoomGain);
-            Assert.Equal(ScaledGain(factory.YawRotateGain, multiplier), actual.YawRotateGain);
+            Assert.Equal(ScaledGain(factory.RotateGain, multiplier), actual.RotateGain);
             Assert.Equal(ScaledGain(factory.OrbitYawGain, multiplier), actual.OrbitYawGain);
             Assert.Equal(ScaledGain(factory.OrbitPitchGain, multiplier), actual.OrbitPitchGain);
             Assert.Equal(factory.SignInvertPanX, actual.SignInvertPanX);
@@ -39,7 +39,7 @@ namespace TrackpadCameraControl.Tests
             Assert.Equal(factory.PanGainX, actual.PanGainX);
             Assert.Equal(factory.PanGainY, actual.PanGainY);
             Assert.Equal(factory.ZoomGain, actual.ZoomGain);
-            Assert.Equal(factory.YawRotateGain, actual.YawRotateGain);
+            Assert.Equal(factory.RotateGain, actual.RotateGain);
             Assert.Equal(factory.OrbitYawGain, actual.OrbitYawGain);
             Assert.Equal(factory.OrbitPitchGain, actual.OrbitPitchGain);
             Assert.Equal(factory.SignInvertPanX, actual.SignInvertPanX);

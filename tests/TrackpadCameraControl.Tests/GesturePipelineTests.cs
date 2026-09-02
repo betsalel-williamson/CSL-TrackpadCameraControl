@@ -176,7 +176,7 @@ namespace TrackpadCameraControl.Tests
                 Size = 40f,
             };
             cam.AddAngleVelocity(1f, -2f);
-            var settings = new ModSettings { YawRotateGain = 1f };
+            var settings = new ModSettings { RotateGain = 1f };
             int addsBefore = cam.AddAngleVelocityCallCount;
 
             CameraApplicator.Apply(CameraOp.Rotate, 0f, 0f, 0f, 3f, settings, cam);
@@ -201,7 +201,7 @@ namespace TrackpadCameraControl.Tests
             };
             var settings = new ModSettings
             {
-                YawRotateGain = 1f,
+                RotateGain = 1f,
                 OrbitYawGain = 1f,
                 OrbitPitchGain = 1f,
             };
@@ -236,7 +236,7 @@ namespace TrackpadCameraControl.Tests
             };
             var settings = new ModSettings
             {
-                YawRotateGain = 1f,
+                RotateGain = 1f,
                 OrbitYawGain = 1f,
                 OrbitPitchGain = 1f,
             };
@@ -277,7 +277,7 @@ namespace TrackpadCameraControl.Tests
             {
                 OrbitTrigger = OrbitTrigger.ModifierPlusTwoFinger,
                 MotionDeadband = 0.001f,
-                YawDeadband = 0.001f,
+                RotateDeadband = 0.001f,
             };
             var session = new GestureSession();
 
@@ -318,7 +318,7 @@ namespace TrackpadCameraControl.Tests
             {
                 OrbitTrigger = OrbitTrigger.ModifierPlusTwoFinger,
                 MotionDeadband = 0.001f,
-                YawDeadband = 0.001f,
+                RotateDeadband = 0.001f,
             };
             var session = new GestureSession();
 
@@ -358,11 +358,11 @@ namespace TrackpadCameraControl.Tests
         {
             var settings = new ModSettings
             {
-                YawRotateGain = 1f,
+                RotateGain = 1f,
                 OrbitYawGain = 1f,
                 OrbitPitchGain = 1f,
                 MotionDeadband = 0.001f,
-                YawDeadband = 0.001f,
+                RotateDeadband = 0.001f,
             };
             var inject = new InjectGestureSource();
             var cam = new FakeCameraController
@@ -598,7 +598,7 @@ namespace TrackpadCameraControl.Tests
         [Fact]
         public void ExclusiveZoomVersusRotate_KeepsDominantPinch()
         {
-            var settings = new ModSettings { PinchDeadband = 0.001f, YawDeadband = 0.001f };
+            var settings = new ModSettings { PinchDeadband = 0.001f, RotateDeadband = 0.001f };
             var frame = Frame(pinch: 0.05f, rotate: 0.01f);
             CameraOp ops = CameraOp.Zoom | CameraOp.Rotate;
             Assert.Equal(
@@ -610,7 +610,7 @@ namespace TrackpadCameraControl.Tests
         [Fact]
         public void ExclusiveZoomVersusRotate_KeepsDominantRotate()
         {
-            var settings = new ModSettings { PinchDeadband = 0.001f, YawDeadband = 0.001f };
+            var settings = new ModSettings { PinchDeadband = 0.001f, RotateDeadband = 0.001f };
             var frame = Frame(pinch: 0.002f, rotate: 0.5f);
             CameraOp ops = CameraOp.Zoom | CameraOp.Rotate;
             Assert.Equal(
@@ -622,7 +622,7 @@ namespace TrackpadCameraControl.Tests
         [Fact]
         public void ExclusiveOrbitVersusRotate_DropsRotateWhenOrbitDominant()
         {
-            var settings = new ModSettings { YawDeadband = 0.001f, MotionDeadband = 0.1f };
+            var settings = new ModSettings { RotateDeadband = 0.001f, MotionDeadband = 0.1f };
             var frame = Frame(dx: 5f, dy: 5f, rotate: 0.001f);
             Assert.Equal(
                 CameraOp.Orbit,
@@ -637,7 +637,7 @@ namespace TrackpadCameraControl.Tests
         [Fact]
         public void ExclusiveOrbitVersusRotate_KeepsRotateWhenTwistDominant()
         {
-            var settings = new ModSettings { YawDeadband = 0.001f, MotionDeadband = 0.1f };
+            var settings = new ModSettings { RotateDeadband = 0.001f, MotionDeadband = 0.1f };
             var frame = Frame(dx: 0.01f, dy: 0.01f, rotate: 2f);
             Assert.Equal(
                 CameraOp.Rotate,
@@ -792,7 +792,7 @@ namespace TrackpadCameraControl.Tests
                 OrbitTrigger = OrbitTrigger.ModifierPlusTwoFinger,
                 MotionDeadband = 0.001f,
                 PinchDeadband = 0.001f,
-                YawDeadband = 0.001f,
+                RotateDeadband = 0.001f,
             };
             var session = new GestureSession();
 
@@ -1043,10 +1043,10 @@ namespace TrackpadCameraControl.Tests
         }
 
         [Fact]
-        public void Apply_YawRotate_ChangesAngleX()
+        public void Apply_Rotate_ChangesAngleX()
         {
             var cam = new FakeCameraController { AngleX = 0f };
-            var settings = new ModSettings { YawRotateGain = 2f };
+            var settings = new ModSettings { RotateGain = 2f };
 
             CameraApplicator.Apply(CameraOp.Rotate, 0, 0, 0, 0.5f, settings, cam);
 

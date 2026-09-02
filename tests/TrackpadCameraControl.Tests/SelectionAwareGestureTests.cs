@@ -47,7 +47,7 @@ namespace TrackpadCameraControl.Tests
                 WorldY = 0f,
                 WorldZ = 20f,
             };
-            var settings = new ModSettings { YawRotateGain = 2f };
+            var settings = new ModSettings { RotateGain = 2f };
 
             CameraApplicator.Apply(
                 CameraOp.Rotate,
@@ -75,7 +75,7 @@ namespace TrackpadCameraControl.Tests
                 HasSelection = true,
                 Kind = SelectionGestureKind.SelectedInstance,
             };
-            var settings = new ModSettings { YawRotateGain = 2f };
+            var settings = new ModSettings { RotateGain = 2f };
 
             CameraApplicator.Apply(
                 CameraOp.Rotate,
@@ -99,7 +99,7 @@ namespace TrackpadCameraControl.Tests
         {
             var cam = new FakeCameraController { AngleX = 0f };
             var selection = new FakeSelectionContext { HasSelection = false };
-            var settings = new ModSettings { YawRotateGain = 2f };
+            var settings = new ModSettings { RotateGain = 2f };
 
             CameraApplicator.Apply(
                 CameraOp.Rotate,
@@ -261,9 +261,9 @@ namespace TrackpadCameraControl.Tests
         {
             var settings = new ModSettings
             {
-                YawEnabled = true,
-                YawRotateGain = 1f,
-                YawDeadband = 0.001f,
+                RotateEnabled = true,
+                RotateGain = 1f,
+                RotateDeadband = 0.001f,
             };
             var inject = new InjectGestureSource();
             var cam = new FakeCameraController { AngleX = 12f };
@@ -292,9 +292,9 @@ namespace TrackpadCameraControl.Tests
         {
             var settings = new ModSettings
             {
-                YawEnabled = true,
-                YawRotateGain = 1f,
-                YawDeadband = 0.001f,
+                RotateEnabled = true,
+                RotateGain = 1f,
+                RotateDeadband = 0.001f,
             };
             var inject = new InjectGestureSource();
             var cam = new FakeCameraController { AngleX = 12f };

@@ -56,8 +56,8 @@ namespace TrackpadCameraControl
             // (Option held → rotate ignored is expected).
             if (
                 !OrbitLatched
-                && settings.YawEnabled
-                && Abs(frame.rotateDelta) > settings.YawDeadband
+                && settings.RotateEnabled
+                && Abs(frame.rotateDelta) > settings.RotateDeadband
             )
             {
                 RotateOwned = true;

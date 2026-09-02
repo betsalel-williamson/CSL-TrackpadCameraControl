@@ -39,7 +39,7 @@ namespace TrackpadCameraControl
                 ops |= CameraOp.Zoom;
             }
 
-            if (settings.YawEnabled && Abs(frame.rotateDelta) > settings.YawDeadband)
+            if (settings.RotateEnabled && Abs(frame.rotateDelta) > settings.RotateDeadband)
             {
                 ops |= CameraOp.Rotate;
             }
@@ -85,7 +85,8 @@ namespace TrackpadCameraControl
             }
 
             float pinchDeadband = settings.PinchDeadband > 1e-8f ? settings.PinchDeadband : 0.001f;
-            float rotateDeadband = settings.YawDeadband > 1e-8f ? settings.YawDeadband : 0.001f;
+            float rotateDeadband =
+                settings.RotateDeadband > 1e-8f ? settings.RotateDeadband : 0.001f;
             float zoomScore = Abs(frame.pinchScaleDelta) / pinchDeadband;
             float rotateScore = Abs(frame.rotateDelta) / rotateDeadband;
 
@@ -139,7 +140,8 @@ namespace TrackpadCameraControl
                     && Abs(frame.rotateDelta) >= Abs(frame.centroidDeltaY);
             }
 
-            float rotateDeadband = settings.YawDeadband > 1e-8f ? settings.YawDeadband : 0.001f;
+            float rotateDeadband =
+                settings.RotateDeadband > 1e-8f ? settings.RotateDeadband : 0.001f;
             float dead = settings.MotionDeadband > 1e-8f ? settings.MotionDeadband : 0.001f;
             float rotateScore = Abs(frame.rotateDelta) / rotateDeadband;
             float motionScore = Max(Abs(frame.centroidDeltaX), Abs(frame.centroidDeltaY)) / dead;

@@ -21,7 +21,7 @@ Schema-retained. With `EnableCadGestureStyle` off, product UI does not expose a 
 | AssistUiEnabled | bool | false   | yes |
 | PanEnabled      | bool | true    | yes |
 | ZoomEnabled     | bool | true    | yes |
-| YawEnabled      | bool | true    | yes |
+| RotateEnabled   | bool | true    | yes |
 | OrbitEnabled    | bool | true    | yes |
 
 Schema field `AssistUiEnabled` shows or hides the in-game **Debug** panel (feel presets + tunables). Product UI labels it Debug; the schema name stays `AssistUiEnabled`. Factory/ship default is **off** so gesture-only players keep a clean viewport; enable it from Options when you want the floating panel. Existing settings.xml that already saved `true` keeps Debug on. Legacy schema 1–2 loads without the element still default **on** via `LegacyModSettings` for migration. Assist **chrome** (pads / nudge buttons) is separate and gated by `EnableAssistChrome`.
@@ -51,7 +51,7 @@ Used by trackpad gestures (and Assist chrome pads when `EnableAssistChrome` is o
 | PanGainX       | float | 0.005           | yes |
 | PanGainY       | float | 0.005           | yes |
 | ZoomGain       | float | 1.00            | yes |
-| YawRotateGain  | float | 2.00            | yes |
+| RotateGain     | float | 2.00            | yes |
 | OrbitYawGain   | float | 1.00            | yes |
 | OrbitPitchGain | float | 1.00            | yes |
 
@@ -61,7 +61,9 @@ Used by trackpad gestures (and Assist chrome pads when `EnableAssistChrome` is o
 
 **Schema 2:** AppKit scroll deltas are raw; schema 1 files migrate by ×0.01 on pan/orbit gain and ÷0.01 on motion deadband (legacy element `MotionDeadzone`).
 
-**Schema 6:** `PinchDeadband` / `YawDeadband` replace misnamed `PinchEpsilon` / `RotateEpsilon` (activation deadbands, not filter epsilon). Schema 3–5 files still load those legacy elements; save rewrites schema 6 names.
+**Schema 6:** `PinchDeadband` / `RotateDeadband` replace misnamed `PinchEpsilon` / `RotateEpsilon` (activation deadbands, not filter epsilon). Schema 3–5 files still load those legacy elements; save rewrites schema 6 names.
+
+**Schema 9:** Rotate feel fields rename (`YawDeadband` / `YawRotateGain` / `YawRotateStep` / `YawEnabled` / `YawFilter*` / `SignInvertYawRotate` → `RotateDeadband` / `RotateGain` / `RotateStep` / `RotateEnabled` / `RotateFilter*` / `SignInvertRotate`). Orbit axes stay `OrbitYaw*`.
 
 **Schema 7–8:** Per-op trackpad gesture bindings (`ZoomGesture` / `ZoomGestureModifier`, and the same for Pan / Rotate / Orbit). Schema 8 renames Rotate bindings from `YawGesture*` → `RotateGesture*` (yaw/pitch remain Orbit axes). Owned by **gesture style** (`GesturePreset` / `ApplyGesturePreset`); orthogonal to feel presets (Slow/Default/Fast). No remap UI yet. Missing elements load Maps+ factory defaults.
 
@@ -105,7 +107,7 @@ Used by Assist chrome nudge buttons only — product UI when `EnableAssistChrome
 | OrbitYawStep   | float | 2.00         | yes |
 | OrbitPitchStep | float | 2.00         | yes |
 | ZoomStep       | float | 0.05         | yes |
-| YawRotateStep  | float | 2.00         | yes |
+| RotateStep     | float | 2.00         | yes |
 
 Exact button-step seeds may be tuned in the defaults factory; document new seeds here when they change. Button-step fields round to two decimals; Sensitivity gains use three (`RoundGain`).
 
@@ -117,23 +119,23 @@ Let `raw` be the resolved gesture delta for that axis (centroid, pinch, or rotat
 
 ### Continuous path (trackpad; chrome pads when flagged on)
 
-| Op    | After gain                                                       | Camera write                                                          |
-| ----- | ---------------------------------------------------------------- | --------------------------------------------------------------------- |
-| Pan   | `mx = dx * PanGainX`, `my = dy * PanGainY`, then `mx,my *= Size` | Camera-relative XZ: `target += right*mx + forward*my`                 |
-| Zoom  | `delta = pinch * ZoomGain`                                       | `Size' = Size * (1 - delta)` (clamped)                                |
-| Yaw   | `delta = rotate * YawRotateGain`                                 | `AngleX' = AngleX + delta`                                            |
-| Orbit | `dyaw = dx * OrbitYawGain`, `dpitch = dy * OrbitPitchGain`       | `AngleX' += dyaw`, `AngleY' += dpitch`, then clamp pitch to min / max |
+| Op     | After gain                                                       | Camera write                                                          |
+| ------ | ---------------------------------------------------------------- | --------------------------------------------------------------------- |
+| Pan    | `mx = dx * PanGainX`, `my = dy * PanGainY`, then `mx,my *= Size` | Camera-relative XZ: `target += right*mx + forward*my`                 |
+| Zoom   | `delta = pinch * ZoomGain`                                       | `Size' = Size * (1 - delta)` (clamped)                                |
+| Rotate | `delta = rotate * RotateGain`                                    | `AngleX' = AngleX + delta`                                            |
+| Orbit  | `dyaw = dx * OrbitYawGain`, `dpitch = dy * OrbitPitchGain`       | `AngleX' += dyaw`, `AngleY' += dpitch`, then clamp pitch to min / max |
 
 ### Button path (chrome nudges only; `EnableAssistChrome`)
 
 Build a one-shot delta from the button step and a sign (`±1`), then apply sign invert and the same camera write as above. **Do not** multiply by gain. Skip filter (low-pass).
 
-| Op    | One-shot input before sign invert                                |
-| ----- | ---------------------------------------------------------------- |
-| Pan   | `dx = signX * PanStepX`, `dy = signY * PanStepY`                 |
-| Zoom  | `pinch = sign * ZoomStep`                                        |
-| Yaw   | `rotate = sign * YawRotateStep`                                  |
-| Orbit | `dx = signYaw * OrbitYawStep`, `dy = signPitch * OrbitPitchStep` |
+| Op     | One-shot input before sign invert                                |
+| ------ | ---------------------------------------------------------------- |
+| Pan    | `dx = signX * PanStepX`, `dy = signY * PanStepY`                 |
+| Zoom   | `pinch = sign * ZoomStep`                                        |
+| Rotate | `rotate = sign * RotateStep`                                     |
+| Orbit  | `dx = signYaw * OrbitYawStep`, `dy = signPitch * OrbitPitchStep` |
 
 ### Filter / low-pass (continuous only; Contacts)
 
@@ -148,7 +150,7 @@ When enabled for an op under Contacts capture: first sample seeds state; later `
 | SignInvertOrbitYaw   | bool | false           | yes |
 | SignInvertOrbitPitch | bool | false           | yes |
 | SignInvertZoom       | bool | false           | yes |
-| SignInvertYawRotate  | bool | false           | yes |
+| SignInvertRotate     | bool | false           | yes |
 
 Factory Default feel: Pan Reverse X on, Y off (playtest Maps+).
 
@@ -179,25 +181,25 @@ Feel presets (Sensitivity / deadbands) apply on top of whichever gesture style i
 | --------------------- | ----- | -------------- | --- |
 | MotionDeadband        | float | small positive | yes |
 | PinchDeadband         | float | small positive | yes |
-| YawDeadband           | float | small positive | yes |
+| RotateDeadband        | float | small positive | yes |
 | FingerCountHysteresis | float | small positive | yes |
 
-Schema-retained; **Debug panel** exposes MotionDeadband, PinchDeadband, and YawDeadband per op section for QA tuning. Options product surface does not show these fields.
+Schema-retained; **Debug panel** exposes MotionDeadband, PinchDeadband, and RotateDeadband per op section for QA tuning. Options product surface does not show these fields.
 
 ## Per-op filter / low-pass (Contacts only)
 
 EMA on continuous deltas after resolve, before apply — see glossary **low-pass**. Product UI and processing when `EnableContactsCapture` is on. Buttons skip filter. Schema fields use `*Filter*`; Options may still say **Low-pass**. The former single `Smoothing` field is retired.
 
-| Field              | Type      | Default | Hot |
-| ------------------ | --------- | ------- | --- |
-| PanFilterEnabled   | bool      | false   | yes |
-| PanFilterAlpha     | float 0–1 | 0.30    | yes |
-| ZoomFilterEnabled  | bool      | false   | yes |
-| ZoomFilterAlpha    | float 0–1 | 0.30    | yes |
-| YawFilterEnabled   | bool      | false   | yes |
-| YawFilterAlpha     | float 0–1 | 0.30    | yes |
-| OrbitFilterEnabled | bool      | false   | yes |
-| OrbitFilterAlpha   | float 0–1 | 0.30    | yes |
+| Field               | Type      | Default | Hot |
+| ------------------- | --------- | ------- | --- |
+| PanFilterEnabled    | bool      | false   | yes |
+| PanFilterAlpha      | float 0–1 | 0.30    | yes |
+| ZoomFilterEnabled   | bool      | false   | yes |
+| ZoomFilterAlpha     | float 0–1 | 0.30    | yes |
+| RotateFilterEnabled | bool      | false   | yes |
+| RotateFilterAlpha   | float 0–1 | 0.30    | yes |
+| OrbitFilterEnabled  | bool      | false   | yes |
+| OrbitFilterAlpha    | float 0–1 | 0.30    | yes |
 
 ## Gates and capture
 

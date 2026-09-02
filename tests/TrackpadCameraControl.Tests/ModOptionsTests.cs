@@ -79,11 +79,11 @@ namespace TrackpadCameraControl.Tests
         }
 
         [Fact]
-        public void ApplyYawDeadband_AcceptsZero()
+        public void ApplyRotateDeadband_AcceptsZero()
         {
-            var settings = new ModSettings { YawDeadband = 0.5f };
-            ModOptions.ApplyYawDeadband(settings, 0f);
-            Assert.Equal(0f, settings.YawDeadband);
+            var settings = new ModSettings { RotateDeadband = 0.5f };
+            ModOptions.ApplyRotateDeadband(settings, 0f);
+            Assert.Equal(0f, settings.RotateDeadband);
         }
 
         [Fact]
