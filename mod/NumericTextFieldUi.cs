@@ -9,10 +9,12 @@ namespace TrackpadCameraControl
     internal static class NumericTextFieldUi
     {
         /// <summary>
-        /// Fields that opt into confirm-key / Tab cycling. Used so Tab wraps among
-        /// value fields even when Colossal left every <c>tabIndex</c> at the default.
+        /// Shared scope for Options (and any caller that omits an explicit panel scope).
         /// </summary>
-        private static readonly List<UITextField> ConfirmFields = new List<UITextField>();
+        private static readonly object DefaultTabScope = new object();
+
+        private static readonly List<UIComponent> TabStops = new List<UIComponent>();
+        private static readonly List<object> TabScopes = new List<object>();
 
         /// <summary>
         /// Colossal UITextField has no separate numeric widget; numericalOnly + allowFloats
@@ -48,9 +50,19 @@ namespace TrackpadCameraControl
         /// Colossal submits on Return only. Keypad Enter and Tab must unfocus (or advance)
         /// so <c>submitOnFocusLost</c> / <c>eventTextSubmitted</c> can confirm the value.
         /// Tab advances on key <em>up</em> only (key down is consumed so builtin nav does not
-        /// also move). After the last wired field, focus wraps to the first.
+        /// also move). After the last tab stop in the same scope, focus wraps to the first.
         /// </summary>
-        public static void WireConfirmKeys(UITextField field)
+        /// <param name="includeInTabOrder">
+        /// When false, Enter still confirms but Tab does not visit this field (e.g. Feel name).
+        /// </param>
+        /// <param name="tabScope">
+        /// Group for Tab cycling (Debug panel root, etc.). Null uses the shared Options scope.
+        /// </param>
+        public static void WireConfirmKeys(
+            UITextField field,
+            bool includeInTabOrder = true,
+            object tabScope = null
+        )
         {
             if (field == null)
             {
@@ -59,22 +71,44 @@ namespace TrackpadCameraControl
 
             field.submitOnFocusLost = true;
             field.canFocus = true;
-            RegisterConfirmField(field);
+            if (includeInTabOrder)
+            {
+                RegisterTabStop(field, tabScope);
+            }
+
             field.eventKeyDown += OnConfirmKeyDown;
             field.eventKeyUp += OnConfirmKeyUp;
         }
 
-        private static void RegisterConfirmField(UITextField field)
+        /// <summary>
+        /// Include a non-text focusable (e.g. checkbox) in the same Tab cycle as wired fields.
+        /// </summary>
+        public static void WireTabStop(UIComponent component, object tabScope = null)
         {
-            for (int i = 0; i < ConfirmFields.Count; i++)
+            if (component == null)
             {
-                if (ReferenceEquals(ConfirmFields[i], field))
+                return;
+            }
+
+            component.canFocus = true;
+            RegisterTabStop(component, tabScope);
+            component.eventKeyDown += OnTabKeyDown;
+            component.eventKeyUp += OnTabKeyUp;
+        }
+
+        private static void RegisterTabStop(UIComponent component, object tabScope)
+        {
+            for (int i = 0; i < TabStops.Count; i++)
+            {
+                if (ReferenceEquals(TabStops[i], component))
                 {
+                    TabScopes[i] = tabScope ?? DefaultTabScope;
                     return;
                 }
             }
 
-            ConfirmFields.Add(field);
+            TabStops.Add(component);
+            TabScopes.Add(tabScope ?? DefaultTabScope);
         }
 
         private static void OnConfirmKeyDown(UIComponent component, UIKeyEventParameter p)
@@ -124,6 +158,33 @@ namespace TrackpadCameraControl
             }
         }
 
+        private static void OnTabKeyDown(UIComponent component, UIKeyEventParameter p)
+        {
+            if (p == null || p.used || component == null || !component.hasFocus)
+            {
+                return;
+            }
+
+            if (IsTabKey(p))
+            {
+                p.Use();
+            }
+        }
+
+        private static void OnTabKeyUp(UIComponent component, UIKeyEventParameter p)
+        {
+            if (p == null || p.used || component == null || !component.hasFocus)
+            {
+                return;
+            }
+
+            if (IsTabKey(p))
+            {
+                p.Use();
+                FocusNext(component);
+            }
+        }
+
         private static bool IsConfirmKey(UIKeyEventParameter p)
         {
             return p.keycode == KeyCode.Return
@@ -138,8 +199,8 @@ namespace TrackpadCameraControl
         }
 
         /// <summary>
-        /// Move focus to the next wired confirm field in the same view (by tabIndex, then
-        /// registration order). Wraps to the first when on the last.
+        /// Move focus to the next tab stop in the same scope (by tabIndex, then registration).
+        /// Wraps to the first when on the last.
         /// </summary>
         private static void FocusNext(UIComponent from)
         {
@@ -148,19 +209,19 @@ namespace TrackpadCameraControl
                 return;
             }
 
-            PruneConfirmFields();
+            PruneTabStops();
 
-            UIView view = from.GetUIView();
-            List<UITextField> peers = new List<UITextField>();
-            for (int i = 0; i < ConfirmFields.Count; i++)
+            object scope = ScopeOf(from);
+            List<UIComponent> peers = new List<UIComponent>();
+            for (int i = 0; i < TabStops.Count; i++)
             {
-                UITextField c = ConfirmFields[i];
+                UIComponent c = TabStops[i];
                 if (c == null || !c.isVisible || !c.isEnabled || !c.canFocus)
                 {
                     continue;
                 }
 
-                if (view != null && c.GetUIView() != view)
+                if (!Equals(TabScopes[i], scope))
                 {
                     continue;
                 }
@@ -174,7 +235,7 @@ namespace TrackpadCameraControl
                 return;
             }
 
-            peers.Sort(CompareConfirmFields);
+            peers.Sort(CompareTabStops);
 
             int current = -1;
             for (int i = 0; i < peers.Count; i++)
@@ -186,7 +247,7 @@ namespace TrackpadCameraControl
                 }
             }
 
-            UITextField next = current < 0 ? peers[0] : peers[(current + 1) % peers.Count];
+            UIComponent next = current < 0 ? peers[0] : peers[(current + 1) % peers.Count];
             if (ReferenceEquals(next, from))
             {
                 from.Unfocus();
@@ -196,7 +257,20 @@ namespace TrackpadCameraControl
             next.Focus();
         }
 
-        private static int CompareConfirmFields(UITextField a, UITextField b)
+        private static object ScopeOf(UIComponent component)
+        {
+            for (int i = 0; i < TabStops.Count; i++)
+            {
+                if (ReferenceEquals(TabStops[i], component))
+                {
+                    return TabScopes[i];
+                }
+            }
+
+            return DefaultTabScope;
+        }
+
+        private static int CompareTabStops(UIComponent a, UIComponent b)
         {
             int tab = a.tabIndex.CompareTo(b.tabIndex);
             if (tab != 0)
@@ -204,16 +278,17 @@ namespace TrackpadCameraControl
                 return tab;
             }
 
-            return ConfirmFields.IndexOf(a).CompareTo(ConfirmFields.IndexOf(b));
+            return TabStops.IndexOf(a).CompareTo(TabStops.IndexOf(b));
         }
 
-        private static void PruneConfirmFields()
+        private static void PruneTabStops()
         {
-            for (int i = ConfirmFields.Count - 1; i >= 0; i--)
+            for (int i = TabStops.Count - 1; i >= 0; i--)
             {
-                if (ConfirmFields[i] == null)
+                if (TabStops[i] == null)
                 {
-                    ConfirmFields.RemoveAt(i);
+                    TabStops.RemoveAt(i);
+                    TabScopes.RemoveAt(i);
                 }
             }
         }

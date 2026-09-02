@@ -25,19 +25,32 @@ namespace TrackpadCameraControl
             component.builtinKeyNavigation = true;
         }
 
-        private static void WireTextFieldSubmit(UITextField field, Action submit)
+        private static void WireTextFieldSubmit(
+            UITextField field,
+            Action submit,
+            bool includeInTabOrder = true
+        )
         {
             if (field == null || submit == null)
             {
                 return;
             }
 
-            AssignTabOrder(field);
+            if (includeInTabOrder)
+            {
+                AssignTabOrder(field);
+            }
+            else
+            {
+                field.canFocus = true;
+                field.tabIndex = -1;
+            }
+
             field.submitOnFocusLost = true;
             field.eventTextSubmitted += (c, text) => submit();
             // Keypad Enter: unfocus on key down. Tab: advance on key up only (wraps).
             // Colossal only submits on Return by default.
-            NumericTextFieldUi.WireConfirmKeys(field);
+            NumericTextFieldUi.WireConfirmKeys(field, includeInTabOrder, tabScope: _root);
         }
 
         private static void WireFloatTextFieldSubmit(UITextField field, Action submit)

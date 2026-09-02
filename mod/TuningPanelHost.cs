@@ -86,7 +86,6 @@ namespace TrackpadCameraControl
             ApplyPanelFocusVisual();
 
             _nextY = TitleBarHeight + 8f;
-            ResetTabOrder();
 
             AddSection("Feel presets");
             AddFeelPresetRow(s);
@@ -113,6 +112,9 @@ namespace TrackpadCameraControl
             AddCaptureBackendButtons(s);
 #endif
 
+            // Tab order (product fields): Zoom sens/dead → Pan X/Y/dead → Rotate sens/dead →
+            // Orbit yaw/pitch/dead → Include system info. Feel presets stay click-focus only.
+            ResetTabOrder();
             // Shipped section order: Zoom → Pan → Rotate → Orbit (feel presets = General above).
             BuildZoomSection(s);
             BuildPanSection(s);
@@ -383,7 +385,7 @@ namespace TrackpadCameraControl
             // ColossalUI UIDropDown only opens its popup when triggerButton is set; arrow
             // sprites belong on that button (AlgernonCommons / Skyve pattern), not on the DD.
             _feelDropdown = _root.AddUIComponent<UIDropDown>();
-            AssignTabOrder(_feelDropdown);
+            _feelDropdown.tabIndex = -1;
             _feelDropdown.width = 220f;
             _feelDropdown.height = 28f;
             _feelDropdown.relativePosition = new Vector3(Col0, _nextY);
@@ -431,7 +433,7 @@ namespace TrackpadCameraControl
             _feelDropdown.eventSelectedIndexChanged += OnFeelDropdownSelected;
 
             UIButton reset = MakeMenuButton("Reset", Col0 + 228f, _nextY, 72f);
-            AssignTabOrder(reset);
+            reset.tabIndex = -1;
             reset.eventClick += (c, e) =>
             {
                 ModOptions.ApplyFeelDefault(s);
@@ -459,7 +461,8 @@ namespace TrackpadCameraControl
             _feelNameField.text = "";
             _feelNameField.selectOnFocus = true;
             _feelNameField.isInteractive = true;
-            WireTextFieldSubmit(_feelNameField, () => { });
+            // Click-focus + Enter confirm only — not in the product Tab cycle (R4 Save-as later).
+            WireTextFieldSubmit(_feelNameField, () => { }, includeInTabOrder: false);
             _nextY += 30f;
         }
 
@@ -843,6 +846,8 @@ namespace TrackpadCameraControl
 
                 set(v);
             };
+            AssignTabOrder(box);
+            NumericTextFieldUi.WireTabStop(box, tabScope: _root);
             RegisterCheck(box, get);
             _nextY += 22f;
         }
