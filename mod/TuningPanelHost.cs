@@ -320,10 +320,7 @@ namespace TrackpadCameraControl
             StyleNativeHeaderButton(_optionsButton);
             _optionsButton.eventClick += (c, e) =>
             {
-                if (UIView.library != null)
-                {
-                    UIView.library.ShowModal<OptionsMainPanel>("OptionsPanel");
-                }
+                OptionsPanelNavigation.OpenModOptions();
             };
             _optionsButton.eventMouseDown += (c, e) =>
             {
