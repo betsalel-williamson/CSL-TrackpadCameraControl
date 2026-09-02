@@ -69,7 +69,7 @@ namespace TrackpadCameraControl
         public TrackpadGesture YawGestureXml
         {
             set => RotateGesture = value;
-            get => default(TrackpadGesture);
+            get => RotateGesture;
         }
 
         public bool ShouldSerializeYawGestureXml() => false;
@@ -79,7 +79,7 @@ namespace TrackpadCameraControl
         public GestureModifierKey YawGestureModifierXml
         {
             set => RotateGestureModifier = value;
-            get => default(GestureModifierKey);
+            get => RotateGestureModifier;
         }
 
         public bool ShouldSerializeYawGestureModifierXml() => false;

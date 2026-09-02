@@ -50,6 +50,16 @@ namespace TrackpadCameraControl.Tests
             string line = VanillaCameraKeyLabels.FormatGestureLineForOp(settings, CameraOp.Orbit);
             Assert.Equal("Gesture(s): Option (⌥)+two-finger drag · Three-finger drag", line);
         }
+
+        [Fact]
+        public void FormatGestureLineForOp_FactoryRotate_IsTwoFingerRotate()
+        {
+            ModSettings settings = ModSettings.CreateFactoryDefaults();
+            Assert.Equal(
+                "Gesture(s): Two-finger rotate",
+                VanillaCameraKeyLabels.FormatGestureLineForOp(settings, CameraOp.Rotate)
+            );
+        }
     }
 
     public class TrackpadGestureCatalogTests

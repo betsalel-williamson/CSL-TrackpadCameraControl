@@ -323,5 +323,73 @@ namespace TrackpadCameraControl.Tests
                 }
             }
         }
+
+        [Fact]
+        public void SaveNow_DoesNotEmitYawGestureNoneAlias()
+        {
+            string path = Path.Combine(
+                Path.GetTempPath(),
+                "tcc-no-yaw-gesture-" + Path.GetRandomFileName() + ".xml"
+            );
+            try
+            {
+                var store = new ModSettingsStore(path);
+                ModSettings settings = ModSettings.CreateFactoryDefaults();
+                store.SaveNow(settings);
+
+                string xml = File.ReadAllText(path);
+                Assert.Contains("<RotateGesture>TwoFingerRotate</RotateGesture>", xml);
+                Assert.DoesNotContain("<YawGesture>", xml);
+                Assert.DoesNotContain("<YawGestureModifier>", xml);
+            }
+            finally
+            {
+                if (File.Exists(path))
+                {
+                    File.Delete(path);
+                }
+            }
+        }
+
+        [Fact]
+        public void LoadOrFactory_MapsPlusWithWipedRotateGesture_ReseedsMapsPlus()
+        {
+            string path = Path.Combine(
+                Path.GetTempPath(),
+                "tcc-wiped-rotate-" + Path.GetRandomFileName() + ".xml"
+            );
+            try
+            {
+                File.WriteAllText(
+                    path,
+                    @"<?xml version=""1.0"" encoding=""utf-8""?>
+<TrackpadCameraControlSettings xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance"" xmlns:xsd=""http://www.w3.org/2001/XMLSchema"">
+  <SchemaVersion>9</SchemaVersion>
+  <Current>
+    <GesturePreset>MapsPlus</GesturePreset>
+    <RotateGesture>None</RotateGesture>
+    <RotateGestureModifier>None</RotateGestureModifier>
+    <ActiveFeelPresetName>Default</ActiveFeelPresetName>
+  </Current>
+</TrackpadCameraControlSettings>"
+                );
+
+                var store = new ModSettingsStore(path);
+                ModSettings loaded = store.LoadOrFactory();
+
+                Assert.Equal(TrackpadGesture.TwoFingerRotate, loaded.RotateGesture);
+                Assert.Equal(
+                    "Gesture(s): Two-finger rotate",
+                    VanillaCameraKeyLabels.FormatGestureLineForOp(loaded, CameraOp.Rotate)
+                );
+            }
+            finally
+            {
+                if (File.Exists(path))
+                {
+                    File.Delete(path);
+                }
+            }
+        }
     }
 }

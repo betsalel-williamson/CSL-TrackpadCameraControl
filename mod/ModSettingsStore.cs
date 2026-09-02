@@ -117,6 +117,8 @@ namespace TrackpadCameraControl
                 _userPresets = presets;
                 _presetsHydrated = true;
 
+                EnsureMapsPlusRotateBinding(current);
+
                 if (fileSchema < CurrentSchemaVersion)
                 {
                     try
@@ -146,6 +148,26 @@ namespace TrackpadCameraControl
                 }
 
                 return recovered;
+            }
+        }
+
+        /// <summary>
+        /// Schema 8 alias getters used to return <c>None</c>; a wiped Rotate binding on Maps+
+        /// reloads as "Gesture(s): none". Re-seed Maps+ defaults when that happens.
+        /// </summary>
+        internal static void EnsureMapsPlusRotateBinding(ModSettings settings)
+        {
+            if (settings == null)
+            {
+                return;
+            }
+
+            if (
+                settings.GesturePreset == GesturePreset.MapsPlus
+                && settings.RotateGesture == TrackpadGesture.None
+            )
+            {
+                TrackpadGestureCatalog.ApplyMapsPlusDefaults(settings);
             }
         }
 
