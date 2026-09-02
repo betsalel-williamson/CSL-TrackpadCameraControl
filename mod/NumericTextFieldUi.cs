@@ -17,6 +17,12 @@ namespace TrackpadCameraControl
         private static readonly List<object> TabScopes = new List<object>();
 
         /// <summary>
+        /// Prevents a second Tab advance in the same frame (keycode + char events, or focus
+        /// handoff delivering the same press to the newly focused control).
+        /// </summary>
+        private static int _tabAdvanceFrame = -1;
+
+        /// <summary>
         /// Colossal UITextField has no separate numeric widget; numericalOnly + allowFloats
         /// filter key entry but do not normalize paste or every invalid sequence — we still
         /// sanitize on eventTextChanged.
@@ -49,8 +55,8 @@ namespace TrackpadCameraControl
         /// <summary>
         /// Colossal submits on Return only. Keypad Enter and Tab must unfocus (or advance)
         /// so <c>submitOnFocusLost</c> / <c>eventTextSubmitted</c> can confirm the value.
-        /// Tab advances on key <em>up</em> only (key down is consumed so builtin nav does not
-        /// also move). After the last tab stop in the same scope, focus wraps to the first.
+        /// Tab advances once on key <em>down</em> (not up — up would retarget the newly focused
+        /// field and skip a stop). After the last tab stop in the same scope, focus wraps.
         /// </summary>
         /// <param name="includeInTabOrder">
         /// When false, Enter still confirms but Tab does not visit this field (e.g. Feel name).
@@ -71,6 +77,8 @@ namespace TrackpadCameraControl
 
             field.submitOnFocusLost = true;
             field.canFocus = true;
+            // We own Tab; Colossal builtin would also move focus and skip a stop.
+            field.builtinKeyNavigation = false;
             if (includeInTabOrder)
             {
                 RegisterTabStop(field, tabScope);
@@ -91,6 +99,7 @@ namespace TrackpadCameraControl
             }
 
             component.canFocus = true;
+            component.builtinKeyNavigation = false;
             RegisterTabStop(component, tabScope);
             component.eventKeyDown += OnTabKeyDown;
             component.eventKeyUp += OnTabKeyUp;
@@ -133,8 +142,8 @@ namespace TrackpadCameraControl
 
             if (IsTabKey(p))
             {
-                // Consume on down so Colossal/builtin does not advance; move on key up only.
                 p.Use();
+                FocusNext(field);
             }
         }
 
@@ -145,16 +154,10 @@ namespace TrackpadCameraControl
                 return;
             }
 
-            UITextField field = component as UITextField;
-            if (field == null || !field.hasFocus)
-            {
-                return;
-            }
-
+            // Swallow leftover Tab up so it cannot retarget the newly focused control.
             if (IsTabKey(p))
             {
                 p.Use();
-                FocusNext(field);
             }
         }
 
@@ -168,12 +171,13 @@ namespace TrackpadCameraControl
             if (IsTabKey(p))
             {
                 p.Use();
+                FocusNext(component);
             }
         }
 
         private static void OnTabKeyUp(UIComponent component, UIKeyEventParameter p)
         {
-            if (p == null || p.used || component == null || !component.hasFocus)
+            if (p == null || p.used)
             {
                 return;
             }
@@ -181,7 +185,6 @@ namespace TrackpadCameraControl
             if (IsTabKey(p))
             {
                 p.Use();
-                FocusNext(component);
             }
         }
 
@@ -195,7 +198,8 @@ namespace TrackpadCameraControl
 
         private static bool IsTabKey(UIKeyEventParameter p)
         {
-            return p.keycode == KeyCode.Tab || p.character == '\t';
+            // KeyCode only — matching character '\t' as well can fire a second event per press.
+            return p.keycode == KeyCode.Tab;
         }
 
         /// <summary>
@@ -205,6 +209,12 @@ namespace TrackpadCameraControl
         private static void FocusNext(UIComponent from)
         {
             if (from == null)
+            {
+                return;
+            }
+
+            int frame = Time.frameCount;
+            if (frame == _tabAdvanceFrame)
             {
                 return;
             }
@@ -254,6 +264,7 @@ namespace TrackpadCameraControl
                 return;
             }
 
+            _tabAdvanceFrame = frame;
             next.Focus();
         }
 

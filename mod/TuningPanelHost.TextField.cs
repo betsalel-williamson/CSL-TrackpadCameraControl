@@ -22,7 +22,8 @@ namespace TrackpadCameraControl
 
             component.canFocus = true;
             component.tabIndex = _nextTabIndex++;
-            component.builtinKeyNavigation = true;
+            // Tab cycling is owned by NumericTextFieldUi; builtin would double-advance.
+            component.builtinKeyNavigation = false;
         }
 
         private static void WireTextFieldSubmit(
@@ -48,7 +49,7 @@ namespace TrackpadCameraControl
 
             field.submitOnFocusLost = true;
             field.eventTextSubmitted += (c, text) => submit();
-            // Keypad Enter: unfocus on key down. Tab: advance on key up only (wraps).
+            // Keypad Enter: unfocus on key down. Tab: advance once on key down (wraps).
             // Colossal only submits on Return by default.
             NumericTextFieldUi.WireConfirmKeys(field, includeInTabOrder, tabScope: _root);
         }
