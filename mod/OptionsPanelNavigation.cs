@@ -11,7 +11,7 @@ namespace TrackpadCameraControl
     {
 #if HAS_CITIES
         /// <summary>
-        /// Show Options and select the Trackpad Camera Control category (<see cref="Mod.OptionsTitle"/>).
+        /// Show Options and select the Trackpad Camera Control mod page (<see cref="Mod.OptionsTitle"/>).
         /// Returns false if the modal could not be shown.
         /// </summary>
         public static bool OpenModOptions()
@@ -32,18 +32,24 @@ namespace TrackpadCameraControl
                 return false;
             }
 
-            TrySetCategory(panel, Mod.OptionsTitle);
+            // Game API is SelectMod(string), not SetCategory(string) — SetCategory takes Category enum.
+            string title = Mod.OptionsTitle;
+            if (!TrySelectMod(panel, title))
+            {
+                GestureCaptureLog.Line("options SelectMod failed for: " + title);
+            }
+
             return true;
         }
 #endif
 
         /// <summary>
-        /// Invoke game <c>OptionsMainPanel.SetCategory(string)</c> when present (fail-soft).
+        /// Invoke game <c>OptionsMainPanel.SelectMod(string)</c> when present (fail-soft).
         /// Kept reflection-based so unit tests can exercise it without Cities assemblies.
         /// </summary>
-        internal static bool TrySetCategory(object panel, string category)
+        internal static bool TrySelectMod(object panel, string modName)
         {
-            if (panel == null || string.IsNullOrEmpty(category))
+            if (panel == null || string.IsNullOrEmpty(modName))
             {
                 return false;
             }
@@ -53,7 +59,7 @@ namespace TrackpadCameraControl
                 MethodInfo method = panel
                     .GetType()
                     .GetMethod(
-                        "SetCategory",
+                        "SelectMod",
                         BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic,
                         null,
                         new Type[] { typeof(string) },
@@ -64,7 +70,7 @@ namespace TrackpadCameraControl
                     return false;
                 }
 
-                method.Invoke(panel, new object[] { category });
+                method.Invoke(panel, new object[] { modName });
                 return true;
             }
             catch

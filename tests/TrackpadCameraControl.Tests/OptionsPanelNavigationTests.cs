@@ -6,43 +6,40 @@ namespace TrackpadCameraControl.Tests
     public class OptionsPanelNavigationTests
     {
         [Fact]
-        public void TrySetCategory_NullPanel_ReturnsFalse()
+        public void TrySelectMod_NullPanel_ReturnsFalse()
         {
-            Assert.False(OptionsPanelNavigation.TrySetCategory(null, "Trackpad"));
+            Assert.False(OptionsPanelNavigation.TrySelectMod(null, "Trackpad"));
         }
 
         [Fact]
-        public void TrySetCategory_EmptyCategory_ReturnsFalse()
+        public void TrySelectMod_EmptyName_ReturnsFalse()
         {
-            Assert.False(OptionsPanelNavigation.TrySetCategory(new FakeOptionsPanel(), ""));
+            Assert.False(OptionsPanelNavigation.TrySelectMod(new FakeOptionsPanel(), ""));
         }
 
         [Fact]
-        public void TrySetCategory_InvokesSetCategoryWhenPresent()
+        public void TrySelectMod_InvokesSelectModWhenPresent()
         {
             var panel = new FakeOptionsPanel();
             Assert.True(
-                OptionsPanelNavigation.TrySetCategory(
-                    panel,
-                    "Trackpad Camera Control (macOS) 0.2.0"
-                )
+                OptionsPanelNavigation.TrySelectMod(panel, "Trackpad Camera Control (macOS) 0.2.0")
             );
-            Assert.Equal("Trackpad Camera Control (macOS) 0.2.0", panel.LastCategory);
+            Assert.Equal("Trackpad Camera Control (macOS) 0.2.0", panel.LastModName);
         }
 
         [Fact]
-        public void TrySetCategory_MissingMethod_ReturnsFalse()
+        public void TrySelectMod_MissingMethod_ReturnsFalse()
         {
-            Assert.False(OptionsPanelNavigation.TrySetCategory(new object(), "Trackpad"));
+            Assert.False(OptionsPanelNavigation.TrySelectMod(new object(), "Trackpad"));
         }
 
         private sealed class FakeOptionsPanel
         {
-            public string LastCategory { get; private set; }
+            public string LastModName { get; private set; }
 
-            public void SetCategory(string category)
+            public void SelectMod(string modName)
             {
-                LastCategory = category;
+                LastModName = modName;
             }
         }
     }
