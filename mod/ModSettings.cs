@@ -33,7 +33,7 @@ namespace TrackpadCameraControl
     {
         /// <summary>
         /// Gesture style (Maps+ / CAD / future OS layouts): which trackpad chords map to
-        /// Zoom/Pan/Yaw/Orbit. Orthogonal to <see cref="ActiveFeelPresetName"/> (Slow/Default/Fast
+        /// Zoom/Pan/Rotate/Orbit. Orthogonal to <see cref="ActiveFeelPresetName"/> (Slow/Default/Fast
         /// sensitivity). Changing feel never rewrites gesture bindings.
         /// </summary>
         public GesturePreset GesturePreset { get; set; } = GesturePreset.MapsPlus;
@@ -48,8 +48,9 @@ namespace TrackpadCameraControl
         public OrbitTrigger OrbitTrigger { get; set; } = OrbitTrigger.ModifierPlusTwoFinger;
 
         /// <summary>
-        /// Schema 7: per-op trackpad gesture bindings (composable gesture + modifier).
+        /// Schema 7+: per-op trackpad gesture bindings (composable gesture + modifier).
         /// Owned by <see cref="GesturePreset"/> via <see cref="ApplyGesturePreset"/> — not by feel presets.
+        /// Product op name is <b>Rotate</b> (schema 8: <c>RotateGesture*</c>); yaw/pitch axes belong to Orbit.
         /// </summary>
         public TrackpadGesture ZoomGesture { get; set; } = TrackpadGesture.Pinch;
 
@@ -59,9 +60,29 @@ namespace TrackpadCameraControl
 
         public GestureModifierKey PanGestureModifier { get; set; } = GestureModifierKey.None;
 
-        public TrackpadGesture YawGesture { get; set; } = TrackpadGesture.TwoFingerRotate;
+        public TrackpadGesture RotateGesture { get; set; } = TrackpadGesture.TwoFingerRotate;
 
-        public GestureModifierKey YawGestureModifier { get; set; } = GestureModifierKey.None;
+        public GestureModifierKey RotateGestureModifier { get; set; } = GestureModifierKey.None;
+
+        /// <summary>Schema 7 XML: former <c>YawGesture</c> element (deserialize only).</summary>
+        [XmlElement("YawGesture")]
+        public TrackpadGesture YawGestureXml
+        {
+            set => RotateGesture = value;
+            get => default(TrackpadGesture);
+        }
+
+        public bool ShouldSerializeYawGestureXml() => false;
+
+        /// <summary>Schema 7 XML: former <c>YawGestureModifier</c> element (deserialize only).</summary>
+        [XmlElement("YawGestureModifier")]
+        public GestureModifierKey YawGestureModifierXml
+        {
+            set => RotateGestureModifier = value;
+            get => default(GestureModifierKey);
+        }
+
+        public bool ShouldSerializeYawGestureModifierXml() => false;
 
         public TrackpadGesture OrbitGesture { get; set; } = TrackpadGesture.TwoFingerDrag;
 
@@ -101,7 +122,7 @@ namespace TrackpadCameraControl
         /// <summary>Pinch scale-delta activation threshold (zoom); not low-pass filter alpha.</summary>
         public float PinchDeadband { get; set; } = 0.001f;
 
-        /// <summary>Twist rotate-delta activation threshold (yaw); not low-pass filter alpha.</summary>
+        /// <summary>Twist rotate-delta activation threshold (Rotate op); not low-pass filter alpha.</summary>
         public float YawDeadband { get; set; } = 0.001f;
 
         /// <summary>Schema 3–5 XML: former <c>PinchEpsilon</c> element (deserialize only).</summary>
@@ -213,8 +234,8 @@ namespace TrackpadCameraControl
             ZoomGestureModifier = other.ZoomGestureModifier;
             PanGesture = other.PanGesture;
             PanGestureModifier = other.PanGestureModifier;
-            YawGesture = other.YawGesture;
-            YawGestureModifier = other.YawGestureModifier;
+            RotateGesture = other.RotateGesture;
+            RotateGestureModifier = other.RotateGestureModifier;
             OrbitGesture = other.OrbitGesture;
             OrbitGestureModifier = other.OrbitGestureModifier;
 

@@ -50,7 +50,7 @@ namespace TrackpadCameraControl.Tests
             var settings = new ModSettings { YawRotateGain = 2f };
 
             CameraApplicator.Apply(
-                CameraOp.Yaw,
+                CameraOp.Rotate,
                 0,
                 0,
                 0,
@@ -78,7 +78,7 @@ namespace TrackpadCameraControl.Tests
             var settings = new ModSettings { YawRotateGain = 2f };
 
             CameraApplicator.Apply(
-                CameraOp.Yaw,
+                CameraOp.Rotate,
                 0,
                 0,
                 0,
@@ -102,7 +102,7 @@ namespace TrackpadCameraControl.Tests
             var settings = new ModSettings { YawRotateGain = 2f };
 
             CameraApplicator.Apply(
-                CameraOp.Yaw,
+                CameraOp.Rotate,
                 0,
                 0,
                 0,

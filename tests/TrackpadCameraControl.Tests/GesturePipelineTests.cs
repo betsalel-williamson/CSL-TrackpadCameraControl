@@ -179,7 +179,7 @@ namespace TrackpadCameraControl.Tests
             var settings = new ModSettings { YawRotateGain = 1f };
             int addsBefore = cam.AddAngleVelocityCallCount;
 
-            CameraApplicator.Apply(CameraOp.Yaw, 0f, 0f, 0f, 3f, settings, cam);
+            CameraApplicator.Apply(CameraOp.Rotate, 0f, 0f, 0f, 3f, settings, cam);
 
             Assert.Equal(13f, cam.AngleX, 3);
             Assert.Equal(12f, cam.AngleY, 3);
@@ -206,7 +206,15 @@ namespace TrackpadCameraControl.Tests
                 OrbitPitchGain = 1f,
             };
 
-            CameraApplicator.Apply(CameraOp.Yaw | CameraOp.Orbit, 5f, -3f, 0f, 2f, settings, cam);
+            CameraApplicator.Apply(
+                CameraOp.Rotate | CameraOp.Orbit,
+                5f,
+                -3f,
+                0f,
+                2f,
+                settings,
+                cam
+            );
 
             Assert.Equal(2f, cam.AngleX, 3);
             Assert.Equal(15f, cam.AngleY, 3);
@@ -248,7 +256,7 @@ namespace TrackpadCameraControl.Tests
             cam.AngleVelocityY = -4f;
             int addsAfterOrbit = cam.AddAngleVelocityCallCount;
 
-            CameraApplicator.Apply(CameraOp.Yaw, 0f, 0.5f, 0f, 2f, settings, cam);
+            CameraApplicator.Apply(CameraOp.Rotate, 0f, 0.5f, 0f, 2f, settings, cam);
             FakeCameraController.SimulateVanillaOrbitFrame(
                 cam,
                 inertia: 1f,
@@ -284,7 +292,7 @@ namespace TrackpadCameraControl.Tests
                 },
                 settings
             );
-            Assert.Equal(CameraOp.Yaw, rot);
+            Assert.Equal(CameraOp.Rotate, rot);
             Assert.True(session.RotateOwned);
             Assert.False(session.OrbitLatched);
 
@@ -341,7 +349,7 @@ namespace TrackpadCameraControl.Tests
                 settings
             );
             Assert.True((ops & CameraOp.Orbit) != 0);
-            Assert.Equal(CameraOp.None, ops & CameraOp.Yaw);
+            Assert.Equal(CameraOp.None, ops & CameraOp.Rotate);
             Assert.False(session.RotateOwned);
         }
 
@@ -582,44 +590,44 @@ namespace TrackpadCameraControl.Tests
             var frame = Frame(fingers: 2, pinch: 0.05f, dx: 0.02f, dy: 0f);
 
             CameraOp ops = GestureBindingResolver.ResolveCandidates(frame, settings, false);
-            ops = GestureBindingResolver.ExclusiveZoomVersusYaw(ops, frame, settings);
+            ops = GestureBindingResolver.ExclusiveZoomVersusRotate(ops, frame, settings);
             Assert.True((ops & CameraOp.Zoom) != 0);
             Assert.True((ops & CameraOp.Pan) != 0);
         }
 
         [Fact]
-        public void ExclusiveZoomVersusYaw_KeepsDominantPinch()
+        public void ExclusiveZoomVersusRotate_KeepsDominantPinch()
         {
             var settings = new ModSettings { PinchDeadband = 0.001f, YawDeadband = 0.001f };
             var frame = Frame(pinch: 0.05f, rotate: 0.01f);
-            CameraOp ops = CameraOp.Zoom | CameraOp.Yaw;
+            CameraOp ops = CameraOp.Zoom | CameraOp.Rotate;
             Assert.Equal(
                 CameraOp.Zoom,
-                GestureBindingResolver.ExclusiveZoomVersusYaw(ops, frame, settings)
+                GestureBindingResolver.ExclusiveZoomVersusRotate(ops, frame, settings)
             );
         }
 
         [Fact]
-        public void ExclusiveZoomVersusYaw_KeepsDominantRotate()
+        public void ExclusiveZoomVersusRotate_KeepsDominantRotate()
         {
             var settings = new ModSettings { PinchDeadband = 0.001f, YawDeadband = 0.001f };
             var frame = Frame(pinch: 0.002f, rotate: 0.5f);
-            CameraOp ops = CameraOp.Zoom | CameraOp.Yaw;
+            CameraOp ops = CameraOp.Zoom | CameraOp.Rotate;
             Assert.Equal(
-                CameraOp.Yaw,
-                GestureBindingResolver.ExclusiveZoomVersusYaw(ops, frame, settings)
+                CameraOp.Rotate,
+                GestureBindingResolver.ExclusiveZoomVersusRotate(ops, frame, settings)
             );
         }
 
         [Fact]
-        public void ExclusiveOrbitVersusYaw_DropsYawWhenOrbitDominant()
+        public void ExclusiveOrbitVersusRotate_DropsRotateWhenOrbitDominant()
         {
             var settings = new ModSettings { YawDeadband = 0.001f, MotionDeadband = 0.1f };
             var frame = Frame(dx: 5f, dy: 5f, rotate: 0.001f);
             Assert.Equal(
                 CameraOp.Orbit,
-                GestureBindingResolver.ExclusiveOrbitVersusYaw(
-                    CameraOp.Orbit | CameraOp.Yaw,
+                GestureBindingResolver.ExclusiveOrbitVersusRotate(
+                    CameraOp.Orbit | CameraOp.Rotate,
                     frame,
                     settings
                 )
@@ -627,14 +635,14 @@ namespace TrackpadCameraControl.Tests
         }
 
         [Fact]
-        public void ExclusiveOrbitVersusYaw_KeepsYawWhenTwistDominant()
+        public void ExclusiveOrbitVersusRotate_KeepsRotateWhenTwistDominant()
         {
             var settings = new ModSettings { YawDeadband = 0.001f, MotionDeadband = 0.1f };
             var frame = Frame(dx: 0.01f, dy: 0.01f, rotate: 2f);
             Assert.Equal(
-                CameraOp.Yaw,
-                GestureBindingResolver.ExclusiveOrbitVersusYaw(
-                    CameraOp.Orbit | CameraOp.Yaw,
+                CameraOp.Rotate,
+                GestureBindingResolver.ExclusiveOrbitVersusRotate(
+                    CameraOp.Orbit | CameraOp.Rotate,
                     frame,
                     settings
                 )
@@ -642,15 +650,15 @@ namespace TrackpadCameraControl.Tests
         }
 
         [Fact]
-        public void ExclusiveOrbitVersusYaw_LegacyOverload_DropsYaw()
+        public void ExclusiveOrbitVersusRotate_LegacyOverload_DropsRotate()
         {
             Assert.Equal(
                 CameraOp.Orbit,
-                GestureBindingResolver.ExclusiveOrbitVersusYaw(CameraOp.Orbit | CameraOp.Yaw)
+                GestureBindingResolver.ExclusiveOrbitVersusRotate(CameraOp.Orbit | CameraOp.Rotate)
             );
             Assert.Equal(
-                CameraOp.Yaw,
-                GestureBindingResolver.ExclusiveOrbitVersusYaw(CameraOp.Yaw)
+                CameraOp.Rotate,
+                GestureBindingResolver.ExclusiveOrbitVersusRotate(CameraOp.Rotate)
             );
         }
 
@@ -817,7 +825,7 @@ namespace TrackpadCameraControl.Tests
             );
 
             Assert.True((ops & CameraOp.Orbit) != 0);
-            Assert.Equal(CameraOp.None, ops & CameraOp.Yaw);
+            Assert.Equal(CameraOp.None, ops & CameraOp.Rotate);
             Assert.Equal(CameraOp.None, ops & CameraOp.Zoom);
             Assert.Equal(CameraOp.None, ops & CameraOp.Pan);
         }
@@ -1040,7 +1048,7 @@ namespace TrackpadCameraControl.Tests
             var cam = new FakeCameraController { AngleX = 0f };
             var settings = new ModSettings { YawRotateGain = 2f };
 
-            CameraApplicator.Apply(CameraOp.Yaw, 0, 0, 0, 0.5f, settings, cam);
+            CameraApplicator.Apply(CameraOp.Rotate, 0, 0, 0, 0.5f, settings, cam);
 
             Assert.Equal(1f, cam.AngleX, 3);
         }

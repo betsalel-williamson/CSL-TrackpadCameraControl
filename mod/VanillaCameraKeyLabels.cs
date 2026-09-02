@@ -130,8 +130,8 @@ namespace TrackpadCameraControl
 
         public static string OpDescriptionRotate =>
             BuildDescription(
-                "Yaw the camera or rotate a place/relocate ghost",
-                FormatGestureLineForOp(LabelSettings(), CameraOp.Yaw),
+                "Rotate the camera or a place/relocate ghost",
+                FormatGestureLineForOp(LabelSettings(), CameraOp.Rotate),
                 ResolveRotateVanillaBindings()
             );
 

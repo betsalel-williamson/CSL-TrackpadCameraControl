@@ -19,7 +19,7 @@ A **dropdown** lists built-in and named [feel presets](../glossary/feel-preset.m
 
 Sections appear in order **General → Zoom → Pan → Rotate → Orbit**. Rhythm uses native Colossal **AddGroup**: a short group title with the native glow underline, and controls nested in that group’s Content.
 
-For each camera op, the **title** is on its own line; the next lines state **Gesture(s):** (from settings bindings seeded by the active **gesture style** — Maps+/CAD) and **Keymapping(s):** (live Cities Options labels). Gesture style is separate from **feel presets** (Slow/Default/Fast sensitivity): changing feel does not change which chords map to Zoom/Pan/Rotate/Orbit. Gesture and keymapping lines refresh when gesture style or keymappings change (Debug rebuilds; Options descriptions update while the mod tab is open). Unbound keys still read **Keymapping(s): none**.
+For each camera op, the **title** is on its own line; the next lines state **Gesture(s):** (from settings bindings seeded by the active **gesture style** — Maps+/CAD) and **Keymapping(s):** (live Cities Options labels). Gesture style is separate from **feel presets** (Slow/Default/Fast sensitivity): changing feel does not change which chords map to Zoom/Pan/Rotate/Orbit. Gesture and keymapping lines refresh in place when gesture style or keymappings change (Debug and Options). Unbound keys still read **Keymapping(s): none**.
 
 | Op     | Meaning                                              | Gesture(s) (Maps+ default)   | Keymapping(s) (still on)                     |
 | ------ | ---------------------------------------------------- | ---------------------------- | -------------------------------------------- |

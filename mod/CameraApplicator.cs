@@ -94,7 +94,7 @@ namespace TrackpadCameraControl
                 pinch = pinchSign * settings.ZoomStep;
             }
 
-            if ((ops & CameraOp.Yaw) != 0)
+            if ((ops & CameraOp.Rotate) != 0)
             {
                 rotate = rotateSign * settings.YawRotateStep;
             }
@@ -135,7 +135,7 @@ namespace TrackpadCameraControl
 
             // Rotation and orbit must not share one Apply: strip orbit when rotation is present
             // so AddAngleVelocity cannot run in the same call as a rotation request.
-            if ((ops & CameraOp.Yaw) != 0)
+            if ((ops & CameraOp.Rotate) != 0)
             {
                 ops &= ~CameraOp.Orbit;
             }
@@ -155,7 +155,7 @@ namespace TrackpadCameraControl
                 ApplyOrbit(dx, dy, settings, camera, modality, selection);
             }
 
-            if ((ops & CameraOp.Yaw) != 0)
+            if ((ops & CameraOp.Rotate) != 0)
             {
                 ApplyYawRotate(rotateDelta, settings, camera, modality, selection);
             }

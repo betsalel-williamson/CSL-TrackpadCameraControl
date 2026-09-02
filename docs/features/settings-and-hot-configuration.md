@@ -100,7 +100,7 @@ Once orbit engages from the configured trigger, the session stays in orbit until
 ## Hot-apply contract
 
 - Live **ModSettings** update immediately from either surface; binding resolver, gesture session, and camera applicator read live settings each frame.
-- **Debug panel** UI rebuilds on `SettingsChanged` so edits from Options appear in the floating panel without restart.
+- **Debug panel** UI prefers in-place field/label refresh on `SettingsChanged` (Reset, Options edits, keymapping label changes); it only Destroy/recreates when heading structure cannot be updated in place.
 - **Options controls** bind at page build (ColossalUI / UIHelperBase cannot rebuild sliders in place). Leave and re-enter Options (or reopen the page) to see Debug edits reflected in slider positions.
 - Debug may hold Sensitivity **outside** the Options slider **0.1×–2×** range; Options sliders clamp only when the player moves them.
 - No mod disable/enable cycle required for tuning.

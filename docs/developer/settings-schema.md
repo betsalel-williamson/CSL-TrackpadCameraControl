@@ -32,7 +32,7 @@ Schema field `AssistUiEnabled` shows or hides the in-game **Debug** panel (feel 
 | ------------------ | ------------------------------------------ | ---------- | --- |
 | GestureResolveMode | enum: Concurrent, SessionLock, PrimaryOnly | Concurrent | yes |
 
-See [gesture resolve mode](../glossary/gesture-resolve-mode.md). PrimaryOnly priority when multiple candidates exist: Orbit > Zoom > Yaw > Pan. Schema-retained; not required on the slim product surface.
+See [gesture resolve mode](../glossary/gesture-resolve-mode.md). PrimaryOnly priority when multiple candidates exist: Orbit > Zoom > Rotate > Pan. Schema-retained; not required on the slim product surface.
 
 ## Orbit trigger
 
@@ -63,7 +63,7 @@ Used by trackpad gestures (and Assist chrome pads when `EnableAssistChrome` is o
 
 **Schema 6:** `PinchDeadband` / `YawDeadband` replace misnamed `PinchEpsilon` / `RotateEpsilon` (activation deadbands, not filter epsilon). Schema 3–5 files still load those legacy elements; save rewrites schema 6 names.
 
-**Schema 7:** Per-op trackpad gesture bindings (`ZoomGesture` / `ZoomGestureModifier`, and the same for Pan / Yaw / Orbit). Owned by **gesture style** (`GesturePreset` / `ApplyGesturePreset`); orthogonal to feel presets (Slow/Default/Fast). No remap UI yet. Missing elements load Maps+ factory defaults.
+**Schema 7–8:** Per-op trackpad gesture bindings (`ZoomGesture` / `ZoomGestureModifier`, and the same for Pan / Rotate / Orbit). Schema 8 renames Rotate bindings from `YawGesture*` → `RotateGesture*` (yaw/pitch remain Orbit axes). Owned by **gesture style** (`GesturePreset` / `ApplyGesturePreset`); orthogonal to feel presets (Slow/Default/Fast). No remap UI yet. Missing elements load Maps+ factory defaults.
 
 **Schema 3:** XML element names move to engineering language (`*Gain*`, `*Step*`, `MotionDeadband`, `*Filter*`, `SignInvert*`). Schema 1–2 files deserialize via the legacy shape and rewrite as schema 3.
 
@@ -152,22 +152,24 @@ When enabled for an op under Contacts capture: first sample seeds state; later `
 
 Factory Default feel: Pan Reverse X on, Y off (playtest Maps+).
 
-## Gesture bindings (schema 7)
+## Gesture bindings (schema 7–8)
 
 Composable **gesture + optional modifier** per camera op. Source of truth for **Gesture(s):** op-heading lines. Defaults come from Maps+/CAD **gesture style** tables via `ApplyGesturePreset` (not from feel Slow/Default/Fast). No edit UI yet.
 
-| Field                | Type                    | Maps+ default   | Hot |
-| -------------------- | ----------------------- | --------------- | --- |
-| ZoomGesture          | enum TrackpadGesture    | Pinch           | yes |
-| ZoomGestureModifier  | enum GestureModifierKey | None            | yes |
-| PanGesture           | enum TrackpadGesture    | TwoFingerDrag   | yes |
-| PanGestureModifier   | enum GestureModifierKey | None            | yes |
-| YawGesture           | enum TrackpadGesture    | TwoFingerRotate | yes |
-| YawGestureModifier   | enum GestureModifierKey | None            | yes |
-| OrbitGesture         | enum TrackpadGesture    | TwoFingerDrag   | yes |
-| OrbitGestureModifier | enum GestureModifierKey | Option          | yes |
+**Rotate** is the product op name (Cities camera rotate). Schema fields use `RotateGesture*`. Yaw/pitch axes belong to **Orbit** (`OrbitYawGain` / `OrbitPitchGain`), not this op. Schema 8 renames former `YawGesture*` elements; load still accepts schema 7 XML.
 
-CAD `ApplyGesturePreset` keeps Zoom/Pan/Yaw the same and sets Orbit to ThreeFingerDrag + None (and syncs `OrbitTrigger`). Drag = continuous deltas; Swipe/Tap enum values are catalog stubs for future ports.
+| Field                 | Type                    | Maps+ default   | Hot |
+| --------------------- | ----------------------- | --------------- | --- |
+| ZoomGesture           | enum TrackpadGesture    | Pinch           | yes |
+| ZoomGestureModifier   | enum GestureModifierKey | None            | yes |
+| PanGesture            | enum TrackpadGesture    | TwoFingerDrag   | yes |
+| PanGestureModifier    | enum GestureModifierKey | None            | yes |
+| RotateGesture         | enum TrackpadGesture    | TwoFingerRotate | yes |
+| RotateGestureModifier | enum GestureModifierKey | None            | yes |
+| OrbitGesture          | enum TrackpadGesture    | TwoFingerDrag   | yes |
+| OrbitGestureModifier  | enum GestureModifierKey | Option          | yes |
+
+CAD `ApplyGesturePreset` keeps Zoom/Pan/Rotate the same and sets Orbit to ThreeFingerDrag + None (and syncs `OrbitTrigger`). Drag = continuous deltas; Swipe/Tap enum values are catalog stubs for future ports.
 
 Feel presets (Sensitivity / deadbands) apply on top of whichever gesture style is active and must not rewrite these fields.
 

@@ -218,5 +218,53 @@ namespace TrackpadCameraControl.Tests
                 }
             }
         }
+
+        [Fact]
+        public void LoadOrFactory_MigratesSchema7YawGestureXmlToRotateGestureNames()
+        {
+            string path = Path.Combine(
+                Path.GetTempPath(),
+                "tcc-rotate-gesture-" + Path.GetRandomFileName() + ".xml"
+            );
+            try
+            {
+                File.WriteAllText(
+                    path,
+                    @"<?xml version=""1.0"" encoding=""utf-8""?>
+<TrackpadCameraControlSettings xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance"" xmlns:xsd=""http://www.w3.org/2001/XMLSchema"">
+  <SchemaVersion>7</SchemaVersion>
+  <Current>
+    <PanGainX>0.005</PanGainX>
+    <YawGesture>TwoFingerRotate</YawGesture>
+    <YawGestureModifier>Option</YawGestureModifier>
+    <ActiveFeelPresetName>Default</ActiveFeelPresetName>
+  </Current>
+</TrackpadCameraControlSettings>"
+                );
+
+                var store = new ModSettingsStore(path);
+                ModSettings loaded = store.LoadOrFactory();
+
+                Assert.Equal(TrackpadGesture.TwoFingerRotate, loaded.RotateGesture);
+                Assert.Equal(GestureModifierKey.Option, loaded.RotateGestureModifier);
+
+                string rewritten = File.ReadAllText(path);
+                Assert.Contains(
+                    "<SchemaVersion>" + ModSettingsStore.CurrentSchemaVersion + "</SchemaVersion>",
+                    rewritten
+                );
+                Assert.Contains("<RotateGesture>TwoFingerRotate</RotateGesture>", rewritten);
+                Assert.Contains("<RotateGestureModifier>Option</RotateGestureModifier>", rewritten);
+                Assert.DoesNotContain("<YawGesture>", rewritten);
+                Assert.DoesNotContain("<YawGestureModifier>", rewritten);
+            }
+            finally
+            {
+                if (File.Exists(path))
+                {
+                    File.Delete(path);
+                }
+            }
+        }
     }
 }

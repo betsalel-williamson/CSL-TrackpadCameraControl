@@ -8,7 +8,11 @@ namespace TrackpadCameraControl
         None = 0,
         Pan = 1 << 0,
         Zoom = 1 << 1,
-        Yaw = 1 << 2,
+
+        /// <summary>Product <b>Rotate</b> op (two-finger twist). Not Orbit yaw/pitch.</summary>
+        Rotate = 1 << 2,
+
+        /// <summary>Orbit drag — applies yaw + pitch around the pivot.</summary>
         Orbit = 1 << 3,
     }
 
@@ -37,7 +41,7 @@ namespace TrackpadCameraControl
 
             if (settings.YawEnabled && Abs(frame.rotateDelta) > settings.YawDeadband)
             {
-                ops |= CameraOp.Yaw;
+                ops |= CameraOp.Rotate;
             }
 
             bool motion =
@@ -65,46 +69,46 @@ namespace TrackpadCameraControl
         }
 
         /// <summary>
-        /// When both zoom and yaw qualify, keep the stronger signal so they never apply together.
+        /// When both zoom and rotate qualify, keep the stronger signal so they never apply together.
         /// </summary>
-        public static CameraOp ExclusiveZoomVersusYaw(
+        public static CameraOp ExclusiveZoomVersusRotate(
             CameraOp ops,
             GestureFrame frame,
             ModSettings settings
         )
         {
             bool zoom = (ops & CameraOp.Zoom) != 0;
-            bool yaw = (ops & CameraOp.Yaw) != 0;
-            if (!zoom || !yaw || settings == null)
+            bool rotate = (ops & CameraOp.Rotate) != 0;
+            if (!zoom || !rotate || settings == null)
             {
                 return ops;
             }
 
             float pinchDeadband = settings.PinchDeadband > 1e-8f ? settings.PinchDeadband : 0.001f;
-            float yawDeadband = settings.YawDeadband > 1e-8f ? settings.YawDeadband : 0.001f;
+            float rotateDeadband = settings.YawDeadband > 1e-8f ? settings.YawDeadband : 0.001f;
             float zoomScore = Abs(frame.pinchScaleDelta) / pinchDeadband;
-            float yawScore = Abs(frame.rotateDelta) / yawDeadband;
+            float rotateScore = Abs(frame.rotateDelta) / rotateDeadband;
 
-            if (zoomScore >= yawScore)
+            if (zoomScore >= rotateScore)
             {
-                return ops & ~CameraOp.Yaw;
+                return ops & ~CameraOp.Rotate;
             }
 
             return ops & ~CameraOp.Zoom;
         }
 
         /// <summary>
-        /// Orbit centroid drag already yaws. Concurrent twist can double-write AngleX — but if
-        /// twist dominates centroid motion, prefer Yaw and drop Orbit so rotate does not steal
-        /// scroll <c>dy</c> into pitch.
+        /// Orbit centroid drag already writes camera yaw (<c>AngleX</c>). Concurrent twist can
+        /// double-write — but if twist dominates centroid motion, prefer <see cref="CameraOp.Rotate"/>
+        /// and drop Orbit so rotate does not steal scroll <c>dy</c> into pitch.
         /// </summary>
-        public static CameraOp ExclusiveOrbitVersusYaw(
+        public static CameraOp ExclusiveOrbitVersusRotate(
             CameraOp ops,
             GestureFrame frame,
             ModSettings settings
         )
         {
-            if ((ops & CameraOp.Orbit) == 0 || (ops & CameraOp.Yaw) == 0)
+            if ((ops & CameraOp.Orbit) == 0 || (ops & CameraOp.Rotate) == 0)
             {
                 return ops;
             }
@@ -114,13 +118,13 @@ namespace TrackpadCameraControl
                 return ops & ~CameraOp.Orbit;
             }
 
-            return ops & ~CameraOp.Yaw;
+            return ops & ~CameraOp.Rotate;
         }
 
-        /// <summary>Backward-compatible overload: prefer orbit (drop yaw) when both present.</summary>
-        public static CameraOp ExclusiveOrbitVersusYaw(CameraOp ops)
+        /// <summary>Backward-compatible overload: prefer orbit (drop rotate) when both present.</summary>
+        public static CameraOp ExclusiveOrbitVersusRotate(CameraOp ops)
         {
-            return ExclusiveOrbitVersusYaw(ops, default(GestureFrame), null);
+            return ExclusiveOrbitVersusRotate(ops, default(GestureFrame), null);
         }
 
         /// <summary>
@@ -135,11 +139,11 @@ namespace TrackpadCameraControl
                     && Abs(frame.rotateDelta) >= Abs(frame.centroidDeltaY);
             }
 
-            float yawDeadband = settings.YawDeadband > 1e-8f ? settings.YawDeadband : 0.001f;
+            float rotateDeadband = settings.YawDeadband > 1e-8f ? settings.YawDeadband : 0.001f;
             float dead = settings.MotionDeadband > 1e-8f ? settings.MotionDeadband : 0.001f;
-            float yawScore = Abs(frame.rotateDelta) / yawDeadband;
+            float rotateScore = Abs(frame.rotateDelta) / rotateDeadband;
             float motionScore = Max(Abs(frame.centroidDeltaX), Abs(frame.centroidDeltaY)) / dead;
-            return yawScore > 0f && yawScore >= motionScore;
+            return rotateScore > 0f && rotateScore >= motionScore;
         }
 
         private static float Max(float a, float b)
@@ -193,7 +197,7 @@ namespace TrackpadCameraControl
             return false;
         }
 
-        /// <summary>PrimaryOnly priority: Orbit > Zoom > Yaw > Pan.</summary>
+        /// <summary>PrimaryOnly priority: Orbit > Zoom > Rotate > Pan.</summary>
         public static CameraOp PickPrimary(CameraOp candidates)
         {
             if ((candidates & CameraOp.Orbit) != 0)
@@ -206,9 +210,9 @@ namespace TrackpadCameraControl
                 return CameraOp.Zoom;
             }
 
-            if ((candidates & CameraOp.Yaw) != 0)
+            if ((candidates & CameraOp.Rotate) != 0)
             {
-                return CameraOp.Yaw;
+                return CameraOp.Rotate;
             }
 
             if ((candidates & CameraOp.Pan) != 0)

@@ -6,7 +6,7 @@ In code and persisted XML the same multiplier is **gain** (`PanGainX`, `ZoomGain
 
 Option-orbit drag feeds the same **angle velocity** path as middle mouse button drag (vanilla inertia + lerp); Sensitivity / gain is the single multiplier — there is no separate scroll “scale” constant.
 
-**Math (after optional filter / low-pass when that path is active):** `scaled = raw * gain`, then apply sign invert if set. Pan also multiplies by camera `Size` before the camera-relative XZ write. Zoom: `Size' = Size * (1 - scaledPinch)`. Yaw: add scaled delta to `AngleX`. Orbit drag: `AddAngleVelocity` (middle mouse button path). Orbit pitch uses vanilla 0–90°; drag floors at 0; button steps clamp to that range.
+**Math (after optional filter / low-pass when that path is active):** `scaled = raw * gain`, then apply sign invert if set. Pan also multiplies by camera `Size` before the camera-relative XZ write. Zoom: `Size' = Size * (1 - scaledPinch)`. Rotate: add scaled delta to `AngleX`. Orbit drag: `AddAngleVelocity` (middle mouse button path) — yaw + pitch around the pivot. Orbit pitch uses vanilla 0–90°; drag floors at 0; button steps clamp to that range.
 
 **Synonyms** (same multiplier): UI **Sensitivity**; code/XML **gain**; older docs [drag scale](./drag-scale.md), speed, scale.
 

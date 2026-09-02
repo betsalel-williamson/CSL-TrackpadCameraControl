@@ -61,7 +61,7 @@ namespace TrackpadCameraControl.Tests
             Assert.Equal(TrackpadGesture.Pinch, s.ZoomGesture);
             Assert.Equal(GestureModifierKey.None, s.ZoomGestureModifier);
             Assert.Equal(TrackpadGesture.TwoFingerDrag, s.PanGesture);
-            Assert.Equal(TrackpadGesture.TwoFingerRotate, s.YawGesture);
+            Assert.Equal(TrackpadGesture.TwoFingerRotate, s.RotateGesture);
             Assert.Equal(TrackpadGesture.TwoFingerDrag, s.OrbitGesture);
             Assert.Equal(GestureModifierKey.Option, s.OrbitGestureModifier);
             Assert.Equal(OrbitTrigger.ModifierPlusTwoFinger, s.OrbitTrigger);

@@ -148,7 +148,7 @@ namespace TrackpadCameraControl
         public static TrackpadGestureBinding MapsPlusPan =>
             new TrackpadGestureBinding(TrackpadGesture.TwoFingerDrag, GestureModifierKey.None);
 
-        public static TrackpadGestureBinding MapsPlusYaw =>
+        public static TrackpadGestureBinding MapsPlusRotate =>
             new TrackpadGestureBinding(TrackpadGesture.TwoFingerRotate, GestureModifierKey.None);
 
         public static TrackpadGestureBinding MapsPlusOrbit =>
@@ -158,7 +158,7 @@ namespace TrackpadCameraControl
 
         public static TrackpadGestureBinding CadPan => MapsPlusPan;
 
-        public static TrackpadGestureBinding CadYaw => MapsPlusYaw;
+        public static TrackpadGestureBinding CadRotate => MapsPlusRotate;
 
         public static TrackpadGestureBinding CadOrbit =>
             new TrackpadGestureBinding(TrackpadGesture.ThreeFingerDrag, GestureModifierKey.None);
@@ -172,7 +172,7 @@ namespace TrackpadCameraControl
 
             SetBinding(settings, CameraOp.Zoom, MapsPlusZoom);
             SetBinding(settings, CameraOp.Pan, MapsPlusPan);
-            SetBinding(settings, CameraOp.Yaw, MapsPlusYaw);
+            SetBinding(settings, CameraOp.Rotate, MapsPlusRotate);
             SetBinding(settings, CameraOp.Orbit, MapsPlusOrbit);
             settings.OrbitTrigger = OrbitTrigger.ModifierPlusTwoFinger;
         }
@@ -186,7 +186,7 @@ namespace TrackpadCameraControl
 
             SetBinding(settings, CameraOp.Zoom, CadZoom);
             SetBinding(settings, CameraOp.Pan, CadPan);
-            SetBinding(settings, CameraOp.Yaw, CadYaw);
+            SetBinding(settings, CameraOp.Rotate, CadRotate);
             SetBinding(settings, CameraOp.Orbit, CadOrbit);
             settings.OrbitTrigger = OrbitTrigger.ThreeFinger;
         }
@@ -210,10 +210,10 @@ namespace TrackpadCameraControl
                         settings.PanGesture,
                         settings.PanGestureModifier
                     );
-                case CameraOp.Yaw:
+                case CameraOp.Rotate:
                     return new TrackpadGestureBinding(
-                        settings.YawGesture,
-                        settings.YawGestureModifier
+                        settings.RotateGesture,
+                        settings.RotateGestureModifier
                     );
                 case CameraOp.Orbit:
                     return new TrackpadGestureBinding(
@@ -246,9 +246,9 @@ namespace TrackpadCameraControl
                     settings.PanGesture = binding.Gesture;
                     settings.PanGestureModifier = binding.Modifier;
                     break;
-                case CameraOp.Yaw:
-                    settings.YawGesture = binding.Gesture;
-                    settings.YawGestureModifier = binding.Modifier;
+                case CameraOp.Rotate:
+                    settings.RotateGesture = binding.Gesture;
+                    settings.RotateGestureModifier = binding.Modifier;
                     break;
                 case CameraOp.Orbit:
                     settings.OrbitGesture = binding.Gesture;
