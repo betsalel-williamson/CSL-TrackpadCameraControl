@@ -123,7 +123,8 @@ namespace TrackpadCameraControl
 
             AddBuildInfoFooter();
 
-            _root.height = Mathf.Min(720f, _nextY + 16f);
+            _root.height = _nextY + 16f;
+            ClampPanelIntoView();
 
             _reopen = view.AddUIComponent(typeof(UIButton)) as UIButton;
             if (_reopen != null)
@@ -776,7 +777,10 @@ namespace TrackpadCameraControl
             _nextY += 8f;
             float rowY = _nextY;
             float copyX = PanelWidth - FieldGutter - FooterCopyButtonWidth;
-            float labelWidth = copyX - Col0 - 4f;
+            // Pack Include system info on the Copy row so it is not clipped below the panel.
+            const float includeBoxW = 168f;
+            float includeX = copyX - includeBoxW - 6f;
+            float labelWidth = includeX - Col0 - 4f;
 
             UILabel label = AddLabel(_root, line, Col0, rowY);
             label.textColor = new Color(1f, 1f, 1f, 0.75f);
@@ -787,7 +791,47 @@ namespace TrackpadCameraControl
             label.isInteractive = false;
             label.PerformLayout();
 
-            // Labelled "Copy" — Cities UI fonts do not render clipboard glyphs (blank square).
+            UICheckBox includeBox = _root.AddUIComponent<UICheckBox>();
+            includeBox.width = includeBoxW;
+            includeBox.height = 20f;
+            includeBox.relativePosition = new Vector3(
+                includeX,
+                rowY + (FooterCopyButtonHeight - 20f) * 0.5f
+            );
+            UISprite uncheckedSprite = includeBox.AddUIComponent<UISprite>();
+            uncheckedSprite.spriteName = "check-unchecked";
+            uncheckedSprite.size = new Vector2(16f, 16f);
+            uncheckedSprite.relativePosition = Vector3.zero;
+            includeBox.checkedBoxObject = includeBox.AddUIComponent<UISprite>();
+            ((UISprite)includeBox.checkedBoxObject).spriteName = "check-checked";
+            includeBox.checkedBoxObject.size = new Vector2(16f, 16f);
+            includeBox.checkedBoxObject.relativePosition = Vector3.zero;
+            UILabel includeLabel = includeBox.AddUIComponent<UILabel>();
+            includeLabel.text = "Include system info";
+            includeLabel.tooltip = "Include OS, devices, and assembly versions when copying";
+            includeLabel.relativePosition = new Vector3(22f, 2f);
+            includeBox.label = includeLabel;
+            includeBox.tooltip = includeLabel.tooltip;
+            includeBox.isChecked = Mod.Settings == null || Mod.Settings.IncludeSystemInfoInCopy;
+            includeBox.eventCheckChanged += (c, v) =>
+            {
+                if (_handlingSettingsChanged)
+                {
+                    return;
+                }
+
+                ModSettings copySettings = Mod.EnsureSettings();
+                ModOptions.ApplyBool(copySettings, x => x.IncludeSystemInfoInCopy = v);
+            };
+            RegisterCheck(
+                includeBox,
+                () =>
+                {
+                    ModSettings copySettings = Mod.Settings;
+                    return copySettings == null || copySettings.IncludeSystemInfoInCopy;
+                }
+            );
+
             UIButton copy = MakeMenuButton("Copy", copyX, rowY, FooterCopyButtonWidth);
             copy.height = FooterCopyButtonHeight;
             copy.tooltip = "Copy build info (and system info when checked)";
@@ -803,19 +847,23 @@ namespace TrackpadCameraControl
             };
 
             _nextY += Mathf.Max(FooterCopyButtonHeight, label.height + 4f);
-            AddLocalCheckRow(
-                "Include system info (OS, devices)",
-                () =>
-                {
-                    ModSettings copySettings = Mod.Settings;
-                    return copySettings == null || copySettings.IncludeSystemInfoInCopy;
-                },
-                v =>
-                {
-                    ModSettings copySettings = Mod.EnsureSettings();
-                    ModOptions.ApplyBool(copySettings, x => x.IncludeSystemInfoInCopy = v);
-                }
-            );
+        }
+
+        /// <summary>Keep the Debug panel (including footer) inside the game UI view.</summary>
+        private static void ClampPanelIntoView()
+        {
+            if (_root == null)
+            {
+                return;
+            }
+
+            const float margin = 8f;
+            Vector3 p = _root.relativePosition;
+            float maxX = Mathf.Max(margin, Screen.width - _root.width - margin);
+            float maxY = Mathf.Max(margin, Screen.height - _root.height - margin);
+            p.x = Mathf.Clamp(p.x, margin, maxX);
+            p.y = Mathf.Clamp(p.y, margin, maxY);
+            _root.relativePosition = p;
         }
 
         private static void AddLocalCheckRow(string label, Func<bool> get, Action<bool> set)
@@ -1074,6 +1122,7 @@ namespace TrackpadCameraControl
             }
 
             _root.MakePixelPerfect();
+            ClampPanelIntoView();
             Vector3 p = _root.relativePosition;
             ModOptions.ApplyPanelPosition(s, p.x, p.y);
         }
