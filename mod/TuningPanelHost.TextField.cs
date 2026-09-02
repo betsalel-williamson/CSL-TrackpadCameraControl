@@ -35,8 +35,8 @@ namespace TrackpadCameraControl
             AssignTabOrder(field);
             field.submitOnFocusLost = true;
             field.eventTextSubmitted += (c, text) => submit();
-            // Keypad Enter / Tab: unfocus (or advance) so submitOnFocusLost fires — Colossal
-            // only does this for Return by default.
+            // Keypad Enter: unfocus on key down. Tab: advance on key up only (wraps).
+            // Colossal only submits on Return by default.
             NumericTextFieldUi.WireConfirmKeys(field);
         }
 
