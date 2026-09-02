@@ -71,7 +71,9 @@ namespace TrackpadCameraControl
         }
 
         /// <summary>
-        /// Copy product-surface feel fields: enables, reverse, sensitivities, pitch limits.
+        /// Copy product-surface feel fields: enables, reverse, sensitivities, pitch limits, deadbands.
+        /// Does <b>not</b> copy <see cref="ModSettings.GesturePreset"/>, orbit trigger, or per-op
+        /// trackpad gesture bindings — those belong to gesture style, not feel.
         /// </summary>
         public static void CopyFeelFields(ModSettings dest, ModSettings source)
         {

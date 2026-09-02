@@ -39,6 +39,6 @@ namespace TrackpadCameraControl
         public bool BridgeEnabled { get; set; }
         public bool DebugOverlay { get; set; }
 
-        public void ApplyPreset(GesturePreset preset) { /* seed OrbitTrigger + flags; see docs */ }
+        public void ApplyPreset(GesturePreset preset) { /* seed gesture bindings via ApplyGesturePreset; see docs */ }
     }
 }

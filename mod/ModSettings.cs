@@ -31,7 +31,13 @@ namespace TrackpadCameraControl
     /// </summary>
     public class ModSettings
     {
+        /// <summary>
+        /// Gesture style (Maps+ / CAD / future OS layouts): which trackpad chords map to
+        /// Zoom/Pan/Yaw/Orbit. Orthogonal to <see cref="ActiveFeelPresetName"/> (Slow/Default/Fast
+        /// sensitivity). Changing feel never rewrites gesture bindings.
+        /// </summary>
         public GesturePreset GesturePreset { get; set; } = GesturePreset.MapsPlus;
+
         public GestureResolveMode GestureResolveMode { get; set; } = GestureResolveMode.Concurrent;
 
         public bool AssistUiEnabled { get; set; } = false;
@@ -43,7 +49,7 @@ namespace TrackpadCameraControl
 
         /// <summary>
         /// Schema 7: per-op trackpad gesture bindings (composable gesture + modifier).
-        /// Seeded by Maps+/CAD <see cref="ApplyPreset"/>; no remap UI yet.
+        /// Owned by <see cref="GesturePreset"/> via <see cref="ApplyGesturePreset"/> — not by feel presets.
         /// </summary>
         public TrackpadGesture ZoomGesture { get; set; } = TrackpadGesture.Pinch;
 
@@ -152,15 +158,17 @@ namespace TrackpadCameraControl
         public CaptureBackend CaptureBackend { get; set; } = CaptureBackend.AppleGestures;
 
         /// <summary>
-        /// Active feel identity for the preset dropdown (Slow / Default / Fast / New Preset / named).
+        /// Active feel identity for the feel dropdown (Slow / Default / Fast / New Preset / named).
+        /// Sensitivity and deadbands only — never gesture-style bindings.
         /// </summary>
         public string ActiveFeelPresetName { get; set; } = FeelProfiles.NameDefault;
 
         /// <summary>
-        /// Seeds per-op gesture bindings + orbit trigger from Maps+ or CAD. Custom is a no-op.
-        /// Does not wipe custom scales or filter settings.
+        /// Seeds per-op gesture bindings + orbit trigger from Maps+ or CAD gesture style.
+        /// Does not change feel gains, deadbands, or <see cref="ActiveFeelPresetName"/>.
+        /// Custom is a no-op.
         /// </summary>
-        public void ApplyPreset(GesturePreset preset)
+        public void ApplyGesturePreset(GesturePreset preset)
         {
             if (preset == GesturePreset.Custom)
             {
@@ -176,6 +184,12 @@ namespace TrackpadCameraControl
             {
                 TrackpadGestureCatalog.ApplyCadDefaults(this);
             }
+        }
+
+        /// <summary>Legacy alias for <see cref="ApplyGesturePreset"/>.</summary>
+        public void ApplyPreset(GesturePreset preset)
+        {
+            ApplyGesturePreset(preset);
         }
 
         /// <summary>Copy all feel and binding fields from another settings instance.</summary>

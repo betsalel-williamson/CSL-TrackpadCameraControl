@@ -125,7 +125,7 @@ namespace TrackpadCameraControl
                 return;
             }
 
-            settings.ApplyPreset(IndexToGesturePreset(index));
+            settings.ApplyGesturePreset(IndexToGesturePreset(index));
             NotifyChanged(settings);
         }
 

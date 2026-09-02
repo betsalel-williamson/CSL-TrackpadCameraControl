@@ -68,10 +68,23 @@ namespace TrackpadCameraControl.Tests
         }
 
         [Fact]
+        public void ApplyFeelDefault_DoesNotRewriteGestureStyleBindings()
+        {
+            ModSettings s = ModSettings.CreateFactoryDefaults();
+            s.ApplyGesturePreset(GesturePreset.CAD);
+            ModOptions.ApplyFeelDefault(s);
+            Assert.Equal(GesturePreset.CAD, s.GesturePreset);
+            Assert.Equal(TrackpadGesture.ThreeFingerDrag, s.OrbitGesture);
+            Assert.Equal(GestureModifierKey.None, s.OrbitGestureModifier);
+            Assert.Equal(OrbitTrigger.ThreeFinger, s.OrbitTrigger);
+            Assert.Equal(FeelProfiles.NameDefault, s.ActiveFeelPresetName);
+        }
+
+        [Fact]
         public void ApplyPreset_Cad_UpdatesOrbitPairAndTrigger()
         {
             ModSettings s = ModSettings.CreateFactoryDefaults();
-            s.ApplyPreset(GesturePreset.CAD);
+            s.ApplyGesturePreset(GesturePreset.CAD);
             Assert.Equal(GesturePreset.CAD, s.GesturePreset);
             Assert.Equal(TrackpadGesture.ThreeFingerDrag, s.OrbitGesture);
             Assert.Equal(GestureModifierKey.None, s.OrbitGestureModifier);
@@ -83,8 +96,8 @@ namespace TrackpadCameraControl.Tests
         public void ApplyPreset_MapsPlus_RestoresOptionOrbit()
         {
             ModSettings s = ModSettings.CreateFactoryDefaults();
-            s.ApplyPreset(GesturePreset.CAD);
-            s.ApplyPreset(GesturePreset.MapsPlus);
+            s.ApplyGesturePreset(GesturePreset.CAD);
+            s.ApplyGesturePreset(GesturePreset.MapsPlus);
             Assert.Equal(TrackpadGesture.TwoFingerDrag, s.OrbitGesture);
             Assert.Equal(GestureModifierKey.Option, s.OrbitGestureModifier);
             Assert.Equal(OrbitTrigger.ModifierPlusTwoFinger, s.OrbitTrigger);
@@ -94,7 +107,7 @@ namespace TrackpadCameraControl.Tests
         public void CopyFrom_CopiesGestureBindings()
         {
             var source = ModSettings.CreateFactoryDefaults();
-            source.ApplyPreset(GesturePreset.CAD);
+            source.ApplyGesturePreset(GesturePreset.CAD);
             var dest = ModSettings.CreateFactoryDefaults();
             dest.CopyFrom(source);
             Assert.Equal(TrackpadGesture.ThreeFingerDrag, dest.OrbitGesture);
