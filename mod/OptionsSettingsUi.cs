@@ -1,5 +1,6 @@
 #if HAS_CITIES
 using System;
+using System.Collections.Generic;
 using ColossalFramework.UI;
 using ICities;
 using UnityEngine;
@@ -11,7 +12,9 @@ namespace TrackpadCameraControl
     /// ColossalUI / UIHelperBase limits (best-effort):
     /// - Sections use nested <see cref="UIHelperBase.AddGroup"/> (short title + native glow);
     ///   long <see cref="ModOptions.OpDescription*"/> strings are small labels inside group Content.
-    /// - Sensitivity uses <see cref="UIHelperBase.AddSlider"/> (0×–2× factory, step ≈ 10%).
+    /// - Sensitivity uses <see cref="UIHelperBase.AddSlider"/> on a fixed [0, 1] UI domain;
+    ///   <see cref="ModOptions.GainToSensitivityUi"/> / <see cref="ModOptions.SensitivityUiToGain"/>
+    ///   map piecewise to 0.1× / 1× / 2× factory (UI 0.5 = Default / Debug field value).
     /// - Feel presets use a dropdown; Save as… is the last entry plus a name text field
     ///   (dropdown cannot collect a new name alone).
     /// - Options controls bind to live <see cref="ModSettings"/> at build time only; Apply*
@@ -21,12 +24,16 @@ namespace TrackpadCameraControl
     /// </summary>
     internal static class OptionsSettingsUi
     {
+        private static readonly List<Action> SensitivitySliderRefreshes = new List<Action>(8);
+
         public static void Build(UIHelperBase helper, ModSettings s)
         {
             if (helper == null || s == null)
             {
                 return;
             }
+
+            SensitivitySliderRefreshes.Clear();
 
             ModSettings factory = ModSettings.CreateFactoryDefaults();
 
@@ -58,7 +65,7 @@ namespace TrackpadCameraControl
                 "Zoom",
                 ModOptions.OpDescriptionZoom,
                 "Sensitivity",
-                s.ZoomGain,
+                () => s.ZoomGain,
                 factory.ZoomGain,
                 ModOptions.ApplyZoomGain,
                 "Button step",
@@ -75,11 +82,11 @@ namespace TrackpadCameraControl
                 "Pan",
                 ModOptions.OpDescriptionPan,
                 "Sensitivity X",
-                s.PanGainX,
+                () => s.PanGainX,
                 factory.PanGainX,
                 ModOptions.ApplyPanGainX,
                 "Sensitivity Y",
-                s.PanGainY,
+                () => s.PanGainY,
                 factory.PanGainY,
                 ModOptions.ApplyPanGainY,
                 "Button step X",
@@ -99,7 +106,7 @@ namespace TrackpadCameraControl
                 "Rotate",
                 ModOptions.OpDescriptionRotate,
                 "Sensitivity",
-                s.RotateGain,
+                () => s.RotateGain,
                 factory.RotateGain,
                 ModOptions.ApplyRotateGain,
                 "Button step",
@@ -116,11 +123,11 @@ namespace TrackpadCameraControl
                 "Orbit",
                 ModOptions.OpDescriptionOrbit,
                 "Sensitivity yaw",
-                s.OrbitYawGain,
+                () => s.OrbitYawGain,
                 factory.OrbitYawGain,
                 ModOptions.ApplyOrbitYawGain,
                 "Sensitivity pitch",
-                s.OrbitPitchGain,
+                () => s.OrbitPitchGain,
                 factory.OrbitPitchGain,
                 ModOptions.ApplyOrbitPitchGain,
                 "Button step yaw",
@@ -153,12 +160,41 @@ namespace TrackpadCameraControl
             _opDescriptionRoot = root;
             VanillaCameraKeyLabelsWatch.LabelsChanged += RefreshOpDescriptions;
             ModOptions.SettingsChanged += RefreshOpDescriptions;
+            ModOptions.SettingsChanged += RefreshAllSensitivitySliders;
+            root.eventVisibilityChanged += OnOptionsRootVisibilityChanged;
+            RefreshAllSensitivitySliders();
+        }
+
+        private static void OnOptionsRootVisibilityChanged(UIComponent component, bool visible)
+        {
+            if (visible)
+            {
+                RefreshAllSensitivitySliders();
+            }
+        }
+
+        private static void RefreshAllSensitivitySliders()
+        {
+            for (int i = 0; i < SensitivitySliderRefreshes.Count; i++)
+            {
+                Action refresh = SensitivitySliderRefreshes[i];
+                if (refresh != null)
+                {
+                    refresh();
+                }
+            }
         }
 
         private static void DetachOpDescriptionRefresher()
         {
+            if (_opDescriptionRoot != null)
+            {
+                _opDescriptionRoot.eventVisibilityChanged -= OnOptionsRootVisibilityChanged;
+            }
+
             VanillaCameraKeyLabelsWatch.LabelsChanged -= RefreshOpDescriptions;
             ModOptions.SettingsChanged -= RefreshOpDescriptions;
+            ModOptions.SettingsChanged -= RefreshAllSensitivitySliders;
             _opDescriptionRoot = null;
         }
 
@@ -368,7 +404,7 @@ namespace TrackpadCameraControl
             string shortTitle,
             string description,
             string sensitivityLabel,
-            float sensitivityValue,
+            Func<float> getSensitivity,
             float factorySensitivity,
             Action<ModSettings, float> onSensitivity,
             string buttonLabel,
@@ -386,7 +422,7 @@ namespace TrackpadCameraControl
             AddSensitivityControl(
                 group,
                 sensitivityLabel,
-                sensitivityValue,
+                getSensitivity,
                 factorySensitivity,
                 v => onSensitivity(s, v)
             );
@@ -421,11 +457,11 @@ namespace TrackpadCameraControl
             string shortTitle,
             string description,
             string sensitivityALabel,
-            float sensitivityA,
+            Func<float> getSensitivityA,
             float factoryA,
             Action<ModSettings, float> onSensitivityA,
             string sensitivityBLabel,
-            float sensitivityB,
+            Func<float> getSensitivityB,
             float factoryB,
             Action<ModSettings, float> onSensitivityB,
             string buttonALabel,
@@ -446,14 +482,14 @@ namespace TrackpadCameraControl
             AddSensitivityControl(
                 group,
                 sensitivityALabel,
-                sensitivityA,
+                getSensitivityA,
                 factoryA,
                 v => onSensitivityA(s, v)
             );
             AddSensitivityControl(
                 group,
                 sensitivityBLabel,
-                sensitivityB,
+                getSensitivityB,
                 factoryB,
                 v => onSensitivityB(s, v)
             );
@@ -484,33 +520,170 @@ namespace TrackpadCameraControl
         }
 
         /// <summary>
-        /// Sensitivity via AddSlider when available; value clamped to 0×–2× factory default.
+        /// Sensitivity via AddSlider on a fixed [0, 1] UI domain. Gain uses
+        /// <see cref="ModOptions.GainToSensitivityUi"/> / <see cref="ModOptions.SensitivityUiToGain"/>
+        /// (0.1× / 1× / 2× factory; UI 0.5 = Default). Re-applies on show/size and manually
+        /// places the thumb — Colossal often leaves it at min when value is set before layout.
         /// </summary>
         private static void AddSensitivityControl(
             UIHelperBase helper,
             string label,
-            float value,
+            Func<float> getValue,
             float factoryDefault,
             OnValueChanged onChanged
         )
         {
-            float min = ModOptions.SensitivitySliderMin(factoryDefault);
-            float max = ModOptions.SensitivitySliderMax(factoryDefault);
-            float step = ModOptions.SensitivitySliderStep(factoryDefault);
-            float clamped = ModOptions.ClampGainToFactoryRange(value, factoryDefault);
+            if (getValue == null)
+            {
+                return;
+            }
 
-            helper.AddSlider(
+            float uiValue = ModOptions.GainToSensitivityUi(getValue(), factoryDefault);
+
+            bool suppressCallback = true;
+            object created = helper.AddSlider(
                 label,
-                min,
-                max,
-                step,
-                clamped,
+                ModOptions.SensitivityUiMin,
+                ModOptions.SensitivityUiMax,
+                ModOptions.SensitivityUiStep,
+                uiValue,
                 v =>
                 {
-                    float next = ModOptions.ClampGainToFactoryRange(v, factoryDefault);
-                    onChanged(next);
+                    if (suppressCallback)
+                    {
+                        return;
+                    }
+
+                    onChanged(ModOptions.SensitivityUiToGain(v, factoryDefault));
                 }
             );
+
+            UISlider slider = ResolveSlider(created);
+            if (slider != null)
+            {
+                Action refresh = () =>
+                {
+                    bool previousSuppress = suppressCallback;
+                    suppressCallback = true;
+                    try
+                    {
+                        float ui = ModOptions.GainToSensitivityUi(getValue(), factoryDefault);
+                        ForceSliderUi(slider, ui);
+                    }
+                    finally
+                    {
+                        suppressCallback = previousSuppress;
+                    }
+                };
+
+                slider.eventSizeChanged += (c, size) =>
+                {
+                    if (size.x > 1f)
+                    {
+                        refresh();
+                    }
+                };
+                slider.eventVisibilityChanged += (c, visible) =>
+                {
+                    if (visible)
+                    {
+                        refresh();
+                    }
+                };
+                SensitivitySliderRefreshes.Add(refresh);
+                refresh();
+            }
+
+            suppressCallback = false;
+        }
+
+        private static UISlider ResolveSlider(object created)
+        {
+            UISlider slider = created as UISlider;
+            if (slider != null)
+            {
+                return slider;
+            }
+
+            UIComponent component = created as UIComponent;
+            if (component == null)
+            {
+                return null;
+            }
+
+            slider = component.Find<UISlider>("Slider");
+            if (slider != null)
+            {
+                return slider;
+            }
+
+            return component.GetComponentInChildren<UISlider>();
+        }
+
+        /// <summary>
+        /// Set [0, 1] domain + value, then place the thumb explicitly. Colossal's
+        /// UpdateValueIndicators often leaves the thumb at min when the track width was 0
+        /// at first set, and may not correct it later.
+        /// </summary>
+        private static void ForceSliderUi(UISlider slider, float ui)
+        {
+            if (slider == null)
+            {
+                return;
+            }
+
+            if (ui < ModOptions.SensitivityUiMin)
+            {
+                ui = ModOptions.SensitivityUiMin;
+            }
+
+            if (ui > ModOptions.SensitivityUiMax)
+            {
+                ui = ModOptions.SensitivityUiMax;
+            }
+
+            slider.minValue = ModOptions.SensitivityUiMin;
+            slider.maxValue = ModOptions.SensitivityUiMax;
+            slider.stepSize = ModOptions.SensitivityUiStep;
+
+            float bump =
+                ui < ModOptions.SensitivityUiFactory
+                    ? ModOptions.SensitivityUiMax
+                    : ModOptions.SensitivityUiMin;
+            slider.value = bump;
+            slider.value = ui;
+            PlaceThumb(slider, ui);
+        }
+
+        private static void PlaceThumb(UISlider slider, float ui)
+        {
+            if (slider == null)
+            {
+                return;
+            }
+
+            UIComponent thumb = slider.thumbObject;
+            if (thumb == null)
+            {
+                return;
+            }
+
+            float track = slider.width;
+            if (track < 8f && slider.parent != null)
+            {
+                track = Mathf.Max(track, slider.parent.width);
+            }
+
+            if (track < 8f)
+            {
+                return;
+            }
+
+            ui = Mathf.Clamp01(ui);
+            Vector3 p = thumb.relativePosition;
+            float thumbW = Mathf.Max(1f, thumb.width);
+            p.x = ui * Mathf.Max(0f, track - thumbW);
+            thumb.relativePosition = p;
         }
 
         private static void AddFloatField(
@@ -522,7 +695,7 @@ namespace TrackpadCameraControl
         {
             object created = helper.AddTextfield(
                 label,
-                ModOptions.FormatFloat(value),
+                ModOptions.FormatGain(value),
                 _ => { },
                 onSubmit
             );
@@ -532,6 +705,7 @@ namespace TrackpadCameraControl
                 field.submitOnFocusLost = true;
                 field.selectOnFocus = true;
                 NumericTextFieldUi.ConfigureFloatField(field);
+                NumericTextFieldUi.WireConfirmKeys(field);
             }
         }
     }

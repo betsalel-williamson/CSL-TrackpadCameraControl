@@ -1,7 +1,6 @@
 #if HAS_CITIES
 using System;
 using ColossalFramework.UI;
-using UnityEngine;
 
 namespace TrackpadCameraControl
 {
@@ -36,17 +35,9 @@ namespace TrackpadCameraControl
             AssignTabOrder(field);
             field.submitOnFocusLost = true;
             field.eventTextSubmitted += (c, text) => submit();
-            field.eventKeyDown += (UIComponent component, UIKeyEventParameter p) =>
-            {
-                if (p.keycode == KeyCode.KeypadEnter)
-                {
-                    submit();
-                }
-                else if (p.keycode == KeyCode.Tab)
-                {
-                    submit();
-                }
-            };
+            // Keypad Enter / Tab: unfocus (or advance) so submitOnFocusLost fires — Colossal
+            // only does this for Return by default.
+            NumericTextFieldUi.WireConfirmKeys(field);
         }
 
         private static void WireFloatTextFieldSubmit(UITextField field, Action submit)
@@ -59,17 +50,16 @@ namespace TrackpadCameraControl
             UITextField field,
             ModSettings s,
             Func<float> get,
-            Action<ModSettings, float> apply,
-            bool useGainFormat
+            Action<ModSettings, float> apply
         )
         {
             if (!ModOptions.TryApplyFloat(s, field.text, apply))
             {
-                field.text = FormatFieldValue(get(), useGainFormat);
+                field.text = FormatFieldValue(get());
                 return;
             }
 
-            field.text = FormatFieldValue(get(), useGainFormat);
+            field.text = FormatFieldValue(get());
         }
     }
 }

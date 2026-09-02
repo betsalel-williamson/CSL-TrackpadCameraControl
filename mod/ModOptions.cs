@@ -20,14 +20,32 @@ namespace TrackpadCameraControl
 
         public const float SensitivityStep = 0.05f;
 
-        /// <summary>Product Sensitivity slider floor as a fraction of factory default (0× → mid-track Default).</summary>
-        public const float SensitivitySliderMinFactor = 0f;
+        /// <summary>Product Sensitivity slider floor as a fraction of factory default (0.1×).</summary>
+        public const float SensitivitySliderMinFactor = 0.1f;
 
-        /// <summary>Product Sensitivity slider ceiling as a fraction of factory default.</summary>
+        /// <summary>Product Sensitivity slider ceiling as a fraction of factory default (2×).</summary>
         public const float SensitivitySliderMaxFactor = 2f;
 
         /// <summary>Product Sensitivity slider step as a fraction of factory default (~10%).</summary>
         public const float SensitivitySliderStepFactor = 0.1f;
+
+        /// <summary>
+        /// Options UI slider domain floor. Colossal thumbs/stepping stay simple on [0, 1];
+        /// convert to/from gain with <see cref="GainToSensitivityUi"/> / <see cref="SensitivityUiToGain"/>.
+        /// </summary>
+        public const float SensitivityUiMin = 0f;
+
+        /// <summary>Options UI slider domain ceiling (factory Default maps to mid = 0.5).</summary>
+        public const float SensitivityUiMax = 1f;
+
+        /// <summary>UI position where gain equals the factory default.</summary>
+        public const float SensitivityUiFactory = 0.5f;
+
+        /// <summary>
+        /// Options UI slider step in [0, 1]. Ten notches from mid→max ≈ +10% of factory per notch
+        /// on the high side (1×→2×); low side is piecewise 1×→0.1×.
+        /// </summary>
+        public const float SensitivityUiStep = 0.05f;
 
         public const float AlphaMin = 0f;
         public const float AlphaMax = 1f;
@@ -146,7 +164,7 @@ namespace TrackpadCameraControl
                 return ScaleMax;
             }
 
-            return Round2(value);
+            return RoundGain(value);
         }
 
         /// <summary>
@@ -164,7 +182,7 @@ namespace TrackpadCameraControl
             return RoundGain(value);
         }
 
-        /// <summary>Options Sensitivity slider minimum for a factory default (0× → Default mid-track).</summary>
+        /// <summary>Options Sensitivity slider minimum for a factory default (0.1×).</summary>
         public static float SensitivitySliderMin(float factoryDefault)
         {
             return RoundGain(factoryDefault * SensitivitySliderMinFactor);
@@ -176,7 +194,7 @@ namespace TrackpadCameraControl
             return RoundGain(factoryDefault * SensitivitySliderMaxFactor);
         }
 
-        /// <summary>Options Sensitivity slider step for a factory default (~10%).</summary>
+        /// <summary>Options Sensitivity slider step for a factory default (~10% of factory, gain units).</summary>
         public static float SensitivitySliderStep(float factoryDefault)
         {
             float step = RoundGain(factoryDefault * SensitivitySliderStepFactor);
@@ -184,8 +202,90 @@ namespace TrackpadCameraControl
         }
 
         /// <summary>
+        /// Gain → Options UI [0, 1]. Piecewise linear in multiplier space so factory maps to
+        /// <see cref="SensitivityUiFactory"/> (0.5): UI 0 → 0.1×, UI 0.5 → 1×, UI 1 → 2×.
+        /// A single linear map over [0.1×, 2×] would put mid at 1.05×, not Default.
+        /// </summary>
+        public static float GainToSensitivityUi(float gain, float factoryDefault)
+        {
+            float factory = RoundGain(factoryDefault);
+            if (factory <= 0f)
+            {
+                return SensitivityUiMin;
+            }
+
+            float min = SensitivitySliderMin(factory);
+            float max = SensitivitySliderMax(factory);
+            float g = RoundGain(gain);
+
+            if (g <= min)
+            {
+                return SensitivityUiMin;
+            }
+
+            if (g >= max)
+            {
+                return SensitivityUiMax;
+            }
+
+            if (g <= factory)
+            {
+                float loSpan = factory - min;
+                if (loSpan < 0.0001f)
+                {
+                    return SensitivityUiFactory;
+                }
+
+                return SensitivityUiFactory * ((g - min) / loSpan);
+            }
+
+            float hiSpan = max - factory;
+            if (hiSpan < 0.0001f)
+            {
+                return SensitivityUiFactory;
+            }
+
+            return SensitivityUiFactory
+                + (SensitivityUiMax - SensitivityUiFactory) * ((g - factory) / hiSpan);
+        }
+
+        /// <summary>
+        /// Options UI [0, 1] → gain. Inverse of <see cref="GainToSensitivityUi"/> (0.1× / 1× / 2×).
+        /// </summary>
+        public static float SensitivityUiToGain(float ui, float factoryDefault)
+        {
+            if (ui < SensitivityUiMin)
+            {
+                ui = SensitivityUiMin;
+            }
+
+            if (ui > SensitivityUiMax)
+            {
+                ui = SensitivityUiMax;
+            }
+
+            float factory = RoundGain(factoryDefault);
+            float min = SensitivitySliderMin(factory);
+            float max = SensitivitySliderMax(factory);
+
+            float gain;
+            if (ui <= SensitivityUiFactory)
+            {
+                float t = SensitivityUiFactory > 0f ? ui / SensitivityUiFactory : 0f;
+                gain = min + t * (factory - min);
+            }
+            else
+            {
+                float t = (ui - SensitivityUiFactory) / (SensitivityUiMax - SensitivityUiFactory);
+                gain = factory + t * (max - factory);
+            }
+
+            return ClampGainToFactoryRange(gain, factory);
+        }
+
+        /// <summary>
         /// Clamp a Sensitivity edit to the product Options slider range for that factory default.
-        /// Out-of-range values snap into [0×, 2×] factory; gains round to three decimals (0 allowed).
+        /// Out-of-range values snap into [0.1×, 2×] factory; gains round to three decimals.
         /// </summary>
         public static float ClampGainToFactoryRange(float value, float factoryDefault)
         {
@@ -205,12 +305,7 @@ namespace TrackpadCameraControl
             return RoundGain(value);
         }
 
-        public static float Round2(float value)
-        {
-            return (float)Math.Round(value, 2, MidpointRounding.AwayFromZero);
-        }
-
-        /// <summary>Three-decimal round for Sensitivity after scroll-unit fold into defaults.</summary>
+        /// <summary>Three-decimal round for all product numeric apply/display (gain, step, pitch, deadband).</summary>
         public static float RoundGain(float value)
         {
             return (float)Math.Round(value, 3, MidpointRounding.AwayFromZero);
@@ -234,11 +329,6 @@ namespace TrackpadCameraControl
         public static bool TryParseFloat(string text, out float value)
         {
             return NumericFieldInput.TryParseFloatText(text, out value);
-        }
-
-        public static string FormatFloat(float value)
-        {
-            return Round2(value).ToString("0.00", CultureInfo.InvariantCulture);
         }
 
         public static string FormatGain(float value)
@@ -337,7 +427,7 @@ namespace TrackpadCameraControl
                 return;
             }
 
-            settings.OrbitPitchMin = Round2(value);
+            settings.OrbitPitchMin = RoundGain(value);
             AfterFeelFieldChanged(settings);
         }
 
@@ -357,7 +447,7 @@ namespace TrackpadCameraControl
                 return;
             }
 
-            settings.OrbitPitchMax = Round2(value);
+            settings.OrbitPitchMax = RoundGain(value);
             AfterFeelFieldChanged(settings);
         }
 

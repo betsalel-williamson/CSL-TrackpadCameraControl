@@ -550,9 +550,7 @@ namespace TrackpadCameraControl
                 ModOptions.ApplyPanGainX,
                 "Sensitivity Y",
                 () => s.PanGainY,
-                ModOptions.ApplyPanGainY,
-                gainFormatL: true,
-                gainFormatR: true
+                ModOptions.ApplyPanGainY
             );
 #if ENABLE_ASSIST_CHROME
             AddFloatPair(
@@ -593,8 +591,7 @@ namespace TrackpadCameraControl
                 ModOptions.ApplyMotionDeadband,
                 null,
                 null,
-                null,
-                gainFormatL: true
+                null
             );
         }
 
@@ -609,8 +606,7 @@ namespace TrackpadCameraControl
                 ModOptions.ApplyZoomGain,
                 "Btn",
                 () => s.ZoomStep,
-                ModOptions.ApplyZoomStep,
-                gainFormatL: true
+                ModOptions.ApplyZoomStep
             );
 #else
             AddFloatPair(
@@ -620,8 +616,7 @@ namespace TrackpadCameraControl
                 ModOptions.ApplyZoomGain,
                 null,
                 null,
-                null,
-                gainFormatL: true
+                null
             );
 #endif
 
@@ -652,8 +647,7 @@ namespace TrackpadCameraControl
                 ModOptions.ApplyPinchDeadband,
                 null,
                 null,
-                null,
-                gainFormatL: true
+                null
             );
         }
 
@@ -668,8 +662,7 @@ namespace TrackpadCameraControl
                 ModOptions.ApplyRotateGain,
                 "Btn",
                 () => s.RotateStep,
-                ModOptions.ApplyRotateStep,
-                gainFormatL: true
+                ModOptions.ApplyRotateStep
             );
 #else
             AddFloatPair(
@@ -679,8 +672,7 @@ namespace TrackpadCameraControl
                 ModOptions.ApplyRotateGain,
                 null,
                 null,
-                null,
-                gainFormatL: true
+                null
             );
 #endif
 
@@ -711,8 +703,7 @@ namespace TrackpadCameraControl
                 ModOptions.ApplyRotateDeadband,
                 null,
                 null,
-                null,
-                gainFormatL: true
+                null
             );
         }
 
@@ -726,9 +717,7 @@ namespace TrackpadCameraControl
                 ModOptions.ApplyOrbitYawGain,
                 "Sensitivity pitch",
                 () => s.OrbitPitchGain,
-                ModOptions.ApplyOrbitPitchGain,
-                gainFormatL: true,
-                gainFormatR: true
+                ModOptions.ApplyOrbitPitchGain
             );
 #if ENABLE_ASSIST_CHROME
             AddFloatPair(
@@ -769,8 +758,7 @@ namespace TrackpadCameraControl
                 ModOptions.ApplyMotionDeadband,
                 null,
                 null,
-                null,
-                gainFormatL: true
+                null
             );
         }
 
@@ -1000,15 +988,13 @@ namespace TrackpadCameraControl
             Action<ModSettings, float> applyL,
             string labelR,
             Func<float> getR,
-            Action<ModSettings, float> applyR,
-            bool gainFormatL = false,
-            bool gainFormatR = false
+            Action<ModSettings, float> applyR
         )
         {
-            AddFloatAt(s, Col0, labelL, getL, applyL, gainFormatL);
+            AddFloatAt(s, Col0, labelL, getL, applyL);
             if (getR != null && applyR != null && !string.IsNullOrEmpty(labelR))
             {
-                AddFloatAt(s, Col1, labelR, getR, applyR, gainFormatR);
+                AddFloatAt(s, Col1, labelR, getR, applyR);
             }
 
             _nextY += 26f;
@@ -1019,8 +1005,7 @@ namespace TrackpadCameraControl
             float x,
             string label,
             Func<float> get,
-            Action<ModSettings, float> apply,
-            bool useGainFormat = false
+            Action<ModSettings, float> apply
         )
         {
             UILabel lbl = AddLabel(_root, label, x, _nextY);
@@ -1035,19 +1020,16 @@ namespace TrackpadCameraControl
             field.hoveredBgSprite = "TextFieldPanelHovered";
             field.focusedBgSprite = "TextFieldPanel";
             field.selectionSprite = "EmptySprite";
-            field.text = FormatFieldValue(get(), useGainFormat);
+            field.text = FormatFieldValue(get());
             field.selectOnFocus = true;
             field.isInteractive = true;
-            WireFloatTextFieldSubmit(
-                field,
-                () => SubmitFloatField(field, s, get, apply, useGainFormat)
-            );
-            RegisterFloatField(field, get, useGainFormat);
+            WireFloatTextFieldSubmit(field, () => SubmitFloatField(field, s, get, apply));
+            RegisterFloatField(field, get);
         }
 
-        private static string FormatFieldValue(float value, bool useGainFormat)
+        private static string FormatFieldValue(float value)
         {
-            return useGainFormat ? ModOptions.FormatGain(value) : ModOptions.FormatFloat(value);
+            return ModOptions.FormatGain(value);
         }
 
         private static UIButton MakeMenuButton(string text, float x, float y, float width)
