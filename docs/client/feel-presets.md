@@ -1,30 +1,30 @@
 # Feel presets
 
-A [feel preset](../glossary/feel-preset.md) stores how the camera *feels*: [Sensitivity](../glossary/sensitivity.md) values. It does **not** change [gesture style](../glossary/gesture-style.md) — shipped play stays [Maps+](../glossary/maps-plus-preset.md) (AppleKit), including Option (`⌥`)+two-finger for [orbit](../glossary/orbit.md).
+A [feel preset](../glossary/feel-preset.md) stores how the camera _feels_: [Sensitivity](../glossary/sensitivity.md) values. It does **not** change [gesture style](../glossary/gesture-style.md) — shipped play stays [Maps+](../glossary/maps-plus-preset.md) (AppleKit), including Option (`⌥`)+two-finger for [orbit](../glossary/orbit.md).
 
 Use the feel-preset **dropdown** in Options → Trackpad Camera Control or the in-game [Debug panel](./debug-ui.md).
 
 ## Built-in profiles
 
-| Profile | What it does |
-| --- | --- |
+| Profile     | What it does                                                        |
+| ----------- | ------------------------------------------------------------------- |
 | **Default** | Factory / playtest feel (same values **Reset to factory** restores) |
-| **Slow** | Default’s Sensitivity values × **0.75**, rounded to three decimals |
-| **Fast** | Default’s Sensitivity values × **1.25**, rounded to three decimals |
+| **Slow**    | Default’s Sensitivity values × **0.75**, rounded to three decimals  |
+| **Fast**    | Default’s Sensitivity values × **1.25**, rounded to three decimals  |
 
 Built-ins (**Slow**, **Default**, **Fast**) are **immutable** — the mod never overwrites them. Slow and Fast only scale Sensitivity.
 
 ### Default (factory) numbers
 
-| Setting | Value |
-| --- | --- |
-| Pan Sensitivity X / Y | 0.005 / 0.005 |
-| Zoom Sensitivity | 1.00 |
-| Yaw (rotate) Sensitivity | 2.00 |
-| Orbit yaw / pitch Sensitivity | 1.00 / 1.00 |
-| Gesture style | Maps+ (`⌥`+two-finger orbit) |
-| Capture | AppleKit |
-| Orbit pitch | vanilla **0** / **90** |
+| Setting                       | Value                        |
+| ----------------------------- | ---------------------------- |
+| Pan Sensitivity X / Y         | 0.005 / 0.005                |
+| Zoom Sensitivity              | 1.00                         |
+| Yaw (rotate) Sensitivity      | 2.00                         |
+| Orbit yaw / pitch Sensitivity | 1.00 / 1.00                  |
+| Gesture style                 | Maps+ (`⌥`+two-finger orbit) |
+| Capture                       | AppleKit                     |
+| Orbit pitch                   | vanilla **0** / **90**       |
 
 **Sensitivity** sliders run from about **0.1×** to **2×** the factory default for that field.
 
@@ -40,4 +40,4 @@ Restores the Default profile above and saves it. Does not switch gesture style a
 
 ## Not a feel preset
 
-Maps+ vs CAD orbit triggers are [gesture style](../glossary/gesture-style.md), not feel presets. With CAD off the product surface, there is no Maps+/CAD preset switcher — see [gesture presets](./gesture-presets.md).
+Which fingers trigger orbit is [gesture style](../glossary/gesture-style.md), not a feel preset. v1 ships Maps+ only — see [gesture presets](./gesture-presets.md).

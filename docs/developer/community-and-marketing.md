@@ -29,14 +29,14 @@ Durable order — not a dated backlog:
 
 1. **Soft** — Modding Discord (and a few known Mac CS1 players). Validate install friction (Harmony, permissions, OS gesture conflicts) before hype.
 2. **Quiet distribute** — GitHub Release for betas today; Workshop item when packaging exists. Description must state **macOS-first** (and stub/unsupported elsewhere) so ratings are not ambushed.
-3. **Public splash** — Reddit + Discord when the Maps+ (or CAD) gesture set feels shippable on a real trackpad session, with a 10–20s demo clip.
+3. **Public splash** — Reddit + Discord when the Maps+ gesture set feels shippable on a real trackpad session, with a 10–20s demo clip.
 4. **Ongoing** — Workshop comments and change notes; short “fixed X conflict” posts. Support _is_ marketing for utility mods.
 
 ## Public-splash readiness
 
 Announce broadly only when all of the following are true for the advertised platform:
 
-- Core gestures in the advertised preset work in a focused game session (pan, pinch zoom, orbit path for that preset).
+- Core gestures in the advertised **Maps+** style work in a focused game session (pan, pinch zoom, Option-orbit, two-finger rotate).
 - Client install docs match the real path (Release beta vs Workshop).
 - Cities Harmony requirement and vanilla-camera behavior are stated up front.
 - Unsupported OS / backends are labeled unsupported — not “coming soon” theater in the Workshop blurb.

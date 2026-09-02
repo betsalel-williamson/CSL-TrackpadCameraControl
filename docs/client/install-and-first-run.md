@@ -33,7 +33,7 @@ Disable the mod in Content Manager to restore full vanilla camera input. There i
 
 ## First run (current)
 
-Shipped capture is **AppleKit** with [Maps+](../glossary/maps-plus-preset.md) gesture style. Tune [Sensitivity](../glossary/sensitivity.md) and [feel presets](./feel-presets.md) from Options or the optional [Debug panel](./debug-ui.md); CAD, Contacts, and pad/button chrome stay off the product surface unless their flags are on.
+Shipped capture is **AppleKit** with [Maps+](../glossary/maps-plus-preset.md) gesture style. Tune [Sensitivity](../glossary/sensitivity.md) and [feel presets](./feel-presets.md) from Options or the optional [Debug panel](./debug-ui.md). Contacts and pad/button chrome stay off the product surface unless their maintainer flags are on. CAD three-finger orbit is a future style, not a v1 player choice.
 
 1. Subscribe and enable **Cities Harmony**.
 2. Enable **Trackpad Camera Control** in Content Manager.

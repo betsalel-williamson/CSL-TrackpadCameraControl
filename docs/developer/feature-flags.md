@@ -8,11 +8,11 @@ Planning context: [AppleKit Maps+ feel surface design](../superpowers/specs/2026
 
 ## Flags
 
-| Doc / property name | Compile symbol | When off (ship) | When on |
-| ------------------- | -------------- | --------------- | ------- |
-| `EnableCadGestureStyle` | `ENABLE_CAD_GESTURE_STYLE` | Maps+ / AppleKit only; no CAD switcher | CAD / three-finger orbit as a player choice |
-| `EnableContactsCapture` | `ENABLE_CONTACTS_CAPTURE` | AppleKit only; no backend picker; no [low-pass](../glossary/low-pass.md) | Contacts interpreter + picker; LP UI and processing |
-| `EnableAssistChrome` | `ENABLE_ASSIST_CHROME` | No Assist nudge buttons; no [button step](../glossary/button-step.md) fields | Assist chrome + Btn fields |
+| Doc / property name     | Compile symbol             | When off (ship)                                                              | When on                                                        |
+| ----------------------- | -------------------------- | ---------------------------------------------------------------------------- | -------------------------------------------------------------- |
+| `EnableCadGestureStyle` | `ENABLE_CAD_GESTURE_STYLE` | Maps+ / AppleKit only; **CAD is future** — no player switcher                | Experimental: CAD / three-finger orbit as a compiled-in choice |
+| `EnableContactsCapture` | `ENABLE_CONTACTS_CAPTURE`  | AppleKit only; no backend picker; no [low-pass](../glossary/low-pass.md)     | Contacts interpreter + picker; LP UI and processing            |
+| `EnableAssistChrome`    | `ENABLE_ASSIST_CHROME`     | No Assist nudge buttons; no [button step](../glossary/button-step.md) fields | Assist chrome + Btn fields                                     |
 
 There is **no** separate low-pass flag. LP rides `EnableContactsCapture` / `ENABLE_CONTACTS_CAPTURE`.
 

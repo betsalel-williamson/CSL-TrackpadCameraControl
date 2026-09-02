@@ -23,7 +23,7 @@ Give trackpad players the same camera fluency mouse users get from middle-mouse 
 | Two-finger rotate            | **Rotation** (not orbit yaw): camera heading or place/relocate ghost — see [yaw](../glossary/yaw.md) / [selection-aware gestures](./selection-aware-gestures.md). Does not use the orbit velocity channel. Starting rotation clears leftover orbit coast (hard handoff).                       |
 | Option (`⌥`)+two-finger drag | [Orbit](../glossary/orbit.md) from **current** look-at (**orbit yaw** + pitch via velocity), including during place/relocate (no Target re-home). Pitch follows vanilla **0°–90°** (floors at 0). No yaw angle clamp. With Option held, two-finger rotate is ignored (orbit owns the contact). |
 
-CAD three-finger orbit remains behind `EnableCadGestureStyle`.
+CAD three-finger orbit is a **future** gesture style (not a v1 player choice). Schema and experimental compile flags may still retain it — see [feature flags](../developer/feature-flags.md).
 
 ## Resolve mode and orbit latch
 
@@ -58,7 +58,7 @@ Two-finger **rotation** writes `AngleX` (or ghost angles) directly and clears bo
 - [Vanilla camera suppress](./vanilla-camera-suppress.md): precise trackpad pan without vanilla zoom; mouse wheel zooms; middle-mouse orbit still vanilla; no mod camera when menus open or pointer over popups.
 - Without a platform backend, the mod enables cleanly; keyboard, edge pan, and gamepad stay.
 - If Cities Harmony is missing, the mod enables without crashing; pan may fight vanilla scroll-zoom.
-- While product flags are off: no CAD switcher, no Contacts picker, no low-pass UI, no Debug chrome / button-step fields.
+- While product flags are off: no Contacts picker, no low-pass UI, no Debug chrome / button-step fields; no CAD / gesture-style switcher (CAD is future).
 - Disable the mod to restore full vanilla camera input.
 
 ## Non-goals (v1)
@@ -67,5 +67,5 @@ Two-finger **rotation** writes `AngleX` (or ghost angles) directly and clears bo
 - Full Windows / Linux multitouch backends (stubs only; see [platform backends](./platform-backends.md)).
 - Steam Workshop packaging (after local install works).
 - Synthetic middle-mouse injection as the primary path.
-- Enabling CAD / Contacts / Debug chrome for all players in this pass.
+- Shipping CAD three-finger orbit or Contacts / Debug chrome to all players in this pass.
 - Re-enabling Enable-per-op or Reverse on the product UI this pass.
