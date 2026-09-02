@@ -130,7 +130,7 @@ namespace TrackpadCameraControl
         public float PinchEpsilonXml
         {
             set => PinchDeadband = value;
-            get => 0f;
+            get => PinchDeadband;
         }
 
         public bool ShouldSerializePinchEpsilonXml() => false;
@@ -140,7 +140,7 @@ namespace TrackpadCameraControl
         public float RotateEpsilonXml
         {
             set => RotateDeadband = value;
-            get => 0f;
+            get => RotateDeadband;
         }
 
         public bool ShouldSerializeRotateEpsilonXml() => false;
@@ -150,7 +150,7 @@ namespace TrackpadCameraControl
         public float YawDeadbandXml
         {
             set => RotateDeadband = value;
-            get => 0f;
+            get => RotateDeadband;
         }
 
         public bool ShouldSerializeYawDeadbandXml() => false;
@@ -160,17 +160,22 @@ namespace TrackpadCameraControl
         public bool YawEnabledXml
         {
             set => RotateEnabled = value;
-            get => false;
+            get => RotateEnabled;
         }
 
         public bool ShouldSerializeYawEnabledXml() => false;
 
         /// <summary>Schema 3–8 XML: former <c>YawRotateGain</c> element (deserialize only).</summary>
+        /// <remarks>
+        /// Alias getters must return the live backing value. Mono's XmlSerializer (Cities) can
+        /// self-assign alias properties during deserialize; <c>get =&gt; 0f</c> wiped RotateGain
+        /// after a successful <c>&lt;RotateGain&gt;</c> load (empty Debug Rotate fields until Reset).
+        /// </remarks>
         [XmlElement("YawRotateGain")]
         public float YawRotateGainXml
         {
             set => RotateGain = value;
-            get => 0f;
+            get => RotateGain;
         }
 
         public bool ShouldSerializeYawRotateGainXml() => false;
@@ -180,7 +185,7 @@ namespace TrackpadCameraControl
         public float YawRotateStepXml
         {
             set => RotateStep = value;
-            get => 0f;
+            get => RotateStep;
         }
 
         public bool ShouldSerializeYawRotateStepXml() => false;
@@ -190,7 +195,7 @@ namespace TrackpadCameraControl
         public bool SignInvertYawRotateXml
         {
             set => SignInvertRotate = value;
-            get => false;
+            get => SignInvertRotate;
         }
 
         public bool ShouldSerializeSignInvertYawRotateXml() => false;
@@ -200,7 +205,7 @@ namespace TrackpadCameraControl
         public bool YawFilterEnabledXml
         {
             set => RotateFilterEnabled = value;
-            get => false;
+            get => RotateFilterEnabled;
         }
 
         public bool ShouldSerializeYawFilterEnabledXml() => false;
@@ -210,7 +215,7 @@ namespace TrackpadCameraControl
         public float YawFilterAlphaXml
         {
             set => RotateFilterAlpha = value;
-            get => 0f;
+            get => RotateFilterAlpha;
         }
 
         public bool ShouldSerializeYawFilterAlphaXml() => false;

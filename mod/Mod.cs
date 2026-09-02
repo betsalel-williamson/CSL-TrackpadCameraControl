@@ -1,4 +1,5 @@
 using System;
+using System.Globalization;
 using System.IO;
 #if HAS_CITIES
 using CitiesHarmony.API;
@@ -37,6 +38,24 @@ namespace TrackpadCameraControl
                 }
 
                 return "Trackpad Camera Control (macOS) " + version;
+            }
+        }
+
+        /// <summary>
+        /// Debug panel title bar: mod name + assembly identity (changes each compile for reload QA).
+        /// Options / Content Manager keep <see cref="OptionsTitle"/> product semver.
+        /// </summary>
+        public static string DebugPanelTitle
+        {
+            get
+            {
+                string asm = GetAssemblyIdentityDisplay();
+                if (string.IsNullOrEmpty(asm))
+                {
+                    return "Trackpad Camera Control (macOS)";
+                }
+
+                return "Trackpad Camera Control (macOS) " + asm;
             }
         }
 
@@ -89,7 +108,7 @@ namespace TrackpadCameraControl
 
         /// <summary>
         /// Full assembly identity (Major.Minor.Build.Revision). Changes each compile so
-        /// Cities auto-reloads; Debug panel shows this beside Built (UTC).
+        /// Cities auto-reloads; Debug panel title shows this instead of product semver.
         /// </summary>
         internal static string GetAssemblyIdentityDisplay()
         {
@@ -110,24 +129,47 @@ namespace TrackpadCameraControl
         }
 
         /// <summary>
-        /// Debug panel footer line (Built UTC + asm). Null when neither stamp is available.
+        /// Clipboard build stamp: <c>Built (UTC): …</c> on one line. Assembly identity is not
+        /// repeated here — with system info it appears under Assemblies; the Debug title shows it in-game.
         /// </summary>
         internal static string GetBuildInfoFooterDisplay()
         {
             string built = GetAssemblyBuildTimestampUtcDisplay();
-            string asm = GetAssemblyIdentityDisplay();
-            if (string.IsNullOrEmpty(built) && string.IsNullOrEmpty(asm))
+            if (string.IsNullOrEmpty(built))
             {
                 return null;
             }
 
-            string line = "Built (UTC): " + (built ?? "?");
-            if (!string.IsNullOrEmpty(asm))
+            return "Built (UTC): " + built;
+        }
+
+        /// <summary>
+        /// Debug panel footer line: build time in the local time zone. Clipboard paste still
+        /// uses UTC via <see cref="GetBuildInfoFooterDisplay"/>.
+        /// </summary>
+        internal static string GetBuildInfoPanelDisplay()
+        {
+            string builtUtc = GetAssemblyBuildTimestampUtcDisplay();
+            if (string.IsNullOrEmpty(builtUtc))
             {
-                line += "  ·  asm " + asm;
+                return null;
             }
 
-            return line;
+            if (
+                !DateTime.TryParse(
+                    builtUtc,
+                    CultureInfo.InvariantCulture,
+                    DateTimeStyles.AdjustToUniversal | DateTimeStyles.AssumeUniversal,
+                    out DateTime utc
+                )
+            )
+            {
+                return "Built (local): " + builtUtc;
+            }
+
+            DateTime local = utc.ToLocalTime();
+            return "Built (local): "
+                + local.ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture);
         }
 
         public static ModRuntime Runtime { get; private set; }

@@ -15,11 +15,11 @@ Override with `CitiesMods=…` or `CITIES_MODS=…`. Skip deploy with `-p:SkipMo
 
 ## Product semver vs assembly identity
 
-| Field                                             | Source                                                             | Purpose                                    |
-| ------------------------------------------------- | ------------------------------------------------------------------ | ------------------------------------------ |
-| Product version (Options / Content Manager title) | `package.json` → `BuildInfo.ProductVersion` / InformationalVersion | Stable Changesets semver (e.g. `0.2.0`)    |
-| Assembly version                                  | `Major.Minor.*`                                                    | Changes every build so Cities auto-reloads |
-| Built (UTC) + asm                                 | Debug panel footer                                                 | Confirm the new DLL loaded                 |
+| Field                                              | Source                                                             | Purpose                                             |
+| -------------------------------------------------- | ------------------------------------------------------------------ | --------------------------------------------------- |
+| Product version (Options / Content Manager title)  | `package.json` → `BuildInfo.ProductVersion` / InformationalVersion | Stable Changesets semver (e.g. `0.2.0`)             |
+| Assembly version (Debug title)                     | `Major.Minor.*`                                                    | Changes every build so Cities auto-reloads          |
+| Built (local) footer; Copy leads with this-mod asm | Debug panel footer / clipboard                                     | Confirm load; product semver stays on Options title |
 
 Do **not** put `1.0.*` wildcards on the **product** / InformationalVersion string — Share and storefront copy stay on Changesets semver.
 
@@ -35,13 +35,13 @@ Do **not** put `1.0.*` wildcards on the **product** / InformationalVersion strin
    ```
 
 3. Watch Content Manager / play — the game should pick up the new assembly version.
-4. If **Show debug panel** is on, the floating **Debug** panel comes back after reload (see [Debug UI across auto-reload](#debug-ui-across-auto-reload)). Footer **Built (UTC)** and **asm** must change after each rebuild; **Copy** pastes build info (optionally with OS and input devices when **Include system info** is checked).
+4. If **Show debug panel** is on, the floating **Debug** panel comes back after reload (see [Debug UI across auto-reload](#debug-ui-across-auto-reload)). Title **assembly identity** and footer **Built (local)** must change after each rebuild; **Copy** pastes **TrackpadCameraControl:** asm + **Built (UTC)** (and under **Include system info**, OS/devices/other assemblies).
 
 ## Debug UI across auto-reload
 
 When Cities reloads the assembly it runs `OnDisabled` then `OnEnabled` while the city stays loaded (`OnLevelLoaded` does not fire again).
 
-**Current behavior:** `OnEnabled` calls `TuningPanelHost.EnsureCreated()` and `ApplyVisibility()`. With **Show debug panel** on and a city UI view available, the floating Debug panel is recreated immediately — no city reload and no Options toggle required. Footer **Built (UTC)** / **asm** update with the new compile. On the main menu or early boot (no `UIView`), `EnsureCreated` fails soft and the panel appears on the next successful create path.
+**Current behavior:** `OnEnabled` calls `TuningPanelHost.EnsureCreated()` and `ApplyVisibility()`. With **Show debug panel** on and a city UI view available, the floating Debug panel is recreated immediately — no city reload and no Options toggle required. Title assembly identity and footer **Built (local)** update with the new compile. On the main menu or early boot (no `UIView`), `EnsureCreated` fails soft and the panel appears on the next successful create path.
 
 ## Fallbacks
 

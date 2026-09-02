@@ -11,22 +11,24 @@ namespace TrackpadCameraControl
         internal static string Format(bool includeSystemInfo)
         {
             StringBuilder sb = new StringBuilder();
-            string footer = Mod.GetBuildInfoFooterDisplay();
-            if (!string.IsNullOrEmpty(footer))
+
+            string asm = Mod.GetAssemblyIdentityDisplay();
+            if (!string.IsNullOrEmpty(asm))
             {
-                sb.AppendLine(footer);
+                sb.AppendLine("TrackpadCameraControl: " + asm);
             }
 
-            string version = Mod.GetProductVersionDisplay();
-            if (!string.IsNullOrEmpty(version))
+            string built = Mod.GetBuildInfoFooterDisplay();
+            if (!string.IsNullOrEmpty(built))
             {
-                sb.AppendLine("Mod: " + version);
+                sb.AppendLine(built);
             }
 
             if (includeSystemInfo)
             {
                 MacQaSystemInfo.AppendSection(sb);
-                QaAssemblyVersions.AppendSection(sb);
+                // Skip this mod — already on the first line.
+                QaAssemblyVersions.AppendSection(sb, includeThisMod: false);
             }
 
             if (sb.Length == 0)

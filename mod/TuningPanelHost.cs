@@ -125,6 +125,9 @@ namespace TrackpadCameraControl
 
             _root.height = _nextY + 16f;
             ClampPanelIntoView();
+            // Re-apply values after all fields are wired (numericalOnly / layout can clear text).
+            RefreshFloatFields();
+            RefreshChecks();
 
             _reopen = view.AddUIComponent(typeof(UIButton)) as UIButton;
             if (_reopen != null)
@@ -299,8 +302,8 @@ namespace TrackpadCameraControl
             // Mouse-up is handled by UIDragHandle, not the title-bar UIPanel.
             drag.eventMouseUp += (c, e) => SavePanelPosition();
 
-            _title = AddLabel(_titleBar, Mod.OptionsTitle, 0f, 0f);
-            _title.textScale = 1.1f;
+            _title = AddLabel(_titleBar, Mod.DebugPanelTitle, 0f, 0f);
+            _title.textScale = 1.0f;
             _title.autoSize = false;
             _title.width = PanelWidth - (HeaderButtonSize * 2f) - 8f;
             _title.height = TitleBarHeight;
@@ -768,35 +771,24 @@ namespace TrackpadCameraControl
 
         private static void AddBuildInfoFooter()
         {
-            string line = Mod.GetBuildInfoFooterDisplay();
-            if (string.IsNullOrEmpty(line))
+            string builtLine = Mod.GetBuildInfoPanelDisplay();
+            if (string.IsNullOrEmpty(builtLine))
             {
-                return;
+                // Still show Include + Copy when the stamp is missing so QA can paste product info.
+                builtLine = "Built (local): ?";
             }
 
             _nextY += 8f;
-            float rowY = _nextY;
-            float copyX = PanelWidth - FieldGutter - FooterCopyButtonWidth;
-            // Pack Include system info on the Copy row so it is not clipped below the panel.
-            const float includeBoxW = 168f;
-            float includeX = copyX - includeBoxW - 6f;
-            float labelWidth = includeX - Col0 - 4f;
+            float actionsY = _nextY;
 
-            UILabel label = AddLabel(_root, line, Col0, rowY);
-            label.textColor = new Color(1f, 1f, 1f, 0.75f);
-            label.width = labelWidth;
-            label.autoSize = false;
-            label.autoHeight = true;
-            label.wordWrap = true;
-            label.isInteractive = false;
-            label.PerformLayout();
-
+            // Row 1: Include system info, then Copy.
+            const float includeBoxW = 180f;
             UICheckBox includeBox = _root.AddUIComponent<UICheckBox>();
             includeBox.width = includeBoxW;
             includeBox.height = 20f;
             includeBox.relativePosition = new Vector3(
-                includeX,
-                rowY + (FooterCopyButtonHeight - 20f) * 0.5f
+                Col0,
+                actionsY + (FooterCopyButtonHeight - 20f) * 0.5f
             );
             UISprite uncheckedSprite = includeBox.AddUIComponent<UISprite>();
             uncheckedSprite.spriteName = "check-unchecked";
@@ -823,6 +815,8 @@ namespace TrackpadCameraControl
                 ModSettings copySettings = Mod.EnsureSettings();
                 ModOptions.ApplyBool(copySettings, x => x.IncludeSystemInfoInCopy = v);
             };
+            AssignTabOrder(includeBox);
+            NumericTextFieldUi.WireTabStop(includeBox, tabScope: _root);
             RegisterCheck(
                 includeBox,
                 () =>
@@ -832,9 +826,10 @@ namespace TrackpadCameraControl
                 }
             );
 
-            UIButton copy = MakeMenuButton("Copy", copyX, rowY, FooterCopyButtonWidth);
+            float copyX = Col0 + includeBoxW + 8f;
+            UIButton copy = MakeMenuButton("Copy", copyX, actionsY, FooterCopyButtonWidth);
             copy.height = FooterCopyButtonHeight;
-            copy.tooltip = "Copy build info (and system info when checked)";
+            copy.tooltip = "Copy build info (UTC) and optional system info";
             copy.eventClick += (c, e) =>
             {
                 ModSettings copySettings = Mod.Settings;
@@ -846,7 +841,16 @@ namespace TrackpadCameraControl
                 e.Use();
             };
 
-            _nextY += Mathf.Max(FooterCopyButtonHeight, label.height + 4f);
+            _nextY = actionsY + FooterCopyButtonHeight + 4f;
+
+            // Row 2: build stamp in local time (single line; clipboard keeps UTC + asm).
+            UILabel label = AddLabel(_root, builtLine, Col0, _nextY);
+            label.textColor = new Color(1f, 1f, 1f, 0.75f);
+            label.autoSize = true;
+            label.wordWrap = false;
+            label.isInteractive = false;
+            label.PerformLayout();
+            _nextY += Mathf.Max(18f, label.height + 4f);
         }
 
         /// <summary>Keep the Debug panel (including footer) inside the game UI view.</summary>
@@ -1073,11 +1077,13 @@ namespace TrackpadCameraControl
             field.hoveredBgSprite = "TextFieldPanelHovered";
             field.focusedBgSprite = "TextFieldPanel";
             field.selectionSprite = "EmptySprite";
-            field.text = FormatFieldValue(get());
             field.selectOnFocus = true;
             field.isInteractive = true;
+            // Wire first: enabling numericalOnly after assigning text can clear the field
+            // (seen empty Rotate/Deadband values until Reset refreshed bindings).
             WireFloatTextFieldSubmit(field, () => SubmitFloatField(field, s, get, apply));
             RegisterFloatField(field, get);
+            field.text = FormatFieldValue(get());
         }
 
         private static string FormatFieldValue(float value)
