@@ -50,7 +50,7 @@ Two-finger **rotation** writes `AngleX` (or ghost angles) directly and clears bo
 - After loading a city (no Debug panel, no Options visit), pan, zoom, **rotation**, and `⌥`+two-finger orbit work within a few seconds while the game window is focused.
 - With AppleKit and Maps+ defaults, pan, zoom, **rotation**, and `⌥`+two-finger orbit work in-game; pan stays within the unlocked game area; orbit pitch stays within **0°**–**90°**; rotation is not angle-clamped; starting rotation hard-handoffs leftover orbit coast.
 - Selection-aware rotate / Option-orbit match [selection-aware gestures](./selection-aware-gestures.md).
-- Slow / Default / Fast stay immutable; dirty edits use **New Preset** per [settings and hot configuration](./settings-and-hot-configuration.md); Sensitivity uses the slider contract (0.1×–2× factory default).
+- Slow / Default / Fast stay immutable; dirty edits use **New Preset** per [settings and hot configuration](./settings-and-hot-configuration.md); Sensitivity uses the slider contract (0×–2× factory default).
 - Changing Sensitivity or pitch limits in Options or the Debug panel applies hot, stays in sync, and autosaves across quit.
 - Orbit latch continues orbit after modifier release until fingers lift.
 - Concurrent resolve allows pan + zoom + yaw in the same frame when not orbit-latched.

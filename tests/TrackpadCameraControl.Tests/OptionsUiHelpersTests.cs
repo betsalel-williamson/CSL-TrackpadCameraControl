@@ -11,23 +11,30 @@ namespace TrackpadCameraControl.Tests
         [Fact]
         public void SensitivitySliderRange_UsesFactoryFractions()
         {
-            Assert.Equal(0.05f, ModOptions.SensitivitySliderMin(0.50f));
+            Assert.Equal(0f, ModOptions.SensitivitySliderMin(0.50f));
             Assert.Equal(1.00f, ModOptions.SensitivitySliderMax(0.50f));
             Assert.Equal(0.05f, ModOptions.SensitivitySliderStep(0.50f));
 
-            Assert.Equal(0.1f, ModOptions.SensitivitySliderMin(1f));
+            Assert.Equal(0f, ModOptions.SensitivitySliderMin(1f));
             Assert.Equal(2f, ModOptions.SensitivitySliderMax(1f));
             Assert.Equal(0.1f, ModOptions.SensitivitySliderStep(1f));
 
-            Assert.Equal(1.00f, ModOptions.SensitivitySliderMin(10.00f));
+            Assert.Equal(0f, ModOptions.SensitivitySliderMin(10.00f));
             Assert.Equal(20.00f, ModOptions.SensitivitySliderMax(10.00f));
             Assert.Equal(1.00f, ModOptions.SensitivitySliderStep(10.00f));
+
+            // Factory mid-track: (factory - min) / (max - min) == 0.5
+            float factory = 2.00f;
+            float min = ModOptions.SensitivitySliderMin(factory);
+            float max = ModOptions.SensitivitySliderMax(factory);
+            Assert.Equal(0.5f, (factory - min) / (max - min), 3);
         }
 
         [Fact]
         public void ClampGainToFactoryRange_ClampsAndRounds()
         {
-            Assert.Equal(0.05f, ModOptions.ClampGainToFactoryRange(0.01f, 0.50f));
+            Assert.Equal(0.0001f, ModOptions.ClampGainToFactoryRange(0f, 0.50f));
+            Assert.Equal(0.01f, ModOptions.ClampGainToFactoryRange(0.01f, 0.50f));
             Assert.Equal(1.00f, ModOptions.ClampGainToFactoryRange(9f, 0.50f));
             Assert.Equal(0.551f, ModOptions.ClampGainToFactoryRange(0.551f, 0.50f));
         }

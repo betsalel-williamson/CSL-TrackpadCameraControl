@@ -46,7 +46,7 @@ A [feel preset](../glossary/feel-preset.md) stores sensitivities, reverse flags,
 
 Under each op heading (**Zoom**, **Pan**, **Rotate**, **Orbit**) after **General**: short meaning + activation, then:
 
-- Per-op [Sensitivity](../glossary/sensitivity.md) **slider** (Options only): min **0.1×** that field’s factory default, max **2×**, step ≈ **10%** of factory default; display/apply **three** decimals for Sensitivity gains (button steps **two** decimals)
+- Per-op [Sensitivity](../glossary/sensitivity.md) **slider** (Options only): min **0×** that field’s factory default, max **2×**, step ≈ **10%** of factory default; display/apply **three** decimals for Sensitivity gains (button steps **two** decimals)
 - Orbit: schema seeds OrbitPitchMin/Max **0** / **90** (vanilla). Live clamp is hardcoded to that range — not Options/Debug-tunable. Drag floors at **0°**; button writes clamp **0…90**. No yaw angle clamp.
 
 Also: [feel preset](../glossary/feel-preset.md) row (Slow / Default / Fast / New Preset when dirty, Save as… / Load, Reset to factory), **Show debug panel** (panel master switch; off also hides the floating Debug reopen chip).
@@ -102,7 +102,7 @@ Once orbit engages from the configured trigger, the session stays in orbit until
 - Live **ModSettings** update immediately from either surface; binding resolver, gesture session, and camera applicator read live settings each frame.
 - **Debug panel** UI prefers in-place field/label refresh on `SettingsChanged` (Reset, Options edits, keymapping label changes); it only Destroy/recreates when heading structure cannot be updated in place.
 - **Options controls** bind at page build (ColossalUI / UIHelperBase cannot rebuild sliders in place). Leave and re-enter Options (or reopen the page) to see Debug edits reflected in slider positions.
-- Debug may hold Sensitivity **outside** the Options slider **0.1×–2×** range; Options sliders clamp only when the player moves them.
+- Debug may hold Sensitivity **outside** the Options slider **0×–2×** range; Options sliders clamp only when the player moves them.
 - No mod disable/enable cycle required for tuning.
 
 ## Acceptance

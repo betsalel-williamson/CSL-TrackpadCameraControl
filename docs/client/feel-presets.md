@@ -26,7 +26,7 @@ Built-ins (**Slow**, **Default**, **Fast**) are **immutable** — the mod never 
 | Capture                       | AppleKit                     |
 | Orbit pitch                   | vanilla **0** / **90**       |
 
-**Sensitivity** sliders run from about **0.1×** to **2×** the factory default for that field.
+**Sensitivity** sliders run from about **0×** to **2×** the factory default for that field.
 
 ## Dropdown, New Preset, and Save as…
 

@@ -11,7 +11,7 @@ namespace TrackpadCameraControl
     /// ColossalUI / UIHelperBase limits (best-effort):
     /// - Sections use nested <see cref="UIHelperBase.AddGroup"/> (short title + native glow);
     ///   long <see cref="ModOptions.OpDescription*"/> strings are small labels inside group Content.
-    /// - Sensitivity uses <see cref="UIHelperBase.AddSlider"/> (0.1×–2× factory, step ≈ 10%).
+    /// - Sensitivity uses <see cref="UIHelperBase.AddSlider"/> (0×–2× factory, step ≈ 10%).
     /// - Feel presets use a dropdown; Save as… is the last entry plus a name text field
     ///   (dropdown cannot collect a new name alone).
     /// - Options controls bind to live <see cref="ModSettings"/> at build time only; Apply*
@@ -484,7 +484,7 @@ namespace TrackpadCameraControl
         }
 
         /// <summary>
-        /// Sensitivity via AddSlider when available; value clamped to 0.1×–2× factory default.
+        /// Sensitivity via AddSlider when available; value clamped to 0×–2× factory default.
         /// </summary>
         private static void AddSensitivityControl(
             UIHelperBase helper,

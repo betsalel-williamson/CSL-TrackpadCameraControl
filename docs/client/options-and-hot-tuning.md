@@ -2,7 +2,7 @@
 
 You can tune Trackpad Camera Control from **two places**. They share the same live **ModSettings**: camera feel updates immediately from either surface, and every change **autosaves** — no restart, and values **survive quit**.
 
-**Debug panel** controls refresh when settings change. **Options** sliders bind when the page is built — after editing in Debug, leave and re-enter Options to see updated slider positions. Debug may show Sensitivity outside the Options **0.1×–2×** range until you move an Options slider (sliders clamp on drag only).
+**Debug panel** controls refresh when settings change. **Options** sliders bind when the page is built — after editing in Debug, leave and re-enter Options to see updated slider positions. Debug may show Sensitivity outside the Options **0×–2×** range until you move an Options slider (sliders clamp on drag only).
 
 ## Where to edit
 
@@ -28,7 +28,7 @@ For each camera op, the **title** is on its own line; the next lines state **Ges
 | Rotate | Rotate the camera, or rotate a place/relocate ghost | Two-finger rotate            | Rotate-left / rotate-right bindings          |
 | Orbit  | Pitch + yaw around the pivot                        | Option (`⌥`)+two-finger drag | Rotate-camera mouse binding                  |
 
-Product-surface Options controls: **Sensitivity** sliders only (about **0.1×–2×** factory default). Orbit pitch follows vanilla **0–90°** (no separate Pitch min/max controls). There is no Enable-per-op or Reverse UI. Labels say **Sensitivity** (not drag scale).
+Product-surface Options controls: **Sensitivity** sliders only (about **0×–2×** factory default). Orbit pitch follows vanilla **0–90°** (no separate Pitch min/max controls). There is no Enable-per-op or Reverse UI. Labels say **Sensitivity** (not drag scale).
 
 With a **new place or relocate** ghost: two-finger rotate turns the **ghost**; ⌥+two-finger may orbit around that ghost. Otherwise rotate is camera yaw and ⌥+two-finger orbits from the **current** look-at (no snap to a prior pivot).
 

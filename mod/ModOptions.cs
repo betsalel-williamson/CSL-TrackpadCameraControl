@@ -20,8 +20,8 @@ namespace TrackpadCameraControl
 
         public const float SensitivityStep = 0.05f;
 
-        /// <summary>Product Sensitivity slider floor as a fraction of factory default.</summary>
-        public const float SensitivitySliderMinFactor = 0.1f;
+        /// <summary>Product Sensitivity slider floor as a fraction of factory default (0× → mid-track Default).</summary>
+        public const float SensitivitySliderMinFactor = 0f;
 
         /// <summary>Product Sensitivity slider ceiling as a fraction of factory default.</summary>
         public const float SensitivitySliderMaxFactor = 2f;
@@ -164,7 +164,7 @@ namespace TrackpadCameraControl
             return RoundGain(value);
         }
 
-        /// <summary>Options Sensitivity slider minimum for a factory default (0.1×).</summary>
+        /// <summary>Options Sensitivity slider minimum for a factory default (0× → Default mid-track).</summary>
         public static float SensitivitySliderMin(float factoryDefault)
         {
             return RoundGain(factoryDefault * SensitivitySliderMinFactor);
@@ -185,7 +185,7 @@ namespace TrackpadCameraControl
 
         /// <summary>
         /// Clamp a Sensitivity edit to the product Options slider range for that factory default.
-        /// Non-positive / out-of-range values snap into [0.1×, 2×] factory.
+        /// Out-of-range values snap into [0×, 2×] factory; applied gains stay above a tiny floor.
         /// </summary>
         public static float ClampGainToFactoryRange(float value, float factoryDefault)
         {
