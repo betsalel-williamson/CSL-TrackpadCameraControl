@@ -288,7 +288,7 @@ namespace TrackpadCameraControl.Tests
                 Array.IndexOf(items, FeelProfiles.NameDefault)
                     < Array.IndexOf(items, FeelProfiles.NameFast)
             );
-            Assert.Equal(ModOptions.FeelPresetSaveAsLabel, items[items.Length - 1]);
+            Assert.DoesNotContain(ModOptions.FeelPresetSaveAsLabel, items);
             Assert.DoesNotContain(FeelProfiles.NameNewPreset, items);
             Assert.Equal(
                 Array.IndexOf(items, FeelProfiles.NameDefault),
@@ -306,7 +306,8 @@ namespace TrackpadCameraControl.Tests
             string[] items = ModOptions.GetFeelPresetDropdownItems(live);
 
             Assert.Contains(FeelProfiles.NameNewPreset, items);
-            Assert.Equal(ModOptions.FeelPresetSaveAsLabel, items[items.Length - 1]);
+            Assert.DoesNotContain(ModOptions.FeelPresetSaveAsLabel, items);
+            Assert.True(ModOptions.IsFeelDirtyNewPreset(live));
             Assert.Equal(
                 Array.IndexOf(items, FeelProfiles.NameNewPreset),
                 ModOptions.IndexOfFeelPresetDropdownItem(items, FeelProfiles.NameNewPreset)

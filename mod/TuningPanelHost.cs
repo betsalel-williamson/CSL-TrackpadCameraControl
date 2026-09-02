@@ -36,8 +36,8 @@ namespace TrackpadCameraControl
         private static UIButton _reopen;
         private static UILabel _presetDesc;
         private static UILabel _title;
-        private static UITextField _feelNameField;
         private static UIDropDown _feelDropdown;
+        private static UIButton _feelSaveAsButton;
         private static string[] _feelDropdownItems;
         private static float _nextY;
         private static bool _handlingSettingsChanged;
@@ -190,10 +190,11 @@ namespace TrackpadCameraControl
             _optionsButton = null;
             _presetDesc = null;
             _title = null;
-            _feelNameField = null;
+            _feelSaveAsButton = null;
             _feelDropdown = null;
             _feelDropdownItems = null;
             ClearRefreshBindings();
+            FeelSaveAsDialog.Close();
         }
 
         private static void OnSettingsChanged()
@@ -442,32 +443,26 @@ namespace TrackpadCameraControl
             {
                 ModOptions.ApplyFeelDefault(s);
             };
+
+            _feelSaveAsButton = MakeMenuButton("Save as…", Col0 + 308f, _nextY, 96f);
+            _feelSaveAsButton.tabIndex = -1;
+            _feelSaveAsButton.isEnabled = ModOptions.IsFeelDirtyNewPreset(s);
+            _feelSaveAsButton.eventClick += (c, e) =>
+            {
+                e.Use();
+                FeelSaveAsDialog.Show(Mod.EnsureSettings(), RefreshFeelSaveAsEnabled);
+            };
             _nextY += 32f;
+        }
 
-            UILabel nameLbl = AddLabel(_root, "Name", Col0, _nextY);
-            nameLbl.width = FieldLabelW;
-            nameLbl.autoSize = false;
+        private static void RefreshFeelSaveAsEnabled()
+        {
+            if (_feelSaveAsButton == null)
+            {
+                return;
+            }
 
-            _feelNameField = _root.AddUIComponent<UITextField>();
-            _feelNameField.width = 180f;
-            _feelNameField.height = 22f;
-            _feelNameField.relativePosition = new Vector3(
-                Col0 + FieldLabelW + FieldLabelGap,
-                _nextY
-            );
-            _feelNameField.normalBgSprite = "TextFieldPanel";
-            _feelNameField.hoveredBgSprite = "TextFieldPanelHovered";
-            _feelNameField.focusedBgSprite = "TextFieldPanel";
-            _feelNameField.selectionSprite = "EmptySprite";
-            // Colossal UIHorizontalAlignment has Left/Center/Right only (no Start/RTL).
-            // Default UITextField text is centered; LTR should be left (start) aligned.
-            _feelNameField.horizontalAlignment = UIHorizontalAlignment.Left;
-            _feelNameField.text = "";
-            _feelNameField.selectOnFocus = true;
-            _feelNameField.isInteractive = true;
-            // Click-focus + Enter confirm only — not in the product Tab cycle (R4 Save-as later).
-            WireTextFieldSubmit(_feelNameField, () => { }, includeInTabOrder: false);
-            _nextY += 30f;
+            _feelSaveAsButton.isEnabled = ModOptions.IsFeelDirtyNewPreset(Mod.Settings);
         }
 
         private static void OnFeelDropdownSelected(UIComponent component, int index)
@@ -483,25 +478,7 @@ namespace TrackpadCameraControl
             }
 
             ModSettings s = Mod.EnsureSettings();
-            string label = _feelDropdownItems[index];
-            if (string.Equals(label, ModOptions.FeelPresetSaveAsLabel, StringComparison.Ordinal))
-            {
-                string name = _feelNameField != null ? _feelNameField.text : "";
-                if (!ModOptions.SaveNamedFeelPreset(s, name))
-                {
-                    if (_feelDropdown != null)
-                    {
-                        _feelDropdown.selectedIndex = ModOptions.IndexOfFeelPresetDropdownItem(
-                            _feelDropdownItems,
-                            s.ActiveFeelPresetName
-                        );
-                    }
-                }
-
-                return;
-            }
-
-            ModOptions.ApplyFeelPresetDropdownChoice(s, label);
+            ModOptions.ApplyFeelPresetDropdownChoice(s, _feelDropdownItems[index]);
         }
 
 #if ENABLE_CAD_GESTURE_STYLE

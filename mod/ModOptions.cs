@@ -716,6 +716,11 @@ namespace TrackpadCameraControl
                 return false;
             }
 
+            if (string.Equals(name, FeelProfiles.NameNewPreset, StringComparison.Ordinal))
+            {
+                return false;
+            }
+
             if (!Store.SaveUserPreset(name, settings, settings))
             {
                 return false;
@@ -762,12 +767,23 @@ namespace TrackpadCameraControl
             return Store.ListUserPresetNames();
         }
 
-        /// <summary>Last entry in the feel-preset dropdown — promotes current feel to a named slot.</summary>
+        /// <summary>True when the active feel identity is the dirty New Preset scratch slot.</summary>
+        public static bool IsFeelDirtyNewPreset(ModSettings settings)
+        {
+            return settings != null
+                && string.Equals(
+                    settings.ActiveFeelPresetName,
+                    FeelProfiles.NameNewPreset,
+                    StringComparison.Ordinal
+                );
+        }
+
+        /// <summary>Last entry label retained for tests / migration; no longer in the dropdown.</summary>
         public const string FeelPresetSaveAsLabel = "Save as…";
 
         /// <summary>
-        /// Dropdown items: Slow, Default, Fast, named user presets, New Preset (when present/active), Save as….
-        /// Shared by Options (C3) and the Debug panel (C4).
+        /// Dropdown items: Slow, Default, Fast, named user presets, New Preset (when present/active).
+        /// Shared by Options and the Debug panel. Save as… is a separate button + dialog.
         /// </summary>
         public static string[] GetFeelPresetDropdownItems(ModSettings settings)
         {
@@ -798,19 +814,12 @@ namespace TrackpadCameraControl
                 }
             }
 
-            bool newPresetActive =
-                settings != null
-                && string.Equals(
-                    settings.ActiveFeelPresetName,
-                    FeelProfiles.NameNewPreset,
-                    StringComparison.Ordinal
-                );
+            bool newPresetActive = IsFeelDirtyNewPreset(settings);
             if (hasNewPresetSlot || newPresetActive)
             {
                 items.Add(FeelProfiles.NameNewPreset);
             }
 
-            items.Add(FeelPresetSaveAsLabel);
             return items.ToArray();
         }
 

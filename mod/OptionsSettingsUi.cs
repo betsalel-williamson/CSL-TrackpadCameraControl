@@ -15,8 +15,7 @@ namespace TrackpadCameraControl
     /// - Sensitivity uses <see cref="UIHelperBase.AddSlider"/> on a fixed [0, 1] UI domain;
     ///   <see cref="ModOptions.GainToSensitivityUi"/> / <see cref="ModOptions.SensitivityUiToGain"/>
     ///   map piecewise to 0.1× / 1× / 2× factory (UI 0.5 = Default / Debug field value).
-    /// - Feel presets use a dropdown; Save as… is the last entry plus a name text field
-    ///   (dropdown cannot collect a new name alone).
+    /// - Feel presets use a dropdown; Save as… is a button (enabled when dirty) that opens a name dialog.
     /// - Options controls bind to live <see cref="ModSettings"/> at build time only; Apply*
     ///   raises <see cref="ModOptions.SettingsChanged"/> for Debug rebuild (C2). Reopen Options
     ///   to refresh sliders after Debug edits — in-place rebuild is not practical under UIHelperBase.
@@ -25,6 +24,7 @@ namespace TrackpadCameraControl
     internal static class OptionsSettingsUi
     {
         private static readonly List<Action> SensitivitySliderRefreshes = new List<Action>(8);
+        private static Action _saveAsEnabledSync;
 
         public static void Build(UIHelperBase helper, ModSettings s)
         {
@@ -300,7 +300,6 @@ namespace TrackpadCameraControl
             );
 
             string[] presetLabels = ModOptions.GetFeelPresetDropdownItems(s);
-            string[] saveAsName = new string[] { "" };
 
             group.AddDropdown(
                 "Feel preset",
@@ -313,49 +312,35 @@ namespace TrackpadCameraControl
                         return;
                     }
 
-                    string label = presetLabels[sel];
-                    if (
-                        string.Equals(
-                            label,
-                            ModOptions.FeelPresetSaveAsLabel,
-                            StringComparison.Ordinal
-                        )
-                    )
-                    {
-                        ModOptions.SaveNamedFeelPreset(s, saveAsName[0]);
-                        return;
-                    }
-
-                    ModOptions.ApplyFeelPresetDropdownChoice(s, label);
+                    ModOptions.ApplyFeelPresetDropdownChoice(s, presetLabels[sel]);
                 }
             );
 
-            // Name field for Save as… (dropdown last entry cannot collect a new name alone).
-            object presetNameCreated = group.AddTextfield(
-                "Preset name",
-                "",
-                text =>
-                {
-                    saveAsName[0] = text ?? "";
-                },
-                text =>
-                {
-                    saveAsName[0] = text ?? "";
-                }
-            );
-            UITextField presetNameField = presetNameCreated as UITextField;
-            if (presetNameField != null)
-            {
-                // Match Debug feel name: start-aligned for LTR (Colossal has no RTL Start).
-                presetNameField.horizontalAlignment = UIHorizontalAlignment.Left;
-            }
-            group.AddButton(
+            object saveAsCreated = group.AddButton(
                 "Save as…",
                 () =>
                 {
-                    ModOptions.SaveNamedFeelPreset(s, saveAsName[0]);
+                    FeelSaveAsDialog.Show(s, null);
                 }
             );
+            UIButton saveAsButton = saveAsCreated as UIButton;
+            if (saveAsButton != null)
+            {
+                if (_saveAsEnabledSync != null)
+                {
+                    ModOptions.SettingsChanged -= _saveAsEnabledSync;
+                }
+
+                _saveAsEnabledSync = () =>
+                {
+                    if (saveAsButton != null)
+                    {
+                        saveAsButton.isEnabled = ModOptions.IsFeelDirtyNewPreset(Mod.Settings ?? s);
+                    }
+                };
+                saveAsButton.isEnabled = ModOptions.IsFeelDirtyNewPreset(s);
+                ModOptions.SettingsChanged += _saveAsEnabledSync;
+            }
         }
 
         /// <summary>

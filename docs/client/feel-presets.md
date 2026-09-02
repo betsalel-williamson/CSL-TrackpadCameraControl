@@ -30,9 +30,9 @@ Built-ins (**Slow**, **Default**, **Fast**) are **immutable** — the mod never 
 
 ## Dropdown, New Preset, and Save as…
 
-Selecting an entry in the dropdown **loads** that profile immediately. **Save as…** is the last entry: it stores a named copy of the current feel set; after save, that named preset stays selected.
+Selecting an entry in the dropdown **loads** that profile immediately.
 
-If you edit while a built-in (or any named preset) is active, the active identity becomes **New Preset** and the change **autosaves** there. Further edits after **Save as…** dirties to **New Preset** again the same way. Named profiles persist with your other mod settings across quit.
+If you edit while a built-in (or any named preset) is active, the active identity becomes **New Preset** and the change **autosaves** there. **Save as…** (next to Reset on Debug; in Options General) becomes **enabled** when you are on New Preset. Click it to open a name dialog (editable name, Cancel / OK). You cannot save as Slow / Default / Fast; saving over another named preset replaces it without a confirm. Cancel leaves New Preset unsaved as a named profile. Named profiles persist with your other mod settings across quit.
 
 ## Reset to factory
 
