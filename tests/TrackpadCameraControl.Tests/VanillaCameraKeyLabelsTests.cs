@@ -12,16 +12,17 @@ namespace TrackpadCameraControl.Tests
         }
 
         [Fact]
-        public void FormatVanillaActionLine_IncludesBindingsWhenPresent()
+        public void FormatVanillaActionLine_UsesKeymappingPrefix()
         {
             Assert.Equal(
-                "Middle Mouse · W: vanilla orbit",
-                VanillaCameraKeyLabels.FormatVanillaActionLine("Middle Mouse · W", "vanilla orbit")
+                "Keymapping(s): Middle Mouse · W",
+                VanillaCameraKeyLabels.FormatVanillaActionLine("Middle Mouse · W")
             );
             Assert.Equal(
-                "vanilla zoom",
-                VanillaCameraKeyLabels.FormatVanillaActionLine(null, "vanilla zoom")
+                "Keymapping(s): none",
+                VanillaCameraKeyLabels.FormatVanillaActionLine(null)
             );
+            Assert.Equal("Keymapping(s): none", VanillaCameraKeyLabels.FormatVanillaActionLine(""));
         }
     }
 }

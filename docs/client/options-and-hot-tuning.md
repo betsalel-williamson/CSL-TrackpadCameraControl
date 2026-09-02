@@ -19,9 +19,9 @@ A **dropdown** lists built-in and named [feel presets](../glossary/feel-preset.m
 
 Sections appear in order **General → Zoom → Pan → Rotate → Orbit**. Rhythm uses native Colossal **AddGroup**: a short group title with the native glow underline, and controls nested in that group’s Content.
 
-For each camera op, the **title** is on its own line; the next lines state **Maps+ activation** and the player’s current **vanilla** bindings (from Cities keymappings / Options labels, not hardcoded prose). Those binding lines **refresh when keymappings change** via game keymapping events (Debug panel rebuilds; Options descriptions update while the mod tab is open).
+For each camera op, the **title** is on its own line; the next lines state **Maps+ activation** and **Keymapping(s):** with the player’s current Cities binding labels (from Options keymappings, not hardcoded prose). Those binding lines **refresh when keymappings change** via game keymapping events (Debug panel rebuilds; Options descriptions update while the mod tab is open). If nothing is bound, the line still reads **Keymapping(s): none**.
 
-| Op     | Meaning                                              | Activation (Maps+)           | Vanilla (still on)                           |
+| Op     | Meaning                                              | Activation (Maps+)           | Keymapping(s) (still on)                     |
 | ------ | ---------------------------------------------------- | ---------------------------- | -------------------------------------------- |
 | Zoom   | Change camera distance / size                        | Pinch                        | Mouse-wheel option label + zoom key bindings |
 | Pan    | Slide the camera laterally                           | Two-finger drag              | Edge scrolling option + move key bindings    |

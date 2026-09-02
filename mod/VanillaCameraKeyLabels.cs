@@ -4,7 +4,7 @@ using System.Collections.Generic;
 namespace TrackpadCameraControl
 {
     /// <summary>
-    /// Builds op-heading copy with live vanilla key labels from Cities keymappings.
+    /// Builds op-heading copy with live keymapping labels from Cities Options bindings.
     /// </summary>
     internal static partial class VanillaCameraKeyLabels
     {
@@ -30,49 +30,44 @@ namespace TrackpadCameraControl
             return parts.Count == 0 ? null : string.Join(" · ", parts.ToArray());
         }
 
-        internal static string FormatVanillaActionLine(string bindings, string action)
+        /// <summary>
+        /// Third op-heading line. Prefer <c>Keymapping(s): {bindings}</c>;
+        /// when unbound, still name the concept (<c>Keymapping(s): none</c>).
+        /// </summary>
+        internal static string FormatVanillaActionLine(string bindings)
         {
             if (string.IsNullOrEmpty(bindings))
             {
-                return action;
+                return "Keymapping(s): none";
             }
 
-            return bindings + ": " + action;
+            return "Keymapping(s): " + bindings;
         }
 
         private static string BuildDescription(
             string meaning,
             string mapsPlus,
-            string vanillaBindings,
-            string vanillaAction
+            string keymappingBindings
         )
         {
-            return meaning
-                + "\n"
-                + mapsPlus
-                + "\n"
-                + FormatVanillaActionLine(vanillaBindings, vanillaAction);
+            return meaning + "\n" + mapsPlus + "\n" + FormatVanillaActionLine(keymappingBindings);
         }
 
         private static string BuildHeading(
             string title,
             string meaning,
             string mapsPlus,
-            string vanillaBindings,
-            string vanillaAction
+            string keymappingBindings
         )
         {
-            return title
-                + "\n"
-                + BuildDescription(meaning, mapsPlus, vanillaBindings, vanillaAction);
+            return title + "\n" + BuildDescription(meaning, mapsPlus, keymappingBindings);
         }
 
         public static string OpDescriptionZoom =>
             BuildDescription(
                 "Change camera distance / size",
                 "Pinch",
-                ResolveZoomVanillaBindings(),
-                "vanilla zoom"
+                ResolveZoomVanillaBindings()
             );
 
         public static string OpHeadingZoom => "Zoom\n" + OpDescriptionZoom;
@@ -81,8 +76,7 @@ namespace TrackpadCameraControl
             BuildDescription(
                 "Slide the camera laterally",
                 "Two-finger drag",
-                ResolvePanVanillaBindings(),
-                "vanilla"
+                ResolvePanVanillaBindings()
             );
 
         public static string OpHeadingPan => "Pan\n" + OpDescriptionPan;
@@ -91,8 +85,7 @@ namespace TrackpadCameraControl
             BuildDescription(
                 "Yaw the camera or rotate a place/relocate ghost",
                 "Two-finger rotate",
-                ResolveRotateVanillaBindings(),
-                "vanilla"
+                ResolveRotateVanillaBindings()
             );
 
         public static string OpHeadingRotate => "Rotate\n" + OpDescriptionRotate;
@@ -101,8 +94,7 @@ namespace TrackpadCameraControl
             BuildDescription(
                 "Pitch + yaw around the pivot",
                 "Option (⌥)+two-finger drag",
-                ResolveOrbitVanillaBindings(),
-                "vanilla orbit"
+                ResolveOrbitVanillaBindings()
             );
 
         public static string OpHeadingOrbit => "Orbit\n" + OpDescriptionOrbit;
