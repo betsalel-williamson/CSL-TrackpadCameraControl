@@ -1,5 +1,6 @@
 node_modules/
 docs/_build/
+docs/superpowers/plans/
 .DS_Store
 *.userprefs
 *.csproj.user
@@ -23,6 +24,9 @@ TestResults/
 coverage*.json
 coverage*.xml
 coverage*.cobertura.xml
+
+# Local one-off reflection / probe tools (never ship)
+tools/
 
 # OpenTofu / Terraform (infra/github)
 .terraform/
