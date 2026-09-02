@@ -15,7 +15,6 @@ namespace TrackpadCameraControl
 #if HAS_CITIES
                 TuningPanelHost.ProcessPendingUiRebuild();
                 TuningPanelHost.ProcessPanelFocusVisual();
-                GameFocusActivation.TickCursorHideFollowUp(GameUiContext.Default);
 #endif
             }
             catch

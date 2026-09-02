@@ -37,7 +37,7 @@ Shipped capture is **AppleKit** with [Maps+](../glossary/maps-plus-preset.md) ge
 
 1. Subscribe and enable **Cities Harmony**.
 2. Enable **Trackpad Camera Control** in Content Manager.
-3. Load a city or start a new game. On load the mod tries to activate the game window and hide the OS cursor. If the **macOS arrow** still sits over the in-game cursor until you Cmd-Tab once, follow the reproduction checklist in [`docs/developer/qa-mac-boot-cursor.md`](../developer/qa-mac-boot-cursor.md) (try Steam overlay off; capture log lines). Maintainers: same file for fix ledger and evidence.
+3. Load a city or start a new game. If the **macOS arrow** and the in-game cursor fight (or Shift-Tab to Steam overlay swaps which cursor you get), that is a known Steam/Unity Mac issue — not something this mod fixes in v1. Workaround: Shift-Tab out of the overlay back to the game, or Cmd-Tab once. Details: [`docs/developer/qa-mac-boot-cursor.md`](../developer/qa-mac-boot-cursor.md).
 4. Within a few seconds of the city appearing, with the game focused, try two-finger drag (pan), pinch (zoom), two-finger rotate (yaw / rotate selection), and Option (`⌥`)+two-finger drag (orbit). Trackpad pan should not also vanilla-zoom; a real mouse wheel should still zoom. If you use a mouse, middle-click drag should still orbit the camera while trackpad gestures are active.
 5. You do not need to open the Debug panel or Options first — gestures work out of the box; the Debug panel is optional for live tuning (factory default off).
 6. Open Options → Trackpad Camera Control to adjust Sensitivity sliders or Slow / Default / Fast from the feel dropdown. Orbit pitch matches the game **0–90°**.

@@ -34,8 +34,7 @@ Maintainer and community reports. Prefer Workshop comments or a GitHub issue tit
 - [ ] Trackpad Camera Control enabled in Content Manager
 - [ ] City loaded (not menus-only)
 - [ ] Game window focused
-- [ ] Cold boot → load city: no OS hardware cursor overlaying the in-game cursor; one-finger tools work without alt-tab first. **Detailed reproduction, fix ledger, Steam overlay matrix:** [qa-mac-boot-cursor.md](./qa-mac-boot-cursor.md).
-- [ ] (Cursor investigation) Steam overlay **On** vs **Off** cold-boot matrix filled in [qa-mac-boot-cursor.md](./qa-mac-boot-cursor.md) when chasing dual-cursor
+- [ ] Cold boot → load city: note Mac OS vs in-game cursor. Dual cursor / Steam overlay Shift-Tab cursor swap is a **known external issue** (deferred to v2) — see [qa-mac-boot-cursor.md](./qa-mac-boot-cursor.md). Not a mod blocker for v1.
 - [ ] Fresh city load: pan, pinch, rotate, and Option-orbit work without opening Debug panel or Options
 - [ ] Debug panel **Reset** restores Default preset while panel stays open
 - [ ] Maps+ / Default feel (Options or Debug panel)
