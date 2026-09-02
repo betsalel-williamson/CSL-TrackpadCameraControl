@@ -57,7 +57,7 @@ Used by trackpad gestures (and Assist chrome pads when `EnableAssistChrome` is o
 
 **Numeric policy:** each gain must be **> 0**; parse/apply round to **three** decimals (pan/orbit after folding the former 0.01 AppKit scroll unit into defaults).
 
-**Product Sensitivity sliders:** for each axis, UI range is **0×–2×** that axis’s factory Default value, with step ≈ **10%** of the factory default (rounded to three decimals; values must stay **> 0**).
+**Product Sensitivity sliders:** for each axis, UI range is **0×–2×** that axis’s factory Default value (Default mid-track), with step ≈ **10%** of the factory default (rounded to three decimals).
 
 **Schema 2:** AppKit scroll deltas are raw; schema 1 files migrate by ×0.01 on pan/orbit gain and ÷0.01 on motion deadband (legacy element `MotionDeadzone`).
 

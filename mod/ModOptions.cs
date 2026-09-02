@@ -185,16 +185,12 @@ namespace TrackpadCameraControl
 
         /// <summary>
         /// Clamp a Sensitivity edit to the product Options slider range for that factory default.
-        /// Out-of-range values snap into [0×, 2×] factory; applied gains stay above a tiny floor.
+        /// Out-of-range values snap into [0×, 2×] factory; gains round to three decimals (0 allowed).
         /// </summary>
         public static float ClampGainToFactoryRange(float value, float factoryDefault)
         {
             float min = SensitivitySliderMin(factoryDefault);
             float max = SensitivitySliderMax(factoryDefault);
-            if (min < 0.0001f)
-            {
-                min = 0.0001f;
-            }
 
             if (value < min)
             {
