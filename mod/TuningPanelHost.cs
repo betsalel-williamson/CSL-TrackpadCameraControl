@@ -371,12 +371,15 @@ namespace TrackpadCameraControl
         {
             _feelDropdownItems = ModOptions.GetFeelPresetDropdownItems(s);
 
+            // ColossalUI UIDropDown only opens its popup when triggerButton is set; arrow
+            // sprites belong on that button (AlgernonCommons / Skyve pattern), not on the DD.
             _feelDropdown = _root.AddUIComponent<UIDropDown>();
             AssignTabOrder(_feelDropdown);
             _feelDropdown.width = 220f;
             _feelDropdown.height = 28f;
             _feelDropdown.relativePosition = new Vector3(Col0, _nextY);
             _feelDropdown.listWidth = 220;
+            _feelDropdown.listHeight = 500;
             _feelDropdown.itemHeight = 24;
             _feelDropdown.normalBgSprite = "ButtonMenu";
             _feelDropdown.hoveredBgSprite = "ButtonMenuHovered";
@@ -384,17 +387,37 @@ namespace TrackpadCameraControl
             _feelDropdown.listBackground = "GenericPanelLight";
             _feelDropdown.itemHover = "ListItemHover";
             _feelDropdown.itemHighlight = "ListItemHighlight";
-            _feelDropdown.normalFgSprite = "IconDownArrow";
-            _feelDropdown.hoveredFgSprite = "IconDownArrowHovered";
-            _feelDropdown.focusedFgSprite = "IconDownArrowFocused";
+            _feelDropdown.foregroundSpriteMode = UIForegroundSpriteMode.Stretch;
             _feelDropdown.textScale = 0.85f;
+            _feelDropdown.verticalAlignment = UIVerticalAlignment.Middle;
+            _feelDropdown.horizontalAlignment = UIHorizontalAlignment.Left;
             _feelDropdown.textFieldPadding = new RectOffset(8, 8, 6, 0);
+            _feelDropdown.itemPadding = new RectOffset(14, 0, 4, 0);
             _feelDropdown.listPosition = UIDropDown.PopupListPosition.Automatic;
+            _feelDropdown.clampListToScreen = true;
+            _feelDropdown.popupColor = new Color32(45, 52, 61, 255);
+            _feelDropdown.popupTextColor = new Color32(170, 170, 170, 255);
             _feelDropdown.items = _feelDropdownItems;
             _feelDropdown.selectedIndex = ModOptions.IndexOfFeelPresetDropdownItem(
                 _feelDropdownItems,
                 s.ActiveFeelPresetName
             );
+
+            UIButton trigger = _feelDropdown.AddUIComponent<UIButton>();
+            _feelDropdown.triggerButton = trigger;
+            trigger.size = _feelDropdown.size;
+            trigger.text = string.Empty;
+            trigger.relativePosition = Vector3.zero;
+            trigger.normalFgSprite = "IconDownArrow";
+            trigger.hoveredFgSprite = "IconDownArrowHovered";
+            trigger.pressedFgSprite = "IconDownArrowPressed";
+            trigger.focusedFgSprite = "IconDownArrowFocused";
+            trigger.disabledFgSprite = "IconDownArrowDisabled";
+            trigger.foregroundSpriteMode = UIForegroundSpriteMode.Fill;
+            trigger.horizontalAlignment = UIHorizontalAlignment.Right;
+            trigger.verticalAlignment = UIVerticalAlignment.Middle;
+            trigger.zOrder = 0;
+
             // Subscribe after selectedIndex so init does not treat it as a user choice.
             _feelDropdown.eventSelectedIndexChanged += OnFeelDropdownSelected;
 
