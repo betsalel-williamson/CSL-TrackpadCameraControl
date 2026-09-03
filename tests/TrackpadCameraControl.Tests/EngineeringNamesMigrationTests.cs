@@ -324,6 +324,82 @@ namespace TrackpadCameraControl.Tests
             }
         }
 
+        /// <summary>
+        /// Mono XmlSerializer (Cities) can self-assign alias properties during deserialize.
+        /// Alias getters must mirror live values — <c>get =&gt; 0f</c> wiped RotateGain after load.
+        /// </summary>
+        [Fact]
+        public void RotateXmlAliasGetters_SurviveSelfAssign()
+        {
+            ModSettings s = ModSettings.CreateFactoryDefaults();
+            s.RotateGain = 2.5f;
+            s.RotateStep = 4.25f;
+            s.RotateDeadband = 0.09f;
+            s.RotateEnabled = false;
+            s.SignInvertRotate = true;
+            s.RotateFilterEnabled = true;
+            s.RotateFilterAlpha = 0.4f;
+            s.PinchDeadband = 0.07f;
+
+            s.YawRotateGainXml = s.YawRotateGainXml;
+            s.YawRotateStepXml = s.YawRotateStepXml;
+            s.YawDeadbandXml = s.YawDeadbandXml;
+            s.RotateEpsilonXml = s.RotateEpsilonXml;
+            s.YawEnabledXml = s.YawEnabledXml;
+            s.SignInvertYawRotateXml = s.SignInvertYawRotateXml;
+            s.YawFilterEnabledXml = s.YawFilterEnabledXml;
+            s.YawFilterAlphaXml = s.YawFilterAlphaXml;
+            s.PinchEpsilonXml = s.PinchEpsilonXml;
+
+            Assert.Equal(2.5f, s.RotateGain);
+            Assert.Equal(4.25f, s.RotateStep);
+            Assert.Equal(0.09f, s.RotateDeadband);
+            Assert.False(s.RotateEnabled);
+            Assert.True(s.SignInvertRotate);
+            Assert.True(s.RotateFilterEnabled);
+            Assert.Equal(0.4f, s.RotateFilterAlpha);
+            Assert.Equal(0.07f, s.PinchDeadband);
+        }
+
+        [Fact]
+        public void LoadOrFactory_Schema9RotateFieldsNotZeroedByYawAliases()
+        {
+            string path = Path.Combine(
+                Path.GetTempPath(),
+                "tcc-rotate-s9-" + Path.GetRandomFileName() + ".xml"
+            );
+            try
+            {
+                File.WriteAllText(
+                    path,
+                    @"<?xml version=""1.0"" encoding=""utf-8""?>
+<TrackpadCameraControlSettings xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance"" xmlns:xsd=""http://www.w3.org/2001/XMLSchema"">
+  <SchemaVersion>9</SchemaVersion>
+  <Current>
+    <RotateEnabled>true</RotateEnabled>
+    <RotateGain>2</RotateGain>
+    <RotateDeadband>0.001</RotateDeadband>
+    <ActiveFeelPresetName>Default</ActiveFeelPresetName>
+  </Current>
+</TrackpadCameraControlSettings>"
+                );
+
+                var store = new ModSettingsStore(path);
+                ModSettings loaded = store.LoadOrFactory();
+
+                Assert.True(loaded.RotateEnabled);
+                Assert.Equal(2f, loaded.RotateGain);
+                Assert.Equal(0.001f, loaded.RotateDeadband);
+            }
+            finally
+            {
+                if (File.Exists(path))
+                {
+                    File.Delete(path);
+                }
+            }
+        }
+
         [Fact]
         public void SaveNow_DoesNotEmitYawGestureNoneAlias()
         {

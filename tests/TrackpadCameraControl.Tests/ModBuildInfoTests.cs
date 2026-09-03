@@ -45,12 +45,32 @@ namespace TrackpadCameraControl.Tests
         }
 
         [Fact]
-        public void GetBuildInfoFooterDisplay_MatchesFooterShape()
+        public void GetBuildInfoFooterDisplay_IsUtcTimestampOnly()
         {
             string footer = Mod.GetBuildInfoFooterDisplay();
             Assert.False(string.IsNullOrEmpty(footer));
             Assert.StartsWith("Built (UTC):", footer);
-            Assert.Contains("asm ", footer);
+            Assert.DoesNotContain("\n", footer);
+            Assert.DoesNotContain("asm ", footer);
+        }
+
+        [Fact]
+        public void GetBuildInfoPanelDisplay_UsesLocalLabel()
+        {
+            string line = Mod.GetBuildInfoPanelDisplay();
+            Assert.False(string.IsNullOrEmpty(line));
+            Assert.StartsWith("Built (local):", line);
+            Assert.DoesNotContain("asm ", line);
+        }
+
+        [Fact]
+        public void DebugPanelTitle_IncludesAssemblyIdentity()
+        {
+            string title = Mod.DebugPanelTitle;
+            Assert.StartsWith("Trackpad Camera Control (macOS) ", title);
+            string asm = Mod.GetAssemblyIdentityDisplay();
+            Assert.False(string.IsNullOrEmpty(asm));
+            Assert.EndsWith(asm, title);
         }
     }
 }

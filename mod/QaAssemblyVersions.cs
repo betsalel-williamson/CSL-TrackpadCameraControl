@@ -12,7 +12,7 @@ namespace TrackpadCameraControl
     /// </summary>
     internal static class QaAssemblyVersions
     {
-        internal static void AppendSection(StringBuilder sb)
+        internal static void AppendSection(StringBuilder sb, bool includeThisMod = true)
         {
             sb.AppendLine();
             sb.AppendLine("--- Assemblies ---");
@@ -25,7 +25,10 @@ namespace TrackpadCameraControl
             AppendNamed(sb, "ICities");
             AppendNamed(sb, "CitiesHarmony.API");
             AppendNamed(sb, "0Harmony");
-            AppendNamed(sb, "TrackpadCameraControl");
+            if (includeThisMod)
+            {
+                AppendNamed(sb, "TrackpadCameraControl");
+            }
         }
 
         private static void AppendNamed(StringBuilder sb, string simpleName)

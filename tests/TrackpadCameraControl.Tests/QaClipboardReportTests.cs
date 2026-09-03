@@ -1,3 +1,4 @@
+using System;
 using TrackpadCameraControl;
 using Xunit;
 
@@ -10,8 +11,9 @@ namespace TrackpadCameraControl.Tests
         {
             string text = QaClipboardReport.Format(false);
             Assert.False(string.IsNullOrEmpty(text));
-            Assert.StartsWith("Built (UTC):", text);
-            Assert.Contains("Mod:", text);
+            Assert.StartsWith("TrackpadCameraControl:", text);
+            Assert.Contains("Built (UTC):", text);
+            Assert.DoesNotContain("Mod:", text);
             Assert.DoesNotContain("--- System ---", text);
             Assert.DoesNotContain("--- Input devices ---", text);
             Assert.DoesNotContain("--- Assemblies ---", text);
@@ -41,7 +43,15 @@ namespace TrackpadCameraControl.Tests
         {
             string text = QaClipboardReport.Format(true);
             Assert.Contains("--- Assemblies ---", text);
-            Assert.Contains("TrackpadCameraControl:", text);
+            Assert.StartsWith("TrackpadCameraControl:", text);
+            // This mod is only on the header line, not repeated under Assemblies.
+            int first = text.IndexOf("TrackpadCameraControl:", StringComparison.Ordinal);
+            int second = text.IndexOf(
+                "TrackpadCameraControl:",
+                first + 1,
+                StringComparison.Ordinal
+            );
+            Assert.Equal(-1, second);
             Assert.Contains("0Harmony:", text);
             Assert.Contains("CitiesHarmony.API:", text);
         }

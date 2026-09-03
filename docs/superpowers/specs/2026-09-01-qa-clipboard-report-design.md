@@ -7,8 +7,8 @@ Make Debug panel **Copy** (with **Include system info** on) paste only what help
 ## Clipboard shape
 
 ```text
-Built (UTC): …  ·  asm …
-Mod: <product semver>
+TrackpadCameraControl: <asm identity>
+Built (UTC): …
 
 --- System ---
 OS: <SystemInfo.operatingSystem or Environment.OSVersion>
@@ -24,17 +24,16 @@ Unity: <Application.unityVersion when HAS_CITIES>
 ICities: <…>
 CitiesHarmony.API: <…>
 0Harmony: <…>
-TrackpadCameraControl: <asm identity>
 ```
 
 ## Keep
 
-| Block      | Fields                                           | Why                                                                  |
-| ---------- | ------------------------------------------------ | -------------------------------------------------------------------- |
-| Header     | Built UTC, asm, Mod product                      | Confirm which build is loaded                                        |
-| System     | OS, Model only                                   | Platform matrix; OS version is the proxy for Apple framework DLL set |
-| Input      | Keyboard / Mouse / Trackpad models               | Gesture source hardware                                              |
-| Assemblies | Unity runtime + dependency-critical managed DLLs | Catch mismatched Harmony / Unity / game / mod binaries               |
+| Block      | Fields                                         | Why                                                                  |
+| ---------- | ---------------------------------------------- | -------------------------------------------------------------------- |
+| Header     | This mod asm identity, Built UTC               | Confirm which DLL is loaded + when built                             |
+| System     | OS, Model only                                 | Platform matrix; OS version is the proxy for Apple framework DLL set |
+| Input      | Keyboard / Mouse / Trackpad models             | Gesture source hardware                                              |
+| Assemblies | Unity runtime + dependency DLLs (not this mod) | Catch mismatched Harmony / Unity / game binaries                     |
 
 ## Drop
 
@@ -68,7 +67,7 @@ TrackpadCameraControl: <asm identity>
 ## Acceptance
 
 - Copy with checkbox on matches the shape above (no CPU/Memory)
-- Copy with checkbox off is build footer + Mod only
+- Copy with checkbox off is this-mod asm + Built (UTC) only
 - Two identical mice → one `Mouse: … ×2` line
 - Missing Harmony → `CitiesHarmony.API: missing` (or equivalent), no throw
 - Docs (`debug-ui-camera-chrome`, `qa-checklist`) describe OS/Model + assemblies, not CPU/RAM
