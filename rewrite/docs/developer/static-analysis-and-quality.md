@@ -13,7 +13,7 @@ Run Semgrep rules over `rewrite/mod` and `rewrite/src` (and matching tests when 
 | Tick-path empty modules         | Ban constructing no-op filters / chrome when the compile module is off          |
 | Settings field without consumer | Flag schema / settings members never read by resolve, apply, gates, or chrome   |
 
-Exact rule IDs live with the Semgrep config when Phase 3 wires CI — this shard is the contract.
+Phase 3 gates live under `rewrite/scripts/` (`npm run sa:rewrite`). Rule IDs and allowlists: [scripts README](../../scripts/README.md) and `rewrite/scripts/semgrep/rewrite.yml`. This shard is the contract.
 
 ## Settings read/write graph
 

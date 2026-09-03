@@ -39,7 +39,11 @@
     "docs:rewrite:compile": "mdcp compile --config rewrite/docs/mdcp.config.json --docs-root rewrite/docs",
     "docs:rewrite:check": "mdcp check --config rewrite/docs/mdcp.config.json --docs-root rewrite/docs --skip-vale --require-lint",
     "docs:rewrite:fix": "mdcp fix --config rewrite/docs/mdcp.config.json --docs-root rewrite/docs",
-    "docs:rewrite": "npm run docs:rewrite:compile && npm run docs:rewrite:check"
+    "docs:rewrite": "npm run docs:rewrite:compile && npm run docs:rewrite:check",
+    "sa:rewrite": "bash rewrite/scripts/sa-rewrite.sh",
+    "sa:rewrite:semgrep": "semgrep scan --config rewrite/scripts/semgrep/rewrite.yml --error --severity ERROR --metrics off rewrite/mod",
+    "sa:rewrite:settings-graph": "python3 rewrite/scripts/settings_field_graph.py",
+    "sa:rewrite:leak-pairing": "python3 rewrite/scripts/native_leak_pairing.py"
   },
   "lint-staged": {
     "*.{json,jsonc,yml,yaml,md}": [
