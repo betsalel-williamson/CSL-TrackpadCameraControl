@@ -28,3 +28,6 @@ North star: greenfield redesign lessons (L1–L12) in the features guide.
 - [Architecture audit](./review/architecture-audit.md)
 - [Capture layer audit](./review/capture-audit.md)
 - [Settings / schema audit](./review/settings-audit.md)
+- [UI / product surface](./review/ui-audit.md)
+- [Release / versioning](./review/release-audit.md)
+- [Tests / static analysis](./review/tests-sa-audit.md)

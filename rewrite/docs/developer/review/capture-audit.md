@@ -255,5 +255,5 @@ Atomic groups aligned with [v1 audit plan](./v1-audit-plan.md) phases R2–R4. R
 
 - [Organized product feedback](./v1-product-feedback.md) — F1, F2, F3, F5
 - [v1 audit and cleanup plan](./v1-audit-plan.md) — R2.1, R3, R4.1
-- [Platform backends](../../features/platform-backends.md)
+- Features guide _Platform backends_
 - [Feature flags](../feature-flags.md)
