@@ -201,35 +201,6 @@ namespace TrackpadCameraControl.Rewrite
 
         public bool ShouldSerializeSignInvertYawRotateXml() => false;
 
-        /// <summary>Schema 3–8 XML: former <c>YawFilterEnabled</c> element (deserialize only).</summary>
-        [XmlElement("YawFilterEnabled")]
-        public bool YawFilterEnabledXml
-        {
-            set => RotateFilterEnabled = value;
-            get => RotateFilterEnabled;
-        }
-
-        public bool ShouldSerializeYawFilterEnabledXml() => false;
-
-        /// <summary>Schema 3–8 XML: former <c>YawFilterAlpha</c> element (deserialize only).</summary>
-        [XmlElement("YawFilterAlpha")]
-        public float YawFilterAlphaXml
-        {
-            set => RotateFilterAlpha = value;
-            get => RotateFilterAlpha;
-        }
-
-        public bool ShouldSerializeYawFilterAlphaXml() => false;
-
-        public bool PanFilterEnabled { get; set; }
-        public float PanFilterAlpha { get; set; } = 0.3f;
-        public bool ZoomFilterEnabled { get; set; }
-        public float ZoomFilterAlpha { get; set; } = 0.3f;
-        public bool RotateFilterEnabled { get; set; }
-        public float RotateFilterAlpha { get; set; } = 0.3f;
-        public bool OrbitFilterEnabled { get; set; }
-        public float OrbitFilterAlpha { get; set; } = 0.3f;
-
         public bool RequireGameFocus { get; set; } = true;
         public bool IgnoreOverUi { get; set; } = true;
         public bool DebugOverlay { get; set; }
@@ -244,12 +215,6 @@ namespace TrackpadCameraControl.Rewrite
         public float DebugPanelPosX { get; set; } = 40f;
 
         public float DebugPanelPosY { get; set; } = 60f;
-
-        /// <summary>
-        /// AppleGestures = in-process AppKit (default). Contacts = in-process MultitouchSupport.
-        /// Overridden by TRACKPAD_CAPTURE_BACKEND when that env var is set.
-        /// </summary>
-        public CaptureBackend CaptureBackend { get; set; } = CaptureBackend.AppleGestures;
 
         /// <summary>
         /// Active feel identity for the feel dropdown (Slow / Default / Fast / New Preset / named).
@@ -333,19 +298,10 @@ namespace TrackpadCameraControl.Rewrite
             MotionDeadband = other.MotionDeadband;
             PinchDeadband = other.PinchDeadband;
             RotateDeadband = other.RotateDeadband;
-            PanFilterEnabled = other.PanFilterEnabled;
-            PanFilterAlpha = other.PanFilterAlpha;
-            ZoomFilterEnabled = other.ZoomFilterEnabled;
-            ZoomFilterAlpha = other.ZoomFilterAlpha;
-            RotateFilterEnabled = other.RotateFilterEnabled;
-            RotateFilterAlpha = other.RotateFilterAlpha;
-            OrbitFilterEnabled = other.OrbitFilterEnabled;
-            OrbitFilterAlpha = other.OrbitFilterAlpha;
 
             RequireGameFocus = other.RequireGameFocus;
             IgnoreOverUi = other.IgnoreOverUi;
             DebugOverlay = other.DebugOverlay;
-            CaptureBackend = other.CaptureBackend;
             ActiveFeelPresetName = other.ActiveFeelPresetName;
             IncludeSystemInfoInCopy = other.IncludeSystemInfoInCopy;
             DebugPanelDismissed = other.DebugPanelDismissed;

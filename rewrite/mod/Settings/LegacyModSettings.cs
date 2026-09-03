@@ -62,7 +62,6 @@ namespace TrackpadCameraControl.Rewrite
         public bool BridgeEnabled { get; set; }
         public bool DebugOverlay { get; set; }
 
-        public CaptureBackend CaptureBackend { get; set; } = CaptureBackend.AppleGestures;
         public string ActiveFeelPresetName { get; set; } = FeelProfiles.NameDefault;
 
         public ModSettings ToModSettings()
@@ -97,18 +96,9 @@ namespace TrackpadCameraControl.Rewrite
                 MotionDeadband = MotionDeadzone,
                 PinchDeadband = PinchEpsilon,
                 RotateDeadband = RotateEpsilon,
-                PanFilterEnabled = PanLowPassEnabled,
-                PanFilterAlpha = PanLowPassAlpha,
-                ZoomFilterEnabled = ZoomLowPassEnabled,
-                ZoomFilterAlpha = ZoomLowPassAlpha,
-                RotateFilterEnabled = YawLowPassEnabled,
-                RotateFilterAlpha = YawLowPassAlpha,
-                OrbitFilterEnabled = OrbitLowPassEnabled,
-                OrbitFilterAlpha = OrbitLowPassAlpha,
                 RequireGameFocus = RequireGameFocus,
                 IgnoreOverUi = IgnoreOverUi,
                 DebugOverlay = DebugOverlay,
-                CaptureBackend = CaptureBackend,
                 ActiveFeelPresetName = ActiveFeelPresetName,
                 StyleTable = MapsPlusSeed.CreateTable(),
             };

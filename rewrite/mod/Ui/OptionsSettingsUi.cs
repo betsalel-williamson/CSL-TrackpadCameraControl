@@ -56,16 +56,6 @@ namespace TrackpadCameraControl.Rewrite
             );
 #endif
 
-#if ENABLE_CONTACTS_CAPTURE
-            UIHelperBase captureGroup = SectionBreak(helper, "Capture");
-            captureGroup.AddDropdown(
-                "Interpreter",
-                ModOptions.CaptureBackendLabels,
-                ModOptions.CaptureBackendToIndex(s.CaptureBackend),
-                sel => ModOptions.ApplyCaptureBackendIndex(s, sel)
-            );
-#endif
-
             // Product order: General → Zoom → Pan → Rotate → Orbit.
             BuildOpGroup1Axis(
                 helper,
@@ -77,11 +67,7 @@ namespace TrackpadCameraControl.Rewrite
                 ModOptions.ApplyZoomGain,
                 "Button step",
                 s.ZoomStep,
-                ModOptions.ApplyZoomStep,
-                s.ZoomFilterEnabled,
-                v => ModOptions.ApplyBool(s, x => x.ZoomFilterEnabled = v),
-                s.ZoomFilterAlpha,
-                ModOptions.ApplyZoomFilterAlpha
+                ModOptions.ApplyZoomStep
             );
 
             BuildOpGroup(
@@ -101,11 +87,7 @@ namespace TrackpadCameraControl.Rewrite
                 ModOptions.ApplyPanStepX,
                 "Button step Y",
                 s.PanStepY,
-                ModOptions.ApplyPanStepY,
-                s.PanFilterEnabled,
-                v => ModOptions.ApplyBool(s, x => x.PanFilterEnabled = v),
-                s.PanFilterAlpha,
-                ModOptions.ApplyPanFilterAlpha
+                ModOptions.ApplyPanStepY
             );
 
             BuildOpGroup1Axis(
@@ -118,11 +100,7 @@ namespace TrackpadCameraControl.Rewrite
                 ModOptions.ApplyRotateGain,
                 "Button step",
                 s.RotateStep,
-                ModOptions.ApplyRotateStep,
-                s.RotateFilterEnabled,
-                v => ModOptions.ApplyBool(s, x => x.RotateFilterEnabled = v),
-                s.RotateFilterAlpha,
-                ModOptions.ApplyRotateFilterAlpha
+                ModOptions.ApplyRotateStep
             );
 
             BuildOpGroup(
@@ -142,11 +120,7 @@ namespace TrackpadCameraControl.Rewrite
                 ModOptions.ApplyOrbitYawStep,
                 "Button step pitch",
                 s.OrbitPitchStep,
-                ModOptions.ApplyOrbitPitchStep,
-                s.OrbitFilterEnabled,
-                v => ModOptions.ApplyBool(s, x => x.OrbitFilterEnabled = v),
-                s.OrbitFilterAlpha,
-                ModOptions.ApplyOrbitFilterAlpha
+                ModOptions.ApplyOrbitPitchStep
             );
 
             AttachOpDescriptionRefresher(helper);
@@ -477,11 +451,7 @@ namespace TrackpadCameraControl.Rewrite
             Action<ModSettings, float> onSensitivity,
             string buttonLabel,
             float buttonValue,
-            Action<ModSettings, float> onButton,
-            bool lpEnabled,
-            OnCheckChanged onLp,
-            float lpAlpha,
-            Action<ModSettings, float> onLpAlpha
+            Action<ModSettings, float> onButton
         )
         {
             ModSettings s = Mod.EnsureSettings();
@@ -505,19 +475,6 @@ namespace TrackpadCameraControl.Rewrite
                 }
             );
 #endif
-
-#if ENABLE_CONTACTS_CAPTURE
-            group.AddCheckbox("Low-pass", lpEnabled, onLp);
-            AddFloatField(
-                group,
-                "Low-pass alpha",
-                lpAlpha,
-                text =>
-                {
-                    ModOptions.TryApplyFloat(s, text, onLpAlpha);
-                }
-            );
-#endif
         }
 
         private static void BuildOpGroup(
@@ -537,11 +494,7 @@ namespace TrackpadCameraControl.Rewrite
             Action<ModSettings, float> onButtonA,
             string buttonBLabel,
             float buttonB,
-            Action<ModSettings, float> onButtonB,
-            bool lpEnabled,
-            OnCheckChanged onLp,
-            float lpAlpha,
-            Action<ModSettings, float> onLpAlpha
+            Action<ModSettings, float> onButtonB
         )
         {
             ModSettings s = Mod.EnsureSettings();
@@ -573,16 +526,6 @@ namespace TrackpadCameraControl.Rewrite
                 buttonBLabel,
                 buttonB,
                 text => ModOptions.TryApplyFloat(s, text, onButtonB)
-            );
-#endif
-
-#if ENABLE_CONTACTS_CAPTURE
-            group.AddCheckbox("Low-pass", lpEnabled, onLp);
-            AddFloatField(
-                group,
-                "Low-pass alpha",
-                lpAlpha,
-                text => ModOptions.TryApplyFloat(s, text, onLpAlpha)
             );
 #endif
         }

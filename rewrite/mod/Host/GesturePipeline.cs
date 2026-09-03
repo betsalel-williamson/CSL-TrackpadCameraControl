@@ -7,9 +7,6 @@ namespace TrackpadCameraControl.Rewrite
         private readonly ICameraController _camera;
         private readonly ISelectionContext _selection;
         private readonly GestureSession _session = new GestureSession();
-#if ENABLE_CONTACTS_CAPTURE
-        private readonly DragLowPass _lowPass = new DragLowPass();
-#endif
         private IGestureSource _source;
         private int _reconnectCooldown;
 
@@ -77,9 +74,6 @@ namespace TrackpadCameraControl.Rewrite
             if (InputGates.ShouldBlockAllCameraInput())
             {
                 InputGates.DisarmTransientCameraState(_camera);
-#if ENABLE_CONTACTS_CAPTURE
-                _lowPass.Reset();
-#endif
                 _session.Reset();
             }
 
@@ -112,9 +106,7 @@ namespace TrackpadCameraControl.Rewrite
                     || frame.phase == (int)GesturePhase.Cancelled
                 )
                 {
-#if ENABLE_CONTACTS_CAPTURE
-                    _lowPass.Reset();
-#endif
+                    // session reset handled inside Process on end phases
                 }
 
                 CameraOp ops = _session.Process(frame, _settings);
@@ -127,9 +119,6 @@ namespace TrackpadCameraControl.Rewrite
                 float dy = frame.centroidDeltaY;
                 float pinch = frame.pinchScaleDelta;
                 float rotate = frame.rotateDelta;
-#if ENABLE_CONTACTS_CAPTURE
-                _lowPass.Filter(ops, _settings, ref dx, ref dy, ref pinch, ref rotate);
-#endif
 
                 if (skipApply)
                 {
@@ -218,33 +207,12 @@ namespace TrackpadCameraControl.Rewrite
 
         private void EnsureCaptureSource()
         {
-#if ENABLE_CONTACTS_CAPTURE
-            CaptureBackend backend = CaptureBackendFlags.Resolve(_settings);
-            if (backend == CaptureBackend.AppleGestures)
-            {
-                if (_source is AppleGestureSource)
-                {
-                    return;
-                }
-
-                SwapCaptureSource(new AppleGestureSource());
-                return;
-            }
-
-            if (_source is InProcessGestureSource)
-            {
-                return;
-            }
-
-            SwapCaptureSource(new InProcessGestureSource());
-#else
             if (_source is AppleGestureSource)
             {
                 return;
             }
 
             SwapCaptureSource(new AppleGestureSource());
-#endif
         }
 
         private void SwapCaptureSource(IGestureSource next)

@@ -228,9 +228,7 @@ namespace TrackpadCameraControl.Rewrite
             {
                 EnsureSettingsInternal();
                 ModSettings settings = _settingsCache;
-                GestureCaptureLog.Line(
-                    "mod enabled backend=" + CaptureBackendFlags.Resolve(settings)
-                );
+                GestureCaptureLog.Line("mod enabled capture=AppKit");
                 IGestureSource source;
                 if (IsE2eInjectEnabled())
                 {
@@ -395,24 +393,10 @@ namespace TrackpadCameraControl.Rewrite
         }
 #endif
 
-        /// <summary>
-        /// Product surface uses <see cref="CaptureBackendFlags.Resolve"/>: without
-        /// <c>ENABLE_CONTACTS_CAPTURE</c>, AppleKit wins unless maintainer env
-        /// <c>TRACKPAD_CAPTURE_BACKEND=contacts</c> overrides.
-        /// </summary>
         internal static IGestureSource CreateCaptureSource(ModSettings settings)
         {
-#if ENABLE_CONTACTS_CAPTURE
-            if (CaptureBackendFlags.Resolve(settings) == CaptureBackend.AppleGestures)
-            {
-                return new AppleGestureSource();
-            }
-
-            return new InProcessGestureSource();
-#else
             _ = settings;
             return new AppleGestureSource();
-#endif
         }
     }
 }

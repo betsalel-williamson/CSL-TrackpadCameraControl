@@ -43,15 +43,6 @@ namespace TrackpadCameraControl.Rewrite
         /// </summary>
         public const float SensitivityUiStep = 0.05f;
 
-        public const float AlphaMin = 0f;
-        public const float AlphaMax = 1f;
-
-        public static readonly string[] CaptureBackendLabels = new string[]
-        {
-            "AppKit (current)",
-            "Contacts (legacy)",
-        };
-
         public static readonly string[] GesturePresetLabels = new string[]
         {
             "Maps+ — map-app pan/pinch/yaw; Option (⌥)+two-finger orbit",
@@ -99,27 +90,6 @@ namespace TrackpadCameraControl.Rewrite
         internal static void ResetSettingsChangedHandlers()
         {
             SettingsChanged = null;
-        }
-
-        public static int CaptureBackendToIndex(CaptureBackend backend)
-        {
-            return backend == CaptureBackend.Contacts ? 1 : 0;
-        }
-
-        public static CaptureBackend IndexToCaptureBackend(int index)
-        {
-            return index == 1 ? CaptureBackend.Contacts : CaptureBackend.AppleGestures;
-        }
-
-        public static void ApplyCaptureBackendIndex(ModSettings settings, int index)
-        {
-            if (settings == null)
-            {
-                return;
-            }
-
-            settings.CaptureBackend = IndexToCaptureBackend(index);
-            NotifyChanged(settings);
         }
 
         public static int GesturePresetToIndex(GesturePreset preset)
@@ -305,21 +275,6 @@ namespace TrackpadCameraControl.Rewrite
         public static float RoundGain(float value)
         {
             return (float)Math.Round(value, 3, MidpointRounding.AwayFromZero);
-        }
-
-        public static float ClampAlpha(float value)
-        {
-            if (value < AlphaMin)
-            {
-                return AlphaMin;
-            }
-
-            if (value > AlphaMax)
-            {
-                return AlphaMax;
-            }
-
-            return value;
         }
 
         public static bool TryParseFloat(string text, out float value)
@@ -510,50 +465,6 @@ namespace TrackpadCameraControl.Rewrite
             }
 
             settings.RotateStep = ClampScale(value);
-            NotifyChanged(settings);
-        }
-
-        public static void ApplyPanFilterAlpha(ModSettings settings, float value)
-        {
-            if (settings == null)
-            {
-                return;
-            }
-
-            settings.PanFilterAlpha = ClampAlpha(value);
-            NotifyChanged(settings);
-        }
-
-        public static void ApplyZoomFilterAlpha(ModSettings settings, float value)
-        {
-            if (settings == null)
-            {
-                return;
-            }
-
-            settings.ZoomFilterAlpha = ClampAlpha(value);
-            NotifyChanged(settings);
-        }
-
-        public static void ApplyRotateFilterAlpha(ModSettings settings, float value)
-        {
-            if (settings == null)
-            {
-                return;
-            }
-
-            settings.RotateFilterAlpha = ClampAlpha(value);
-            NotifyChanged(settings);
-        }
-
-        public static void ApplyOrbitFilterAlpha(ModSettings settings, float value)
-        {
-            if (settings == null)
-            {
-                return;
-            }
-
-            settings.OrbitFilterAlpha = ClampAlpha(value);
             NotifyChanged(settings);
         }
 

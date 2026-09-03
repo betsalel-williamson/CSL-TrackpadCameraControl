@@ -108,11 +108,6 @@ namespace TrackpadCameraControl.Rewrite
             AddCadStyleButtons(s);
 #endif
 
-#if ENABLE_CONTACTS_CAPTURE
-            AddSection("Capture");
-            AddCaptureBackendButtons(s);
-#endif
-
             // Tab order (product fields): Zoom sens/dead → Pan X/Y/dead → Rotate sens/dead →
             // Orbit yaw/pitch/dead → Include system info. Feel presets stay click-focus only.
             ResetTabOrder();
@@ -515,18 +510,6 @@ namespace TrackpadCameraControl.Rewrite
         }
 #endif
 
-#if ENABLE_CONTACTS_CAPTURE
-        private static void AddCaptureBackendButtons(ModSettings s)
-        {
-            UIButton apple = MakeMenuButton("AppKit", Col0, _nextY, 120f);
-            apple.eventClick += (c, e) => ModOptions.ApplyCaptureBackendIndex(s, 0);
-
-            UIButton contacts = MakeMenuButton("Contacts", Col0 + 128f, _nextY, 120f);
-            contacts.eventClick += (c, e) => ModOptions.ApplyCaptureBackendIndex(s, 1);
-            _nextY += 32f;
-        }
-#endif
-
         private static void UpdatePresetDesc(string text)
         {
             if (_presetDesc == null)
@@ -561,27 +544,6 @@ namespace TrackpadCameraControl.Rewrite
                 ModOptions.ApplyPanStepY
             );
 #endif
-
-#if ENABLE_CONTACTS_CAPTURE
-            AddCheckRow(
-                s,
-                () => s.PanFilterEnabled,
-                v => s.PanFilterEnabled = v,
-                "Low-pass",
-                null,
-                null,
-                null
-            );
-            AddFloatPair(
-                s,
-                "LP α",
-                () => s.PanFilterAlpha,
-                ModOptions.ApplyPanFilterAlpha,
-                null,
-                null,
-                null
-            );
-#endif
             AddFloatPair(
                 s,
                 "Deadband",
@@ -612,27 +574,6 @@ namespace TrackpadCameraControl.Rewrite
                 "Sensitivity",
                 () => s.ZoomGain,
                 ModOptions.ApplyZoomGain,
-                null,
-                null,
-                null
-            );
-#endif
-
-#if ENABLE_CONTACTS_CAPTURE
-            AddCheckRow(
-                s,
-                () => s.ZoomFilterEnabled,
-                v => s.ZoomFilterEnabled = v,
-                "Low-pass",
-                null,
-                null,
-                null
-            );
-            AddFloatPair(
-                s,
-                "LP α",
-                () => s.ZoomFilterAlpha,
-                ModOptions.ApplyZoomFilterAlpha,
                 null,
                 null,
                 null
@@ -673,27 +614,6 @@ namespace TrackpadCameraControl.Rewrite
                 null
             );
 #endif
-
-#if ENABLE_CONTACTS_CAPTURE
-            AddCheckRow(
-                s,
-                () => s.RotateFilterEnabled,
-                v => s.RotateFilterEnabled = v,
-                "Low-pass",
-                null,
-                null,
-                null
-            );
-            AddFloatPair(
-                s,
-                "LP α",
-                () => s.RotateFilterAlpha,
-                ModOptions.ApplyRotateFilterAlpha,
-                null,
-                null,
-                null
-            );
-#endif
             AddFloatPair(
                 s,
                 "Deadband",
@@ -726,27 +646,6 @@ namespace TrackpadCameraControl.Rewrite
                 "Btn pitch",
                 () => s.OrbitPitchStep,
                 ModOptions.ApplyOrbitPitchStep
-            );
-#endif
-
-#if ENABLE_CONTACTS_CAPTURE
-            AddCheckRow(
-                s,
-                () => s.OrbitFilterEnabled,
-                v => s.OrbitFilterEnabled = v,
-                "Low-pass",
-                null,
-                null,
-                null
-            );
-            AddFloatPair(
-                s,
-                "LP α",
-                () => s.OrbitFilterAlpha,
-                ModOptions.ApplyOrbitFilterAlpha,
-                null,
-                null,
-                null
             );
 #endif
             AddFloatPair(

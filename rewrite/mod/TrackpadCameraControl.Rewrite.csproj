@@ -38,8 +38,6 @@
 
         <EnableCadGestureStyle Condition="'$(EnableCadGestureStyle)' == ''"
             >false</EnableCadGestureStyle>
-        <EnableContactsCapture Condition="'$(EnableContactsCapture)' == ''"
-            >false</EnableContactsCapture>
         <EnableAssistChrome Condition="'$(EnableAssistChrome)' == ''">false</EnableAssistChrome>
     </PropertyGroup>
 
@@ -94,9 +92,6 @@
     <PropertyGroup Condition="'$(EnableCadGestureStyle)' == 'true'">
         <DefineConstants>$(DefineConstants);ENABLE_CAD_GESTURE_STYLE</DefineConstants>
     </PropertyGroup>
-    <PropertyGroup Condition="'$(EnableContactsCapture)' == 'true'">
-        <DefineConstants>$(DefineConstants);ENABLE_CONTACTS_CAPTURE</DefineConstants>
-    </PropertyGroup>
     <PropertyGroup Condition="'$(EnableAssistChrome)' == 'true'">
         <DefineConstants>$(DefineConstants);ENABLE_ASSIST_CHROME</DefineConstants>
     </PropertyGroup>
@@ -140,18 +135,6 @@
             <HintPath>$(CitiesManaged)/UnityEngine.dll</HintPath>
             <Private>false</Private>
         </Reference>
-    </ItemGroup>
-
-    <!-- Contacts MultitouchSupport sources: only when the module is compiled on. -->
-    <ItemGroup Condition="'$(EnableContactsCapture)' == 'true'">
-        <Compile Include="..\..\src\TrackpadCapture\*.cs" Link="Capture\TrackpadCapture\%(Filename).cs" />
-    </ItemGroup>
-
-    <!-- Omit Contacts tick-path types from the ship DLL when the module is off. -->
-    <ItemGroup Condition="'$(EnableContactsCapture)' != 'true'">
-        <Compile Remove="Capture\InProcessGestureSource.cs" />
-        <Compile Remove="Capture\IpcGestureSource.cs" />
-        <Compile Remove="Capture\DragLowPass.cs" />
     </ItemGroup>
 
     <ItemGroup>
