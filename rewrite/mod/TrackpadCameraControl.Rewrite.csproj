@@ -45,7 +45,8 @@
         <PropertyGroup>
             <_BuildInfoFile>$(IntermediateOutputPath)BuildInfo.g.cs</_BuildInfoFile>
             <_ShowDevBuildIdentityCs>false</_ShowDevBuildIdentityCs>
-            <_ShowDevBuildIdentityCs Condition="'$(DevBuildIdentity)' == 'true'">true</_ShowDevBuildIdentityCs>
+            <_ShowDevBuildIdentityCs Condition="'$(DevBuildIdentity)' == 'true'"
+                >true</_ShowDevBuildIdentityCs>
         </PropertyGroup>
         <ItemGroup>
             <_BuildInfoLines Include="namespace TrackpadCameraControl.Rewrite" />

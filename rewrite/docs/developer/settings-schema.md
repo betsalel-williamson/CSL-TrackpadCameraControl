@@ -1,18 +1,18 @@
 # Settings schema
 
-Minimal **live** schema for the rewrite. Every row names a tick consumer, or is marked chrome, XML alias, module-gated, or **non-field**. Ceremony fields without a consumer are forbidden (greenfield redesign lessons L1, L5, L12).
+Minimal **live** schema for the rewrite (**schemaVersion = 1**). Every row names a tick consumer, or is marked chrome or module-gated. Ceremony fields without a consumer are forbidden (greenfield redesign lessons L1, L5, L12).
 
 Canonical UI term: **Sensitivity**. Persist / engineering names use **gain**. Product numeric feel values that apply must be **> 0** and round to **three** decimal places.
 
 ## Classification
 
-| Kind          | Meaning                                                                   |
-| ------------- | ------------------------------------------------------------------------- |
-| **tick**      | Read on the capture → policy → apply path (resolve, gates, or apply math) |
-| **chrome**    | Options / Debug editor or panel chrome only — not camera math             |
-| **alias**     | Legacy XML element accepted on load; rewrite saves the live name          |
-| **module**    | Present only when the matching `Enable*` compile module is on             |
-| **non-field** | Must **not** appear in the live blob, Options, or Debug                   |
+| Kind       | Meaning                                                                   |
+| ---------- | ------------------------------------------------------------------------- |
+| **tick**   | Read on the capture → policy → apply path (resolve, gates, or apply math) |
+| **chrome** | Options / Debug editor or panel chrome only — not camera math             |
+| **module** | Present only when the matching `Enable*` compile module is on             |
+
+Unknown `schemaVersion` or corrupt XML → factory defaults, save as v1. No legacy migration ladder.
 
 ## Live feel (tick)
 
@@ -43,7 +43,7 @@ Maps+ ships as **seed data** in a style binding table that resolve reads as the 
 | Rotate | Two-finger rotate | None          |
 | Orbit  | Two-finger drag   | Option        |
 
-There is no player remap UI on ship. Do not hardcode Maps+ heuristics beside the table. CAD / alternate seeds exist only when `EnableCadGestureStyle` compiles in (module rows).
+There is no player remap UI on ship. Do not hardcode Maps+ heuristics beside the table. Debug gesture labels derive from the in-memory style table via `TrackpadGestureCatalog.GetBinding` — not duplicate persisted gesture fields.
 
 ## Chrome (not tick math)
 
@@ -61,7 +61,7 @@ Options and Debug share one editor API over the same live blob (L7). Reset to fa
 
 | Element       | Role                                                        |
 | ------------- | ----------------------------------------------------------- |
-| schemaVersion | Envelope version                                            |
+| schemaVersion | **1** — envelope version                                    |
 | current       | Full live blob (includes active feel name and chrome prefs) |
 | userPresets[] | Named feel profiles only — not gesture style                |
 
@@ -69,29 +69,25 @@ Missing or corrupt file → factory defaults, then persist the recovered blob. O
 
 ## Module-gated fields (omit from ship DLL schema surface)
 
-When the compile module is **off**, these must not appear as live schema ceremony, stub UI, or tick-path no-ops (L6, L9).
+When `EnableAssistChrome` is **off**, button-step fields must not appear as live schema ceremony or stub UI (L6, L9).
 
-| Module                  | Fields allowed only when on                          | Consumer when on                               |
-| ----------------------- | ---------------------------------------------------- | ---------------------------------------------- |
-| `EnableCadGestureStyle` | Gesture style identity / CAD seed rows               | Resolve                                        |
-| `EnableContactsCapture` | Capture backend choice; per-op filter enable / alpha | Capture select; optional low-pass before apply |
-| `EnableAssistChrome`    | Pan/Zoom/Rotate/Orbit button steps                   | Assist chrome nudge path only (not × gain)     |
+| Module               | Fields allowed only when on        | Consumer when on                           |
+| -------------------- | ---------------------------------- | ------------------------------------------ |
+| `EnableAssistChrome` | Pan/Zoom/Rotate/Orbit button steps | Assist chrome nudge path only (not × gain) |
 
-Ship builds: AppKit capture only; no backend picker; no low-pass; no Assist pads/buttons; no Maps+/CAD switcher.
+Ship builds: AppKit capture only; no Assist pads/buttons.
 
 ## Explicit non-fields
 
 Do **not** add these to the live blob, Options, or Debug:
 
-| Name                                              | Why                                                                                                             |
-| ------------------------------------------------- | --------------------------------------------------------------------------------------------------------------- |
-| OrbitPitchMin / OrbitPitchMax                     | Pitch clamp is an **apply constant** (vanilla normal play **0°–90°**). Persisting unused knobs is theater (L5). |
-| FingerCountHysteresis                             | Unused; no tick consumer. Prefer delete over schema retention.                                                  |
-| Runtime FeatureFlags facade                       | Compile `#if` only — see [Feature flags](./feature-flags.md).                                                   |
-| Parallel OrbitTrigger enum beside the style table | Style seeds own orbit activation; a second enum is redirection (L1, L6).                                        |
-| Bridge / socket enable on the ship path           | Out-of-process bridge is not playtest; omit from live ship schema.                                              |
-
-XML **aliases** may accept obsolete element names on load (legacy shipping files) and rewrite to live names or drop non-fields on save. Aliases are not tick consumers.
+| Name                          | Why                                                              |
+| ----------------------------- | ---------------------------------------------------------------- |
+| OrbitPitchMin / OrbitPitchMax | Pitch clamp is an **apply constant** (L5).                       |
+| CaptureBackend / low-pass     | Contacts module removed from v1.                                 |
+| CAD gesture preset            | v2 docs-only; Maps+ only in v1 DLL.                              |
+| Bridge / socket enable        | IPC removed from v1.                                             |
+| Per-op gesture XML fields     | Style table is the source of truth; labels read from table rows. |
 
 ## Feel profile contract
 

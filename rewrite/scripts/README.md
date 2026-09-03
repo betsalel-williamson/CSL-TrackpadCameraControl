@@ -44,12 +44,12 @@ semgrep scan --config rewrite/scripts/semgrep/rewrite.yml --error --severity ERR
 | `rewrite.ban-empty-catch`                  | Ban **truly empty** `catch { }` / `catch (Ex) { }` (no statements). Comment-only `// fail soft` catches are **not** matched (intentional Cities soft-fail today). |
 | `rewrite.legacy-alias-method`              | Ban known one-hop aliases (`ApplyPreset`, `GetAssemblyVersionDisplay`, `SensitivityMin`/`Max`) — L6.                                                              |
 | `rewrite.ensure-style-one-hop-alias`       | **WARNING** heuristic for `Ensure*` methods that only `return` another call.                                                                                      |
-| `rewrite.dead-three-finger-on-appkit-path` | Flag `ThreeFinger*` / `OrbitTrigger.ThreeFinger` / finger-count-3 style rows outside `CadSeed.cs` (L4).                                                           |
+| `rewrite.dead-three-finger-on-appkit-path` | Flag `ThreeFinger*` bindings and finger-count-3 style rows on the AppKit ship path (L4).                                                                          |
 
 ### fingerCount hardcode policy
 
-- **Allowed:** `AppleGestureMapper.AppKitActiveFingerCount = 2` and Maps+ seed rows with min/max **2**. AppKit scroll/magnify/rotate are two-finger gestures; do not false-fail those seeds.
-- **Flagged:** Obvious three-finger claims that remain on the AppKit-only ship compile path. CAD three-finger orbit belongs behind `EnableCadGestureStyle` (`CadSeed.cs`, excluded from the rule paths).
+- **Allowed:** `AppleGestureMapper.AppKitActiveFingerCount = 2` and Maps+ seed rows with min/max **2**.
+- **Flagged:** Three-finger claims on the AppKit-only ship compile path (v1 is Maps+ two-finger only).
 
 ## 2. Settings field → tick consumer graph
 
@@ -61,12 +61,11 @@ Parses public auto-properties on `rewrite/mod/Settings/ModSettings.cs`. Fails wh
 
 ### Exclusions / allowlists
 
-| Kind                 | Fields / rule                                                                                                                     | Effect                                                                                                                              |
-| -------------------- | --------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
-| **chrome**           | `AssistUiEnabled`, `ActiveFeelPresetName`, `IncludeSystemInfoInCopy`, `DebugPanelDismissed`, `DebugPanelPosX`/`Y`, `DebugOverlay` | Skipped (Options/Debug chrome)                                                                                                      |
-| **seed_identity**    | `GesturePreset`                                                                                                                   | Skipped — Options style identity; tick path reads `StyleTable`                                                                      |
-| **xml_alias**        | Any `[XmlElement(...)]` property (`YawGestureXml`, `PinchEpsilonXml`, …)                                                          | Skipped                                                                                                                             |
-| **schema_non_field** | `BridgeEnabled`, `OrbitTrigger`                                                                                                   | **Fail** if present without an outside reader (schema forbids live ceremony). Escape hatch: `--allow-schema-non-field` (warn only). |
+| Kind                 | Fields / rule                                                                                                                     | Effect                                                                                               |
+| -------------------- | --------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
+| **chrome**           | `AssistUiEnabled`, `ActiveFeelPresetName`, `IncludeSystemInfoInCopy`, `DebugPanelDismissed`, `DebugPanelPosX`/`Y`, `DebugOverlay` | Skipped (Options/Debug chrome)                                                                       |
+| **seed_identity**    | `GesturePreset`                                                                                                                   | Skipped — Maps+ only on v1; tick path reads `StyleTable`                                             |
+| **schema_non_field** | `BridgeEnabled`                                                                                                                   | **Fail** if present without an outside reader. Escape hatch: `--allow-schema-non-field` (warn only). |
 
 Persist/UI layers excluded from the consumer search: `rewrite/mod/Settings/**`, `rewrite/mod/Ui/**`.
 

@@ -59,7 +59,10 @@ namespace TrackpadCameraControl.Rewrite
                 }
 
                 int fileSchema = PeekSchemaVersion(_filePath);
-                if (fileSchema != CurrentSchemaVersion || !TryLoadCurrent(out ModSettings current, out List<NamedPreset> presets))
+                if (
+                    fileSchema != CurrentSchemaVersion
+                    || !TryLoadCurrent(out ModSettings current, out List<NamedPreset> presets)
+                )
                 {
                     _userPresets = new List<NamedPreset>();
                     _presetsHydrated = true;
