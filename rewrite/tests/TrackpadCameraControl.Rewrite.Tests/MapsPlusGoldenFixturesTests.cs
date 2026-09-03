@@ -16,6 +16,8 @@ namespace TrackpadCameraControl.Rewrite.Tests
             ModSettings settings = MapsPlusSettings();
             settings.PanGainX = 1f;
             settings.PanGainY = 1f;
+            settings.SignInvertPanX = false;
+            settings.SignInvertPanY = false;
             var session = new GestureSession();
             var cam = new FakeCameraController
             {
