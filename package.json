@@ -1,7 +1,7 @@
 {
   "name": "csl-trackpad-camera-control",
   "version": "1.0.0",
-  "description": "Cities: Skylines I mod — trackpad multitouch camera control (pan, orbit, zoom); macOS backend first",
+  "description": "Cities: Skylines I mod \u2014 trackpad multitouch camera control (pan, orbit, zoom); macOS backend first",
   "license": "MIT",
   "repository": {
     "type": "git",
@@ -35,7 +35,11 @@
     "changeset": "changeset",
     "changeset:status": "changeset status",
     "version-packages": "changeset version",
-    "commitlint": "commitlint --from HEAD~1 --to HEAD --verbose"
+    "commitlint": "commitlint --from HEAD~1 --to HEAD --verbose",
+    "docs:rewrite:compile": "mdcp compile --config rewrite/docs/mdcp.config.json --docs-root rewrite/docs",
+    "docs:rewrite:check": "mdcp check --config rewrite/docs/mdcp.config.json --docs-root rewrite/docs --skip-vale --require-lint",
+    "docs:rewrite:fix": "mdcp fix --config rewrite/docs/mdcp.config.json --docs-root rewrite/docs",
+    "docs:rewrite": "npm run docs:rewrite:compile && npm run docs:rewrite:check"
   },
   "lint-staged": {
     "*.{json,jsonc,yml,yaml,md}": [

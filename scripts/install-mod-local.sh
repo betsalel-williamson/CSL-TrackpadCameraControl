@@ -5,19 +5,38 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 export PATH="${HOME}/.dotnet:${PATH}"
 
+REWRITE=0
 if [[ $# -gt 0 ]]; then
   case "$1" in
     -h | --help)
-      echo "Usage: $0"
+      echo "Usage: $0 [--rewrite|-r]"
       echo "  Build + post-build copy into Mods (wiki Automate)."
+      echo "  --rewrite | -r  Build/deploy rewrite/mod → Mods/TrackpadCameraControl.Rewrite"
       exit 0
+      ;;
+    --rewrite | -r)
+      REWRITE=1
+      shift
       ;;
     *)
       echo "Unknown option: $1" >&2
-      echo "Usage: $0" >&2
+      echo "Usage: $0 [--rewrite|-r]" >&2
       exit 1
       ;;
   esac
+fi
+
+if [[ "${REWRITE}" -eq 1 ]]; then
+  CSPROJ="${ROOT}/rewrite/mod/TrackpadCameraControl.Rewrite.csproj"
+  DEST_REWRITE="${MODS:-${CITIES_MODS:-${HOME}/Library/Application Support/Colossal Order/Cities_Skylines/Addons/Mods}}/TrackpadCameraControl.Rewrite"
+  if [[ ! -f "${CSPROJ}" ]]; then
+    echo "rewrite/mod is not buildable yet (missing ${CSPROJ})." >&2
+    echo "Docs-first phase: see rewrite/README.md. Deploy target will be: Mods/TrackpadCameraControl.Rewrite" >&2
+    exit 2
+  fi
+  # Phase 2+ will build and deploy here.
+  echo "ERROR: --rewrite csproj exists but install path not wired yet." >&2
+  exit 1
 fi
 
 MANAGED="${CitiesManaged:-${HOME}/Library/Application Support/Steam/steamapps/common/Cities_Skylines/Cities.app/Contents/Resources/Data/Managed}"
