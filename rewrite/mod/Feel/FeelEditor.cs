@@ -197,6 +197,29 @@ namespace TrackpadCameraControl.Rewrite
             NotifyChanged();
         }
 
+        /// <summary>Options "Show debug panel" → AssistUiEnabled chrome bit.</summary>
+        public void SetShowDebugPanel(bool enabled)
+        {
+            if (_settings == null)
+            {
+                return;
+            }
+
+            _settings.AssistUiEnabled = enabled;
+            if (enabled)
+            {
+                _settings.DebugPanelDismissed = false;
+            }
+
+            MarkDirty();
+            if (_store != null)
+            {
+                _store.MarkDirtyAndMaybeFlush(_settings);
+            }
+
+            NotifyChanged();
+        }
+
         public void ClearDirty()
         {
             _dirty = false;

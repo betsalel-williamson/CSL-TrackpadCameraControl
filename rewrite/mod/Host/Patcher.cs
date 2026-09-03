@@ -1,7 +1,5 @@
 #if HAS_CITIES
 using System;
-using System.Reflection;
-using ColossalFramework;
 using HarmonyLib;
 using UnityEngine;
 
@@ -25,6 +23,7 @@ namespace TrackpadCameraControl.Rewrite
             try
             {
                 Harmony harmony = new Harmony(HarmonyId);
+                // Only the two patch classes in this assembly (scroll suppress + orbit flush).
                 harmony.PatchAll(typeof(Patcher).Assembly);
                 patched = true;
             }
@@ -97,11 +96,9 @@ namespace TrackpadCameraControl.Rewrite
     [HarmonyPatch(typeof(CameraController), "HandleMouseEvents")]
     internal static class HandleMouseEventsPatch
     {
-        private static FieldInfo rotateKeyField;
-
-        public static bool Prefix(CameraController __instance)
+        public static bool Prefix()
         {
-            return InputGates.ShouldRunVanillaMouseEvents(IsCameraMouseRotateHeld(__instance));
+            return InputGates.ShouldRunVanillaMouseEvents();
         }
 
         public static void Postfix()
@@ -113,8 +110,7 @@ namespace TrackpadCameraControl.Rewrite
 
             try
             {
-                ICameraController camera =
-                    Mod.Runtime?.Pipeline != null ? Mod.Runtime.Pipeline.Camera : null;
+                ICameraController camera = Mod.Runtime?.Pipeline?.Camera;
                 if (camera == null)
                 {
                     return;
@@ -125,32 +121,6 @@ namespace TrackpadCameraControl.Rewrite
             catch
             {
                 // Fail soft every frame.
-            }
-        }
-
-        private static bool IsCameraMouseRotateHeld(CameraController instance)
-        {
-            try
-            {
-                if (rotateKeyField == null)
-                {
-                    rotateKeyField = typeof(CameraController).GetField(
-                        "m_cameraMouseRotate",
-                        BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic
-                    );
-                }
-
-                if (rotateKeyField == null)
-                {
-                    return false;
-                }
-
-                SavedInputKey key = rotateKeyField.GetValue(instance) as SavedInputKey;
-                return key != null && key.IsPressed();
-            }
-            catch
-            {
-                return false;
             }
         }
     }

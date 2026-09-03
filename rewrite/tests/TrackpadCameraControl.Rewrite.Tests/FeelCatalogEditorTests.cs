@@ -178,5 +178,153 @@ namespace TrackpadCameraControl.Rewrite.Tests
                 }
             }
         }
+
+        [Fact]
+        public void HostMapping_SliderDropdownButton_NeverMapToCheckbox()
+        {
+            Assert.NotEqual(FeelControlKind.Checkbox, OptionsHost.MapKind(FeelControlKind.Slider));
+            Assert.NotEqual(
+                FeelControlKind.Checkbox,
+                OptionsHost.MapKind(FeelControlKind.Dropdown)
+            );
+            Assert.NotEqual(FeelControlKind.Checkbox, OptionsHost.MapKind(FeelControlKind.Button));
+            Assert.NotEqual(FeelControlKind.Checkbox, OptionsHost.MapKind(FeelControlKind.Numeric));
+
+            Assert.Equal(FeelControlKind.Checkbox, OptionsHost.MapKind(FeelControlKind.Toggle));
+            Assert.Equal(FeelControlKind.Slider, DebugHost.MapKind(FeelControlKind.Slider));
+            Assert.Equal(FeelControlKind.Dropdown, DebugHost.MapKind(FeelControlKind.Dropdown));
+            Assert.Equal(
+                FeelControlKind.Button,
+                FeelHostMapping.ExpectedToolkit(FeelControlKind.Button)
+            );
+
+            FeelHostMapping.AssertKindMapsTo(FeelControlKind.Toggle, FeelControlKind.Checkbox);
+            FeelHostMapping.AssertKindMapsTo(FeelControlKind.Slider, FeelControlKind.Slider);
+        }
+
+        [Fact]
+        public void Catalog_EveryField_MapsToMatchingToolkitKind()
+        {
+            foreach (FeelCatalogField field in FeelCatalog.AllFields())
+            {
+                FeelControlKind toolkit = FeelHostMapping.MapKind(field.Kind);
+                if (field.Kind == FeelControlKind.Slider)
+                {
+                    Assert.Equal(FeelControlKind.Slider, toolkit);
+                }
+                else if (field.Kind == FeelControlKind.Dropdown)
+                {
+                    Assert.Equal(FeelControlKind.Dropdown, toolkit);
+                }
+                else if (field.Kind == FeelControlKind.Button)
+                {
+                    Assert.Equal(FeelControlKind.Button, toolkit);
+                }
+                else if (field.Kind == FeelControlKind.Toggle)
+                {
+                    Assert.Equal(FeelControlKind.Checkbox, toolkit);
+                }
+                else if (field.Kind == FeelControlKind.Numeric)
+                {
+                    Assert.Equal(FeelControlKind.Numeric, toolkit);
+                }
+
+                if (
+                    field.Kind == FeelControlKind.Slider
+                    || field.Kind == FeelControlKind.Dropdown
+                    || field.Kind == FeelControlKind.Button
+                )
+                {
+                    Assert.NotEqual(FeelControlKind.Checkbox, toolkit);
+                }
+            }
+        }
+
+        [Fact]
+        public void EnsureDirtyNewPreset_DoesNotRewriteEnvelopeFile()
+        {
+            string path = Path.Combine(Path.GetTempPath(), "tcc-feel-" + Path.GetRandomFileName());
+            try
+            {
+                var store = new SettingsStore(path);
+                ModSettings settings = store.LoadOrFactory();
+                Assert.True(File.Exists(path));
+                DateTime before = File.GetLastWriteTimeUtc(path);
+
+                FeelProfiles.EnsureDirtyNewPreset(settings, store);
+
+                Assert.Equal(FeelProfiles.NameNewPreset, settings.ActiveFeelPresetName);
+                Assert.Equal(before, File.GetLastWriteTimeUtc(path));
+            }
+            finally
+            {
+                if (File.Exists(path))
+                {
+                    File.Delete(path);
+                }
+            }
+        }
+
+        [Fact]
+        public void Editor_ApplyGain_LeavesPendingDirtyOrClearsWithSingleSaveNow()
+        {
+            string path = Path.Combine(Path.GetTempPath(), "tcc-feel-" + Path.GetRandomFileName());
+            try
+            {
+                var store = new SettingsStore(path);
+                ModSettings settings = store.LoadOrFactory();
+                settings.ActiveFeelPresetName = FeelProfiles.NameDefault;
+                var editor = new FeelEditor(settings, store);
+
+                editor.ApplyGain((s, v) => s.ZoomGain = v, 1.42f);
+
+                Assert.True(editor.IsDirty);
+                Assert.Equal(FeelProfiles.NameNewPreset, settings.ActiveFeelPresetName);
+                // Within coalesce window after LoadOrFactory SaveNow, dirty bit stays pending.
+                Assert.True(store.HasPendingDirty);
+                store.SaveNow(settings);
+                Assert.False(store.HasPendingDirty);
+            }
+            finally
+            {
+                if (File.Exists(path))
+                {
+                    File.Delete(path);
+                }
+            }
+        }
+
+        [Fact]
+        public void DebugHost_ApplyVisibility_ReadsAssistUiEnabled()
+        {
+            string path = Path.Combine(Path.GetTempPath(), "tcc-feel-" + Path.GetRandomFileName());
+            try
+            {
+                var store = new SettingsStore(path);
+                ModSettings settings = store.LoadOrFactory();
+                var editor = new FeelEditor(settings, store);
+                DebugHost.EnsureCreated(editor);
+                Assert.True(DebugHost.IsCreated);
+
+                editor.SetShowDebugPanel(true);
+                DebugHost.ApplyVisibility();
+                Assert.True(DebugHost.IsVisible);
+
+                settings.DebugPanelDismissed = true;
+                DebugHost.ApplyVisibility();
+                Assert.False(DebugHost.IsVisible);
+
+                DebugHost.Destroy();
+                Assert.False(DebugHost.IsCreated);
+            }
+            finally
+            {
+                DebugHost.Destroy();
+                if (File.Exists(path))
+                {
+                    File.Delete(path);
+                }
+            }
+        }
     }
 }

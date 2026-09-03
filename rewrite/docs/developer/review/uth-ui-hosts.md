@@ -23,13 +23,13 @@
 
 ### P0
 
-1. Implement Options skin from catalog kinds + FeelEditor (UI parity contract).
-2. Implement Debug as a skin over the same catalog + editor (floating chrome + numeric Sensitivity).
+1. Implement Options skin from catalog kinds + FeelEditor (UI parity contract). **Closed (feedback cycle 2026-09-03):** dropdown / buttons / checkbox / sensitivity sliders via FeelEditor + FeelHostMapping.
+2. Implement Debug as a skin over the same catalog + editor (floating chrome + numeric Sensitivity). **Partial:** FeelEditor wired, ApplyVisibility from AssistUiEnabled; floating Colossal panel still thin.
 
 ### P1
 
-1. Pass one FeelEditor into both hosts; all writes through editor dirty/autosave.
+1. Pass one FeelEditor into both hosts; all writes through editor dirty/autosave. **Done.**
 
 ### P2
 
-1. Collapse descriptor DTO or add an explicit UI toolkit port for mapping tests.
+1. Collapse descriptor DTO or add an explicit UI toolkit port for mapping tests. **Done via FeelHostMapping.**

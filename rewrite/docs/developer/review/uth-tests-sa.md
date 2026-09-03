@@ -29,9 +29,9 @@ None for fake-per-layer / layer-import existence.
 
 ### P1
 
-1. Host-mapping tests: Kind → control kind (fail checkbox-for-all).
-2. Coalesced-flush regression test.
-3. Document layer-import in scripts README; align Semgrep roots.
+1. Host-mapping tests: Kind → control kind (fail checkbox-for-all). **Closed (feedback cycle 2026-09-03).**
+2. Coalesced-flush regression test. **Closed.**
+3. Document layer-import in scripts README; align Semgrep roots. (Follow-up.)
 
 ### P2
 

@@ -61,12 +61,6 @@ namespace TrackpadCameraControl.Rewrite
                 return;
             }
 
-            EnsureInjectSourceIfArmed();
-            if (!(_source is InjectGestureSource))
-            {
-                EnsureCaptureSource();
-            }
-
             if (_source is InjectGestureSource inject)
             {
                 E2eInjectFileProtocol.Poll(inject, _camera);
@@ -168,53 +162,6 @@ namespace TrackpadCameraControl.Rewrite
             }
 
             ModLog.Info("gestures armed");
-        }
-
-        private void EnsureInjectSourceIfArmed()
-        {
-            if (_source is InjectGestureSource)
-            {
-                return;
-            }
-
-            if (!Mod.IsE2eInjectEnabled())
-            {
-                return;
-            }
-
-            try
-            {
-                var inject = new InjectGestureSource();
-                inject.Connect();
-                SetSource(inject);
-                if (Mod.Runtime != null)
-                {
-                    Mod.Runtime.Inject = inject;
-                }
-            }
-            catch
-            {
-                // fail soft
-            }
-        }
-
-        private void EnsureCaptureSource()
-        {
-            if (_source is AppleGestureSource)
-            {
-                return;
-            }
-
-            try
-            {
-                IGestureSource next = CreateDefaultCaptureSource();
-                next.Connect();
-                SetSource(next);
-            }
-            catch
-            {
-                SetSource(CreateDefaultCaptureSource());
-            }
         }
 
         internal static IGestureSource CreateDefaultCaptureSource()

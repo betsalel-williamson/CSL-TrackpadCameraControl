@@ -406,7 +406,4 @@ namespace TrackpadCameraControl.Rewrite
             }
         }
     }
-
-    /// <summary>Legacy name retained for ModRuntime wiring.</summary>
-    public sealed class CameraControllerZoom : CitiesCameraAdapter { }
 }

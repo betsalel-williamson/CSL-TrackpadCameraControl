@@ -10,6 +10,9 @@ namespace TrackpadCameraControl.Rewrite
         Toggle,
         Slider,
         Numeric,
+
+        /// <summary>Toolkit mapping result for <see cref="Toggle"/> (Colossal AddCheckbox).</summary>
+        Checkbox,
     }
 
     public sealed class FeelCatalogField

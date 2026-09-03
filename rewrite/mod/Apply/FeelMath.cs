@@ -23,6 +23,112 @@ namespace TrackpadCameraControl.Rewrite
             return (float)Math.Round(value, 3, MidpointRounding.AwayFromZero);
         }
 
+        public const float SensitivityUiMin = 0f;
+        public const float SensitivityUiMax = 1f;
+        public const float SensitivityUiFactory = 0.5f;
+        public const float SensitivityUiStep = 0.05f;
+        public const float SensitivitySliderMinFactor = 0.1f;
+        public const float SensitivitySliderMaxFactor = 2f;
+
+        public static float SensitivitySliderMin(float factoryDefault)
+        {
+            return RoundGain(factoryDefault * SensitivitySliderMinFactor);
+        }
+
+        public static float SensitivitySliderMax(float factoryDefault)
+        {
+            return RoundGain(factoryDefault * SensitivitySliderMaxFactor);
+        }
+
+        /// <summary>
+        /// Gain → Options UI [0, 1]. Piecewise so factory maps to mid (0.5):
+        /// UI 0 → 0.1×, UI 0.5 → 1×, UI 1 → 2×.
+        /// </summary>
+        public static float GainToSensitivityUi(float gain, float factoryDefault)
+        {
+            float factory = RoundGain(factoryDefault);
+            if (factory <= 0f)
+            {
+                return SensitivityUiMin;
+            }
+
+            float min = SensitivitySliderMin(factory);
+            float max = SensitivitySliderMax(factory);
+            float g = RoundGain(gain);
+
+            if (g <= min)
+            {
+                return SensitivityUiMin;
+            }
+
+            if (g >= max)
+            {
+                return SensitivityUiMax;
+            }
+
+            if (g <= factory)
+            {
+                float loSpan = factory - min;
+                if (loSpan < 0.0001f)
+                {
+                    return SensitivityUiFactory;
+                }
+
+                return SensitivityUiFactory * ((g - min) / loSpan);
+            }
+
+            float hiSpan = max - factory;
+            if (hiSpan < 0.0001f)
+            {
+                return SensitivityUiFactory;
+            }
+
+            return SensitivityUiFactory
+                + (SensitivityUiMax - SensitivityUiFactory) * ((g - factory) / hiSpan);
+        }
+
+        /// <summary>Options UI [0, 1] → gain (inverse of <see cref="GainToSensitivityUi"/>).</summary>
+        public static float SensitivityUiToGain(float ui, float factoryDefault)
+        {
+            if (ui < SensitivityUiMin)
+            {
+                ui = SensitivityUiMin;
+            }
+
+            if (ui > SensitivityUiMax)
+            {
+                ui = SensitivityUiMax;
+            }
+
+            float factory = RoundGain(factoryDefault);
+            float min = SensitivitySliderMin(factory);
+            float max = SensitivitySliderMax(factory);
+
+            float gain;
+            if (ui <= SensitivityUiFactory)
+            {
+                float t = SensitivityUiFactory > 0f ? ui / SensitivityUiFactory : 0f;
+                gain = min + t * (factory - min);
+            }
+            else
+            {
+                float t = (ui - SensitivityUiFactory) / (SensitivityUiMax - SensitivityUiFactory);
+                gain = factory + t * (max - factory);
+            }
+
+            if (gain < min)
+            {
+                gain = min;
+            }
+
+            if (gain > max)
+            {
+                gain = max;
+            }
+
+            return RoundGain(gain);
+        }
+
         public static void Apply(
             CameraOp ops,
             float dx,
@@ -315,37 +421,6 @@ namespace TrackpadCameraControl.Rewrite
 
             camera.ClearAngleVelocity(yaw: true, pitch: true);
             camera.AngleX = yaw + delta;
-        }
-    }
-
-    /// <summary>Apply facade matching golden fixture call sites; delegates to <see cref="FeelMath"/>.</summary>
-    public static class CameraApplicator
-    {
-        public static void Apply(
-            CameraOp ops,
-            float dx,
-            float dy,
-            float pinchDelta,
-            float rotateDelta,
-            ModSettings settings,
-            ICameraController camera
-        )
-        {
-            FeelMath.Apply(ops, dx, dy, pinchDelta, rotateDelta, settings, camera);
-        }
-
-        public static void Apply(
-            CameraOp ops,
-            float dx,
-            float dy,
-            float pinchDelta,
-            float rotateDelta,
-            ModSettings settings,
-            ICameraController camera,
-            ISelectionContext selection
-        )
-        {
-            FeelMath.Apply(ops, dx, dy, pinchDelta, rotateDelta, settings, camera, selection);
         }
     }
 }

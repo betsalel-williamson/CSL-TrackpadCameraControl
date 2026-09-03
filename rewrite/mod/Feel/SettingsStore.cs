@@ -111,6 +111,22 @@ namespace TrackpadCameraControl.Rewrite
 
         public bool SaveUserPreset(string name, ModSettings feelSnapshot, ModSettings current)
         {
+            if (!UpsertUserPresetInMemory(name, feelSnapshot))
+            {
+                return false;
+            }
+
+            ModSettings blob = current ?? feelSnapshot;
+            SaveEnvelope(blob);
+            return true;
+        }
+
+        /// <summary>
+        /// Upsert a named feel snapshot in memory only — does not write the envelope.
+        /// Used by dirty→New Preset so ApplyGain owns the single coalesced flush.
+        /// </summary>
+        public bool UpsertUserPresetInMemory(string name, ModSettings feelSnapshot)
+        {
             if (string.IsNullOrEmpty(name) || feelSnapshot == null)
             {
                 return false;
@@ -137,8 +153,6 @@ namespace TrackpadCameraControl.Rewrite
                 _userPresets.Add(new NamedPreset { Name = name, Feel = snap });
             }
 
-            ModSettings blob = current ?? feelSnapshot;
-            SaveEnvelope(blob);
             return true;
         }
 
@@ -341,12 +355,5 @@ namespace TrackpadCameraControl.Rewrite
             public ModSettings Settings { get; set; }
             public NamedPreset[] UserPresets { get; set; }
         }
-    }
-
-    /// <summary>Compatibility alias used by older harness names.</summary>
-    public sealed class ModSettingsStore : SettingsStore
-    {
-        public ModSettingsStore(string filePath)
-            : base(filePath) { }
     }
 }

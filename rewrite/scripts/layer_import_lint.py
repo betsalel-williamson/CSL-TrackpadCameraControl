@@ -80,16 +80,10 @@ def main() -> int:
 
         top = path.relative_to(mod_root).parts[0] if path.relative_to(mod_root).parts else ""
         if top in ("Policy", "Apply", "Feel"):
-            # Cities adapters are allowed under Apply/ when named *Adapter or Cities*
+            # Cities adapters are allowed under Apply/ when named *Adapter, Cities*, or Game*
             name = path.name
             is_adapter = "Adapter" in name or name.startswith("Cities") or name.startswith("Game")
             if top == "Apply" and is_adapter:
-                continue
-            if top == "Policy" and name in (
-                "GameUiContext.cs",
-                "GameModifierKeys.cs",
-                "CitiesSelectionContext.cs",
-            ):
                 continue
             if PURE_DIR_FORBIDDEN_USING.search(text) or PURE_DIR_APPKIT.search(text):
                 # Allow HAS_CITIES blocks in Game* / Cities* already skipped; flag pure files

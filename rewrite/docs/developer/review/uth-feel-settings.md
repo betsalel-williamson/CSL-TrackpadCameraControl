@@ -28,10 +28,10 @@ None for catalog/editor _shape_ — blockers are hosts ([UI hosts audit](./uth-u
 
 ### P1
 
-1. Single coalesced flush path for New Preset dirty + sensitivity edits.
-2. Wire catalog chrome actions (including show debug) through FeelEditor only.
+1. Single coalesced flush path for New Preset dirty + sensitivity edits. **Closed (feedback cycle 2026-09-03):** `UpsertUserPresetInMemory` + one `MarkDirtyAndMaybeFlush`.
+2. Wire catalog chrome actions (including show debug) through FeelEditor only. **Done** (`SetShowDebugPanel`).
 
 ### P2
 
 1. Trim or module-gate Assist button-step fields when Assist is off.
-2. Delete `ModSettingsStore` alias; encode Options vs Debug control kinds in catalog or host policy.
+2. Delete `ModSettingsStore` alias; encode Options vs Debug control kinds in catalog or host policy. **Done** (alias deleted; FeelHostMapping).

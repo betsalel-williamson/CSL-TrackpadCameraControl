@@ -38,7 +38,7 @@ namespace TrackpadCameraControl.Rewrite
             settings.ActiveFeelPresetName = NameNewPreset;
             if (store != null)
             {
-                store.SaveUserPreset(NameNewPreset, settings, settings);
+                store.UpsertUserPresetInMemory(NameNewPreset, settings);
             }
         }
 

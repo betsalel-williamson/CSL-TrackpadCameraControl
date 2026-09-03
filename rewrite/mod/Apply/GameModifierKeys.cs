@@ -3,11 +3,12 @@ using TrackpadCameraControl.Gestures;
 using UnityEngine;
 #endif
 
-
 namespace TrackpadCameraControl.Rewrite
 {
     /// <summary>
-    /// Merge Unity keyboard modifier state into capture frames (Cities adapter).
+    /// Merge Unity keyboard modifier state into capture frames (Cities adapter under Apply/).
+    /// In-process AppKit already supplies NSEvent modifierFlags; this OR-merge covers
+    /// held-key edge cases when event flags lag game focus.
     /// </summary>
     public static class GameModifierKeys
     {

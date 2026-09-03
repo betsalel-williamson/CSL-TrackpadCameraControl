@@ -28,15 +28,14 @@
 
 ### P0
 
-1. Redesign Host/gate control flow from contracts (not shipping diffs).
-2. Strip dead mouse-rotate suppress path so Harmony substance is scroll suppress + orbit flush only.
+1. Redesign Host/gate control flow from contracts (not shipping diffs). **Closed (feedback cycle 2026-09-03):** tick ensure removed; aliases removed; mouse-rotate suppress deleted.
 
 ### P1
 
-1. Arm inject once at enable; remove per-tick inject/capture ensure.
-2. One default-source factory; drop aliases.
-3. Move title helpers into OptionsHost / DebugHost.
+1. Arm inject once at enable; remove per-tick inject/capture ensure. **Done.**
+2. One default-source factory; drop aliases. **Done.**
+3. Move title helpers into OptionsHost / DebugHost. (Titles still on Mod; low priority.)
 
 ### P2
 
-1. Explicit Harmony registration for the two patch types only.
+1. Explicit Harmony registration for the two patch types only. (PatchAll retained; only two patch classes remain.)

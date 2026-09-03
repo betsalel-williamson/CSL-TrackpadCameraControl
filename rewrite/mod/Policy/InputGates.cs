@@ -88,20 +88,13 @@ namespace TrackpadCameraControl.Rewrite
             return ModRuntime.IsModActive() && preciseTrackpad && !menuOrOverUi;
         }
 
-        public static bool ShouldRunVanillaMouseEvents(bool rotateBindingHeld)
+        /// <summary>
+        /// Vanilla mouse path: only block when the game is unfocused and the mod is active.
+        /// Orbit flush still runs from the mouse-events Postfix when world path is active.
+        /// </summary>
+        public static bool ShouldRunVanillaMouseEvents()
         {
-            if (ShouldBlockAllCameraInput())
-            {
-                return false;
-            }
-
-            return !ShouldSuppressVanillaMouseRotate(rotateBindingHeld);
-        }
-
-        public static bool ShouldSuppressVanillaMouseRotate(bool rotateBindingHeld)
-        {
-            _ = rotateBindingHeld;
-            return false;
+            return !ShouldBlockAllCameraInput();
         }
 
         public static bool ShouldFlushPendingOrbit()

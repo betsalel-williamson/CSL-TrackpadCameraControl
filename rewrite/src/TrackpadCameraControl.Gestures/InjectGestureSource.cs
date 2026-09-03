@@ -5,6 +5,8 @@ namespace TrackpadCameraControl.Gestures
     /// <summary>Thread-safe inject queue for headless / in-game harnesses.</summary>
     public sealed class InjectGestureSource : IGestureSource
     {
+        public const int MaxQueue = 64;
+
         private readonly object _gate = new object();
         private readonly Queue<GestureFrame> _queue = new Queue<GestureFrame>();
         private volatile bool _enabled = true;
@@ -25,6 +27,11 @@ namespace TrackpadCameraControl.Gestures
         {
             lock (_gate)
             {
+                if (_queue.Count >= MaxQueue)
+                {
+                    return;
+                }
+
                 _queue.Enqueue(frame);
             }
         }

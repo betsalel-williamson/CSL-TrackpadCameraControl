@@ -29,11 +29,11 @@ None for resolve SOT / FeelMath purity / AppKit absence.
 
 ### P1
 
-1. Move Unity/Colossal adapters out of pure Policy (or Host/Apply adapters folder) and drop lint carve-outs.
+1. Move Unity/Colossal adapters out of pure Policy (or Host/Apply adapters folder) and drop lint carve-outs. **Closed (feedback cycle 2026-09-03):** `GameUiContext` / `GameModifierKeys` under `Apply/`; `IGameUiContext` stays in Policy.
 2. Add selection-port golden coverage with a selection-only fake.
 
 ### P2
 
-1. Delete `CameraApplicator` / `CameraControllerZoom` aliases.
+1. Delete `CameraApplicator` / `CameraControllerZoom` aliases. **Done.**
 2. Remove unused selection world-position stub or implement with a real consumer.
 3. Collapse display gesture catalog ceremony where style table already supplies labels.

@@ -166,23 +166,12 @@ namespace TrackpadCameraControl.Rewrite
             }
         }
 
-        public static GesturePipeline Pipeline => Runtime?.Pipeline;
-
-        public static InjectGestureSource InjectSource
-        {
-            get => Runtime?.Inject;
-            internal set
-            {
-                if (Runtime != null)
-                {
-                    Runtime.Inject = value;
-                }
-            }
-        }
-
         public static ModSettings Settings => Runtime?.Settings ?? EnsureSettingsInternal();
 
+        public static FeelEditor Editor => Runtime?.Editor ?? EnsureEditorInternal();
+
         private static ModSettings _settingsCache;
+        private static FeelEditor _editorCache;
 
         private static ModSettings EnsureSettingsInternal()
         {
@@ -197,6 +186,22 @@ namespace TrackpadCameraControl.Rewrite
             }
 
             return _settingsCache;
+        }
+
+        private static FeelEditor EnsureEditorInternal()
+        {
+            if (Runtime?.Editor != null)
+            {
+                return Runtime.Editor;
+            }
+
+            if (_editorCache == null)
+            {
+                ModSettings settings = EnsureSettingsInternal();
+                _editorCache = new FeelEditor(settings, FeelEditor.ActiveStore);
+            }
+
+            return _editorCache;
         }
 
         public void OnEnabled()
@@ -216,14 +221,17 @@ namespace TrackpadCameraControl.Rewrite
                     source = GesturePipeline.CreateDefaultCaptureSource();
                 }
 
-                Runtime = new ModRuntime(settings, source);
+                _editorCache = new FeelEditor(settings, FeelEditor.ActiveStore);
+                Runtime = new ModRuntime(settings, source, _editorCache);
             }
             catch
             {
                 EnsureSettingsInternal();
+                _editorCache = new FeelEditor(_settingsCache, FeelEditor.ActiveStore);
                 Runtime = new ModRuntime(
                     _settingsCache,
-                    GesturePipeline.CreateDefaultCaptureSource()
+                    GesturePipeline.CreateDefaultCaptureSource(),
+                    _editorCache
                 );
             }
 
@@ -243,7 +251,7 @@ namespace TrackpadCameraControl.Rewrite
 
             try
             {
-                DebugHost.EnsureCreated();
+                DebugHost.EnsureCreated(Editor);
                 DebugHost.ApplyVisibility();
             }
             catch
@@ -299,6 +307,7 @@ namespace TrackpadCameraControl.Rewrite
 
             Runtime = null;
             _settingsCache = null;
+            _editorCache = null;
             FeelEditor.ActiveStore = null;
             InputGates.Context = null;
             ModLog.ClearTestSink();
@@ -358,7 +367,7 @@ namespace TrackpadCameraControl.Rewrite
                 return;
             }
 
-            OptionsHost.Build(helper, EnsureSettingsInternal());
+            OptionsHost.Build(helper, EnsureEditorInternal());
         }
 #endif
     }
