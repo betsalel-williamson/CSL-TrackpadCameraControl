@@ -7,31 +7,11 @@ using System.Xml.Serialization;
 namespace TrackpadCameraControl.Rewrite
 {
     /// <summary>
-    /// Versioned XML settings envelope. Injectable path for tests.
+    /// Versioned XML settings envelope (schema v1). Injectable path for tests.
     /// </summary>
     public sealed class ModSettingsStore
     {
-        /// <summary>
-        /// Schema 9 renames Rotate feel fields (YawDeadband/YawRotate* → RotateDeadband/RotateGain/…).
-        /// Schema 8 renames Rotate op gesture bindings (YawGesture* → RotateGesture*); yaw/pitch stay Orbit axes.
-        /// Schema 7 persists per-op trackpad gesture bindings (Zoom/Pan/Rotate/Orbit gesture + modifier).
-        /// Schema 6 renames pinch/rotate activation thresholds to PinchDeadband / YawDeadband (was PinchEpsilon / RotateEpsilon).
-        /// Schema 5 adds persisted Debug panel position (DebugPanelPosX/Y).
-        /// Schema 4 adds Debug QoL prefs (IncludeSystemInfoInCopy, DebugPanelDismissed).
-        /// Schema 3 persists control-systems field names (gain, step, deadband, filter, sign invert).
-        /// Schema 2 used Sensitivity / ButtonScale / Deadzone / LowPass / Invert element names.
-        /// Schema 1 also used pre-scaled AppKit scroll (migrate ×0.01 into pan/orbit gain).
-        /// </summary>
-        public const int CurrentSchemaVersion = 9;
-
-        /// <summary>
-        /// Former AppleGestureMapper.ScrollToCentroid scale. Schema 1 used pre-scaled scroll
-        /// and larger gains; schema 2+ folds this into pan/orbit gain on load.
-        /// </summary>
-        internal const float V1ScrollUnit = 0.01f;
-
-        /// <summary>First schema version that writes engineering XML element names.</summary>
-        private const int EngineeringNamesSchemaVersion = 3;
+        public const int CurrentSchemaVersion = 1;
 
         private readonly string _filePath;
         private DateTime _lastWriteUtc = DateTime.MinValue;
@@ -79,33 +59,7 @@ namespace TrackpadCameraControl.Rewrite
                 }
 
                 int fileSchema = PeekSchemaVersion(_filePath);
-                ModSettings current;
-                List<NamedPreset> presets;
-                if (fileSchema < EngineeringNamesSchemaVersion)
-                {
-                    if (!TryLoadLegacy(out current, out presets))
-                    {
-                        _userPresets = new List<NamedPreset>();
-                        _presetsHydrated = true;
-                        ModSettings recovered = ModSettings.CreateFactoryDefaults();
-                        SaveNow(recovered);
-                        return recovered;
-                    }
-
-                    if (fileSchema < 2)
-                    {
-                        MigrateScrollUnitIntoGain(current);
-                        for (int i = 0; i < presets.Count; i++)
-                        {
-                            NamedPreset preset = presets[i];
-                            if (preset != null && preset.Settings != null)
-                            {
-                                MigrateScrollUnitIntoGain(preset.Settings);
-                            }
-                        }
-                    }
-                }
-                else if (!TryLoadCurrent(out current, out presets))
+                if (fileSchema != CurrentSchemaVersion || !TryLoadCurrent(out ModSettings current, out List<NamedPreset> presets))
                 {
                     _userPresets = new List<NamedPreset>();
                     _presetsHydrated = true;
@@ -116,21 +70,8 @@ namespace TrackpadCameraControl.Rewrite
 
                 _userPresets = presets;
                 _presetsHydrated = true;
-
-                EnsureMapsPlusRotateBinding(current);
-
-                if (fileSchema < CurrentSchemaVersion)
-                {
-                    try
-                    {
-                        SaveNow(current);
-                    }
-                    catch
-                    {
-                        // keep migrated in-memory even if rewrite fails
-                    }
-                }
-
+                current.StyleTable = MapsPlusSeed.CreateTable();
+                current.ApplyGesturePreset(GesturePreset.MapsPlus);
                 return current;
             }
             catch
@@ -148,27 +89,6 @@ namespace TrackpadCameraControl.Rewrite
                 }
 
                 return recovered;
-            }
-        }
-
-        /// <summary>
-        /// Schema 8 alias getters used to return <c>None</c>; a wiped Rotate binding on Maps+
-        /// reloads as "Gesture(s): none". Re-seed Maps+ defaults when that happens.
-        /// </summary>
-        internal static void EnsureMapsPlusRotateBinding(ModSettings settings)
-        {
-            if (settings == null)
-            {
-                return;
-            }
-
-            if (
-                settings.GesturePreset == GesturePreset.MapsPlus
-                && settings.RotateGesture == TrackpadGesture.None
-            )
-            {
-                TrackpadGestureCatalog.ApplyMapsPlusDefaults(settings);
-                settings.StyleTable = MapsPlusSeed.CreateTable();
             }
         }
 
@@ -277,27 +197,6 @@ namespace TrackpadCameraControl.Rewrite
             return false;
         }
 
-        /// <summary>
-        /// Fold former mapper ScrollToCentroid (0.01) into gain / motion deadband so
-        /// raw AppKit scroll deltas keep the same feel (schema 1 → 2).
-        /// </summary>
-        internal static void MigrateScrollUnitIntoGain(ModSettings settings)
-        {
-            if (settings == null)
-            {
-                return;
-            }
-
-            settings.PanGainX *= V1ScrollUnit;
-            settings.PanGainY *= V1ScrollUnit;
-            settings.OrbitYawGain *= V1ScrollUnit;
-            settings.OrbitPitchGain *= V1ScrollUnit;
-            if (settings.MotionDeadband > 0f)
-            {
-                settings.MotionDeadband /= V1ScrollUnit;
-            }
-        }
-
         internal static int PeekSchemaVersion(string filePath)
         {
             if (string.IsNullOrEmpty(filePath) || !File.Exists(filePath))
@@ -327,53 +226,6 @@ namespace TrackpadCameraControl.Rewrite
             }
 
             return 0;
-        }
-
-        private bool TryLoadLegacy(out ModSettings current, out List<NamedPreset> presets)
-        {
-            current = null;
-            presets = new List<NamedPreset>();
-            try
-            {
-                LegacySettingsEnvelope legacy;
-                using (var reader = new StreamReader(_filePath))
-                {
-                    var serializer = new XmlSerializer(typeof(LegacySettingsEnvelope));
-                    legacy = serializer.Deserialize(reader) as LegacySettingsEnvelope;
-                }
-
-                if (legacy == null || legacy.Current == null)
-                {
-                    return false;
-                }
-
-                current = legacy.Current.ToModSettings();
-                if (legacy.UserPresets != null)
-                {
-                    for (int i = 0; i < legacy.UserPresets.Count; i++)
-                    {
-                        LegacyNamedPreset lp = legacy.UserPresets[i];
-                        if (lp == null)
-                        {
-                            continue;
-                        }
-
-                        presets.Add(
-                            new NamedPreset
-                            {
-                                Name = lp.Name,
-                                Settings = lp.Settings != null ? lp.Settings.ToModSettings() : null,
-                            }
-                        );
-                    }
-                }
-
-                return true;
-            }
-            catch
-            {
-                return false;
-            }
         }
 
         private bool TryLoadCurrent(out ModSettings current, out List<NamedPreset> presets)
@@ -429,14 +281,10 @@ namespace TrackpadCameraControl.Rewrite
 
             try
             {
-                int fileSchema = PeekSchemaVersion(_filePath);
-                ModSettings unused;
-                List<NamedPreset> presets;
-                bool ok =
-                    fileSchema < EngineeringNamesSchemaVersion
-                        ? TryLoadLegacy(out unused, out presets)
-                        : TryLoadCurrent(out unused, out presets);
-                if (ok)
+                if (
+                    PeekSchemaVersion(_filePath) == CurrentSchemaVersion
+                    && TryLoadCurrent(out ModSettings unused, out List<NamedPreset> presets)
+                )
                 {
                     _userPresets = presets;
                 }
@@ -456,14 +304,11 @@ namespace TrackpadCameraControl.Rewrite
                     return ModSettings.CreateFactoryDefaults();
                 }
 
-                int fileSchema = PeekSchemaVersion(_filePath);
-                ModSettings current;
-                List<NamedPreset> unusedPresets;
-                bool ok =
-                    fileSchema < EngineeringNamesSchemaVersion
-                        ? TryLoadLegacy(out current, out unusedPresets)
-                        : TryLoadCurrent(out current, out unusedPresets);
-                if (ok && current != null)
+                if (
+                    PeekSchemaVersion(_filePath) == CurrentSchemaVersion
+                    && TryLoadCurrent(out ModSettings current, out List<NamedPreset> unusedPresets)
+                    && current != null
+                )
                 {
                     return current;
                 }

@@ -77,7 +77,6 @@ rules:
               new TrackpadGestureBinding(TrackpadGesture.ThreeFingerSwipe, ...)
           - pattern: |
               new TrackpadGestureBinding(TrackpadGesture.ThreeFingerTap, ...)
-          - pattern: OrbitTrigger.ThreeFinger
           - pattern: |
               new StyleBindingRow(..., 3, 3, ...)
     metadata:

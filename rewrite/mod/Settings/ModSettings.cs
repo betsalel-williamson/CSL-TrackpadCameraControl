@@ -8,14 +8,6 @@ namespace TrackpadCameraControl.Rewrite
         MapsPlus,
     }
 
-    public enum OrbitTrigger
-    {
-        ModifierPlusTwoFinger,
-        ThreeFinger,
-        Both,
-        Off,
-    }
-
     public enum GestureResolveMode
     {
         Concurrent,
@@ -24,15 +16,14 @@ namespace TrackpadCameraControl.Rewrite
     }
 
     /// <summary>
-    /// Live settings model and schema ≥3 XML shape. Persist field names use control-systems
-    /// language (gain, step, deadband, filter, sign invert). Player Options still say Sensitivity.
+    /// Live settings model (schema v1 XML). Persist field names use control-systems
+    /// language (gain, step, deadband, sign invert). Player Options still say Sensitivity.
     /// </summary>
     public class ModSettings
     {
         /// <summary>
-        /// Gesture style (Maps+ / CAD / future OS layouts): which trackpad chords map to
-        /// Zoom/Pan/Rotate/Orbit. Orthogonal to <see cref="ActiveFeelPresetName"/> (Slow/Default/Fast
-        /// sensitivity). Changing feel never rewrites gesture bindings.
+        /// Gesture style identity (Maps+ only on v1 ship). Orthogonal to
+        /// <see cref="ActiveFeelPresetName"/> (feel presets).
         /// </summary>
         public GesturePreset GesturePreset { get; set; } = GesturePreset.MapsPlus;
 
@@ -40,11 +31,10 @@ namespace TrackpadCameraControl.Rewrite
 
         /// <summary>
         /// Live style binding table consumed by Policy resolve (Maps+ seed by default).
-        /// Not serialized as free-form remaps on ship — reseeded from MapsPlusSeed on load.
+        /// Not serialized — reseeded from MapsPlusSeed on load.
         /// </summary>
-        [System.Xml.Serialization.XmlIgnore]
+        [XmlIgnore]
         public StyleBindingTable StyleTable { get; set; } = MapsPlusSeed.CreateTable();
-
 
         public bool AssistUiEnabled { get; set; } = false;
         public bool PanEnabled { get; set; } = true;
@@ -53,9 +43,8 @@ namespace TrackpadCameraControl.Rewrite
         public bool OrbitEnabled { get; set; } = true;
 
         /// <summary>
-        /// Schema 7+: per-op trackpad gesture bindings (composable gesture + modifier).
-        /// Owned by <see cref="GesturePreset"/> via <see cref="ApplyGesturePreset"/> — not by feel presets.
-        /// Product op name is <b>Rotate</b> (schema 8: <c>RotateGesture*</c>); yaw/pitch axes belong to Orbit.
+        /// Per-op trackpad gesture bindings for Debug labels (seeded from Maps+).
+        /// Policy resolve reads <see cref="StyleTable"/> (L1).
         /// </summary>
         public TrackpadGesture ZoomGesture { get; set; } = TrackpadGesture.Pinch;
 
@@ -68,26 +57,6 @@ namespace TrackpadCameraControl.Rewrite
         public TrackpadGesture RotateGesture { get; set; } = TrackpadGesture.TwoFingerRotate;
 
         public GestureModifierKey RotateGestureModifier { get; set; } = GestureModifierKey.None;
-
-        /// <summary>Schema 7 XML: former <c>YawGesture</c> element (deserialize only).</summary>
-        [XmlElement("YawGesture")]
-        public TrackpadGesture YawGestureXml
-        {
-            set => RotateGesture = value;
-            get => RotateGesture;
-        }
-
-        public bool ShouldSerializeYawGestureXml() => false;
-
-        /// <summary>Schema 7 XML: former <c>YawGestureModifier</c> element (deserialize only).</summary>
-        [XmlElement("YawGestureModifier")]
-        public GestureModifierKey YawGestureModifierXml
-        {
-            set => RotateGestureModifier = value;
-            get => RotateGestureModifier;
-        }
-
-        public bool ShouldSerializeYawGestureModifierXml() => false;
 
         public TrackpadGesture OrbitGesture { get; set; } = TrackpadGesture.TwoFingerDrag;
 
@@ -115,89 +84,14 @@ namespace TrackpadCameraControl.Rewrite
         public bool SignInvertZoom { get; set; }
         public bool SignInvertRotate { get; set; }
 
-        /// <summary>Centroid |delta| activation threshold (pan / orbit drag); not low-pass filter alpha.</summary>
+        /// <summary>Centroid |delta| activation threshold (pan / orbit drag).</summary>
         public float MotionDeadband { get; set; } = 0.001f;
 
-        /// <summary>Pinch scale-delta activation threshold (zoom); not low-pass filter alpha.</summary>
+        /// <summary>Pinch scale-delta activation threshold (zoom).</summary>
         public float PinchDeadband { get; set; } = 0.001f;
 
-        /// <summary>Twist rotate-delta activation threshold (Rotate op); not low-pass filter alpha.</summary>
+        /// <summary>Twist rotate-delta activation threshold (Rotate op).</summary>
         public float RotateDeadband { get; set; } = 0.001f;
-
-        /// <summary>Schema 3–5 XML: former <c>PinchEpsilon</c> element (deserialize only).</summary>
-        [XmlElement("PinchEpsilon")]
-        public float PinchEpsilonXml
-        {
-            set => PinchDeadband = value;
-            get => PinchDeadband;
-        }
-
-        public bool ShouldSerializePinchEpsilonXml() => false;
-
-        /// <summary>Schema 3–5 XML: former <c>RotateEpsilon</c> element (deserialize only).</summary>
-        [XmlElement("RotateEpsilon")]
-        public float RotateEpsilonXml
-        {
-            set => RotateDeadband = value;
-            get => RotateDeadband;
-        }
-
-        public bool ShouldSerializeRotateEpsilonXml() => false;
-
-        /// <summary>Schema 3–8 XML: former <c>YawDeadband</c> element (deserialize only).</summary>
-        [XmlElement("YawDeadband")]
-        public float YawDeadbandXml
-        {
-            set => RotateDeadband = value;
-            get => RotateDeadband;
-        }
-
-        public bool ShouldSerializeYawDeadbandXml() => false;
-
-        /// <summary>Schema 3–8 XML: former <c>YawEnabled</c> element (deserialize only).</summary>
-        [XmlElement("YawEnabled")]
-        public bool YawEnabledXml
-        {
-            set => RotateEnabled = value;
-            get => RotateEnabled;
-        }
-
-        public bool ShouldSerializeYawEnabledXml() => false;
-
-        /// <summary>Schema 3–8 XML: former <c>YawRotateGain</c> element (deserialize only).</summary>
-        /// <remarks>
-        /// Alias getters must return the live backing value. Mono's XmlSerializer (Cities) can
-        /// self-assign alias properties during deserialize; <c>get =&gt; 0f</c> wiped RotateGain
-        /// after a successful <c>&lt;RotateGain&gt;</c> load (empty Debug Rotate fields until Reset).
-        /// </remarks>
-        [XmlElement("YawRotateGain")]
-        public float YawRotateGainXml
-        {
-            set => RotateGain = value;
-            get => RotateGain;
-        }
-
-        public bool ShouldSerializeYawRotateGainXml() => false;
-
-        /// <summary>Schema 3–8 XML: former <c>YawRotateStep</c> element (deserialize only).</summary>
-        [XmlElement("YawRotateStep")]
-        public float YawRotateStepXml
-        {
-            set => RotateStep = value;
-            get => RotateStep;
-        }
-
-        public bool ShouldSerializeYawRotateStepXml() => false;
-
-        /// <summary>Schema 3–8 XML: former <c>SignInvertYawRotate</c> element (deserialize only).</summary>
-        [XmlElement("SignInvertYawRotate")]
-        public bool SignInvertYawRotateXml
-        {
-            set => SignInvertRotate = value;
-            get => SignInvertRotate;
-        }
-
-        public bool ShouldSerializeSignInvertYawRotateXml() => false;
 
         public bool RequireGameFocus { get; set; } = true;
         public bool IgnoreOverUi { get; set; } = true;
@@ -222,7 +116,6 @@ namespace TrackpadCameraControl.Rewrite
 
         /// <summary>
         /// Seeds Maps+ style bindings into the live style table and per-op display fields.
-        /// Does not change feel gains, deadbands, or <see cref="ActiveFeelPresetName"/>.
         /// </summary>
         public void ApplyGesturePreset(GesturePreset preset)
         {
