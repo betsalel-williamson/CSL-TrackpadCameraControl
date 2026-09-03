@@ -13,11 +13,7 @@ namespace TrackpadCameraControl.Rewrite
         public const float ScaleMax = 100f;
 
         /// <summary>Legacy alias for tests and older call sites.</summary>
-        public const float SensitivityMin = ScaleMin;
-
         /// <summary>Legacy alias for tests and older call sites.</summary>
-        public const float SensitivityMax = ScaleMax;
-
         public const float SensitivityStep = 0.05f;
 
         /// <summary>Product Sensitivity slider floor as a fraction of factory default (0.1×).</summary>

@@ -53,7 +53,6 @@ namespace TrackpadCameraControl.Rewrite
         public bool ZoomEnabled { get; set; } = true;
         public bool RotateEnabled { get; set; } = true;
         public bool OrbitEnabled { get; set; } = true;
-        public OrbitTrigger OrbitTrigger { get; set; } = OrbitTrigger.ModifierPlusTwoFinger;
 
         /// <summary>
         /// Schema 7+: per-op trackpad gesture bindings (composable gesture + modifier).
@@ -233,7 +232,6 @@ namespace TrackpadCameraControl.Rewrite
 
         public bool RequireGameFocus { get; set; } = true;
         public bool IgnoreOverUi { get; set; } = true;
-        public bool BridgeEnabled { get; set; }
         public bool DebugOverlay { get; set; }
 
         /// <summary>Debug panel Copy: include OS / device enumeration in clipboard report.</summary>
@@ -286,12 +284,6 @@ namespace TrackpadCameraControl.Rewrite
 #endif
         }
 
-        /// <summary>Legacy alias for <see cref="ApplyGesturePreset"/>.</summary>
-        public void ApplyPreset(GesturePreset preset)
-        {
-            ApplyGesturePreset(preset);
-        }
-
         /// <summary>Copy all feel and binding fields from another settings instance.</summary>
         public void CopyFrom(ModSettings other)
         {
@@ -308,8 +300,6 @@ namespace TrackpadCameraControl.Rewrite
             ZoomEnabled = other.ZoomEnabled;
             RotateEnabled = other.RotateEnabled;
             OrbitEnabled = other.OrbitEnabled;
-            OrbitTrigger = other.OrbitTrigger;
-
             ZoomGesture = other.ZoomGesture;
             ZoomGestureModifier = other.ZoomGestureModifier;
             PanGesture = other.PanGesture;
@@ -354,7 +344,6 @@ namespace TrackpadCameraControl.Rewrite
 
             RequireGameFocus = other.RequireGameFocus;
             IgnoreOverUi = other.IgnoreOverUi;
-            BridgeEnabled = other.BridgeEnabled;
             DebugOverlay = other.DebugOverlay;
             CaptureBackend = other.CaptureBackend;
             ActiveFeelPresetName = other.ActiveFeelPresetName;

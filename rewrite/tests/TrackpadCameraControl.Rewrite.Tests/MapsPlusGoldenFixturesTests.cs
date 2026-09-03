@@ -257,7 +257,7 @@ namespace TrackpadCameraControl.Rewrite.Tests
         private static ModSettings MapsPlusSettings()
         {
             var settings = new ModSettings();
-            settings.ApplyPreset(GesturePreset.MapsPlus);
+            settings.ApplyGesturePreset(GesturePreset.MapsPlus);
             settings.PinchDeadband = 0.001f;
             settings.MotionDeadband = 0.001f;
             settings.RotateDeadband = 0.001f;

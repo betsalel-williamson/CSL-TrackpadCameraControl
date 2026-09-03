@@ -148,7 +148,7 @@ namespace TrackpadCameraControl.Rewrite.Tests
             );
 
             var settings = new ModSettings();
-            settings.ApplyPreset(GesturePreset.MapsPlus);
+            settings.ApplyGesturePreset(GesturePreset.MapsPlus);
             settings.MotionDeadband = 0.001f;
             var session = new GestureSession();
 

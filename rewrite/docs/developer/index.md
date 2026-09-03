@@ -14,3 +14,5 @@ North star: greenfield redesign lessons (L1–L12) in the features guide.
   - [Static analysis and quality](./static-analysis-and-quality.md)
   - [Local MVP install](./local-mvp-install.md)
   - [QA checklist](./qa-checklist.md)
+
+- [In-game parity checklist (tier C)](./in-game-parity-checklist.md)

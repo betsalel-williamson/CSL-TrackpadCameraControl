@@ -82,11 +82,6 @@ namespace TrackpadCameraControl.Rewrite
         }
 
         /// <summary>Legacy alias for tests / callers expecting OptionsTitle version source.</summary>
-        internal static string GetAssemblyVersionDisplay()
-        {
-            return GetProductVersionDisplay();
-        }
-
         /// <summary>UTC compile time stamped at MSBuild (Debug panel dev confirmation).</summary>
         internal static string GetAssemblyBuildTimestampUtcDisplay()
         {

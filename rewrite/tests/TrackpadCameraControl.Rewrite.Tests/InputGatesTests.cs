@@ -80,7 +80,7 @@ namespace TrackpadCameraControl.Rewrite.Tests
         public void Pipeline_WhenOverUi_DoesNotApplyPan()
         {
             var settings = new ModSettings();
-            settings.ApplyPreset(GesturePreset.MapsPlus);
+            settings.ApplyGesturePreset(GesturePreset.MapsPlus);
             settings.IgnoreOverUi = true;
             settings.PanGainX = 1f;
             settings.PanGainY = 1f;
