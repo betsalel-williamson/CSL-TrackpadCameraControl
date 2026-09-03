@@ -16,3 +16,11 @@ North star: greenfield redesign lessons (L1–L12) in the features guide.
   - [QA checklist](./qa-checklist.md)
 
 - [In-game parity checklist (tier C)](./in-game-parity-checklist.md)
+
+## v1 audit (prototype cleanup)
+
+- [About the review guide](./review/about-this-guide.md)
+- [Organized product feedback](./review/v1-product-feedback.md)
+- [v1 audit and cleanup plan](./review/v1-audit-plan.md)
+- [Settings / schema audit](./review/settings-audit.md)
+- [Capture layer audit](./review/capture-audit.md)
