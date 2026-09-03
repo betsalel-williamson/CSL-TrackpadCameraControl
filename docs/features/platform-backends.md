@@ -6,11 +6,11 @@ Keep product language and Options **platform-neutral**. Isolate OS capture behin
 
 ## Policy
 
-| Layer                                      | Stance                                                                  |
-| ------------------------------------------ | ----------------------------------------------------------------------- |
-| Features, client Outcomes, settings schema | No required OS brand in the capability story                            |
+| Layer                                      | Stance                                                                      |
+| ------------------------------------------ | --------------------------------------------------------------------------- |
+| Features, client Outcomes, settings schema | No required OS brand in the capability story                                |
 | First shipping backend                     | **macOS** AppleKit (AppleGestures). Contacts behind `EnableContactsCapture` |
-| Windows / Linux                            | Stubs with the same interface; contributor implementations welcome      |
+| Windows / Linux                            | Stubs with the same interface; contributor implementations welcome          |
 
 ## Backend contract
 
@@ -18,7 +18,7 @@ A backend must:
 
 - Emit [gesture primitives](./ipc-gesture-primitives.md) while the game is focused (when configured).
 - Avoid deciding pan vs orbit vs zoom (C# bindings own that).
-- Fail soft when unsupported or disconnected (do not crash the game). Vanilla scroll-zoom and mouse-rotate stay gated by [vanilla camera suppress](./vanilla-camera-suppress.md) while the mod is on.
+- Fail soft when unsupported or disconnected (do not crash the game). Precise trackpad scroll suppress applies while the mod is on; mouse wheel and middle-mouse orbit remain vanilla — see [vanilla camera suppress](./vanilla-camera-suppress.md).
 
 ## macOS (v1)
 

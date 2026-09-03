@@ -4,7 +4,7 @@ using TrackpadCapture;
 
 namespace TrackpadCameraControl
 {
-    /// <summary>In-process MultitouchSupport → GestureFrame (no IPC).</summary>
+    /// <summary>In-process MultitouchSupport contacts → GestureFrame in the mod DLL.</summary>
     public sealed class InProcessGestureSource : IGestureSource, IDisposable
     {
         private const int MaxQueue = 64;

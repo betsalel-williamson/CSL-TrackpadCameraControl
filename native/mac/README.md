@@ -1,6 +1,6 @@
 # macOS capture
 
-Playtest uses **in-process AppKit** in the mod DLL (scroll / magnify / rotate → gesture primitives). There is no companion process.
+Playtest uses **in-process AppKit** in the mod DLL (scroll / magnify / rotate → gesture primitives). Optional **TrackpadBridge** socket host below is for dev experiments only.
 
 ```bash
 ./scripts/install-mod-local.sh

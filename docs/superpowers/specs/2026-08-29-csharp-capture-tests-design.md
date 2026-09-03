@@ -1,8 +1,10 @@
 # C# capture, tests, and e2e harnesses — Design
 
 **Date:** 2026-08-29  
-**Status:** Approved  
+**Status:** Superseded (partial)  
 **Scope:** Pin C# language surface; move Multitouch capture into shared C#; add xUnit and two-tier e2e harnesses
+
+> **Superseded (v1, 2026-09):** Playtest capture is in-process in the mod DLL; TrackpadBridge socket is an optional dev experiment. Authoritative contract: [`docs/features/adr/0001-native-multitouch-bridge.md`](../../features/adr/0001-native-multitouch-bridge.md).
 
 ## Goal
 

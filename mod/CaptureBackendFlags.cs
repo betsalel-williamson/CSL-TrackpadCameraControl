@@ -3,7 +3,7 @@ using System;
 namespace TrackpadCameraControl
 {
     /// <summary>
-    /// Selects how trackpad primitives are captured. Both interpreters run in-process.
+    /// Selects how trackpad primitives are captured. Both interpreters run in-process in the mod DLL.
     /// Contacts is MultitouchSupport; AppleGestures is AppKit (no Accessibility).
     /// </summary>
     public enum CaptureBackend

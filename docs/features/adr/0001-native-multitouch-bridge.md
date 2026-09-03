@@ -21,7 +21,7 @@ Capture OS contacts and Apple-classified gestures **in-process** in the mod DLL 
 | **Contacts**      | MultitouchSupport contacts → primitives (portable template for other OSes).               |
 | **AppleGestures** | AppKit local monitor (scroll / magnify / rotate) → the same primitives. No Accessibility. |
 
-Inspect capture with a **file log** (not a companion process). The C# TrackpadBridge console host remains in the repo as an optional experiment; it is not the playtest path. The prior **C** helper is **retired**. Binding and camera writes always stay in C#. Ship the **macOS** path first; Windows and Linux remain stubs behind the same interface.
+Inspect capture via a **session capture log** (`TRACKPAD_CAPTURE_LOG`). The C# TrackpadBridge console host remains in the repo as an optional dev socket experiment; it is not the playtest path. The prior **C** helper is **retired**. Binding and camera writes always stay in C#. Ship the **macOS** path first; Windows and Linux remain stubs behind the same interface.
 
 Language surface for the mod DLL: **net35** with **C# 9**, using Mono-safe BCL APIs only.
 

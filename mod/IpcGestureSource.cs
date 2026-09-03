@@ -3,7 +3,7 @@ using System.Runtime.InteropServices;
 
 namespace TrackpadCameraControl
 {
-    /// <summary>Optional experiment: Unix domain socket to TrackpadBridge (not the playtest path).</summary>
+    /// <summary>Optional dev experiment: local Unix socket to TrackpadBridge (not the playtest path).</summary>
     public sealed class IpcGestureSource : IGestureSource, IDisposable
     {
         private const int AfUnix = 1;
