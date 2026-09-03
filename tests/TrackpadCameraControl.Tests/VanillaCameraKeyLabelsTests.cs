@@ -12,16 +12,116 @@ namespace TrackpadCameraControl.Tests
         }
 
         [Fact]
-        public void FormatVanillaActionLine_IncludesBindingsWhenPresent()
+        public void FormatVanillaActionLine_UsesKeymappingPrefix()
         {
             Assert.Equal(
-                "Middle Mouse · W: vanilla orbit",
-                VanillaCameraKeyLabels.FormatVanillaActionLine("Middle Mouse · W", "vanilla orbit")
+                "Keymapping(s): Middle Mouse · W",
+                VanillaCameraKeyLabels.FormatVanillaActionLine("Middle Mouse · W")
             );
             Assert.Equal(
-                "vanilla zoom",
-                VanillaCameraKeyLabels.FormatVanillaActionLine(null, "vanilla zoom")
+                "Keymapping(s): none",
+                VanillaCameraKeyLabels.FormatVanillaActionLine(null)
             );
+            Assert.Equal("Keymapping(s): none", VanillaCameraKeyLabels.FormatVanillaActionLine(""));
+        }
+
+        [Fact]
+        public void FormatGestureLine_UsesGesturePrefix()
+        {
+            Assert.Equal(
+                "Gesture(s): Pinch",
+                VanillaCameraKeyLabels.FormatGestureLine(TrackpadGestureCatalog.MapsPlusZoom)
+            );
+            Assert.Equal(
+                "Gesture(s): Option (⌥)+two-finger drag",
+                VanillaCameraKeyLabels.FormatGestureLine(TrackpadGestureCatalog.MapsPlusOrbit)
+            );
+            Assert.Equal(
+                "Gesture(s): none",
+                VanillaCameraKeyLabels.FormatGestureLine(TrackpadGestureBinding.None)
+            );
+        }
+
+        [Fact]
+        public void FormatGestureLineForOp_BothOrbit_JoinsMapsPlusAndCad()
+        {
+            var settings = ModSettings.CreateFactoryDefaults();
+            settings.OrbitTrigger = OrbitTrigger.Both;
+            string line = VanillaCameraKeyLabels.FormatGestureLineForOp(settings, CameraOp.Orbit);
+            Assert.Equal("Gesture(s): Option (⌥)+two-finger drag · Three-finger drag", line);
+        }
+
+        [Fact]
+        public void FormatGestureLineForOp_FactoryRotate_IsTwoFingerRotate()
+        {
+            ModSettings settings = ModSettings.CreateFactoryDefaults();
+            Assert.Equal(
+                "Gesture(s): Two-finger rotate",
+                VanillaCameraKeyLabels.FormatGestureLineForOp(settings, CameraOp.Rotate)
+            );
+        }
+    }
+
+    public class TrackpadGestureCatalogTests
+    {
+        [Fact]
+        public void FactoryDefaults_AreMapsPlusBindings()
+        {
+            ModSettings s = ModSettings.CreateFactoryDefaults();
+            Assert.Equal(TrackpadGesture.Pinch, s.ZoomGesture);
+            Assert.Equal(GestureModifierKey.None, s.ZoomGestureModifier);
+            Assert.Equal(TrackpadGesture.TwoFingerDrag, s.PanGesture);
+            Assert.Equal(TrackpadGesture.TwoFingerRotate, s.RotateGesture);
+            Assert.Equal(TrackpadGesture.TwoFingerDrag, s.OrbitGesture);
+            Assert.Equal(GestureModifierKey.Option, s.OrbitGestureModifier);
+            Assert.Equal(OrbitTrigger.ModifierPlusTwoFinger, s.OrbitTrigger);
+        }
+
+        [Fact]
+        public void ApplyFeelDefault_DoesNotRewriteGestureStyleBindings()
+        {
+            ModSettings s = ModSettings.CreateFactoryDefaults();
+            s.ApplyGesturePreset(GesturePreset.CAD);
+            ModOptions.ApplyFeelDefault(s);
+            Assert.Equal(GesturePreset.CAD, s.GesturePreset);
+            Assert.Equal(TrackpadGesture.ThreeFingerDrag, s.OrbitGesture);
+            Assert.Equal(GestureModifierKey.None, s.OrbitGestureModifier);
+            Assert.Equal(OrbitTrigger.ThreeFinger, s.OrbitTrigger);
+            Assert.Equal(FeelProfiles.NameDefault, s.ActiveFeelPresetName);
+        }
+
+        [Fact]
+        public void ApplyPreset_Cad_UpdatesOrbitPairAndTrigger()
+        {
+            ModSettings s = ModSettings.CreateFactoryDefaults();
+            s.ApplyGesturePreset(GesturePreset.CAD);
+            Assert.Equal(GesturePreset.CAD, s.GesturePreset);
+            Assert.Equal(TrackpadGesture.ThreeFingerDrag, s.OrbitGesture);
+            Assert.Equal(GestureModifierKey.None, s.OrbitGestureModifier);
+            Assert.Equal(OrbitTrigger.ThreeFinger, s.OrbitTrigger);
+            Assert.Equal(TrackpadGesture.Pinch, s.ZoomGesture);
+        }
+
+        [Fact]
+        public void ApplyPreset_MapsPlus_RestoresOptionOrbit()
+        {
+            ModSettings s = ModSettings.CreateFactoryDefaults();
+            s.ApplyGesturePreset(GesturePreset.CAD);
+            s.ApplyGesturePreset(GesturePreset.MapsPlus);
+            Assert.Equal(TrackpadGesture.TwoFingerDrag, s.OrbitGesture);
+            Assert.Equal(GestureModifierKey.Option, s.OrbitGestureModifier);
+            Assert.Equal(OrbitTrigger.ModifierPlusTwoFinger, s.OrbitTrigger);
+        }
+
+        [Fact]
+        public void CopyFrom_CopiesGestureBindings()
+        {
+            var source = ModSettings.CreateFactoryDefaults();
+            source.ApplyGesturePreset(GesturePreset.CAD);
+            var dest = ModSettings.CreateFactoryDefaults();
+            dest.CopyFrom(source);
+            Assert.Equal(TrackpadGesture.ThreeFingerDrag, dest.OrbitGesture);
+            Assert.Equal(GestureModifierKey.None, dest.OrbitGestureModifier);
         }
     }
 }

@@ -2,7 +2,7 @@
 
 namespace TrackpadCameraControl
 {
-    public enum CameraOp { None, Pan, Zoom, Yaw, Orbit }
+    public enum CameraOp { None, Pan, Zoom, Rotate, Orbit }
 
     public static class GestureBindingResolver
     {

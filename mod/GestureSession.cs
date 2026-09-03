@@ -56,8 +56,8 @@ namespace TrackpadCameraControl
             // (Option held → rotate ignored is expected).
             if (
                 !OrbitLatched
-                && settings.YawEnabled
-                && Abs(frame.rotateDelta) > settings.YawDeadband
+                && settings.RotateEnabled
+                && Abs(frame.rotateDelta) > settings.RotateDeadband
             )
             {
                 RotateOwned = true;
@@ -81,8 +81,12 @@ namespace TrackpadCameraControl
             }
 
             // After latch masking: pinch vs twist stay exclusive when both remain.
-            candidates = GestureBindingResolver.ExclusiveZoomVersusYaw(candidates, frame, settings);
-            candidates = GestureBindingResolver.ExclusiveOrbitVersusYaw(
+            candidates = GestureBindingResolver.ExclusiveZoomVersusRotate(
+                candidates,
+                frame,
+                settings
+            );
+            candidates = GestureBindingResolver.ExclusiveOrbitVersusRotate(
                 candidates,
                 frame,
                 settings

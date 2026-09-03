@@ -15,7 +15,7 @@ namespace TrackpadCameraControl.Tests
                 PanGainX = 9f,
                 PanGainY = 9f,
                 ZoomGain = 9f,
-                YawRotateGain = 9f,
+                RotateGain = 9f,
                 OrbitYawGain = 9f,
                 OrbitPitchGain = 9f,
                 SignInvertPanX = false,
@@ -70,14 +70,14 @@ namespace TrackpadCameraControl.Tests
             var source = ModSettings.CreateFactoryDefaults();
             source.MotionDeadband = 0.42f;
             source.PinchDeadband = 0.17f;
-            source.YawDeadband = 0.08f;
+            source.RotateDeadband = 0.08f;
 
             var dest = new ModSettings();
             FeelProfiles.CopyFeelFields(dest, source);
 
             Assert.Equal(0.42f, dest.MotionDeadband);
             Assert.Equal(0.17f, dest.PinchDeadband);
-            Assert.Equal(0.08f, dest.YawDeadband);
+            Assert.Equal(0.08f, dest.RotateDeadband);
         }
     }
 
@@ -125,7 +125,7 @@ namespace TrackpadCameraControl.Tests
             live.PanGainX = 1.25f;
             live.PanGainY = 0.75f;
             live.ZoomGain = 2.00f;
-            live.YawRotateGain = 3.00f;
+            live.RotateGain = 3.00f;
             live.OrbitYawGain = 4.00f;
             live.OrbitPitchGain = 5.00f;
             live.SignInvertPanX = false;
@@ -135,7 +135,7 @@ namespace TrackpadCameraControl.Tests
             live.PanEnabled = false;
             live.MotionDeadband = 0.33f;
             live.PinchDeadband = 0.22f;
-            live.YawDeadband = 0.11f;
+            live.RotateDeadband = 0.11f;
 
             Assert.True(ModOptions.SaveNamedFeelPreset(live, "MyFeel"));
 
@@ -145,7 +145,7 @@ namespace TrackpadCameraControl.Tests
             Assert.Equal(1.25f, restored.PanGainX);
             Assert.Equal(0.75f, restored.PanGainY);
             Assert.Equal(2.00f, restored.ZoomGain);
-            Assert.Equal(3.00f, restored.YawRotateGain);
+            Assert.Equal(3.00f, restored.RotateGain);
             Assert.Equal(4.00f, restored.OrbitYawGain);
             Assert.Equal(5.00f, restored.OrbitPitchGain);
             Assert.False(restored.SignInvertPanX);
@@ -155,7 +155,7 @@ namespace TrackpadCameraControl.Tests
             Assert.False(restored.PanEnabled);
             Assert.Equal(0.33f, restored.MotionDeadband);
             Assert.Equal(0.22f, restored.PinchDeadband);
-            Assert.Equal(0.11f, restored.YawDeadband);
+            Assert.Equal(0.11f, restored.RotateDeadband);
         }
 
         [Fact]

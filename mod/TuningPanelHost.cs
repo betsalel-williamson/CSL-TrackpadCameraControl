@@ -1,5 +1,6 @@
 #if HAS_CITIES
 using System;
+using System.Collections.Generic;
 using ColossalFramework.UI;
 using UnityEngine;
 
@@ -69,6 +70,8 @@ namespace TrackpadCameraControl
 
             ModSettings s = Mod.EnsureSettings();
 
+            ClearRefreshBindings();
+
             _root.name = "TrackpadCameraDebugPanel";
             _root.backgroundSprite = "MenuPanel2";
             _root.width = PanelWidth;
@@ -113,7 +116,7 @@ namespace TrackpadCameraControl
             // Shipped section order: Zoom → Pan → Rotate → Orbit (feel presets = General above).
             BuildZoomSection(s);
             BuildPanSection(s);
-            BuildYawSection(s);
+            BuildRotateSection(s);
             BuildOrbitSection(s);
 
             AddBuildInfoFooter();
@@ -184,6 +187,7 @@ namespace TrackpadCameraControl
             _feelNameField = null;
             _feelDropdown = null;
             _feelDropdownItems = null;
+            ClearRefreshBindings();
         }
 
         private static void OnSettingsChanged()
@@ -212,7 +216,10 @@ namespace TrackpadCameraControl
             _rebuildQueued = true;
         }
 
-        /// <summary>Run queued panel rebuild outside UI event handlers (e.g. after Reset).</summary>
+        /// <summary>
+        /// Prefer in-place control/label updates after Reset or external settings edits;
+        /// fall back to Destroy/EnsureCreated only when structure cannot be refreshed.
+        /// </summary>
         public static void ProcessPendingUiRebuild()
         {
             if (!_rebuildQueued || _handlingSettingsChanged)
@@ -224,6 +231,11 @@ namespace TrackpadCameraControl
             if (_root == null)
             {
                 ApplyVisibility();
+                return;
+            }
+
+            if (TryRefreshInPlace())
+            {
                 return;
             }
 
@@ -533,7 +545,7 @@ namespace TrackpadCameraControl
 
         private static void BuildPanSection(ModSettings s)
         {
-            AddOpHeading(ModOptions.OpHeadingPan);
+            AddOpHeading(() => ModOptions.OpHeadingPan);
             AddFloatPair(
                 s,
                 "Sensitivity X",
@@ -591,7 +603,7 @@ namespace TrackpadCameraControl
 
         private static void BuildZoomSection(ModSettings s)
         {
-            AddOpHeading(ModOptions.OpHeadingZoom);
+            AddOpHeading(() => ModOptions.OpHeadingZoom);
 #if ENABLE_ASSIST_CHROME
             AddFloatPair(
                 s,
@@ -648,26 +660,26 @@ namespace TrackpadCameraControl
             );
         }
 
-        private static void BuildYawSection(ModSettings s)
+        private static void BuildRotateSection(ModSettings s)
         {
-            AddOpHeading(ModOptions.OpHeadingRotate);
+            AddOpHeading(() => ModOptions.OpHeadingRotate);
 #if ENABLE_ASSIST_CHROME
             AddFloatPair(
                 s,
                 "Sensitivity",
-                () => s.YawRotateGain,
-                ModOptions.ApplyYawRotateGain,
+                () => s.RotateGain,
+                ModOptions.ApplyRotateGain,
                 "Btn",
-                () => s.YawRotateStep,
-                ModOptions.ApplyYawRotateStep,
+                () => s.RotateStep,
+                ModOptions.ApplyRotateStep,
                 gainFormatL: true
             );
 #else
             AddFloatPair(
                 s,
                 "Sensitivity",
-                () => s.YawRotateGain,
-                ModOptions.ApplyYawRotateGain,
+                () => s.RotateGain,
+                ModOptions.ApplyRotateGain,
                 null,
                 null,
                 null,
@@ -678,8 +690,8 @@ namespace TrackpadCameraControl
 #if ENABLE_CONTACTS_CAPTURE
             AddCheckRow(
                 s,
-                () => s.YawFilterEnabled,
-                v => s.YawFilterEnabled = v,
+                () => s.RotateFilterEnabled,
+                v => s.RotateFilterEnabled = v,
                 "Low-pass",
                 null,
                 null,
@@ -688,8 +700,8 @@ namespace TrackpadCameraControl
             AddFloatPair(
                 s,
                 "LP α",
-                () => s.YawFilterAlpha,
-                ModOptions.ApplyYawFilterAlpha,
+                () => s.RotateFilterAlpha,
+                ModOptions.ApplyRotateFilterAlpha,
                 null,
                 null,
                 null
@@ -698,8 +710,8 @@ namespace TrackpadCameraControl
             AddFloatPair(
                 s,
                 "Deadband",
-                () => s.YawDeadband,
-                ModOptions.ApplyYawDeadband,
+                () => s.RotateDeadband,
+                ModOptions.ApplyRotateDeadband,
                 null,
                 null,
                 null,
@@ -709,7 +721,7 @@ namespace TrackpadCameraControl
 
         private static void BuildOrbitSection(ModSettings s)
         {
-            AddOpHeading(ModOptions.OpHeadingOrbit);
+            AddOpHeading(() => ModOptions.OpHeadingOrbit);
             AddFloatPair(
                 s,
                 "Sensitivity yaw",
@@ -837,7 +849,16 @@ namespace TrackpadCameraControl
             boxLabel.relativePosition = new Vector3(22f, 2f);
             box.label = boxLabel;
             box.isChecked = get();
-            box.eventCheckChanged += (c, v) => set(v);
+            box.eventCheckChanged += (c, v) =>
+            {
+                if (_handlingSettingsChanged)
+                {
+                    return;
+                }
+
+                set(v);
+            };
+            RegisterCheck(box, get);
             _nextY += 22f;
         }
 
@@ -847,28 +868,27 @@ namespace TrackpadCameraControl
             _nextY += 22f;
         }
 
-        private static void AddOpHeading(string text)
+        private static void AddOpHeading(Func<string> getHeading)
         {
+            if (getHeading == null)
+            {
+                return;
+            }
+
+            string text = getHeading();
             if (string.IsNullOrEmpty(text))
             {
                 return;
             }
 
-            string[] lines = text.Split('\n');
+            string[] lines = DebugPanelRefresh.SplitHeadingLines(text);
             if (lines.Length == 0)
             {
                 return;
             }
 
-            UILabel titleLabel = _root.AddUIComponent<UILabel>();
-            titleLabel.text = lines[0];
-            titleLabel.relativePosition = new Vector3(Col0, _nextY);
-            titleLabel.textColor = Color.white;
-            titleLabel.autoSize = true;
-            titleLabel.PerformLayout();
-            _nextY += titleLabel.height + 2f;
-
-            for (int i = 1; i < lines.Length; i++)
+            var labels = new List<UILabel>(lines.Length);
+            for (int i = 0; i < lines.Length; i++)
             {
                 string line = lines[i];
                 if (string.IsNullOrEmpty(line))
@@ -876,13 +896,32 @@ namespace TrackpadCameraControl
                     continue;
                 }
 
-                AddOpHeadingBodyLine(line);
+                if (labels.Count == 0)
+                {
+                    UILabel titleLabel = _root.AddUIComponent<UILabel>();
+                    titleLabel.text = line;
+                    titleLabel.relativePosition = new Vector3(Col0, _nextY);
+                    titleLabel.textColor = Color.white;
+                    titleLabel.autoSize = true;
+                    titleLabel.PerformLayout();
+                    labels.Add(titleLabel);
+                    _nextY += titleLabel.height + 2f;
+                    continue;
+                }
+
+                labels.Add(AddOpHeadingBodyLine(line));
             }
 
+            if (labels.Count == 0)
+            {
+                return;
+            }
+
+            RegisterOpHeading(labels.ToArray(), getHeading);
             _nextY += 6f;
         }
 
-        private static void AddOpHeadingBodyLine(string line)
+        private static UILabel AddOpHeadingBodyLine(string line)
         {
             UILabel bodyLabel = _root.AddUIComponent<UILabel>();
             bodyLabel.text = line;
@@ -892,6 +931,7 @@ namespace TrackpadCameraControl
             bodyLabel.autoSize = true;
             bodyLabel.PerformLayout();
             _nextY += Mathf.Max(16f, bodyLabel.height + 4f);
+            return bodyLabel;
         }
 
         private static void AddCheckRow(
@@ -939,6 +979,12 @@ namespace TrackpadCameraControl
             box.label = boxLabel;
             box.isChecked = get();
             box.eventCheckChanged += (c, v) =>
+            {
+                if (_handlingSettingsChanged)
+                {
+                    return;
+                }
+
                 ModOptions.ApplyBool(
                     s,
                     xSettings =>
@@ -946,6 +992,8 @@ namespace TrackpadCameraControl
                         set(v);
                     }
                 );
+            };
+            RegisterCheck(box, get);
         }
 
         private static void AddFloatPair(
@@ -997,6 +1045,7 @@ namespace TrackpadCameraControl
                 field,
                 () => SubmitFloatField(field, s, get, apply, useGainFormat)
             );
+            RegisterFloatField(field, get, useGainFormat);
         }
 
         private static string FormatFieldValue(float value, bool useGainFormat)

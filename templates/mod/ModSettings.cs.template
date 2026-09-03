@@ -10,7 +10,7 @@ namespace TrackpadCameraControl
         public GesturePreset GesturePreset { get; set; } = GesturePreset.MapsPlus;
         public bool PanEnabled { get; set; } = true;
         public bool ZoomEnabled { get; set; } = true;
-        public bool YawEnabled { get; set; } = true;
+        public bool RotateEnabled { get; set; } = true;
         public bool OrbitEnabled { get; set; } = true;
         public OrbitTrigger OrbitTrigger { get; set; } = OrbitTrigger.ModifierPlusTwoFinger;
 
@@ -30,7 +30,7 @@ namespace TrackpadCameraControl
 
         public float MotionDeadzone { get; set; } = 0.001f;
         public float PinchDeadband { get; set; } = 0.001f;
-        public float YawDeadband { get; set; } = 0.001f;
+        public float RotateDeadband { get; set; } = 0.001f;
         public float FingerCountHysteresis { get; set; } = 0.05f;
         public float Smoothing { get; set; } // 0 = off
 
@@ -39,6 +39,6 @@ namespace TrackpadCameraControl
         public bool BridgeEnabled { get; set; }
         public bool DebugOverlay { get; set; }
 
-        public void ApplyPreset(GesturePreset preset) { /* seed OrbitTrigger + flags; see docs */ }
+        public void ApplyPreset(GesturePreset preset) { /* seed gesture bindings via ApplyGesturePreset; see docs */ }
     }
 }

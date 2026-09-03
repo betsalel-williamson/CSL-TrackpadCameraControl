@@ -94,9 +94,9 @@ namespace TrackpadCameraControl
                 pinch = pinchSign * settings.ZoomStep;
             }
 
-            if ((ops & CameraOp.Yaw) != 0)
+            if ((ops & CameraOp.Rotate) != 0)
             {
-                rotate = rotateSign * settings.YawRotateStep;
+                rotate = rotateSign * settings.RotateStep;
             }
 
             Apply(ops, dx, dy, pinch, rotate, settings, camera, InputModality.Button, null);
@@ -135,7 +135,7 @@ namespace TrackpadCameraControl
 
             // Rotation and orbit must not share one Apply: strip orbit when rotation is present
             // so AddAngleVelocity cannot run in the same call as a rotation request.
-            if ((ops & CameraOp.Yaw) != 0)
+            if ((ops & CameraOp.Rotate) != 0)
             {
                 ops &= ~CameraOp.Orbit;
             }
@@ -155,9 +155,9 @@ namespace TrackpadCameraControl
                 ApplyOrbit(dx, dy, settings, camera, modality, selection);
             }
 
-            if ((ops & CameraOp.Yaw) != 0)
+            if ((ops & CameraOp.Rotate) != 0)
             {
-                ApplyYawRotate(rotateDelta, settings, camera, modality, selection);
+                ApplyRotate(rotateDelta, settings, camera, modality, selection);
             }
         }
 
@@ -310,7 +310,7 @@ namespace TrackpadCameraControl
         /// Hard handoff: clears leftover orbit yaw+pitch velocity so prior Option-orbit coast
         /// cannot bleed into the twist.
         /// </summary>
-        private static void ApplyYawRotate(
+        private static void ApplyRotate(
             float rotateDelta,
             ModSettings settings,
             ICameraController camera,
@@ -319,10 +319,8 @@ namespace TrackpadCameraControl
         )
         {
             float delta =
-                modality == InputModality.Button
-                    ? rotateDelta
-                    : rotateDelta * settings.YawRotateGain;
-            if (settings.SignInvertYawRotate)
+                modality == InputModality.Button ? rotateDelta : rotateDelta * settings.RotateGain;
+            if (settings.SignInvertRotate)
             {
                 delta = -delta;
             }

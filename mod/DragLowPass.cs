@@ -100,11 +100,11 @@ namespace TrackpadCameraControl
                 }
             }
 
-            if ((ops & CameraOp.Yaw) != 0)
+            if ((ops & CameraOp.Rotate) != 0)
             {
-                if (settings.YawFilterEnabled)
+                if (settings.RotateFilterEnabled)
                 {
-                    Filter1(settings.YawFilterAlpha, ref _yawInit, ref _yaw, ref rotateDelta);
+                    Filter1(settings.RotateFilterAlpha, ref _yawInit, ref _yaw, ref rotateDelta);
                 }
                 else
                 {
