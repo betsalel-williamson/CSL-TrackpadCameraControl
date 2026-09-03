@@ -27,37 +27,19 @@
       "compile": {}
     }
   ],
-  "standaloneGuides": ["README.md", "CONTRIBUTING.md"],
+  "standaloneGuides": [],
   "scan": {
     "strict": true,
     "ignore": [
       "_build/**",
       ".caches/**",
       ".tmp/**",
-      ".specstory/**",
-      ".agents/**",
-      ".probe/**",
-      "docs/superpowers/**",
-      ".probe/**",
-      ".worktrees/**",
       "node_modules/**",
-      "templates/**",
-      "native/**",
-      "mod/**",
-      "shared/**",
-      "scripts/**",
-      ".github/**",
-      ".changeset/**",
-      "infra/**",
-      ".superpowers/**",
-      "CHANGELOG.md",
-      "LICENSE",
-      "package.json",
-      "package-lock.json",
-      "skills-lock.json",
-      ".cursorindexingignore",
-      ".gitignore",
-      "rewrite/**"
+      "../mod/**",
+      "../src/**",
+      "../tests/**",
+      "../scripts/**",
+      "../../**"
     ]
   },
   "refs": {
@@ -66,8 +48,8 @@
   },
   "lint": {
     "markdownlint": {
-      "shardsConfig": "../node_modules/@bwilliamson/mdcp-presets/markdownlint-shards.markdownlint-cli2.jsonc",
-      "compiledConfig": "../node_modules/@bwilliamson/mdcp-presets/markdownlint-compiled.markdownlint-cli2.jsonc"
+      "shardsConfig": "../../node_modules/@bwilliamson/mdcp-presets/markdownlint-shards.markdownlint-cli2.jsonc",
+      "compiledConfig": "../../node_modules/@bwilliamson/mdcp-presets/markdownlint-compiled.markdownlint-cli2.jsonc"
     }
   }
 }
