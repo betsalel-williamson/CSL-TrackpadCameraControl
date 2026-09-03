@@ -25,7 +25,7 @@ chmod +x scripts/install-mod-local.sh
 
 Requires Cities: Skylines Managed assemblies (default Steam macOS path). Override with `CitiesManaged=…` or `CITIES_MODS=…`.
 
-Restart the game after first install, or keep the game running and rebuild — post-build deploy + `AssemblyVersion` wildcards follow [Paradox Automate](https://skylines.paradoxwikis.com/Advanced_Mod_Setup#Automate) (see [mod reload during development](./mod-reload-during-development.md)). The script copies the DLL and **`PreviewImage.png`** (Content Manager / Workshop thumbnail). Capture runs **in-process AppKit** inside the mod DLL — there is no companion process to start. Switch to Contacts (legacy) from Options, or `TRACKPAD_CAPTURE_BACKEND=contacts`.
+Restart the game after first install, or keep the game running and rebuild — post-build deploy + `AssemblyVersion` wildcards follow [Paradox Automate](https://skylines.paradoxwikis.com/Advanced_Mod_Setup#Automate) (see [mod reload during development](./mod-reload-during-development.md)). The script copies the DLL and **`PreviewImage.png`** (Content Manager / Workshop thumbnail). Capture is **in-process AppKit** inside the mod DLL — there is no companion process and no alternate Contacts playtest path.
 
 ## Capture log
 
@@ -37,15 +37,9 @@ tail -f "${TMPDIR:-/tmp}/trackpad-camera-control.log"
 
 Override the path with `TRACKPAD_CAPTURE_LOG` when launching the game.
 
-To use MultitouchSupport contacts instead of Apple AppKit events, launch the **game** with:
+v1 capture is **AppKit only**. A MultitouchSupport **Contacts** interpreter still exists in source behind `EnableContactsCapture`, but it is **not validated** and is **not** a supported playtest or player path — do not document or rely on `TRACKPAD_CAPTURE_BACKEND=contacts` for QA. See `docs/features/platform-backends.md` and [feature flags](./feature-flags.md).
 
-```bash
-TRACKPAD_CAPTURE_BACKEND=contacts
-```
-
-Default is `apple` (in-process AppKit). Env wins when set. You can also set `ModSettings.CaptureBackend` in memory.
-
-The prior native C `make` target under `native/mac/` is retired. The C# `src/TrackpadBridge` host is an optional experiment (`BridgeEnabled`), not the playtest path.
+The prior native C `make` target under `native/mac/` is retired. The C# `src/TrackpadBridge` host is an optional socket experiment (`BridgeEnabled` off) — not playtest.
 
 ## In game
 

@@ -9,7 +9,7 @@ You can tune Trackpad Camera Control from **two places**. They share the same li
 1. **In-game Debug panel** — floating window while a city is loaded (when Debug is on). Same feel and per-op tunables as Options. See [Debug panel](./debug-ui.md).
 2. **Options → Trackpad Camera Control** — same tunables; the Options window title is the **mod name + version**.
 
-On the shipped surface you see Maps+/AppleKit feel controls only. Pad/button chrome and capture-backend / low-pass stay off unless their maintainer flags are on. There is no gesture-style switcher in v1.
+On the shipped surface you see Maps+/AppKit feel controls only. There is **no** capture-backend picker, low-pass UI, Assist pad chrome, or CAD / gesture-style switcher in v1 — those are **future** (Contacts and Assist chrome remain unfinished behind compile flags; see `docs/developer/feature-flags.md`).
 
 ## Feel presets
 
@@ -30,7 +30,7 @@ For each camera op, the **title** is on its own line; the next lines state **Ges
 
 Product-surface Options controls: **Sensitivity** sliders only (about **0.1×–2×** factory default). Orbit pitch follows vanilla **0–90°** (no separate Pitch min/max controls). There is no Enable-per-op or Reverse UI. Labels say **Sensitivity** (not drag scale).
 
-With a **new place or relocate** ghost: two-finger rotate turns the **ghost**; ⌥+two-finger may orbit around that ghost. Otherwise rotate is camera yaw and ⌥+two-finger orbits from the **current** look-at (no snap to a prior pivot).
+With a **new place or relocate** ghost: two-finger rotate turns the **ghost**; ⌥+two-finger orbits from the **current** look-at (no Target re-home to the ghost). Without a ghost, rotate is camera yaw and ⌥+two-finger orbits from the current look-at the same way.
 
 ## Menus, Options, and popups
 

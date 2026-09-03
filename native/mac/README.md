@@ -12,7 +12,7 @@ Restart Cities. Inspect:
 tail -f "${TMPDIR:-/tmp}/trackpad-camera-control.log"
 ```
 
-Default interpreter is AppKit. Contacts (legacy MultitouchSupport) is flag-gated — Options → Trackpad Camera Control, or `TRACKPAD_CAPTURE_BACKEND=contacts` when launching the game.
+Default interpreter is **AppKit** (shipped). A MultitouchSupport **Contacts** interpreter may still compile behind `EnableContactsCapture`, but it is **unfinished / not QA’d** — not a playtest recipe. See [platform backends](../../docs/features/platform-backends.md).
 
 See [local MVP install](../../docs/developer/local-mvp-install.md).
 

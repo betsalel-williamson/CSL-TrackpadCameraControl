@@ -29,7 +29,7 @@ Trackpad Camera Control (macOS) 1.0.0
 Use for `IUserMod.Description` and as the Workshop subtitle / first skim line:
 
 ```text
-macOS trackpad camera — pan, pinch zoom, orbit. No middle mouse. Windows/Linux not supported yet.
+macOS trackpad camera — pan, pinch zoom, orbit. Middle-mouse orbit still works. Windows/Linux not supported.
 ```
 
 ## Workshop long description
@@ -39,7 +39,7 @@ Paste into the Workshop description field (adjust version notes as needed):
 ```text
 Version 1.0.0 — first public macOS release.
 
-macOS-only multitouch camera for Cities: Skylines I. Pan, pinch zoom, and orbit from a laptop trackpad — no three-button mouse.
+macOS-only multitouch camera for Cities: Skylines I. Pan, pinch zoom, rotate, and Option-orbit from a laptop trackpad. A real mouse still works alongside (wheel zoom, middle-mouse orbit).
 
 What you get
 • Maps+ gestures: two-finger pan, pinch zoom, Option (⌥) + two-finger orbit, two-finger rotate for yaw / selection
@@ -50,7 +50,7 @@ Requires
 • Cities: Skylines I
 • Cities Harmony (required for vanilla camera suppress)
   https://steamcommunity.com/sharedfiles/filedetails/?id=2040656402
-• macOS trackpad (AppleKit capture)
+• macOS trackpad (AppKit capture)
 
 Getting started
 1. Subscribe to Cities Harmony and enable it in Content Manager

@@ -94,10 +94,12 @@ Maintainer and community reports. Prefer Workshop comments or a GitHub issue tit
 - [ ] Pointer over Debug panel (or another popup): two-finger scrolls/drags UI, not city camera
 - [ ] Debug title-bar **gear** opens Options focused on **Trackpad Camera Control** (not last-used category); Options still stacks above Debug
 
-## Optional (only when flags are on)
+## Optional (future flag builds — not v1 launch QA)
+
+These rows apply only if you deliberately compile experimental flags. **Contacts** is unfinished; do not treat an `EnableContactsCapture` build as launch evidence.
 
 - [ ] `EnableAssistChrome`: chrome **button** orbit steps; drag pad orbits like Option+drag
-- [ ] Place/relocate ghost: Option-orbit does **not** snap to ghost; two-finger twist rotates ghost, not leftover click-select
+- [ ] Place/relocate ghost: Option-orbit does **not** snap Target to ghost; two-finger twist rotates ghost
 
 ## Related
 

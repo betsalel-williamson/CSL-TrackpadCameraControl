@@ -13,9 +13,9 @@ ADR 0002 treated Maps+ and CAD as Options **presets that seed** bindings and fee
 1. **Gesture style vs feel preset.** **Gesture style** is the orbit activation model (Maps+ / AppleKit: `⌥`+two-finger; CAD: three-finger when enabled). A **feel preset** (feel profile) is Slow / Default / Fast, Save as… / Load, and Reset to factory—sensitivities, reverse flags, pitch limits, and related feel fields—not a gesture-style seed.
 
 2. **Ship surface and flags.** Ship Maps+ / AppleKit. Gate unfinished surfaces with positive `Enable*` flags, default **off**:
-   - `EnableCadGestureStyle` — CAD / three-finger orbit as a player choice
-   - `EnableContactsCapture` — Contacts interpreter, backend picker, and low-pass for that path
-   - `EnableAssistChrome` — Assist nudge buttons and Btn sensitivity fields
+   - `EnableCadGestureStyle` — CAD / three-finger orbit as a player choice (**future**)
+   - `EnableContactsCapture` — Contacts interpreter, backend picker, and low-pass (**unfinished**; not v1-validated)
+   - `EnableAssistChrome` — Assist nudge buttons and Btn sensitivity fields (**future**)
 
 3. **Sensitivity.** Canonical term is **Sensitivity** (synonyms: speed, scale, drag scale). Product numeric fields (sensitivities, button steps, deadbands, pitch) are **> 0** where required and round/display/apply to **three decimal places** (`RoundGain`).
 

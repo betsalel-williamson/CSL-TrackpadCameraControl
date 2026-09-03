@@ -24,7 +24,7 @@ One floating panel while a city is loaded:
 ## Control contract (chrome when flagged on)
 
 - Debug chrome emits the same **camera ops** as trackpad gestures.
-- Pads use [Sensitivity](../glossary/sensitivity.md); optional [low-pass](../glossary/low-pass.md) only under Contacts.
+- Pads use [Sensitivity](../glossary/sensitivity.md). [Low-pass](../glossary/low-pass.md) was a Contacts-only idea and is **not** on the ship surface.
 - Buttons use [button step](../glossary/button-step.md), skip low-pass, and are not multiplied by Sensitivity.
 - Ops flow through the shared apply path (schema inverts when set, pitch clamp, pan city-bounds clamp).
 - Debug UI does **not** write the camera through a second path and does **not** synthesize OS Multitouch frames.

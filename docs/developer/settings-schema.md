@@ -113,7 +113,7 @@ Exact button-step seeds may be tuned in the defaults factory; document new seeds
 
 ## Apply math (contract)
 
-Let `raw` be the resolved gesture delta for that axis (centroid, pinch, or rotate). Optional [low-pass](../glossary/low-pass.md) may replace `raw` with an EMA-smoothed value on the continuous path only — and only when Contacts capture is enabled (`EnableContactsCapture`).
+Let `raw` be the resolved gesture delta for that axis (centroid, pinch, or rotate). Optional [low-pass](../glossary/low-pass.md) is **future** (tied to unfinished Contacts); v1 ship applies raw → gain → camera.
 
 **Sign invert:** if the matching `SignInvert*` flag is on, multiply the signed delta by `-1` after scaling. Options may still label these **Invert** / Reverse.
 
@@ -137,9 +137,9 @@ Build a one-shot delta from the button step and a sign (`±1`), then apply sign 
 | Rotate | `rotate = sign * RotateStep`                                     |
 | Orbit  | `dx = signYaw * OrbitYawStep`, `dy = signPitch * OrbitPitchStep` |
 
-### Filter / low-pass (continuous only; Contacts)
+### Filter / low-pass (continuous only; future / Contacts)
 
-When enabled for an op under Contacts capture: first sample seeds state; later `smoothed += alpha * (raw - smoothed)`. Reset on touch-up. Buttons skip this stage.
+When a future Contacts path is validated and enabled for an op: first sample seeds state; later `smoothed += alpha * (raw - smoothed)`. Reset on touch-up. Buttons skip this stage. **v1 ship does not run this filter.**
 
 ## Sign invert (polarity)
 
@@ -186,9 +186,9 @@ Feel presets (Sensitivity / deadbands) apply on top of whichever gesture style i
 
 Schema-retained; **Debug panel** exposes MotionDeadband, PinchDeadband, and RotateDeadband per op section for QA tuning. Options product surface does not show these fields.
 
-## Per-op filter / low-pass (Contacts only)
+## Per-op filter / low-pass (future / Contacts)
 
-EMA on continuous deltas after resolve, before apply — see glossary **low-pass**. Product UI and processing when `EnableContactsCapture` is on. Buttons skip filter. Schema fields use `*Filter*`; Options may still say **Low-pass**. The former single `Smoothing` field is retired.
+EMA on continuous deltas after resolve, before apply — see glossary **low-pass**. Schema retains `*Filter*` fields. **v1 ship does not expose or run** this path; it was tied to unfinished Contacts. Buttons skip filter. The former single `Smoothing` field is retired.
 
 | Field               | Type      | Default | Hot |
 | ------------------- | --------- | ------- | --- |
@@ -211,7 +211,7 @@ EMA on continuous deltas after resolve, before apply — see glossary **low-pass
 | CaptureBackend   | enum: Contacts, AppleGestures | AppleGestures | yes |
 | DebugOverlay     | bool                          | false         | yes |
 
-`CaptureBackend` selects the in-process interpreter: **AppleGestures** (default, shipped) is AppKit scroll/magnify/rotate (no Accessibility). **Contacts** is the legacy MultitouchSupport path — product UI when `EnableContactsCapture` is on. Launch override: `TRACKPAD_CAPTURE_BACKEND=apple` or `contacts` (env wins when set).
+`CaptureBackend` selects the in-process interpreter: **AppleGestures** (default, **shipped**) is AppKit scroll/magnify/rotate (no Accessibility). **Contacts** remains in the schema as a MultitouchSupport alternate — **unfinished / not QA’d**; product UI only if `EnableContactsCapture` is compiled on, and that is **not** a supported playtest recipe. Env `TRACKPAD_CAPTURE_BACKEND` may force a backend for experiments; do not use it for v1 launch QA.
 
 **IgnoreOverUi** (default on): when the pointer is over any active popup / HUD panel, skip mod camera ops from two-finger; leave scroll to UI. **Menu / Options open** is a separate, stronger gate (no mod camera; UI owns scroll). Precise trackpad vs mouse-wheel scroll split lives with [vanilla camera suppress](../glossary/vanilla-camera-suppress.md).
 
@@ -241,9 +241,9 @@ Live settings load and save through a versioned XML file under the Cities user-d
 
 Missing or corrupt file → factory defaults (no crash), then persist the recovered blob. **Reset to factory** restores schema defaults into `current` and writes the file.
 
-GesturePreset / CAD, CaptureBackend / Contacts, button steps, and low-pass remain in the schema for flagged surfaces; they are not the primary preset model.
+GesturePreset / CAD, CaptureBackend / Contacts, button steps, and low-pass remain in the schema for **future** / unfinished surfaces; they are not the v1 player model. Contacts was not product-validated.
 
-Options and the in-game Debug panel both bind the same fields through one apply layer; every change autosaves. Number fields edit Sensitivity (sliders) and (when flagged) button steps and low-pass params. Orbit pitch min/max remain schema-only — not exposed on either product surface.
+Options and the in-game Debug panel both bind the same fields through one apply layer; every change autosaves. Number fields edit Sensitivity (sliders) and (when experimental flags are compiled on) button steps and low-pass params. Orbit pitch min/max remain schema-only — not exposed on either product surface.
 
 ## Validation rule
 

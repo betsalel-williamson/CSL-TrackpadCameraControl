@@ -58,14 +58,13 @@ Two-finger **rotation** writes `AngleX` (or ghost angles) directly and clears bo
 - [Vanilla camera suppress](./vanilla-camera-suppress.md): precise trackpad pan without vanilla zoom; mouse wheel zooms; middle-mouse orbit still vanilla; no mod camera when menus open or pointer over popups.
 - Without a platform backend, the mod enables cleanly; keyboard, edge pan, and gamepad stay.
 - If Cities Harmony is missing, the mod enables without crashing; pan may fight vanilla scroll-zoom.
-- While product flags are off: no Contacts picker, no low-pass UI, no Debug chrome / button-step fields; no CAD / gesture-style switcher (CAD is future).
+- While ship flags are off: no Contacts picker, no low-pass UI, no Debug chrome / button-step fields; no CAD / gesture-style switcher (**CAD**, **Contacts**, and Assist chrome are **future** — Contacts was not troubleshot for v1).
 - Disable the mod to restore full vanilla camera input.
 
 ## Non-goals (v1)
 
 - Optical [roll](../glossary/roll.md) (CS1 camera is yaw/pitch only).
 - Full Windows / Linux multitouch backends (stubs only; see [platform backends](./platform-backends.md)).
-- Steam Workshop packaging (after local install works).
-- Synthetic middle-mouse injection as the primary path.
-- Shipping CAD three-finger orbit or Contacts / Debug chrome to all players in this pass.
+- Synthetic middle-mouse injection as the primary path (vanilla middle-mouse orbit remains available alongside trackpad).
+- Shipping **CAD** three-finger orbit, **Contacts** capture, or Assist / Debug chrome pads to players — those are **future**; Contacts was never product-validated.
 - Re-enabling Enable-per-op or Reverse on the product UI this pass.
