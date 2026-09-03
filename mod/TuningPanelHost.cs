@@ -41,6 +41,7 @@ namespace TrackpadCameraControl
         private static float _nextY;
         private static bool _dragging;
         private static bool _handlingSettingsChanged;
+        private static bool _rebuildQueued;
         private static Vector3 _dragPanelStart;
         private static Vector3 _dragMouseStart;
 
@@ -187,15 +188,33 @@ namespace TrackpadCameraControl
                 return;
             }
 
+            if (_root == null)
+            {
+                ApplyVisibility();
+                return;
+            }
+
+            _rebuildQueued = true;
+        }
+
+        /// <summary>Run queued panel rebuild outside UI event handlers (e.g. after Reset).</summary>
+        public static void ProcessPendingUiRebuild()
+        {
+            if (!_rebuildQueued || _handlingSettingsChanged)
+            {
+                return;
+            }
+
+            _rebuildQueued = false;
+            if (_root == null)
+            {
+                ApplyVisibility();
+                return;
+            }
+
             _handlingSettingsChanged = true;
             try
             {
-                if (_root == null)
-                {
-                    ApplyVisibility();
-                    return;
-                }
-
                 Vector3 pos = _root.relativePosition;
                 Destroy();
                 EnsureCreated();
@@ -204,8 +223,6 @@ namespace TrackpadCameraControl
                     _root.relativePosition = pos;
                 }
 
-                // Do not restore prior isVisible — ApplyVisibility owns root + reopen from
-                // AssistUiEnabled and dismiss state (OPTIONS off must hide the Debug chip).
                 ApplyVisibility();
             }
             finally
@@ -365,8 +382,7 @@ namespace TrackpadCameraControl
             UIButton reset = MakeMenuButton("Reset", Col0 + 228f, _nextY, 72f);
             reset.eventClick += (c, e) =>
             {
-                // SettingsChanged rebuilds the panel (New Preset / field sync).
-                ModOptions.ResetToFactory(s);
+                ModOptions.ApplyFeelDefault(s);
             };
             _nextY += 32f;
 

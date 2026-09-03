@@ -196,5 +196,26 @@ namespace TrackpadCameraControl.Tests
 
             FeelExpectation.AssertMatchesFactoryFeel(settings);
         }
+
+        [Fact]
+        public void ApplyFeelDefault_PreservesNonFeelSettings()
+        {
+            var settings = new ModSettings
+            {
+                AssistUiEnabled = true,
+                CaptureBackend = CaptureBackend.Contacts,
+                RequireGameFocus = false,
+                PanGainX = 9f,
+                ActiveFeelPresetName = FeelProfiles.NameNewPreset,
+            };
+
+            ModOptions.ApplyFeelDefault(settings);
+
+            FeelExpectation.AssertMatchesFactoryFeel(settings);
+            Assert.Equal(FeelProfiles.NameDefault, settings.ActiveFeelPresetName);
+            Assert.True(settings.AssistUiEnabled);
+            Assert.Equal(CaptureBackend.Contacts, settings.CaptureBackend);
+            Assert.False(settings.RequireGameFocus);
+        }
     }
 }
