@@ -13,7 +13,7 @@ No feel or binding parameter is hardcoded in camera or gesture logic. Defaults e
 
 One binding layer parses, rounds gains to three decimals (button steps to two), validates Options Sensitivity against the slider contract on player drag, and writes fields. A change on either surface updates live settings immediately and schedules a durable write (autosave).
 
-Debug chrome pads/buttons and button-step fields appear only when `EnableAssistChrome` is on. Capture-backend picker and [low-pass](../glossary/low-pass.md) appear only when `EnableContactsCapture` is on. CAD gesture-style switcher appears only when `EnableCadGestureStyle` is on. See [feature flags](./adr/0003-feel-profiles-and-product-flags.md).
+Debug chrome pads/buttons and button-step fields appear only when `EnableAssistChrome` is on. Capture-backend picker and [low-pass](../glossary/low-pass.md) appear only when `EnableContactsCapture` is on. A CAD / Maps+ gesture-style switcher is **future** (not a v1 player surface); experimental builds may compile it via `EnableCadGestureStyle`. See [feel profiles and product flags](./adr/0003-feel-profiles-and-product-flags.md).
 
 ## Layout (contract)
 
@@ -53,7 +53,7 @@ Also: [feel preset](../glossary/feel-preset.md) row (Slow / Default / Fast / New
 
 ## Tunables (flagged off)
 
-- Gesture-style switcher (CAD) — `EnableCadGestureStyle`
+- Gesture-style switcher (CAD) — future; `EnableCadGestureStyle` for experimental builds only
 - Capture backend picker and [low-pass](../glossary/low-pass.md) — `EnableContactsCapture`
 - [Button step](../glossary/button-step.md) / Debug chrome — `EnableAssistChrome`
 - Deadzones and resolve-mode advanced fields (schema retains; not required on the slim surface)
@@ -114,5 +114,5 @@ Once orbit engages from the configured trigger, the session stays in orbit until
 - Reset to factory and Slow / Default / Fast match the feel-profile contract.
 - Product UI shows no Enable-per-op or Reverse; section order is General → Zoom → Pan → Rotate → Orbit.
 - Pitch clamps to vanilla **0°–90°** (hardcoded in apply; not Options/Debug-tunable); pan apply clamps the camera target to the unlocked game area; yaw has no angle clamp.
-- While flags are off: no CAD switcher, no backend picker, no Btn fields, no low-pass.
+- While flags are off: no CAD / gesture-style switcher (CAD is future), no backend picker, no Btn fields, no low-pass.
 - Grep of camera/gesture logic finds no numeric feel literals outside the settings defaults factory.

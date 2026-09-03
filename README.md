@@ -23,14 +23,16 @@ CS1 camera orbit expects a middle mouse button. Trackpad players have asked for 
 | Repository                      | [`CSL-TrackpadCameraControl`](https://github.com/betsalel-williamson/CSL-TrackpadCameraControl)                       |
 | Parallel                        | Named like [Joystick Camera Control](https://github.com/RenaKunisaki/CSL-JoystickCameraControl)                       |
 
-## Gesture presets (Options)
+## Shipped gestures (Maps+)
 
-| Preset              | Orbit                                        |
-| ------------------- | -------------------------------------------- |
-| **Maps+** (default) | Modifier + two-finger drag (Option on macOS) |
-| **CAD**             | Three-finger drag                            |
+v1 ships **[Maps+](docs/glossary/maps-plus-preset.md)** only:
 
-Both: two-finger drag = pan, pinch = zoom, two-finger rotate = yaw. Every sensitivity and binding is hot-editable — nothing is hardcoded. CAD stays behind a product flag until enabled for all players.
+- Two-finger drag → pan
+- Pinch → zoom
+- Two-finger rotate → camera rotate (or place/relocate ghost)
+- Option (`⌥`)+two-finger drag → orbit (macOS)
+
+Feel (Slow / Default / Fast, Sensitivity) is hot-editable in Options — separate from which fingers map to which op. A **CAD** three-finger orbit style may come later; it is not a player choice in this release.
 
 ## Docs
 

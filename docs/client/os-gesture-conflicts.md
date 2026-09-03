@@ -7,7 +7,7 @@ In-game, vanilla scroll-zoom is a separate concern: while the mod is enabled, [v
 ## General guidance
 
 - Prefer **Maps+** (shipped) — orbit uses `⌥`+two-finger instead of three fingers.
-- CAD three-finger orbit is not on the product surface while `EnableCadGestureStyle` is off. If you enable it later, remap or disable conflicting OS three-finger gestures.
+- Three-finger orbit ([CAD](../glossary/cad-preset.md)) is a **future** style; if it ships later, you may need to remap or disable conflicting OS three-finger gestures.
 - If two-finger pan still vanilla-zooms, confirm Cities Harmony is subscribed and the mod is enabled — then disable the mod to restore full vanilla scroll-zoom.
 - When Options/menus are open or the cursor is over a popup, two-finger scroll belongs to the UI, not the city camera — see [Options and hot tuning](./options-and-hot-tuning.md).
 

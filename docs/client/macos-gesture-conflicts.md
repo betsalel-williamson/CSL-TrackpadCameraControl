@@ -6,11 +6,11 @@ Platform-specific notes for the v1 macOS AppleKit backend. Shipped gesture style
 
 By default, three-finger swipes drive Mission Control and desktop Spaces. Maps+ avoids that conflict: orbit uses Option (`⌥`)+two-finger, not three fingers.
 
-CAD three-finger orbit is behind `EnableCadGestureStyle` and is not on the product surface. If you turn that flag on later, you may need to remap Mission Control / Spaces to **four fingers** in System Settings → Trackpad, or stay on Maps+.
+A future [CAD](../glossary/cad-preset.md) three-finger orbit style would likely need Mission Control / Spaces remapped to **four fingers** in System Settings → Trackpad — another reason v1 ships Maps+ only.
 
 ## Accessibility three-finger drag
 
-If Pointer Control → Trackpad Options enables three-finger drag for moving windows, macOS already claims three fingers (and often moves Mission Control to four). That only matters for CAD-style orbit — prefer Maps+ for play.
+If Pointer Control → Trackpad Options enables three-finger drag for moving windows, macOS already claims three fingers (and often moves Mission Control to four). That only matters if three-finger orbit ships later — Maps+ does not use three fingers for orbit.
 
 ## Two-finger scroll vs mouse wheel
 

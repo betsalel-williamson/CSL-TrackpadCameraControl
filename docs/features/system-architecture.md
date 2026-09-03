@@ -2,7 +2,7 @@
 
 ## End-user value
 
-Players feel map-app-like or CAD-like trackpad control inside Cities: Skylines I without buying a mouse, while bindings and feel stay fully tunable for experimentation. Optional Debug chrome can drive the same camera ops for tuning and pipeline validation when `EnableAssistChrome` is on.
+Players feel map-app-like trackpad control inside Cities: Skylines I without buying a mouse, while feel stays fully tunable for experimentation. Optional Debug chrome can drive the same camera ops for tuning and pipeline validation when `EnableAssistChrome` is on.
 
 ## Context
 
@@ -73,6 +73,6 @@ Platform-specific capture details (for example the first macOS backend) live in 
 
 ## Open risks
 
-- OS-reserved multi-finger gestures vs CAD three-finger orbit (varies by platform).
+- OS-reserved multi-finger gestures vs a future CAD three-finger orbit (varies by platform).
 - Cities Harmony missing or failing to patch: two-finger pan may still overlap vanilla scroll-zoom.
 - Backend ABI or driver differences across OS versions.
