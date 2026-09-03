@@ -26,15 +26,15 @@ First public macOS tag. Automated suite is recorded here; in-game boxes in the l
 
 ### Session platform (this release) — machine 1
 
-| Field                | Value                                                                                         |
-| -------------------- | --------------------------------------------------------------------------------------------- |
-| macOS version        | 26.5.2 Tahoe                                                                                  |
-| Mac model            | MacBook Air M2, 2022 (Mac14,2)                                                                |
-| Trackpad             | Built-in                                                                                      |
-| Chip                 | Apple silicon (M2)                                                                            |
-| Mod version / commit | Assembly `0.2.0` on this branch until the Changesets version PR; tree from `main` (`bcdfd1d`) |
-| Result               | Automated pass; in-game hardware pass still required before Workshop splash                   |
-| Notes                | Coverlet ~47% line is expected — capture, Harmony timing, and UI stay session-tested          |
+| Field                | Value                                                                                          |
+| -------------------- | ---------------------------------------------------------------------------------------------- |
+| macOS version        | 26.5.2 Tahoe                                                                                   |
+| Mac model            | MacBook Air M2, 2022 (Mac14,2)                                                                 |
+| Trackpad             | Built-in                                                                                       |
+| Chip                 | Apple silicon (M2)                                                                             |
+| Mod version / commit | Assembly `0.2.0` on this branch until the Changesets version PR; tree from `main` (`bcdfd1d`)  |
+| Result               | **Pass** — maintainer sessions across Round 2–3 / launch stack; automated suite recorded below |
+| Notes                | Coverlet ~47% line is expected — capture, Harmony timing, and UI stay session-tested           |
 
 ### Session platform (this release) — machine 2
 
@@ -47,7 +47,7 @@ Second maintainer Mac (same Steam account as machine 1). Pasted from Debug **Cop
 | Trackpad             | Built-in (Apple Internal Keyboard / Trackpad)                                                                                               |
 | Chip                 | Apple silicon                                                                                                                               |
 | Mod version / commit | asm `0.2.9741.32742` · Built (UTC) `2026-09-03T01:11:24Z` · tip `docs/v1-launch-qa`                                                         |
-| Result               | Session recorded — complete in-game checklist boxes on this machine before marking known-good Pass                                          |
+| Result               | **Pass** — maintainer in-game verified 2026-09-03 (gestures / gates as expected)                                                            |
 | Notes                | Also Magic Keyboard (Bluetooth) + Logitech G500s USB mouse. Unity 5.6.7f1 · ICities 1.17.0.0 · CitiesHarmony.API 2.0.0.0 · 0Harmony 2.0.1.0 |
 
 ### Automated suite (2026-08-31)
@@ -65,10 +65,10 @@ Second maintainer Mac (same Steam account as machine 1). Pasted from Debug **Cop
 
 Maintainer and community reports. Prefer Workshop comments or a GitHub issue titled `platform: …` so we can fold rows here.
 
-| macOS  | Hardware                       | Chip          | Result           | Source                                                             |
-| ------ | ------------------------------ | ------------- | ---------------- | ------------------------------------------------------------------ |
-| 26.5.2 | MacBook Air M2, 2022 (Mac14,2) | Apple silicon | Session recorded | Maintainer machine 1 — v1 pre-release row above                    |
-| 26.6.2 | Mac17,6                        | Apple silicon | Session recorded | Maintainer machine 2 — Debug Copy 2026-09-03; asm `0.2.9741.32742` |
+| macOS  | Hardware                       | Chip          | Result | Source                                                           |
+| ------ | ------------------------------ | ------------- | ------ | ---------------------------------------------------------------- |
+| 26.5.2 | MacBook Air M2, 2022 (Mac14,2) | Apple silicon | Pass   | Maintainer machine 1 — v1 pre-release row above                  |
+| 26.6.2 | Mac17,6                        | Apple silicon | Pass   | Maintainer machine 2 — verified 2026-09-03; asm `0.2.9741.32742` |
 
 ## Setup
 

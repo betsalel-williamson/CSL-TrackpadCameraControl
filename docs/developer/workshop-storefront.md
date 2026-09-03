@@ -63,7 +63,7 @@ If gestures do nothing: keep the game focused; turn off Mission Control / three-
 
 Compatibility (tested platforms)
 • AppKit gesture APIs are old; we only claim what we (or you) have playtested.
-• Maintainer sessions recorded: macOS 26.5.2 / Mac14,2 (M2 Air); macOS 26.6.2 / Mac17,6 — see GitHub QA checklist.
+• Maintainer Pass: macOS 26.5.2 / Mac14,2 (M2 Air); macOS 26.6.2 / Mac17,6 — see GitHub QA checklist.
 • Not yet a full OS matrix — older macOS that still runs CS1 may work but is unproven until reported.
 
 Share your setup
@@ -113,7 +113,7 @@ Do not mark [Skyve](https://steamcommunity.com/sharedfiles/filedetails/?id=28810
 
 ## Tested platforms (public claim)
 
-Keep the Workshop **Compatibility** blurb honest: claim only rows that appear in [QA checklist — Known good platforms](./qa-checklist.md). Before the first public splash, complete at least one maintainer Session platform row and copy that into the known-good table.
+Keep the Workshop **Compatibility** blurb honest: claim only rows that appear in [QA checklist — Known good platforms](./qa-checklist.md). Two maintainer Macs are **Pass** for v1; refresh Workshop copy when the claim changes.
 
 Invite players (Workshop comments or GitHub issues) to report:
 
