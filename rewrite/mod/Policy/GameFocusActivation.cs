@@ -35,7 +35,7 @@ namespace TrackpadCameraControl.Rewrite
                 objc_msgSend_void_bool(app, sel_registerName("activateIgnoringOtherApps:"), true);
 
                 UnityEngine.Cursor.visible = false;
-                GestureCaptureLog.Line("focus activated on level load");
+                ModLog.Info("focus activated on level load");
                 return true;
             }
             catch

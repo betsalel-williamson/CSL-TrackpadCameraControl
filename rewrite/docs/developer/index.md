@@ -10,6 +10,7 @@ North star: greenfield redesign lessons (L1–L12) in the features guide.
   - [State ownership](./state-ownership.md)
   - [Settings schema](./settings-schema.md)
   - [Feature flags](./feature-flags.md)
+  - [Logging](./logging.md)
   - [Harnesses and testing](./harnesses-and-testing.md)
   - [Static analysis and quality](./static-analysis-and-quality.md)
   - [Local MVP install](./local-mvp-install.md)

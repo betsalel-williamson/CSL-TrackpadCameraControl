@@ -170,7 +170,7 @@ namespace TrackpadCameraControl.Rewrite
                 // fail soft
             }
 
-            GestureCaptureLog.Line("gestures armed");
+            ModLog.Info("gestures armed");
         }
 
         /// <summary>

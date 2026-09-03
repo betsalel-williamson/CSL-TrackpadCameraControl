@@ -228,7 +228,7 @@ namespace TrackpadCameraControl.Rewrite
             {
                 EnsureSettingsInternal();
                 ModSettings settings = _settingsCache;
-                GestureCaptureLog.Line("mod enabled capture=AppKit");
+                ModLog.Info("mod enabled capture=AppKit");
                 IGestureSource source;
                 if (IsE2eInjectEnabled())
                 {
@@ -330,8 +330,7 @@ namespace TrackpadCameraControl.Rewrite
             _settingsCache = null;
             ModOptions.Store = null;
             InputGates.Context = null;
-            GestureCaptureLog.Close();
-            GestureCaptureLog.PathResolver = null;
+            ModLog.ClearTestSink();
             ModOptions.ResetSettingsChangedHandlers();
         }
 

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Runtime.InteropServices;
 
 namespace TrackpadCameraControl.Rewrite
@@ -71,7 +72,7 @@ namespace TrackpadCameraControl.Rewrite
                 DisconnectUnlocked();
                 if (dlopen(AppKitPath, 2) == IntPtr.Zero)
                 {
-                    GestureCaptureLog.Line("apple AppKit missing");
+                    ModLog.Info("apple AppKit missing");
                     return;
                 }
 
@@ -119,12 +120,12 @@ namespace TrackpadCameraControl.Rewrite
                 _connected = _monitor != IntPtr.Zero;
                 if (!_connected)
                 {
-                    GestureCaptureLog.Line("apple monitor failed");
+                    ModLog.Info("apple monitor failed");
                     FreeHandlesUnlocked();
                 }
                 else
                 {
-                    GestureCaptureLog.Line("apple monitor started");
+                    ModLog.Info("apple monitor started");
                 }
             }
         }
@@ -256,10 +257,30 @@ namespace TrackpadCameraControl.Rewrite
                     }
                 }
 
-                GestureCaptureLog.Frame("apple", frame);
+                LogCaptureFrame(frame);
             }
 
             return nsEvent;
+        }
+
+        private static void LogCaptureFrame(GestureFrame frame)
+        {
+            ModLog.CaptureTrace(
+                "apple fingers="
+                    + frame.fingerCount
+                    + " phase="
+                    + frame.phase
+                    + " dC=("
+                    + frame.centroidDeltaX.ToString("0.####", CultureInfo.InvariantCulture)
+                    + ","
+                    + frame.centroidDeltaY.ToString("0.####", CultureInfo.InvariantCulture)
+                    + ") pinch="
+                    + frame.pinchScaleDelta.ToString("0.####", CultureInfo.InvariantCulture)
+                    + " rot="
+                    + frame.rotateDelta.ToString("0.####", CultureInfo.InvariantCulture)
+                    + " mods="
+                    + frame.modifiers
+            );
         }
 
         private static IntPtr InternalHandleMinusTwo()

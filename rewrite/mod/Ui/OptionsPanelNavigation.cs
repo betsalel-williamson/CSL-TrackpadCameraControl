@@ -36,7 +36,7 @@ namespace TrackpadCameraControl.Rewrite
             string title = Mod.OptionsTitle;
             if (!TrySelectMod(panel, title))
             {
-                GestureCaptureLog.Line("options SelectMod failed for: " + title);
+                ModLog.Info("options SelectMod failed for: " + title);
             }
 
             return true;
