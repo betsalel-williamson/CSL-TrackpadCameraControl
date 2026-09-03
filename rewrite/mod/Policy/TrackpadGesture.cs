@@ -161,75 +161,48 @@ namespace TrackpadCameraControl.Rewrite
                 return;
             }
 
-            SetBinding(settings, CameraOp.Zoom, MapsPlusZoom);
-            SetBinding(settings, CameraOp.Pan, MapsPlusPan);
-            SetBinding(settings, CameraOp.Rotate, MapsPlusRotate);
-            SetBinding(settings, CameraOp.Orbit, MapsPlusOrbit);
+            settings.StyleTable = MapsPlusSeed.CreateTable();
         }
 
         public static TrackpadGestureBinding GetBinding(ModSettings settings, CameraOp op)
         {
-            if (settings == null)
+            if (settings == null || settings.StyleTable == null)
             {
                 return TrackpadGestureBinding.None;
             }
 
-            switch (op)
+            StyleBindingTable table = settings.StyleTable;
+            for (int i = 0; i < table.Count; i++)
             {
-                case CameraOp.Zoom:
-                    return new TrackpadGestureBinding(
-                        settings.ZoomGesture,
-                        settings.ZoomGestureModifier
-                    );
-                case CameraOp.Pan:
-                    return new TrackpadGestureBinding(
-                        settings.PanGesture,
-                        settings.PanGestureModifier
-                    );
-                case CameraOp.Rotate:
-                    return new TrackpadGestureBinding(
-                        settings.RotateGesture,
-                        settings.RotateGestureModifier
-                    );
-                case CameraOp.Orbit:
-                    return new TrackpadGestureBinding(
-                        settings.OrbitGesture,
-                        settings.OrbitGestureModifier
-                    );
-                default:
-                    return TrackpadGestureBinding.None;
+                StyleBindingRow row = table[i];
+                if (row.Op != op)
+                {
+                    continue;
+                }
+
+                return RowToDisplayBinding(row);
             }
+
+            return TrackpadGestureBinding.None;
         }
 
-        public static void SetBinding(
-            ModSettings settings,
-            CameraOp op,
-            TrackpadGestureBinding binding
-        )
+        private static TrackpadGestureBinding RowToDisplayBinding(StyleBindingRow row)
         {
-            if (settings == null)
+            switch (row.Primitive)
             {
-                return;
-            }
+                case StylePrimitive.Pinch:
+                    return MapsPlusZoom;
+                case StylePrimitive.Rotate:
+                    return MapsPlusRotate;
+                case StylePrimitive.CentroidMotion:
+                    if ((row.RequiredModifiers & GestureModifiers.Option) != 0)
+                    {
+                        return MapsPlusOrbit;
+                    }
 
-            switch (op)
-            {
-                case CameraOp.Zoom:
-                    settings.ZoomGesture = binding.Gesture;
-                    settings.ZoomGestureModifier = binding.Modifier;
-                    break;
-                case CameraOp.Pan:
-                    settings.PanGesture = binding.Gesture;
-                    settings.PanGestureModifier = binding.Modifier;
-                    break;
-                case CameraOp.Rotate:
-                    settings.RotateGesture = binding.Gesture;
-                    settings.RotateGestureModifier = binding.Modifier;
-                    break;
-                case CameraOp.Orbit:
-                    settings.OrbitGesture = binding.Gesture;
-                    settings.OrbitGestureModifier = binding.Modifier;
-                    break;
+                    return MapsPlusPan;
+                default:
+                    return TrackpadGestureBinding.None;
             }
         }
     }

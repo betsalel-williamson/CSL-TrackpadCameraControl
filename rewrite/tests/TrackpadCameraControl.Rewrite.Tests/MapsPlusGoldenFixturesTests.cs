@@ -254,6 +254,30 @@ namespace TrackpadCameraControl.Rewrite.Tests
             Assert.Equal(180f, cam.Size, 3);
         }
 
+        [Fact]
+        public void IsOrbitChordActive_MatchesOptionTwoFingerMapsPlusRow()
+        {
+            ModSettings settings = MapsPlusSettings();
+            GestureFrame frame = Frame(dx: 0.02f, modifiers: (uint)GestureModifiers.Option);
+
+            Assert.True(StyleBindingResolver.IsOrbitChordActive(frame, settings));
+        }
+
+        [Fact]
+        public void GetBinding_DerivesLabelsFromStyleTable()
+        {
+            ModSettings settings = MapsPlusSettings();
+
+            Assert.Equal(
+                TrackpadGestureCatalog.MapsPlusOrbit,
+                TrackpadGestureCatalog.GetBinding(settings, CameraOp.Orbit)
+            );
+            Assert.Equal(
+                TrackpadGestureCatalog.MapsPlusPan,
+                TrackpadGestureCatalog.GetBinding(settings, CameraOp.Pan)
+            );
+        }
+
         private static ModSettings MapsPlusSettings()
         {
             var settings = new ModSettings();

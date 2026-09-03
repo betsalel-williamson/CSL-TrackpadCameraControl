@@ -48,7 +48,6 @@ SEED_IDENTITY = frozenset({"GesturePreset"})
 SCHEMA_NON_FIELD = frozenset(
     {
         "BridgeEnabled",  # out-of-process bridge not on ship path
-        "OrbitTrigger",  # style table owns orbit activation (L1/L6)
     }
 )
 

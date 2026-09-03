@@ -4,11 +4,11 @@ using UnityEngine;
 
 namespace TrackpadCameraControl.Rewrite
 {
-    /// <summary>
-    /// Merge keyboard modifiers from the game process. Out-of-process capture cannot
-    /// see Option/Shift while Cities has focus (mods stay 0 on the wire). In-process
-    /// Contacts still benefit when HID reads miss a key.
-    /// </summary>
+        /// <summary>
+        /// Merge Unity keyboard modifier state into capture frames. AppKit supplies
+        /// NSEvent modifier flags; this ORs held keys when event flags lag game focus
+        /// (Maps+ Option+two-finger orbit parity with shipping).
+        /// </summary>
     public static class GameModifierKeys
     {
         public static GestureFrame Enrich(GestureFrame frame)

@@ -42,26 +42,6 @@ namespace TrackpadCameraControl.Rewrite
         public bool RotateEnabled { get; set; } = true;
         public bool OrbitEnabled { get; set; } = true;
 
-        /// <summary>
-        /// Per-op trackpad gesture bindings for Debug labels (seeded from Maps+).
-        /// Policy resolve reads <see cref="StyleTable"/> (L1).
-        /// </summary>
-        public TrackpadGesture ZoomGesture { get; set; } = TrackpadGesture.Pinch;
-
-        public GestureModifierKey ZoomGestureModifier { get; set; } = GestureModifierKey.None;
-
-        public TrackpadGesture PanGesture { get; set; } = TrackpadGesture.TwoFingerDrag;
-
-        public GestureModifierKey PanGestureModifier { get; set; } = GestureModifierKey.None;
-
-        public TrackpadGesture RotateGesture { get; set; } = TrackpadGesture.TwoFingerRotate;
-
-        public GestureModifierKey RotateGestureModifier { get; set; } = GestureModifierKey.None;
-
-        public TrackpadGesture OrbitGesture { get; set; } = TrackpadGesture.TwoFingerDrag;
-
-        public GestureModifierKey OrbitGestureModifier { get; set; } = GestureModifierKey.Option;
-
         public float PanGainX { get; set; } = 0.005f;
         public float PanGainY { get; set; } = 0.005f;
 
@@ -122,7 +102,6 @@ namespace TrackpadCameraControl.Rewrite
             _ = preset;
             GesturePreset = GesturePreset.MapsPlus;
             StyleTable = MapsPlusSeed.CreateTable();
-            TrackpadGestureCatalog.ApplyMapsPlusDefaults(this);
         }
 
         /// <summary>Copy all feel and binding fields from another settings instance.</summary>
@@ -141,14 +120,6 @@ namespace TrackpadCameraControl.Rewrite
             ZoomEnabled = other.ZoomEnabled;
             RotateEnabled = other.RotateEnabled;
             OrbitEnabled = other.OrbitEnabled;
-            ZoomGesture = other.ZoomGesture;
-            ZoomGestureModifier = other.ZoomGestureModifier;
-            PanGesture = other.PanGesture;
-            PanGestureModifier = other.PanGestureModifier;
-            RotateGesture = other.RotateGesture;
-            RotateGestureModifier = other.RotateGestureModifier;
-            OrbitGesture = other.OrbitGesture;
-            OrbitGestureModifier = other.OrbitGestureModifier;
 
             PanGainX = other.PanGainX;
             PanGainY = other.PanGainY;

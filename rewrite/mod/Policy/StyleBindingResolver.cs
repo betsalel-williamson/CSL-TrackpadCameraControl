@@ -133,8 +133,8 @@ namespace TrackpadCameraControl.Rewrite
             return rotateScore > 0f && rotateScore >= motionScore;
         }
 
-        /// <summary>True when any Orbit row would match without relying on latch.</summary>
-        public static bool IsOrbitTriggerActive(GestureFrame frame, ModSettings settings)
+        /// <summary>True when any Orbit style row matches without relying on latch.</summary>
+        public static bool IsOrbitChordActive(GestureFrame frame, ModSettings settings)
         {
             if (settings == null || !settings.OrbitEnabled)
             {

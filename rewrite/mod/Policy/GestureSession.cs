@@ -46,7 +46,7 @@ namespace TrackpadCameraControl.Rewrite
             if (
                 !OrbitLatched
                 && settings.OrbitEnabled
-                && StyleBindingResolver.IsOrbitTriggerActive(frame, settings)
+                && StyleBindingResolver.IsOrbitChordActive(frame, settings)
             )
             {
                 OrbitLatched = true;
