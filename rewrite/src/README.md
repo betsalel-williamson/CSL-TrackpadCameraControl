@@ -1,3 +1,5 @@
-# Deferred
+# Rewrite shared sources
 
-Not built yet. See [rewrite/README.md](../README.md) and Phase 2–3 of the rewrite plan.
+Optional Capture extras. Ship AppKit path lives in `rewrite/mod/Capture/`.
+
+When `EnableContactsCapture=true`, the rewrite csproj links root `src/TrackpadCapture/*.cs`.
