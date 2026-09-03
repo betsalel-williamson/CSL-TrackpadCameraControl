@@ -3,8 +3,10 @@ name: CI
 on:
   push:
     branches: [main]
+  # Any PR base — stacked PRs target parent branches, not only main. Restricting to
+  # main left Commitlint/Validate stuck as "Expected — Waiting for status".
   pull_request:
-    branches: [main]
+    types: [opened, synchronize, reopened, ready_for_review]
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
