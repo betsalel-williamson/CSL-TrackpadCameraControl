@@ -100,9 +100,6 @@ namespace TrackpadCameraControl.Rewrite
 
                 RefreshFloatFields();
                 RefreshChecks();
-#if ENABLE_CAD_GESTURE_STYLE
-                UpdatePresetDesc(ModOptions.PresetDescription(s.GesturePreset));
-#endif
                 ApplyVisibility();
                 return true;
             }

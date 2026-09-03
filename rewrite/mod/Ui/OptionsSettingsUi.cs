@@ -46,16 +46,6 @@ namespace TrackpadCameraControl.Rewrite
 
             BuildGeneralSection(helper, s);
 
-#if ENABLE_CAD_GESTURE_STYLE
-            UIHelperBase gestureGroup = SectionBreak(helper, "Gesture style");
-            gestureGroup.AddDropdown(
-                "Style",
-                ModOptions.GesturePresetLabels,
-                ModOptions.GesturePresetToIndex(s.GesturePreset),
-                sel => ModOptions.ApplyGesturePresetIndex(s, sel)
-            );
-#endif
-
             // Product order: General → Zoom → Pan → Rotate → Orbit.
             BuildOpGroup1Axis(
                 helper,

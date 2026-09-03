@@ -36,8 +36,6 @@
         <ModDeployDir>$(CitiesMods)/TrackpadCameraControl.Rewrite</ModDeployDir>
         <DisableImplicitFrameworkReferences>false</DisableImplicitFrameworkReferences>
 
-        <EnableCadGestureStyle Condition="'$(EnableCadGestureStyle)' == ''"
-            >false</EnableCadGestureStyle>
         <EnableAssistChrome Condition="'$(EnableAssistChrome)' == ''">false</EnableAssistChrome>
     </PropertyGroup>
 
@@ -89,9 +87,6 @@
         <Message Importance="high" Text="Deployed → $(ModDeployDir)/$(TargetFileName)" />
     </Target>
 
-    <PropertyGroup Condition="'$(EnableCadGestureStyle)' == 'true'">
-        <DefineConstants>$(DefineConstants);ENABLE_CAD_GESTURE_STYLE</DefineConstants>
-    </PropertyGroup>
     <PropertyGroup Condition="'$(EnableAssistChrome)' == 'true'">
         <DefineConstants>$(DefineConstants);ENABLE_ASSIST_CHROME</DefineConstants>
     </PropertyGroup>

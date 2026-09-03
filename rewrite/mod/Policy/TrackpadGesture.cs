@@ -154,12 +154,6 @@ namespace TrackpadCameraControl.Rewrite
         public static TrackpadGestureBinding MapsPlusOrbit =>
             new TrackpadGestureBinding(TrackpadGesture.TwoFingerDrag, GestureModifierKey.Option);
 
-        public static TrackpadGestureBinding CadZoom => MapsPlusZoom;
-
-        public static TrackpadGestureBinding CadPan => MapsPlusPan;
-
-        public static TrackpadGestureBinding CadRotate => MapsPlusRotate;
-
         public static void ApplyMapsPlusDefaults(ModSettings settings)
         {
             if (settings == null)
@@ -172,27 +166,6 @@ namespace TrackpadCameraControl.Rewrite
             SetBinding(settings, CameraOp.Rotate, MapsPlusRotate);
             SetBinding(settings, CameraOp.Orbit, MapsPlusOrbit);
         }
-
-#if ENABLE_CAD_GESTURE_STYLE
-        public static void ApplyCadDefaults(ModSettings settings)
-        {
-            if (settings == null)
-            {
-                return;
-            }
-
-            SetBinding(settings, CameraOp.Zoom, CadZoom);
-            SetBinding(settings, CameraOp.Pan, CadPan);
-            SetBinding(settings, CameraOp.Rotate, CadRotate);
-            SetBinding(
-                settings,
-                CameraOp.Orbit,
-                new TrackpadGestureBinding(TrackpadGesture.TwoFingerDrag, GestureModifierKey.None)
-            );
-            // Orbit chord for CAD is the style table (CadSeed), not catalog labels.
-            // Three-finger orbit lives only in CadSeed.CreateTable().
-        }
-#endif
 
         public static TrackpadGestureBinding GetBinding(ModSettings settings, CameraOp op)
         {

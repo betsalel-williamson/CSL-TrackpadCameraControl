@@ -34,7 +34,6 @@ namespace TrackpadCameraControl.Rewrite
         private static UIButton _closeButton;
         private static UIButton _optionsButton;
         private static UIButton _reopen;
-        private static UILabel _presetDesc;
         private static UILabel _title;
         private static UIDropDown _feelDropdown;
         private static UIButton _feelSaveAsButton;
@@ -90,23 +89,6 @@ namespace TrackpadCameraControl.Rewrite
 
             AddSection("Feel presets");
             AddFeelPresetRow(s);
-
-#if ENABLE_CAD_GESTURE_STYLE
-            _presetDesc = _root.AddUIComponent<UILabel>();
-            _presetDesc.textColor = Color.white;
-            _presetDesc.relativePosition = new Vector3(Col0, _nextY);
-            _presetDesc.width = PanelWidth - 24f;
-            _presetDesc.autoSize = false;
-            _presetDesc.autoHeight = true;
-            _presetDesc.wordWrap = true;
-            _presetDesc.text = ModOptions.PresetDescription(s.GesturePreset);
-            _presetDesc.PerformLayout();
-            float descH = Mathf.Max(36f, _presetDesc.height + 4f);
-            _nextY += descH;
-
-            AddSection("Gesture style");
-            AddCadStyleButtons(s);
-#endif
 
             // Tab order (product fields): Zoom sens/dead → Pan X/Y/dead → Rotate sens/dead →
             // Orbit yaw/pitch/dead → Include system info. Feel presets stay click-focus only.
@@ -184,7 +166,6 @@ namespace TrackpadCameraControl.Rewrite
             _titleBar = null;
             _closeButton = null;
             _optionsButton = null;
-            _presetDesc = null;
             _title = null;
             _feelSaveAsButton = null;
             _feelDeleteButton = null;
@@ -488,37 +469,6 @@ namespace TrackpadCameraControl.Rewrite
 
             ModSettings s = Mod.EnsureSettings();
             ModOptions.ApplyFeelPresetDropdownChoice(s, _feelDropdownItems[index]);
-        }
-
-#if ENABLE_CAD_GESTURE_STYLE
-        private static void AddCadStyleButtons(ModSettings s)
-        {
-            UIButton maps = MakeMenuButton("Maps+", Col0, _nextY, 120f);
-            maps.eventClick += (c, e) =>
-            {
-                ModOptions.ApplyGesturePresetIndex(s, 0);
-                UpdatePresetDesc(ModOptions.MapsPlusDescription);
-            };
-
-            UIButton cad = MakeMenuButton("CAD", Col0 + 128f, _nextY, 120f);
-            cad.eventClick += (c, e) =>
-            {
-                ModOptions.ApplyGesturePresetIndex(s, 1);
-                UpdatePresetDesc(ModOptions.CadDescription);
-            };
-            _nextY += 32f;
-        }
-#endif
-
-        private static void UpdatePresetDesc(string text)
-        {
-            if (_presetDesc == null)
-            {
-                return;
-            }
-
-            _presetDesc.text = text;
-            _presetDesc.PerformLayout();
         }
 
         private static void BuildPanSection(ModSettings s)

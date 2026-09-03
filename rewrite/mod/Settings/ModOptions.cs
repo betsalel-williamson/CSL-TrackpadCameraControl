@@ -43,17 +43,8 @@ namespace TrackpadCameraControl.Rewrite
         /// </summary>
         public const float SensitivityUiStep = 0.05f;
 
-        public static readonly string[] GesturePresetLabels = new string[]
-        {
-            "Maps+ — map-app pan/pinch/yaw; Option (⌥)+two-finger orbit",
-            "CAD — same pan/pinch/yaw; three-finger orbit",
-        };
-
         public static readonly string MapsPlusDescription =
             "Two-finger pan, pinch zoom, two-finger rotate yaw, Option (⌥)+two-finger orbit. Lower conflict with OS three-finger gestures.";
-
-        public static readonly string CadDescription =
-            "Same pan/pinch/yaw as Maps+. Three-finger drag orbits (may fight OS Mission Control / Spaces).";
 
         /// <summary>Pan section body copy for Options (group title is separate).</summary>
         public static string OpDescriptionPan => VanillaCameraKeyLabels.OpDescriptionPan;
@@ -94,12 +85,14 @@ namespace TrackpadCameraControl.Rewrite
 
         public static int GesturePresetToIndex(GesturePreset preset)
         {
-            return preset == GesturePreset.CAD ? 1 : 0;
+            _ = preset;
+            return 0;
         }
 
         public static GesturePreset IndexToGesturePreset(int index)
         {
-            return index == 1 ? GesturePreset.CAD : GesturePreset.MapsPlus;
+            _ = index;
+            return GesturePreset.MapsPlus;
         }
 
         public static void ApplyGesturePresetIndex(ModSettings settings, int index)
@@ -109,13 +102,14 @@ namespace TrackpadCameraControl.Rewrite
                 return;
             }
 
-            settings.ApplyGesturePreset(IndexToGesturePreset(index));
+            settings.ApplyGesturePreset(GesturePreset.MapsPlus);
             NotifyChanged(settings);
         }
 
         public static string PresetDescription(GesturePreset preset)
         {
-            return preset == GesturePreset.CAD ? CadDescription : MapsPlusDescription;
+            _ = preset;
+            return MapsPlusDescription;
         }
 
         public static float ClampScale(float value)

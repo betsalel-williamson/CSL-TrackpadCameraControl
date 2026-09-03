@@ -4,8 +4,7 @@
 # fingerCount policy (L4):
 # - AppKit may hardcode active fingerCount=2 (scroll/magnify/rotate). That is allowed —
 #   do not false-fail Maps+ seed rows (min/max 2) or AppleGestureMapper.AppKitActiveFingerCount.
-# - Flag obvious dead three-finger claims that compile on the AppKit-only ship path
-#   (CAD three-finger orbit must stay behind EnableCadGestureStyle / CadSeed).
+# - Flag obvious dead three-finger claims on the AppKit-only ship path.
 
 rules:
   - id: rewrite.ban-empty-catch
@@ -67,9 +66,8 @@ rules:
     severity: ERROR
     message: >-
       Three-finger gesture claim on a path that ships with AppKit-only capture (L4).
-      AppKit defaults active fingerCount to 2 — three-finger orbit/CAD seeds are dead
-      unless behind EnableCadGestureStyle (CadSeed) and honest capture counts.
-      Maps+ two-finger seeds and AppKitActiveFingerCount=2 are allowed.
+      AppKit defaults active fingerCount to 2 — three-finger orbit seeds are dead
+      on the ship path. Maps+ two-finger seeds and AppKitActiveFingerCount=2 are allowed.
     patterns:
       - pattern-either:
           # Bindings / trigger writes that claim three fingers on the ship path.
@@ -82,10 +80,6 @@ rules:
           - pattern: OrbitTrigger.ThreeFinger
           - pattern: |
               new StyleBindingRow(..., 3, 3, ...)
-    paths:
-      exclude:
-        # CAD seed is compile-gated (#if ENABLE_CAD_GESTURE_STYLE).
-        - "**/CadSeed.cs"
     metadata:
       category: correctness
       lesson: L4

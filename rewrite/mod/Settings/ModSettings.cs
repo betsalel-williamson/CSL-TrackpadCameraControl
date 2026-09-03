@@ -6,8 +6,6 @@ namespace TrackpadCameraControl.Rewrite
     public enum GesturePreset
     {
         MapsPlus,
-        CAD,
-        Custom,
     }
 
     public enum OrbitTrigger
@@ -223,30 +221,15 @@ namespace TrackpadCameraControl.Rewrite
         public string ActiveFeelPresetName { get; set; } = FeelProfiles.NameDefault;
 
         /// <summary>
-        /// Seeds per-op gesture bindings + orbit trigger from Maps+ or CAD gesture style.
+        /// Seeds Maps+ style bindings into the live style table and per-op display fields.
         /// Does not change feel gains, deadbands, or <see cref="ActiveFeelPresetName"/>.
-        /// Custom is a no-op.
         /// </summary>
         public void ApplyGesturePreset(GesturePreset preset)
         {
-            if (preset == GesturePreset.Custom)
-            {
-                return;
-            }
-
-            GesturePreset = preset;
-            if (preset == GesturePreset.MapsPlus)
-            {
-                StyleTable = MapsPlusSeed.CreateTable();
-                TrackpadGestureCatalog.ApplyMapsPlusDefaults(this);
-            }
-#if ENABLE_CAD_GESTURE_STYLE
-            else if (preset == GesturePreset.CAD)
-            {
-                StyleTable = CadSeed.CreateTable();
-                TrackpadGestureCatalog.ApplyCadDefaults(this);
-            }
-#endif
+            _ = preset;
+            GesturePreset = GesturePreset.MapsPlus;
+            StyleTable = MapsPlusSeed.CreateTable();
+            TrackpadGestureCatalog.ApplyMapsPlusDefaults(this);
         }
 
         /// <summary>Copy all feel and binding fields from another settings instance.</summary>
