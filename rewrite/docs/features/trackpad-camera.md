@@ -2,7 +2,7 @@
 
 ## Intent
 
-Give trackpad players the same camera fluency mouse users get from middle-mouse orbit, scroll zoom, and drag pan — using multi-touch gestures instead of a three-button mouse. Rewrite internals may be greenfield-simple; **Maps+ capability and dynamics stay at parity** with shipping ([parity with shipping](./parity-with-shipping.md)).
+Give trackpad players the same camera fluency mouse users get from middle-mouse orbit, scroll zoom, and drag pan — using multi-touch gestures instead of a three-button mouse. Rewrite internals may be greenfield-simple; **Maps+ capability and dynamics stay at parity** with shipping, and Options/Debug stay at [UI parity](../glossary/ui-parity.md) — not as copied C# ([parity with shipping](./parity-with-shipping.md), [ADR 0005](./adr/0005-ux-parity-not-source-parity.md)).
 
 ## End-user outcomes
 

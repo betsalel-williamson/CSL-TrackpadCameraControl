@@ -1,6 +1,8 @@
 # UI / product surface audit (rewrite v1)
 
-Specialist pass for Options and Debug UI parity vs shipping, prototype `#if` residue, and version chrome. Scope: `rewrite/mod/Ui/*`, `OptionsSettingsUi`, `TuningPanelHost*`, `Mod.cs` title APIs.
+**Status:** Findings from the clone experiment (closed). “Structural parity with shipping” below describes copied builders — that is the defect features ADR 0005 forbids, not a strength to preserve.
+
+Specialist pass for Options and Debug UI parity vs shipping, prototype `#if` residue, and version chrome.
 
 **Related:** features guide _Parity with shipping_, [organized product feedback](./v1-product-feedback.md) (F3, F4, F7), [v1 audit plan](./v1-audit-plan.md).
 

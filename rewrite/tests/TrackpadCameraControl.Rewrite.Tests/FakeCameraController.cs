@@ -1,6 +1,8 @@
 using System;
 using TrackpadCameraControl.Rewrite;
 
+// Fake stands in for the game camera port only (not OS).
+
 namespace TrackpadCameraControl.Rewrite.Tests
 {
     public delegate void PanClampAction(ref float x, ref float z);

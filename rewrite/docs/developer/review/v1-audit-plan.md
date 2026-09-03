@@ -1,6 +1,12 @@
 # v1 audit and cleanup plan (rewrite mod)
 
-Phased review and implementation after [organized product feedback](./v1-product-feedback.md). Each phase ends with commit(s), push, hooks, and PR update on `cursor/rewrite-parity-cc6b`.
+**Status:** Closed. R0–R6 ran against a source clone. That experiment failed the greenfield intent (features ADR 0005). **Do not run R7 as the success path** for the cloned DLL.
+
+Further implementation follows the recovery design _Rewrite from UX contract, not source clone_ (repo-root session spec) after maintainer approval: quarantine clone sources, lock the UX inventory, oracle tests, then replace the assembly.
+
+The phases below are a record of what was attempted.
+
+Phased review and implementation after [organized product feedback](./v1-product-feedback.md). Each phase ended with commit(s) on `cursor/rewrite-parity-cc6b`.
 
 ## Phase R0 — Plan and feedback shards (docs)
 
@@ -86,11 +92,11 @@ Phased review and implementation after [organized product feedback](./v1-product
 
 **Gates:** `npm run hooks:pre-commit`, `npm run hooks:pre-push`, full test suite
 
-## Phase R7 — In-game tier C (human)
+## Phase R7 — In-game tier C (human) — not the clone success path
 
-**Goal:** User runs [in-game parity checklist](../in-game-parity-checklist.md); agent stops until feedback.
+**Do not** treat in-game A/B of the **cloned** rewrite DLL as proof the architecture succeeded. Tier C remains valid later for a rebuild that matches [UI parity](../../glossary/ui-parity.md) without source identity.
 
-Not automated in this plan.
+Checklist (visual/interaction only): [in-game parity checklist](../in-game-parity-checklist.md).
 
 ## Hook discipline (every commit)
 
@@ -106,4 +112,4 @@ Emergency skip only when fixing hook infrastructure: `HUSKY=0` — prefer fixing
 
 ## PR tracking
 
-Draft PR #46 on `cursor/rewrite-parity-cc6b`. Update body when R2+ land summarizing removed prototype surface. Mark ready for review only after R6 green and tier C sign-off.
+Draft PR #46 captured the clone experiment. Recovery work is a separate branch/spec; do not mark the clone PR ready as a greenfield rewrite.

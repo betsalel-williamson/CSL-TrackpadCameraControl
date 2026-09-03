@@ -1,6 +1,6 @@
 # Static analysis and quality
 
-Lint and structural gates for the rewrite tree. These catch ceremony and resource bugs early; they do **not** replace tier A–C behavior proof ([Harnesses and testing](./harnesses-and-testing.md), greenfield redesign lessons L10).
+Lint and structural gates for the rewrite tree. These catch ceremony, resource bugs, and **layer-import** violations early; they do **not** replace tier A–C behavior proof ([Harnesses and testing](./harnesses-and-testing.md), greenfield redesign lessons L10).
 
 ## Semgrep
 
@@ -66,6 +66,16 @@ Mod disable / runtime teardown must release in a defined order so Harmony, captu
 6. Flush or abandon the settings dirty bit per store policy (no write after dispose of dependents)
 
 Construction on enable is the reverse ownership: settings live blob → runtime → Harmony → capture arm on city load. Document ownership in types; static analysis should flag disposable fields never disposed on the disable path.
+
+## Layer-import lint
+
+Fail the gate when stack layers violate the import matrix in features _Under the hood_ / ADR 0006:
+
+- `rewrite/src` contains `ICities`, `Colossal`, `HarmonyLib`, or CSL Feel/Maps+ product types
+- `rewrite/mod` contains AppKit / Multitouch P/Invoke
+- A “pure” Policy / Apply / Feel file gains UnityEngine / ICities / Harmony / AppKit usings
+
+Csproj `Reference` sets must match: the gesture library never lists Cities managed DLLs.
 
 ## Related
 

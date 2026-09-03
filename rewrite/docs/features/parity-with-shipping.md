@@ -6,6 +6,8 @@ Define what **must** match the shipping mod end-to-end, and what the clean-archi
 
 ## Must match (definition of done)
 
+[UI parity](../glossary/ui-parity.md) is **look and interaction**, not copied C#. Internals must differ ([ADR 0005](./adr/0005-ux-parity-not-source-parity.md), lesson L13).
+
 ### UI 1:1
 
 - Options → Trackpad Camera Control and in-game Debug panel: **same section order** (General → Zoom → Pan → Rotate → Orbit), same control kinds, same labels and grouping rhythm.
@@ -14,6 +16,7 @@ Define what **must** match the shipping mod end-to-end, and what the clean-archi
 - No Enable-per-op or Reverse on the product surface.
 - No pitch min/max on Options/Debug (apply constant only).
 - Ship surface omits CAD switcher, Contacts picker, low-pass, and Assist chrome fields when those modules are compiled off.
+- Options and Debug share **one** field inventory and **one** editor API; they are two hosts, not two product definitions.
 
 ### Gesture and dynamics parity (Maps+)
 
@@ -35,11 +38,19 @@ Define what **must** match the shipping mod end-to-end, and what the clean-archi
 ## May differ
 
 - Assembly / mod folder name under the rewrite tree.
-- Internal plane split (Capture / Policy / Apply), type names, and folder layout.
+- Internal plane split (Capture / Policy / Apply), type names, and folder layout — **must** differ from shipping sources (L13). Same player result with the same classes is a failed rewrite.
 - Style chords implemented as a **seeded binding table** consumed by resolve ([ADR 0004](./adr/0004-style-table-driven-resolve.md)) instead of shipping’s hardcoded Maps+ heuristics — **player-visible chords must still match**.
+- Feel UI implemented as a catalog + two hosts instead of parallel Options/Debug builders.
 - Compile-time omission of unfinished modules (no stub objects on the tick path) vs shipping’s unused flagged paths.
 - One dirty bit / one flush autosave path (same durable outcome; no double XML write).
 - Removal of ceremonial fields that had no tick consumer (e.g. pitch in the feel blob).
+- Omission of prototype QA dumps from the v1 ship surface unless a later work item requires them.
+
+## Must not copy
+
+- Shipping UI builders, settings stores, numeric-field stacks, camera/selection dumps, or QA chrome into `rewrite/` (including copy-then-tidy).
+- Unfinished experiments (IPC, Contacts, CAD, Assist, file loggers, legacy XML schemas) as souvenirs.
+- Shipping `mod/` as the implementation template. It is an oracle for labels, layout rhythm, constants, and dynamics only.
 
 ## Must not claim
 
@@ -52,5 +63,6 @@ Define what **must** match the shipping mod end-to-end, and what the clean-archi
 ## Acceptance
 
 - A player moving from shipping to rewrite cannot tell the Maps+ gesture or Options/Debug feel surface apart, aside from any documented assembly/folder rename.
-- Tier A fixtures pass; tier C A/B signs off UI order/labels and dynamics.
-- Diff against shipping docs is intentional target cleanup (lessons L1–L12), not silent capability loss.
+- A maintainer opening rewrite sources **can** tell them apart from shipping: fewer concepts, one catalog, thin adapters (lessons L1–L13).
+- Tier A fixtures pass; tier C A/B signs off **visual and interaction** parity and dynamics — not source similarity.
+- Diff against shipping docs is intentional target cleanup, not silent capability loss.

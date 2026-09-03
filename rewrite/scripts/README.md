@@ -16,6 +16,7 @@ Or individually:
 npm run sa:rewrite:semgrep
 npm run sa:rewrite:settings-graph
 npm run sa:rewrite:leak-pairing
+npm run sa:rewrite:layer-import
 ```
 
 Equivalent:

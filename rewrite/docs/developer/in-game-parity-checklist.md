@@ -1,6 +1,8 @@
 # In-game parity checklist (tier C)
 
-Run this **after** installing both mods. Enable **only one** Content Manager entry per session.
+Run this **after** a rewrite DLL exists that was built from the UX contract, not as a sign-off of the quarantined clone. Enable **only one** Content Manager entry per session.
+
+Compare shipping vs `Trackpad Camera Control (Rewrite)` on the same city save. Pass means the **player cannot tell the surfaces apart**. It does **not** mean rewrite C# matches shipping C#.
 
 ```bash
 ./scripts/install-mod-local.sh              # shipping → Mods/TrackpadCameraControl
@@ -8,9 +10,7 @@ Run this **after** installing both mods. Enable **only one** Content Manager ent
 # Requires CitiesManaged / ICities.dll on this machine.
 ```
 
-Compare shipping vs `Trackpad Camera Control (Rewrite)` on the same city save.
-
-## UI 1:1
+## UI parity (look and interaction)
 
 | Check                                                                | Pass? |
 | -------------------------------------------------------------------- | ----- |
@@ -35,4 +35,4 @@ Compare shipping vs `Trackpad Camera Control (Rewrite)` on the same city save.
 
 ## Notes
 
-Tier A/B (`dotnet test` rewrite fixtures + SA gates) do **not** replace this checklist. Capture honesty and Harmony orbit flush order need a real Cities session.
+Tier A/B (`dotnet test` rewrite fixtures + SA gates) do **not** replace this checklist. Capture honesty and Harmony orbit flush order need a real Cities session. Source similarity to `mod/` is not a pass.

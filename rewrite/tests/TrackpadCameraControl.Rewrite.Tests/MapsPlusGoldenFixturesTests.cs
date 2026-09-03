@@ -1,3 +1,4 @@
+using TrackpadCameraControl.Gestures;
 using TrackpadCameraControl.Rewrite;
 using Xunit;
 
@@ -30,7 +31,7 @@ namespace TrackpadCameraControl.Rewrite.Tests
             CameraOp ops = session.Process(Frame(dx: 0.1f), settings);
             Assert.Equal(CameraOp.Pan, ops);
 
-            CameraApplicator.Apply(ops, 0.1f, 0f, 0f, 0f, settings, cam);
+            FeelMath.Apply(ops, 0.1f, 0f, 0f, 0f, settings, cam);
 
             Assert.True(cam.TargetX != 0f || cam.TargetZ != 0f);
             Assert.Equal(0.1f, cam.TargetX, 3);
@@ -48,7 +49,7 @@ namespace TrackpadCameraControl.Rewrite.Tests
             CameraOp ops = session.Process(Frame(pinch: 0.1f), settings);
             Assert.Equal(CameraOp.Zoom, ops);
 
-            CameraApplicator.Apply(ops, 0f, 0f, 0.1f, 0f, settings, cam);
+            FeelMath.Apply(ops, 0f, 0f, 0.1f, 0f, settings, cam);
 
             Assert.Equal(90f, cam.Size, 3);
         }
@@ -64,7 +65,7 @@ namespace TrackpadCameraControl.Rewrite.Tests
             CameraOp ops = session.Process(Frame(rotate: 0.5f), settings);
             Assert.Equal(CameraOp.Rotate, ops);
 
-            CameraApplicator.Apply(ops, 0f, 0f, 0f, 0.5f, settings, cam);
+            FeelMath.Apply(ops, 0f, 0f, 0f, 0.5f, settings, cam);
 
             Assert.Equal(1f, cam.AngleX, 3);
         }
@@ -87,7 +88,7 @@ namespace TrackpadCameraControl.Rewrite.Tests
 
             float yawBefore = cam.AngleX;
             float pitchBefore = cam.AngleY;
-            CameraApplicator.Apply(ops, 5f, -2f, 0f, 0f, settings, cam);
+            FeelMath.Apply(ops, 5f, -2f, 0f, 0f, settings, cam);
 
             // Queue-only: angles unchanged until vanilla damp → flush → integrate.
             Assert.Equal(yawBefore, cam.AngleX, 3);
@@ -126,7 +127,7 @@ namespace TrackpadCameraControl.Rewrite.Tests
             Assert.Equal(CameraOp.None, second & CameraOp.Pan);
             Assert.Equal(CameraOp.None, second & CameraOp.Zoom);
 
-            CameraApplicator.Apply(second, 3f, 0f, 0f, 0f, settings, cam);
+            FeelMath.Apply(second, 3f, 0f, 0f, 0f, settings, cam);
             FakeCameraController.SimulateVanillaOrbitFrame(
                 cam,
                 inertia: 1f,
@@ -157,7 +158,7 @@ namespace TrackpadCameraControl.Rewrite.Tests
                 settings
             );
             Assert.True((orbit & CameraOp.Orbit) != 0);
-            CameraApplicator.Apply(orbit, 4f, -2f, 0f, 0f, settings, cam);
+            FeelMath.Apply(orbit, 4f, -2f, 0f, 0f, settings, cam);
             FakeCameraController.SimulateVanillaOrbitFrame(
                 cam,
                 inertia: 1f,
@@ -174,7 +175,7 @@ namespace TrackpadCameraControl.Rewrite.Tests
 
             CameraOp rotate = session.Process(Frame(rotate: 2f), settings);
             Assert.Equal(CameraOp.Rotate, rotate);
-            CameraApplicator.Apply(rotate, 0f, 0f, 0f, 2f, settings, cam);
+            FeelMath.Apply(rotate, 0f, 0f, 0f, 2f, settings, cam);
             FakeCameraController.SimulateVanillaOrbitFrame(
                 cam,
                 inertia: 1f,
@@ -202,8 +203,8 @@ namespace TrackpadCameraControl.Rewrite.Tests
             var camFast = new FakeCameraController { Size = 200f };
             const float pinch = 0.1f;
 
-            CameraApplicator.Apply(CameraOp.Zoom, 0f, 0f, pinch, 0f, factory, camFactory);
-            CameraApplicator.Apply(CameraOp.Zoom, 0f, 0f, pinch, 0f, fast, camFast);
+            FeelMath.Apply(CameraOp.Zoom, 0f, 0f, pinch, 0f, factory, camFactory);
+            FeelMath.Apply(CameraOp.Zoom, 0f, 0f, pinch, 0f, fast, camFast);
 
             Assert.True(camFast.Size < camFactory.Size);
             float expectedFactory = 200f * (1f - pinch * factory.ZoomGain);

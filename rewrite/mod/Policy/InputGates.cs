@@ -1,16 +1,10 @@
-using System;
-
 namespace TrackpadCameraControl.Rewrite
 {
-    /// <summary>
-    /// Single policy for mod apply, Harmony vanilla patches, and AppKit capture gates.
-    /// <see cref="VanillaCameraSuppress"/> holds per-frame flags only.
-    /// </summary>
+    /// <summary>Single policy for mod apply and Harmony vanilla patches.</summary>
     public static class InputGates
     {
         private static IGameUiContext _context;
 
-        /// <summary>Game UI / focus probe seam. Null uses <see cref="GameUiContext.Default"/>.</summary>
         public static IGameUiContext Context
         {
             get { return _context ?? GameUiContext.Default; }
@@ -22,33 +16,28 @@ namespace TrackpadCameraControl.Rewrite
             get { return _context; }
         }
 
-        /// <summary>Sync suppress flags once per pipeline tick before apply/Harmony reads them.</summary>
         public static void SyncFrameState()
         {
             VanillaCameraSuppress.MenuOrOverUi = IsMenuOrOverUi();
         }
 
-        /// <summary>
-        /// Mod on + unfocused: block mod apply, vanilla Harmony handlers, capture, and orbit flush.
-        /// </summary>
         public static bool ShouldBlockAllCameraInput()
         {
             return ModRuntime.IsModActive() && !IsGameFocused();
         }
 
-        /// <summary>
-        /// Mod on + focused + world (not menu/popup): trackpad apply and orbit flush allowed.
-        /// </summary>
         public static bool IsModWorldPathActive()
         {
             return ModRuntime.IsModActive() && IsGameFocused() && !IsMenuOrOverUi();
         }
 
-        /// <summary>Clear sticky suppress/orbit state after focus loss.</summary>
         public static void DisarmTransientCameraState(ICameraController camera)
         {
             VanillaCameraSuppress.PreciseTrackpadScroll = false;
-            camera?.ClearPendingAngleVelocity();
+            if (camera != null)
+            {
+                camera.ClearPendingAngleVelocity();
+            }
         }
 
         public static bool ShouldSkipModCamera(ModSettings settings)
@@ -81,7 +70,6 @@ namespace TrackpadCameraControl.Rewrite
             return false;
         }
 
-        /// <summary>Harmony scroll prefix: false = block vanilla scroll handler.</summary>
         public static bool ShouldRunVanillaScrollWheel()
         {
             if (ShouldBlockAllCameraInput())
@@ -100,29 +88,20 @@ namespace TrackpadCameraControl.Rewrite
             return ModRuntime.IsModActive() && preciseTrackpad && !menuOrOverUi;
         }
 
-        /// <summary>Harmony mouse prefix: false = block edge pan / mouse rotate.</summary>
-        public static bool ShouldRunVanillaMouseEvents(bool rotateBindingHeld)
+        /// <summary>
+        /// Vanilla mouse path: only block when the game is unfocused and the mod is active.
+        /// Orbit flush still runs from the mouse-events Postfix when world path is active.
+        /// </summary>
+        public static bool ShouldRunVanillaMouseEvents()
         {
-            if (ShouldBlockAllCameraInput())
-            {
-                return false;
-            }
-
-            return !ShouldSuppressVanillaMouseRotate(rotateBindingHeld);
+            return !ShouldBlockAllCameraInput();
         }
 
-        public static bool ShouldSuppressVanillaMouseRotate(bool rotateBindingHeld)
-        {
-            return false;
-        }
-
-        /// <summary>Harmony orbit postfix: flush queued trackpad orbit only on world path.</summary>
         public static bool ShouldFlushPendingOrbit()
         {
             return IsModWorldPathActive();
         }
 
-        /// <summary>AppKit capture: enqueue only when mod on and focused.</summary>
         public static bool ShouldCaptureGestures()
         {
             return ModRuntime.IsModActive() && IsGameFocused();

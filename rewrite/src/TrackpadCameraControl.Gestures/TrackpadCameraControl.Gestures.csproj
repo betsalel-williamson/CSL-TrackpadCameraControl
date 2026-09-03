@@ -1,0 +1,29 @@
+<!--
+  Gesture library — shared frame contract, sources, OS→frame mappers.
+  No ICities / Colossal / Harmony / Feel types. net35 for CSL Mono link.
+-->
+<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <TargetFramework>net35</TargetFramework>
+        <LangVersion>9.0</LangVersion>
+        <Nullable>disable</Nullable>
+        <ImplicitUsings>disable</ImplicitUsings>
+        <RootNamespace>TrackpadCameraControl.Gestures</RootNamespace>
+        <AssemblyName>TrackpadCameraControl.Gestures</AssemblyName>
+        <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
+        <Deterministic>true</Deterministic>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference
+            Include="Microsoft.NETFramework.ReferenceAssemblies.net35"
+            Version="1.0.3"
+            PrivateAssets="all"
+        />
+    </ItemGroup>
+
+    <ItemGroup>
+        <InternalsVisibleTo Include="TrackpadCameraControl.Rewrite" />
+        <InternalsVisibleTo Include="TrackpadCameraControl.Rewrite.Tests" />
+    </ItemGroup>
+</Project>

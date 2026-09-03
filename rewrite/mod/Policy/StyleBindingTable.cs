@@ -1,24 +1,15 @@
 using System;
+using TrackpadCameraControl.Gestures;
 
 namespace TrackpadCameraControl.Rewrite
 {
-    /// <summary>Which Capture primitive a style row consumes.</summary>
     public enum StylePrimitive
     {
-        /// <summary>Centroid drag (pan / orbit).</summary>
         CentroidMotion = 0,
-
-        /// <summary>Pinch scale delta (zoom).</summary>
         Pinch = 1,
-
-        /// <summary>Two-finger twist (rotate).</summary>
         Rotate = 2,
     }
 
-    /// <summary>
-    /// One style-table row: finger band + modifiers + primitive → camera op.
-    /// Resolve matches rows only — no parallel Maps+ heuristics beside the table (ADR 0004).
-    /// </summary>
     public struct StyleBindingRow
     {
         public CameraOp Op;
@@ -68,7 +59,6 @@ namespace TrackpadCameraControl.Rewrite
         }
     }
 
-    /// <summary>Live style binding table consumed by Policy resolve.</summary>
     public sealed class StyleBindingTable
     {
         private readonly StyleBindingRow[] _rows;

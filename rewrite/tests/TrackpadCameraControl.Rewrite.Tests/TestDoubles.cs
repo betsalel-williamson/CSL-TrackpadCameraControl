@@ -56,8 +56,8 @@ namespace TrackpadCameraControl.Rewrite.Tests
                 "tcc-rewrite-harness-" + Guid.NewGuid().ToString("N")
             );
             System.IO.Directory.CreateDirectory(_dir);
-            var store = new ModSettingsStore(System.IO.Path.Combine(_dir, "settings.xml"));
-            ModOptions.Store = store;
+            var store = new SettingsStore(System.IO.Path.Combine(_dir, "settings.xml"));
+            FeelEditor.ActiveStore = store;
             if (seedSettings != null)
             {
                 store.SaveNow(seedSettings);
@@ -74,7 +74,7 @@ namespace TrackpadCameraControl.Rewrite.Tests
         public void Dispose()
         {
             _mod.OnDisabled();
-            ModOptions.Store = null;
+            FeelEditor.ActiveStore = null;
             try
             {
                 if (System.IO.Directory.Exists(_dir))
@@ -94,7 +94,7 @@ namespace TrackpadCameraControl.Rewrite.Tests
         public static void Reset()
         {
             new Mod().OnDisabled();
-            ModOptions.Store = null;
+            FeelEditor.ActiveStore = null;
         }
     }
 }

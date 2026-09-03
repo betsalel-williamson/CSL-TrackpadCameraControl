@@ -1,25 +1,25 @@
 # Repository layout
 
-Target layout for the clean-architecture rewrite under `rewrite/`. Code and tests stay deferred until docs gates pass; this shard names the folders and deploy identity so later phases land in the right place.
+Target layout for the clean-architecture rewrite under `rewrite/`. Stack layers: glossary _gesture library_ vs _mod surface_ (features ADR 0006).
 
 ## Tree
 
 | Path               | Role                                                                    |
 | ------------------ | ----------------------------------------------------------------------- |
 | `rewrite/docs/`    | MDCP target contracts (this docs tree)                                  |
-| `rewrite/mod/`     | Cities: Skylines I mod assembly (`TrackpadCameraControl.Rewrite`)       |
-| `rewrite/src/`     | Capture and shared libraries consumed by the rewrite mod                |
+| `rewrite/src/`     | Gesture library — frame, backends, inject seam (no Cities types)        |
+| `rewrite/mod/`     | CSL mod surface — Feel, Ui, Policy, Apply, Host (no AppKit P/Invoke)    |
 | `rewrite/tests/`   | Behavior fixtures, capture-session coverage, static-analysis gates      |
 | `rewrite/scripts/` | Rewrite-only helpers (optional; root scripts may also target this tree) |
 
-Empty or stub folders are intentional during docs-first phases. The rewrite tree README lives at repo path `rewrite/README.md` (outside this MDCP root — plain pointer only).
+The rewrite tree README lives at repo path `rewrite/README.md` (outside this MDCP root — plain pointer only).
 
 ## Deploy identity
 
 | Surface                       | Name                                                                                                     |
 | ----------------------------- | -------------------------------------------------------------------------------------------------------- |
 | Content Manager / Mods folder | `TrackpadCameraControl.Rewrite`                                                                          |
-| Assembly / project            | `TrackpadCameraControl.Rewrite`                                                                          |
+| Assembly / project            | `TrackpadCameraControl.Rewrite` (mod) + gesture library project                                          |
 | Local install                 | Root script `./scripts/install-mod-local.sh --rewrite` (see [Local MVP install](./local-mvp-install.md)) |
 
 Shipping deploy remains `TrackpadCameraControl` under repo-root `mod/`. The rewrite DLL must never overwrite that folder.
@@ -33,9 +33,9 @@ Shipping deploy remains `TrackpadCameraControl` under repo-root `mod/`. The rewr
 | `mod/` → Mods/`TrackpadCameraControl`                 | Shipping playtest / Share path            |
 | `rewrite/mod/` → Mods/`TrackpadCameraControl.Rewrite` | Parallel A/B playtest path                |
 | Root `src/`, `tests/`, `scripts/`                     | Shipping tree tooling                     |
-| `rewrite/src/`, `rewrite/tests/`                      | Rewrite implementations and gates         |
+| `rewrite/src/`, `rewrite/tests/`                      | Gesture library and rewrite gates         |
 
-Root `docs/` and `rewrite/docs/` stay separate MDCP roots (`npm run docs` vs `npm run docs:rewrite`). Do not mix shard links across those roots.
+Root `docs/` and `rewrite/docs/` stay separate MDCP roots (`npm run docs` vs `npm run docs:rewrite`). Do not mix shard links across those roots. Do not revive shipping Contacts/IPC under root `src/TrackpadCapture` into the rewrite library.
 
 ## Naming
 
@@ -46,4 +46,4 @@ Root `docs/` and `rewrite/docs/` stay separate MDCP roots (`npm run docs` vs `np
 | Shipping Mods folder | TrackpadCameraControl         |
 | GitHub repo          | CSL-TrackpadCameraControl     |
 
-Folder and assembly names stay PascalCase `TrackpadCameraControl*` forever. North-star lessons for every shard in this tree: greenfield redesign lessons.
+Folder and assembly names stay PascalCase `TrackpadCameraControl*` forever. North-star lessons for every shard in this tree: greenfield redesign lessons; stack story: features _Under the hood_.
