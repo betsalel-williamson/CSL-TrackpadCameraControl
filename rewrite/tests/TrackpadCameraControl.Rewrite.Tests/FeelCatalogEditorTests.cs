@@ -1,3 +1,4 @@
+using System;
 using System.IO;
 using TrackpadCameraControl.Rewrite;
 using Xunit;
