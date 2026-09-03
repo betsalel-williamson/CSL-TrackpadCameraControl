@@ -64,11 +64,13 @@ namespace TrackpadCameraControl
                 return;
             }
 
+            ModSettings s = Mod.EnsureSettings();
+
             _root.name = "TrackpadCameraDebugPanel";
             _root.backgroundSprite = "MenuPanel2";
             _root.width = PanelWidth;
             _root.height = 420f;
-            _root.relativePosition = new Vector3(40f, 60f);
+            _root.relativePosition = new Vector3(s.DebugPanelPosX, s.DebugPanelPosY, 0f);
             _root.canFocus = true;
             _root.isInteractive = true;
             _root.eventMouseDown += (c, e) =>
@@ -79,7 +81,6 @@ namespace TrackpadCameraControl
             BuildTitleBar();
 
             _nextY = TitleBarHeight + 8f;
-            ModSettings s = Mod.EnsureSettings();
 
             AddSection("Feel presets");
             AddFeelPresetRow(s);
@@ -156,6 +157,7 @@ namespace TrackpadCameraControl
 
             if (_root != null)
             {
+                SavePanelPosition();
                 UnityEngine.Object.Destroy(_root.gameObject);
                 _root = null;
             }
@@ -263,6 +265,8 @@ namespace TrackpadCameraControl
             UIDragHandle drag = _titleBar.AddUIComponent<UIDragHandle>();
             drag.target = _root;
             drag.constrainToScreen = true;
+            // Mouse-up is handled by UIDragHandle, not the title-bar UIPanel.
+            drag.eventMouseUp += (c, e) => SavePanelPosition();
 
             _title = AddLabel(_titleBar, Mod.OptionsTitle, Col0, 8f);
             _title.textScale = 1.1f;
@@ -912,6 +916,24 @@ namespace TrackpadCameraControl
             label.textColor = Color.white;
             label.autoSize = true;
             return label;
+        }
+
+        private static void SavePanelPosition()
+        {
+            if (_root == null)
+            {
+                return;
+            }
+
+            ModSettings s = Mod.EnsureSettings();
+            if (s == null)
+            {
+                return;
+            }
+
+            _root.MakePixelPerfect();
+            Vector3 p = _root.relativePosition;
+            ModOptions.ApplyPanelPosition(s, p.x, p.y);
         }
     }
 }

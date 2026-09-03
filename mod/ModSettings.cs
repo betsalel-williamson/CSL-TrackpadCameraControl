@@ -93,6 +93,11 @@ namespace TrackpadCameraControl
         /// <summary>User closed Debug panel via title-bar X; reopen chip shown when Assist on.</summary>
         public bool DebugPanelDismissed { get; set; }
 
+        /// <summary>Persisted Debug panel position (UI relative coords).</summary>
+        public float DebugPanelPosX { get; set; } = 40f;
+
+        public float DebugPanelPosY { get; set; } = 60f;
+
         /// <summary>
         /// AppleGestures = in-process AppKit (default). Contacts = in-process MultitouchSupport.
         /// Overridden by TRACKPAD_CAPTURE_BACKEND when that env var is set.
@@ -189,6 +194,8 @@ namespace TrackpadCameraControl
             ActiveFeelPresetName = other.ActiveFeelPresetName;
             IncludeSystemInfoInCopy = other.IncludeSystemInfoInCopy;
             DebugPanelDismissed = other.DebugPanelDismissed;
+            DebugPanelPosX = other.DebugPanelPosX;
+            DebugPanelPosY = other.DebugPanelPosY;
         }
 
         public static ModSettings CreateFactoryDefaults()

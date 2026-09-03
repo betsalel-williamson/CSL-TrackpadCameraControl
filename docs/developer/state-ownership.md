@@ -52,6 +52,7 @@ User-facing Debug QoL lives in **`ModSettings`** schema ≥4 and `settings.xml`:
 | --------------------------- | ------------------------- | ------- |
 | Include system info in Copy | `IncludeSystemInfoInCopy` | `true`  |
 | Debug panel dismissed (X)   | `DebugPanelDismissed`     | `false` |
+| Debug panel position X/Y    | `DebugPanelPosX/Y`        | 40 / 60 |
 
 Focus, menu, pointer-over-UI, selection, and camera pose remain derived each frame — not static UI fields.
 
