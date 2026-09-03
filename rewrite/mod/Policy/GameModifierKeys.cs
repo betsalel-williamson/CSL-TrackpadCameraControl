@@ -1,13 +1,13 @@
+using TrackpadCameraControl.Gestures;
 #if HAS_CITIES
 using UnityEngine;
 #endif
 
+
 namespace TrackpadCameraControl.Rewrite
 {
     /// <summary>
-    /// Merge Unity keyboard modifier state into capture frames. AppKit supplies
-    /// NSEvent modifier flags; this ORs held keys when event flags lag game focus
-    /// (Maps+ Option+two-finger orbit parity with shipping).
+    /// Merge Unity keyboard modifier state into capture frames (Cities adapter).
     /// </summary>
     public static class GameModifierKeys
     {

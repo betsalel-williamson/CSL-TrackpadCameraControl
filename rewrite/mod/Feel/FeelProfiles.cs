@@ -16,7 +16,6 @@ namespace TrackpadCameraControl.Rewrite
         public const string NameFast = "Fast";
         public const string NameNewPreset = "New Preset";
 
-        /// <summary>Built-in Slow / Default / Fast — never overwritten by Save as… or dirty autosave.</summary>
         public static bool IsBuiltInName(string name)
         {
             if (string.IsNullOrEmpty(name))
@@ -29,11 +28,7 @@ namespace TrackpadCameraControl.Rewrite
                 || string.Equals(name, NameFast, StringComparison.Ordinal);
         }
 
-        /// <summary>
-        /// Every feel-field edit sets active identity to New Preset and upserts the scratch slot
-        /// in <paramref name="store"/> (when non-null), including when already on New Preset.
-        /// </summary>
-        public static void EnsureDirtyNewPreset(ModSettings settings, ModSettingsStore store)
+        public static void EnsureDirtyNewPreset(ModSettings settings, SettingsStore store)
         {
             if (settings == null)
             {
@@ -47,7 +42,6 @@ namespace TrackpadCameraControl.Rewrite
             }
         }
 
-        /// <summary>Restore factory Default feel fields onto <paramref name="settings"/>.</summary>
         public static void ApplyDefault(ModSettings settings)
         {
             if (settings == null)
@@ -58,23 +52,16 @@ namespace TrackpadCameraControl.Rewrite
             CopyFeelFields(settings, ModSettings.CreateFactoryDefaults());
         }
 
-        /// <summary>Factory Default sensitivities × 0.75 (RoundGain); reverse + pitch = factory.</summary>
         public static void ApplySlow(ModSettings settings)
         {
             ApplyScaledFromFactory(settings, SlowMultiplier);
         }
 
-        /// <summary>Factory Default sensitivities × 1.25 (RoundGain); reverse + pitch = factory.</summary>
         public static void ApplyFast(ModSettings settings)
         {
             ApplyScaledFromFactory(settings, FastMultiplier);
         }
 
-        /// <summary>
-        /// Copy product-surface feel fields: enables, reverse, sensitivities, deadbands.
-        /// Does <b>not</b> copy <see cref="ModSettings.GesturePreset"/>, orbit trigger, or per-op
-        /// trackpad gesture bindings — those belong to gesture style, not feel.
-        /// </summary>
         public static void CopyFeelFields(ModSettings dest, ModSettings source)
         {
             if (dest == null || source == null)
@@ -106,7 +93,6 @@ namespace TrackpadCameraControl.Rewrite
             dest.RotateDeadband = source.RotateDeadband;
         }
 
-        /// <summary>Snapshot feel fields into a new ModSettings instance.</summary>
         public static ModSettings SnapshotFeel(ModSettings source)
         {
             var snap = new ModSettings();
@@ -127,12 +113,12 @@ namespace TrackpadCameraControl.Rewrite
 
             ModSettings factory = ModSettings.CreateFactoryDefaults();
 
-            settings.PanGainX = ModOptions.RoundGain(factory.PanGainX * multiplier);
-            settings.PanGainY = ModOptions.RoundGain(factory.PanGainY * multiplier);
-            settings.ZoomGain = ModOptions.RoundGain(factory.ZoomGain * multiplier);
-            settings.RotateGain = ModOptions.RoundGain(factory.RotateGain * multiplier);
-            settings.OrbitYawGain = ModOptions.RoundGain(factory.OrbitYawGain * multiplier);
-            settings.OrbitPitchGain = ModOptions.RoundGain(factory.OrbitPitchGain * multiplier);
+            settings.PanGainX = FeelMath.RoundGain(factory.PanGainX * multiplier);
+            settings.PanGainY = FeelMath.RoundGain(factory.PanGainY * multiplier);
+            settings.ZoomGain = FeelMath.RoundGain(factory.ZoomGain * multiplier);
+            settings.RotateGain = FeelMath.RoundGain(factory.RotateGain * multiplier);
+            settings.OrbitYawGain = FeelMath.RoundGain(factory.OrbitYawGain * multiplier);
+            settings.OrbitPitchGain = FeelMath.RoundGain(factory.OrbitPitchGain * multiplier);
 
             settings.SignInvertPanX = factory.SignInvertPanX;
             settings.SignInvertPanY = factory.SignInvertPanY;

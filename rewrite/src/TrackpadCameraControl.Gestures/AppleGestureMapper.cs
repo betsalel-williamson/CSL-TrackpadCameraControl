@@ -1,4 +1,4 @@
-namespace TrackpadCameraControl.Rewrite
+namespace TrackpadCameraControl.Gestures
 {
     /// <summary>AppKit NSEvent fields → GestureFrame. No camera ops. Honest finger counts.</summary>
     public static class AppleGestureMapper
@@ -94,13 +94,12 @@ namespace TrackpadCameraControl.Rewrite
             out GestureFrame frame
         )
         {
-            frame = default;
+            frame = default(GestureFrame);
             if (eventType == EventTypeSwipe || eventType == EventTypeBeginGesture)
             {
                 return false;
             }
 
-            // Finger lift: reset orbit latch / rotate ownership when per-gesture Ended was missed.
             if (eventType == EventTypeEndGesture)
             {
                 int endFingers = fingerCount >= 0 ? fingerCount : 0;
@@ -127,7 +126,6 @@ namespace TrackpadCameraControl.Rewrite
 
             if (eventType == EventTypeScrollWheel)
             {
-                // Mouse wheel (non-precise) must not become pan; leave vanilla zoom alone.
                 if (!hasPreciseScrollingDeltas)
                 {
                     return false;

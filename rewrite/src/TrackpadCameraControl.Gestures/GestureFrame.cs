@@ -3,7 +3,7 @@
 using System;
 using System.Runtime.InteropServices;
 
-namespace TrackpadCameraControl.Rewrite
+namespace TrackpadCameraControl.Gestures
 {
     public enum GesturePhase : int
     {

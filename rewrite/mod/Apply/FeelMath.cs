@@ -2,22 +2,25 @@ using System;
 
 namespace TrackpadCameraControl.Rewrite
 {
-    public static class CameraApplicator
+    /// <summary>
+    /// Pure feel math: op + feel → camera deltas. No Unity / Cities types.
+    /// </summary>
+    public static class FeelMath
     {
         private const float Deg2Rad = (float)(Math.PI / 180.0);
-
-        /// <summary>
-        /// Vanilla <c>CameraController.UpdateTargetPosition</c> pitch range (normal play).
-        /// Free camera allows −90; we still floor at 0 so mod orbit cannot go negative.
-        /// </summary>
         private const float VanillaPitchMin = 0f;
-
         private const float VanillaPitchMax = 90f;
 
         public enum InputModality
         {
             Drag,
             Button,
+        }
+
+        /// <summary>Three-decimal round for product numeric apply/display.</summary>
+        public static float RoundGain(float value)
+        {
+            return (float)Math.Round(value, 3, MidpointRounding.AwayFromZero);
         }
 
         public static void Apply(
@@ -31,30 +34,6 @@ namespace TrackpadCameraControl.Rewrite
         )
         {
             Apply(ops, dx, dy, pinchDelta, rotateDelta, settings, camera, InputModality.Drag, null);
-        }
-
-        public static void Apply(
-            CameraOp ops,
-            float dx,
-            float dy,
-            float pinchDelta,
-            float rotateDelta,
-            ModSettings settings,
-            ICameraController camera,
-            ISelectionContext selection
-        )
-        {
-            Apply(
-                ops,
-                dx,
-                dy,
-                pinchDelta,
-                rotateDelta,
-                settings,
-                camera,
-                InputModality.Drag,
-                selection
-            );
         }
 
         public static void ApplyButton(
@@ -110,10 +89,20 @@ namespace TrackpadCameraControl.Rewrite
             float rotateDelta,
             ModSettings settings,
             ICameraController camera,
-            InputModality modality
+            ISelectionContext selection
         )
         {
-            Apply(ops, dx, dy, pinchDelta, rotateDelta, settings, camera, modality, null);
+            Apply(
+                ops,
+                dx,
+                dy,
+                pinchDelta,
+                rotateDelta,
+                settings,
+                camera,
+                InputModality.Drag,
+                selection
+            );
         }
 
         public static void Apply(
@@ -133,8 +122,6 @@ namespace TrackpadCameraControl.Rewrite
                 return;
             }
 
-            // Rotation and orbit must not share one Apply: strip orbit when rotation is present
-            // so AddAngleVelocity cannot run in the same call as a rotation request.
             if ((ops & CameraOp.Rotate) != 0)
             {
                 ops &= ~CameraOp.Orbit;
@@ -152,7 +139,7 @@ namespace TrackpadCameraControl.Rewrite
 
             if ((ops & CameraOp.Orbit) != 0)
             {
-                ApplyOrbit(dx, dy, settings, camera, modality, selection);
+                ApplyOrbit(dx, dy, settings, camera, modality);
             }
 
             if ((ops & CameraOp.Rotate) != 0)
@@ -181,7 +168,6 @@ namespace TrackpadCameraControl.Rewrite
                 delta = -delta;
             }
 
-            // Pinch out (positive scale delta) → zoom in (smaller size).
             float next = size * (1f - delta);
             if (next < 10f)
             {
@@ -240,7 +226,6 @@ namespace TrackpadCameraControl.Rewrite
             float cos = (float)Math.Cos(rad);
             float sin = (float)Math.Sin(rad);
 
-            // Camera-relative XZ: right * mx + forward * my
             float nextX = x + cos * mx + sin * my;
             float nextZ = z + -sin * mx + cos * my;
             camera.ClampPanTarget(ref nextX, ref nextZ);
@@ -253,8 +238,7 @@ namespace TrackpadCameraControl.Rewrite
             float dy,
             ModSettings settings,
             ICameraController camera,
-            InputModality modality,
-            ISelectionContext selection
+            InputModality modality
         )
         {
             float yaw = camera.AngleX;
@@ -264,7 +248,6 @@ namespace TrackpadCameraControl.Rewrite
                 return;
             }
 
-            // Option-orbit always uses the current camera look-at (Target unchanged here).
             float dyaw = modality == InputModality.Button ? dx : dx * settings.OrbitYawGain;
             float dpitch = modality == InputModality.Button ? dy : dy * settings.OrbitPitchGain;
             if (settings.SignInvertOrbitYaw)
@@ -277,8 +260,6 @@ namespace TrackpadCameraControl.Rewrite
                 dpitch = -dpitch;
             }
 
-            // Drag: queue middle-mouse-style velocity (flushed from HandleMouseEvents postfix).
-            // Only stop further downward pitch at 0 so free-cam −90 cannot be reached via our path.
             if (modality != InputModality.Button)
             {
                 if (pitch <= VanillaPitchMin && dpitch < 0f)
@@ -305,11 +286,6 @@ namespace TrackpadCameraControl.Rewrite
             camera.AngleY = nextPitch;
         }
 
-        /// <summary>
-        /// Two-finger <b>rotation</b> (twist) — not orbit yaw. Writes AngleX or ghost angles.
-        /// Hard handoff: clears leftover orbit yaw+pitch velocity so prior Option-orbit coast
-        /// cannot bleed into the twist.
-        /// </summary>
         private static void ApplyRotate(
             float rotateDelta,
             ModSettings settings,
@@ -327,7 +303,6 @@ namespace TrackpadCameraControl.Rewrite
 
             if (selection != null && selection.TryApplyObjectYawDelta(delta))
             {
-                // Hard handoff: kill leftover orbit yaw + pitch coast under object rotation.
                 camera.ClearAngleVelocity(yaw: true, pitch: true);
                 return;
             }
@@ -338,9 +313,39 @@ namespace TrackpadCameraControl.Rewrite
                 return;
             }
 
-            // Hard handoff: clear both orbit velocity axes when rotation applies.
             camera.ClearAngleVelocity(yaw: true, pitch: true);
             camera.AngleX = yaw + delta;
+        }
+    }
+
+    /// <summary>Apply facade matching golden fixture call sites; delegates to <see cref="FeelMath"/>.</summary>
+    public static class CameraApplicator
+    {
+        public static void Apply(
+            CameraOp ops,
+            float dx,
+            float dy,
+            float pinchDelta,
+            float rotateDelta,
+            ModSettings settings,
+            ICameraController camera
+        )
+        {
+            FeelMath.Apply(ops, dx, dy, pinchDelta, rotateDelta, settings, camera);
+        }
+
+        public static void Apply(
+            CameraOp ops,
+            float dx,
+            float dy,
+            float pinchDelta,
+            float rotateDelta,
+            ModSettings settings,
+            ICameraController camera,
+            ISelectionContext selection
+        )
+        {
+            FeelMath.Apply(ops, dx, dy, pinchDelta, rotateDelta, settings, camera, selection);
         }
     }
 }

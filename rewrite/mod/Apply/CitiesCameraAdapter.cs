@@ -7,10 +7,9 @@ using UnityEngine;
 namespace TrackpadCameraControl.Rewrite
 {
     /// <summary>
-    /// Production <see cref="ICameraController"/> for CS1. CameraController is a MonoBehaviour with
-    /// no static instance — resolve via FindObjectOfType, then read/write target size/position/angle.
+    /// Thin Cities camera adapter: queue-only orbit; reflect CameraController fields when present.
     /// </summary>
-    public sealed class CameraControllerZoom : ICameraController
+    public class CitiesCameraAdapter : ICameraController
     {
         private static FieldInfo _targetSizeField;
         private static FieldInfo _currentSizeField;
@@ -19,34 +18,19 @@ namespace TrackpadCameraControl.Rewrite
         private static FieldInfo _targetAngleField;
         private static FieldInfo _currentAngleField;
         private static FieldInfo _angleVelocityField;
-#if !HAS_CITIES
-        private static MethodInfo _findObjectOfType;
-#endif
         private static Type _camType;
         private static bool _resolved;
         private static bool _available;
-        private static bool _loggedMissing;
-        private static bool _loggedOk;
 
         private object _cachedController;
-        private int _missStreak;
         private float _pendingYaw;
         private float _pendingPitch;
-
-        public bool IsAvailable
-        {
-            get
-            {
-                EnsureCameraFields();
-                return _available && TryGetController(out _);
-            }
-        }
 
         public float Size
         {
             get
             {
-                if (!TryGetController(out object cam))
+                if (!TryGetController(out object cam) || _targetSizeField == null)
                 {
                     return float.NaN;
                 }
@@ -55,7 +39,7 @@ namespace TrackpadCameraControl.Rewrite
             }
             set
             {
-                if (!TryGetController(out object cam))
+                if (!TryGetController(out object cam) || _targetSizeField == null)
                 {
                     return;
                 }
@@ -98,9 +82,6 @@ namespace TrackpadCameraControl.Rewrite
             set { SetAngleComponent(1, value); }
         }
 
-        /// <summary>
-        /// Clamp pan to the current unlocked game area (grows with purchases; not a fixed square).
-        /// </summary>
         public void ClampPanTarget(ref float x, ref float z)
         {
 #if HAS_CITIES
@@ -125,16 +106,11 @@ namespace TrackpadCameraControl.Rewrite
             }
             catch
             {
-                // Fail soft: leave proposed pan unclamped.
+                // fail soft
             }
 #endif
         }
 
-        /// <summary>
-        /// Queue yaw/pitch for middle-mouse-style orbit. Does not write angles or
-        /// <c>m_angleVelocity</c> here — vanilla damps velocity first in UpdateTargetPosition.
-        /// Flush from HandleMouseEvents Harmony postfix (after damp, before integrate).
-        /// </summary>
         public void AddAngleVelocity(float yawDelta, float pitchDelta)
         {
             if (yawDelta == 0f && pitchDelta == 0f)
@@ -146,10 +122,6 @@ namespace TrackpadCameraControl.Rewrite
             _pendingPitch += pitchDelta;
         }
 
-        /// <summary>
-        /// Write queued deltas into <c>m_angleVelocity</c> as pending / max(dt, 0.001)
-        /// so velocity * dt ≈ pending this frame.
-        /// </summary>
         public void FlushPendingAngleVelocity(float deltaTimeSeconds)
         {
             if (
@@ -278,8 +250,6 @@ namespace TrackpadCameraControl.Rewrite
 
             object vec = _targetPositionField.GetValue(cam);
             vec = SetVectorComponent(vec, _targetPositionField.FieldType, index, value);
-            // Pan uses ClampPanTarget (joint XZ via GameAreaManager.ClampPoint) before TargetX/Z
-            // writes so X and Z are not clamped against a stale other axis.
             _targetPositionField.SetValue(cam, vec);
             if (_currentPositionField != null)
             {
@@ -309,10 +279,6 @@ namespace TrackpadCameraControl.Rewrite
             target = SetVectorComponent(target, vectorType, index, value);
             _targetAngleField.SetValue(cam, target);
 
-            // Update only this axis on m_currentAngle. Copying the full target vector onto
-            // current (old behavior) snapped pitch whenever rotation wrote AngleX while
-            // current.y was still lerping — felt as pitch pops at twist start/end. Q/E
-            // keyboard rotate does not do that full-vector snap.
             if (_currentAngleField != null)
             {
                 object current = _currentAngleField.GetValue(cam);
@@ -363,7 +329,6 @@ namespace TrackpadCameraControl.Rewrite
                 return vector;
             }
 
-            // Structs: mutate boxed copy then return for SetValue.
             object boxed = vector;
             f.SetValue(boxed, value);
             return boxed;
@@ -375,7 +340,6 @@ namespace TrackpadCameraControl.Rewrite
             EnsureCameraFields();
             if (!_available)
             {
-                LogMissingOnce("CameraController type/fields not resolved");
                 return false;
             }
 
@@ -396,50 +360,18 @@ namespace TrackpadCameraControl.Rewrite
 #endif
             }
 
-            cam = FindController();
+#if HAS_CITIES
+            cam = UnityEngine.Object.FindObjectOfType<CameraController>();
+#else
+            cam = null;
+#endif
             if (cam == null)
             {
-                _missStreak++;
-                if (_missStreak == 1 || (_missStreak % 300) == 0)
-                {
-                    WriteDiag(
-                        "CameraController not in scene yet (load a city / wait for gameplay)"
-                    );
-                }
-
                 return false;
             }
 
             _cachedController = cam;
-            _missStreak = 0;
-            if (!_loggedOk)
-            {
-                _loggedOk = true;
-                WriteDiag("CameraController resolved; gesture camera armed");
-            }
-
             return true;
-        }
-
-        private static object FindController()
-        {
-#if HAS_CITIES
-            return UnityEngine.Object.FindObjectOfType<CameraController>();
-#else
-            if (_findObjectOfType == null || _camType == null)
-            {
-                return null;
-            }
-
-            try
-            {
-                return _findObjectOfType.Invoke(null, new object[] { _camType });
-            }
-            catch
-            {
-                return null;
-            }
-#endif
         }
 
         private static void EnsureCameraFields()
@@ -454,46 +386,8 @@ namespace TrackpadCameraControl.Rewrite
             {
 #if HAS_CITIES
                 _camType = typeof(CameraController);
-#else
-                foreach (var asm in AppDomain.CurrentDomain.GetAssemblies())
-                {
-                    _camType = asm.GetType("CameraController");
-                    if (_camType != null)
-                    {
-                        break;
-                    }
-                }
-
-                if (_camType == null)
-                {
-                    return;
-                }
-
-                Type objectType = null;
-                foreach (var asm in AppDomain.CurrentDomain.GetAssemblies())
-                {
-                    objectType = asm.GetType("UnityEngine.Object");
-                    if (objectType != null)
-                    {
-                        break;
-                    }
-                }
-
-                if (objectType != null)
-                {
-                    _findObjectOfType = objectType.GetMethod(
-                        "FindObjectOfType",
-                        BindingFlags.Public | BindingFlags.Static,
-                        null,
-                        new[] { typeof(Type) },
-                        null
-                    );
-                }
-#endif
-
                 BindingFlags bf =
                     BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
-
                 _targetSizeField = _camType.GetField("m_targetSize", bf);
                 _currentSizeField = _camType.GetField("m_currentSize", bf);
                 _targetPositionField = _camType.GetField("m_targetPosition", bf);
@@ -501,49 +395,18 @@ namespace TrackpadCameraControl.Rewrite
                 _targetAngleField = _camType.GetField("m_targetAngle", bf);
                 _currentAngleField = _camType.GetField("m_currentAngle", bf);
                 _angleVelocityField = _camType.GetField("m_angleVelocity", bf);
-
                 _available = _targetSizeField != null;
+#else
+                _available = false;
+#endif
             }
             catch
             {
                 _available = false;
             }
         }
-
-        private static void LogMissingOnce(string detail)
-        {
-            if (_loggedMissing)
-            {
-                return;
-            }
-
-            _loggedMissing = true;
-            WriteDiag(detail);
-        }
-
-        private static void WriteDiag(string message)
-        {
-            try
-            {
-                string line = "TrackpadCameraControl.Rewrite: " + message;
-#if HAS_CITIES
-                Debug.Log(line);
-#endif
-                string tmp = Environment.GetEnvironmentVariable("TMPDIR");
-                if (string.IsNullOrEmpty(tmp))
-                {
-                    tmp = System.IO.Path.GetTempPath();
-                }
-
-                System.IO.File.AppendAllText(
-                    System.IO.Path.Combine(tmp, "trackpad-camera-control-rewrite-mod.log"),
-                    line + Environment.NewLine
-                );
-            }
-            catch
-            {
-                // ignore
-            }
-        }
     }
+
+    /// <summary>Legacy name retained for ModRuntime wiring.</summary>
+    public sealed class CameraControllerZoom : CitiesCameraAdapter { }
 }

@@ -1,4 +1,3 @@
-using System;
 using System.Xml.Serialization;
 
 namespace TrackpadCameraControl.Rewrite
@@ -21,10 +20,6 @@ namespace TrackpadCameraControl.Rewrite
     /// </summary>
     public class ModSettings
     {
-        /// <summary>
-        /// Gesture style identity (Maps+ only on v1 ship). Orthogonal to
-        /// <see cref="ActiveFeelPresetName"/> (feel presets).
-        /// </summary>
         public GesturePreset GesturePreset { get; set; } = GesturePreset.MapsPlus;
 
         public GestureResolveMode GestureResolveMode { get; set; } = GestureResolveMode.Concurrent;
@@ -64,39 +59,21 @@ namespace TrackpadCameraControl.Rewrite
         public bool SignInvertZoom { get; set; }
         public bool SignInvertRotate { get; set; }
 
-        /// <summary>Centroid |delta| activation threshold (pan / orbit drag).</summary>
         public float MotionDeadband { get; set; } = 0.001f;
-
-        /// <summary>Pinch scale-delta activation threshold (zoom).</summary>
         public float PinchDeadband { get; set; } = 0.001f;
-
-        /// <summary>Twist rotate-delta activation threshold (Rotate op).</summary>
         public float RotateDeadband { get; set; } = 0.001f;
 
         public bool RequireGameFocus { get; set; } = true;
         public bool IgnoreOverUi { get; set; } = true;
         public bool DebugOverlay { get; set; }
 
-        /// <summary>Debug panel Copy: include OS / device enumeration in clipboard report.</summary>
         public bool IncludeSystemInfoInCopy { get; set; } = true;
-
-        /// <summary>User closed Debug panel via title-bar X; reopen chip shown when Assist on.</summary>
         public bool DebugPanelDismissed { get; set; }
-
-        /// <summary>Persisted Debug panel position (UI relative coords).</summary>
         public float DebugPanelPosX { get; set; } = 40f;
-
         public float DebugPanelPosY { get; set; } = 60f;
 
-        /// <summary>
-        /// Active feel identity for the feel dropdown (Slow / Default / Fast / New Preset / named).
-        /// Sensitivity and deadbands only — never gesture-style bindings.
-        /// </summary>
         public string ActiveFeelPresetName { get; set; } = FeelProfiles.NameDefault;
 
-        /// <summary>
-        /// Seeds Maps+ style bindings into the live style table and per-op display fields.
-        /// </summary>
         public void ApplyGesturePreset(GesturePreset preset)
         {
             _ = preset;
@@ -104,7 +81,6 @@ namespace TrackpadCameraControl.Rewrite
             StyleTable = MapsPlusSeed.CreateTable();
         }
 
-        /// <summary>Copy all feel and binding fields from another settings instance.</summary>
         public void CopyFrom(ModSettings other)
         {
             if (other == null)

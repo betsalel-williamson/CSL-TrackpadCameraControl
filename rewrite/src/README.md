@@ -1,5 +1,5 @@
-# Rewrite shared sources
+# Gesture library
 
-Optional Capture extras. Ship AppKit path lives in `rewrite/mod/Capture/`.
+`TrackpadCameraControl.Gestures` — shared primitive frame, `IGestureSource`, AppKit mapper/source, inject seam.
 
-When `EnableContactsCapture=true`, the rewrite csproj links root `src/TrackpadCapture/*.cs`.
+No Cities / Colossal / Harmony / Feel types. Referenced by `rewrite/mod`.

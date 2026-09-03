@@ -102,6 +102,10 @@
     </ItemGroup>
 
     <ItemGroup>
+        <ProjectReference Include="..\src\TrackpadCameraControl.Gestures\TrackpadCameraControl.Gestures.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
         <PackageReference
             Include="Microsoft.NETFramework.ReferenceAssemblies.net35"
             Version="1.0.3"

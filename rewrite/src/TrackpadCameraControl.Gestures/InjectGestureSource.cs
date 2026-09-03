@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace TrackpadCameraControl.Rewrite
+namespace TrackpadCameraControl.Gestures
 {
     /// <summary>Thread-safe inject queue for headless / in-game harnesses.</summary>
     public sealed class InjectGestureSource : IGestureSource

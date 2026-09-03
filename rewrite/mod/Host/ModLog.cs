@@ -5,15 +5,10 @@ using UnityEngine;
 
 namespace TrackpadCameraControl.Rewrite
 {
-    /// <summary>
-    /// Thin logging adapter for the rewrite mod. In-game builds use
-    /// <see cref="UnityEngine.Debug.Log"/>; headless tests may inject <see cref="TestSink"/>.
-    /// </summary>
     public static class ModLog
     {
         public const string Prefix = "[TrackpadCameraControl] ";
 
-        /// <summary>Optional test sink (Tier A/B harnesses without Unity).</summary>
         internal static Action<string> TestSink;
 
         public static void Info(string message)
@@ -35,10 +30,6 @@ namespace TrackpadCameraControl.Rewrite
 #endif
         }
 
-        /// <summary>
-        /// Maintainer-only per-frame capture trace. Off unless
-        /// <c>TRACKPAD_CAPTURE_TRACE=1</c> (or true/yes) at first check.
-        /// </summary>
         public static void CaptureTrace(string message)
         {
             if (!IsCaptureTraceEnabled() || message == null)

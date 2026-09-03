@@ -1,4 +1,4 @@
-namespace TrackpadCameraControl.Rewrite
+namespace TrackpadCameraControl.Gestures
 {
     public interface IGestureSource
     {

@@ -26,7 +26,7 @@ namespace TrackpadCameraControl.Rewrite
             }
             catch
             {
-                // fail soft: treat as not open
+                // fail soft
             }
 #endif
             return false;

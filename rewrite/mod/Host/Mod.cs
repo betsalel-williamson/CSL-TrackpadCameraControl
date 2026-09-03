@@ -1,9 +1,9 @@
 using System;
 using System.Globalization;
 using System.IO;
+using TrackpadCameraControl.Gestures;
 #if HAS_CITIES
 using CitiesHarmony.API;
-using ColossalFramework.UI;
 using ICities;
 #endif
 
@@ -17,16 +17,11 @@ namespace TrackpadCameraControl.Rewrite
         public const string E2eInjectEnvVar = "TRACKPAD_E2E_INJECT";
         public const string E2eInjectFlagFileName = "e2e-inject.flag";
 
-        /// <summary>Options tab / Content Manager title: mod name + product semver.</summary>
         public string Name => OptionsTitle;
 
         public string Description =>
-            "Rewrite (parity) — macOS trackpad camera: pan, pinch zoom, orbit. No middle mouse. Windows/Linux not supported yet.";
+            "Rewrite — macOS trackpad camera: pan, pinch zoom, orbit. Windows/Linux not supported yet.";
 
-        /// <summary>
-        /// Mod display title including temporary macOS tag and product semver
-        /// (e.g. for Options group header / Content Manager).
-        /// </summary>
         public static string OptionsTitle
         {
             get
@@ -41,10 +36,6 @@ namespace TrackpadCameraControl.Rewrite
             }
         }
 
-        /// <summary>
-        /// Debug panel title bar. Dev builds (<see cref="BuildInfo.ShowDevBuildIdentity"/>)
-        /// show assembly identity for reload QA; release builds show product semver only.
-        /// </summary>
         public static string DebugPanelTitle
         {
             get
@@ -61,10 +52,6 @@ namespace TrackpadCameraControl.Rewrite
             }
         }
 
-        /// <summary>
-        /// Product semver from package.json (BuildInfo / InformationalVersion).
-        /// Not the assembly Major.Minor.* identity Cities uses for auto-reload.
-        /// </summary>
         internal static string GetProductVersionDisplay()
         {
             try
@@ -83,7 +70,6 @@ namespace TrackpadCameraControl.Rewrite
             return null;
         }
 
-        /// <summary>UTC compile time stamped at MSBuild (dev build footer only).</summary>
         internal static string GetAssemblyBuildTimestampUtcDisplay()
         {
             try
@@ -102,10 +88,6 @@ namespace TrackpadCameraControl.Rewrite
             return null;
         }
 
-        /// <summary>
-        /// Full assembly identity (Major.Minor.Build.Revision). Changes each compile so
-        /// Cities auto-reloads; Debug panel title shows this instead of product semver.
-        /// </summary>
         internal static string GetAssemblyIdentityDisplay()
         {
             try
@@ -124,10 +106,6 @@ namespace TrackpadCameraControl.Rewrite
             }
         }
 
-        /// <summary>
-        /// Clipboard build stamp: <c>Built (UTC): …</c> on one line. Assembly identity is not
-        /// repeated here — with system info it appears under Assemblies; the Debug title shows it in-game.
-        /// </summary>
         internal static string GetBuildInfoFooterDisplay()
         {
             if (!BuildInfo.ShowDevBuildIdentity)
@@ -144,10 +122,6 @@ namespace TrackpadCameraControl.Rewrite
             return "Built (UTC): " + built;
         }
 
-        /// <summary>
-        /// Debug panel footer line: build time in the local time zone. Clipboard paste still
-        /// uses UTC via <see cref="GetBuildInfoFooterDisplay"/>.
-        /// </summary>
         internal static string GetBuildInfoPanelDisplay()
         {
             if (!BuildInfo.ShowDevBuildIdentity)
@@ -180,7 +154,6 @@ namespace TrackpadCameraControl.Rewrite
 
         public static ModRuntime Runtime { get; private set; }
 
-        /// <summary>Arm capture connect after city load or mod enable while a city is active.</summary>
         public static void ArmCaptureOnLevelLoaded()
         {
             try
@@ -193,10 +166,8 @@ namespace TrackpadCameraControl.Rewrite
             }
         }
 
-        /// <summary>Shim for call sites expecting <c>Mod.Pipeline</c>.</summary>
         public static GesturePipeline Pipeline => Runtime?.Pipeline;
 
-        /// <summary>Shim for call sites expecting <c>Mod.InjectSource</c>.</summary>
         public static InjectGestureSource InjectSource
         {
             get => Runtime?.Inject;
@@ -211,23 +182,18 @@ namespace TrackpadCameraControl.Rewrite
 
         public static ModSettings Settings => Runtime?.Settings ?? EnsureSettingsInternal();
 
-        internal static ModSettings EnsureSettings()
-        {
-            return Settings;
-        }
-
         private static ModSettings _settingsCache;
 
         private static ModSettings EnsureSettingsInternal()
         {
             if (_settingsCache == null)
             {
-                if (ModOptions.Store == null)
+                if (FeelEditor.ActiveStore == null)
                 {
-                    ModOptions.Store = new ModSettingsStore(ModSettingsStore.DefaultPath());
+                    FeelEditor.ActiveStore = new SettingsStore(SettingsStore.DefaultPath());
                 }
 
-                _settingsCache = ModOptions.Store.LoadOrFactory();
+                _settingsCache = FeelEditor.ActiveStore.LoadOrFactory();
             }
 
             return _settingsCache;
@@ -247,16 +213,18 @@ namespace TrackpadCameraControl.Rewrite
                 }
                 else
                 {
-                    source = CreateCaptureSource(settings);
+                    source = GesturePipeline.CreateDefaultCaptureSource();
                 }
 
                 Runtime = new ModRuntime(settings, source);
             }
             catch
             {
-                // Fail soft: gestures may be unavailable; suppress stays on while the mod is enabled.
                 EnsureSettingsInternal();
-                Runtime = new ModRuntime(_settingsCache, new AppleGestureSource());
+                Runtime = new ModRuntime(
+                    _settingsCache,
+                    GesturePipeline.CreateDefaultCaptureSource()
+                );
             }
 
 #if HAS_CITIES
@@ -273,17 +241,10 @@ namespace TrackpadCameraControl.Rewrite
                 Patcher.LogHarmonyMissingOnce();
             }
 
-            // Auto-reload (Paradox Automate) runs OnDisabled → Destroy then OnEnabled while the
-            // city stays loaded. OnLevelLoaded does not fire again — recreate Debug UI here.
-            // EnsureCreated fails soft when UIView is unavailable (main menu / early boot).
             try
             {
-                TuningPanelHost.EnsureCreated();
-                TuningPanelHost.ApplyVisibility();
-                if (UIView.GetAView() != null)
-                {
-                    ArmCaptureOnLevelLoaded();
-                }
+                DebugHost.EnsureCreated();
+                DebugHost.ApplyVisibility();
             }
             catch
             {
@@ -309,8 +270,7 @@ namespace TrackpadCameraControl.Rewrite
 
             try
             {
-                TuningPanelHost.Destroy();
-                VanillaCameraKeyLabelsWatch.Unhook();
+                DebugHost.Destroy();
             }
             catch
             {
@@ -321,7 +281,7 @@ namespace TrackpadCameraControl.Rewrite
             VanillaCameraSuppress.MenuOrOverUi = false;
             try
             {
-                ModOptions.FlushStore(true);
+                FeelEditor.FlushStore(true);
             }
             catch
             {
@@ -339,10 +299,10 @@ namespace TrackpadCameraControl.Rewrite
 
             Runtime = null;
             _settingsCache = null;
-            ModOptions.Store = null;
+            FeelEditor.ActiveStore = null;
             InputGates.Context = null;
             ModLog.ClearTestSink();
-            ModOptions.ResetSettingsChangedHandlers();
+            FeelEditor.ResetSettingsChangedHandlers();
         }
 
         public static bool IsE2eInjectEnabled()
@@ -373,7 +333,7 @@ namespace TrackpadCameraControl.Rewrite
                     return true;
                 }
 
-                string asmDir = Path.GetDirectoryName(typeof(GestureFrame).Assembly.Location);
+                string asmDir = Path.GetDirectoryName(typeof(FeelMath).Assembly.Location);
                 if (
                     !string.IsNullOrEmpty(asmDir)
                     && File.Exists(Path.Combine(asmDir, E2eInjectFlagFileName))
@@ -398,15 +358,8 @@ namespace TrackpadCameraControl.Rewrite
                 return;
             }
 
-            ModSettings s = EnsureSettings();
-            OptionsSettingsUi.Build(helper, s);
+            OptionsHost.Build(helper, EnsureSettingsInternal());
         }
 #endif
-
-        internal static IGestureSource CreateCaptureSource(ModSettings settings)
-        {
-            _ = settings;
-            return new AppleGestureSource();
-        }
     }
 }

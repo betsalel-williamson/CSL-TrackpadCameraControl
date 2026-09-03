@@ -1,4 +1,5 @@
 using System;
+using TrackpadCameraControl.Gestures;
 
 namespace TrackpadCameraControl.Rewrite
 {
@@ -9,7 +10,7 @@ namespace TrackpadCameraControl.Rewrite
         Pan = 1 << 0,
         Zoom = 1 << 1,
 
-        /// <summary>Product <b>Rotate</b> op (two-finger twist). Not Orbit yaw/pitch.</summary>
+        /// <summary>Product Rotate op (two-finger twist). Not Orbit yaw/pitch.</summary>
         Rotate = 1 << 2,
 
         /// <summary>Orbit drag — applies yaw + pitch around the pivot.</summary>
@@ -18,14 +19,9 @@ namespace TrackpadCameraControl.Rewrite
 
     /// <summary>
     /// Policy resolve: match Capture primitives against the live style binding table only.
-    /// Conflict filters (zoom↔rotate, orbit↔rotate) stay after table match for Maps+ parity.
     /// </summary>
     public static class StyleBindingResolver
     {
-        /// <summary>
-        /// Candidate ops from a single frame (ignores resolve mode and orbit latch filtering).
-        /// When <paramref name="orbitLatched"/>, the Orbit row matches without re-checking Option.
-        /// </summary>
         public static CameraOp ResolveCandidates(
             GestureFrame frame,
             ModSettings settings,
@@ -63,9 +59,6 @@ namespace TrackpadCameraControl.Rewrite
             return ops;
         }
 
-        /// <summary>
-        /// When both zoom and rotate qualify, keep the stronger signal so they never apply together.
-        /// </summary>
         public static CameraOp ExclusiveZoomVersusRotate(
             CameraOp ops,
             GestureFrame frame,
@@ -93,10 +86,6 @@ namespace TrackpadCameraControl.Rewrite
             return ops & ~CameraOp.Zoom;
         }
 
-        /// <summary>
-        /// Orbit centroid drag already writes camera yaw. Concurrent twist can double-write —
-        /// prefer Rotate when twist dominates centroid motion.
-        /// </summary>
         public static CameraOp ExclusiveOrbitVersusRotate(
             CameraOp ops,
             GestureFrame frame,
@@ -133,7 +122,6 @@ namespace TrackpadCameraControl.Rewrite
             return rotateScore > 0f && rotateScore >= motionScore;
         }
 
-        /// <summary>True when any Orbit style row matches without relying on latch.</summary>
         public static bool IsOrbitChordActive(GestureFrame frame, ModSettings settings)
         {
             if (settings == null || !settings.OrbitEnabled)
@@ -164,7 +152,6 @@ namespace TrackpadCameraControl.Rewrite
             return false;
         }
 
-        /// <summary>PrimaryOnly priority: Orbit > Zoom > Rotate > Pan.</summary>
         public static CameraOp PickPrimary(CameraOp candidates)
         {
             if ((candidates & CameraOp.Orbit) != 0)

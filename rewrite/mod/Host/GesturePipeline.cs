@@ -1,3 +1,6 @@
+using System;
+using TrackpadCameraControl.Gestures;
+
 namespace TrackpadCameraControl.Rewrite
 {
     /// <summary>Poll gesture source and apply camera ops. Safe to call every simulation frame.</summary>
@@ -11,8 +14,7 @@ namespace TrackpadCameraControl.Rewrite
         private int _reconnectCooldown;
 
         public GesturePipeline(ModSettings settings, IGestureSource source)
-            : this(settings, source, new CameraControllerZoom(), CitiesSelectionContext.Instance)
-        { }
+            : this(settings, source, new CitiesCameraAdapter(), CitiesSelectionContext.Instance) { }
 
         public GesturePipeline(
             ModSettings settings,
@@ -29,8 +31,8 @@ namespace TrackpadCameraControl.Rewrite
         )
         {
             _settings = settings ?? new ModSettings();
-            _source = source ?? new AppleGestureSource();
-            _camera = camera ?? new CameraControllerZoom();
+            _source = source ?? CreateDefaultCaptureSource();
+            _camera = camera ?? new CitiesCameraAdapter();
             _selection = selection ?? CitiesSelectionContext.Instance;
         }
 
@@ -49,7 +51,7 @@ namespace TrackpadCameraControl.Rewrite
                 _source.Disconnect();
             }
 
-            _source = source ?? new AppleGestureSource();
+            _source = source ?? CreateDefaultCaptureSource();
         }
 
         public void Tick()
@@ -88,7 +90,7 @@ namespace TrackpadCameraControl.Rewrite
                 _source.Connect();
                 if (!_source.IsConnected)
                 {
-                    _reconnectCooldown = 60; // ~1s at 60fps
+                    _reconnectCooldown = 60;
                     return;
                 }
             }
@@ -100,14 +102,6 @@ namespace TrackpadCameraControl.Rewrite
             while (safety-- > 0 && _source.TryDequeue(out GestureFrame frame))
             {
                 frame = GameModifierKeys.Enrich(frame);
-                if (
-                    frame.fingerCount <= 0
-                    || frame.phase == (int)GesturePhase.Ended
-                    || frame.phase == (int)GesturePhase.Cancelled
-                )
-                {
-                    // session reset handled inside Process on end phases
-                }
 
                 CameraOp ops = _session.Process(frame, _settings);
                 if (ops == CameraOp.None)
@@ -115,17 +109,21 @@ namespace TrackpadCameraControl.Rewrite
                     continue;
                 }
 
-                float dx = frame.centroidDeltaX;
-                float dy = frame.centroidDeltaY;
-                float pinch = frame.pinchScaleDelta;
-                float rotate = frame.rotateDelta;
-
                 if (skipApply)
                 {
                     continue;
                 }
 
-                CameraApplicator.Apply(ops, dx, dy, pinch, rotate, _settings, _camera, _selection);
+                FeelMath.Apply(
+                    ops,
+                    frame.centroidDeltaX,
+                    frame.centroidDeltaY,
+                    frame.pinchScaleDelta,
+                    frame.rotateDelta,
+                    _settings,
+                    _camera,
+                    _selection
+                );
                 applied = true;
             }
 
@@ -143,7 +141,6 @@ namespace TrackpadCameraControl.Rewrite
             }
         }
 
-        /// <summary>Re-connect capture after city load or mod auto-reload while a city is active.</summary>
         public void ArmCapture()
         {
             if (_source == null)
@@ -173,10 +170,6 @@ namespace TrackpadCameraControl.Rewrite
             ModLog.Info("gestures armed");
         }
 
-        /// <summary>
-        /// Hot-swap to inject when the e2e flag appears while the game is already running
-        /// (smoke script arms flags after the mod may already be enabled).
-        /// </summary>
         private void EnsureInjectSourceIfArmed()
         {
             if (_source is InjectGestureSource)
@@ -212,20 +205,27 @@ namespace TrackpadCameraControl.Rewrite
                 return;
             }
 
-            SwapCaptureSource(new AppleGestureSource());
-        }
-
-        private void SwapCaptureSource(IGestureSource next)
-        {
             try
             {
+                IGestureSource next = CreateDefaultCaptureSource();
                 next.Connect();
                 SetSource(next);
             }
             catch
             {
-                SetSource(new AppleGestureSource());
+                SetSource(CreateDefaultCaptureSource());
             }
+        }
+
+        internal static IGestureSource CreateDefaultCaptureSource()
+        {
+            var apple = new AppleGestureSource();
+            apple.ShouldCapture = InputGates.ShouldCaptureGestures;
+            apple.PreciseScrollChanged = precise =>
+            {
+                VanillaCameraSuppress.PreciseTrackpadScroll = precise;
+            };
+            return apple;
         }
     }
 }

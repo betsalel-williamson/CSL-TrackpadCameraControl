@@ -1,8 +1,10 @@
+using TrackpadCameraControl.Gestures;
+
 namespace TrackpadCameraControl.Rewrite
 {
     /// <summary>
-    /// Maps+ factory seed rows for parity with shipping chords (ADR 0004).
-    /// Two-finger pan, pinch zoom, two-finger rotate, Option+two-finger orbit.
+    /// Maps+ factory seed rows: two-finger pan, pinch zoom, two-finger rotate,
+    /// Option+two-finger orbit.
     /// </summary>
     public static class MapsPlusSeed
     {
