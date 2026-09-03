@@ -1,0 +1,87 @@
+# Phase 3 Semgrep gates for rewrite/mod (static-analysis-and-quality.md, L1/L6/L10).
+# Run: semgrep scan --config rewrite/scripts/semgrep/rewrite.yml rewrite/mod
+#
+# fingerCount policy (L4):
+# - AppKit may hardcode active fingerCount=2 (scroll/magnify/rotate). That is allowed —
+#   do not false-fail Maps+ seed rows (min/max 2) or AppleGestureMapper.AppKitActiveFingerCount.
+# - Flag obvious dead three-finger claims on the AppKit-only ship path.
+
+rules:
+  - id: rewrite.ban-empty-catch
+    languages: [csharp]
+    severity: ERROR
+    message: >-
+      Empty catch swallows exceptions with no statement (L6/ceremony). Prefer
+      handle, rethrow, or document with a real recovery statement — not a bare catch.
+    # Truly empty bodies only. Comment-only "// fail soft" catches are intentional
+    # Cities soft-fail today and are out of scope for this gate (see README).
+    patterns:
+      - pattern-regex: 'catch(?:\s*\([^)]*\))?\s*\{\s*\}'
+    metadata:
+      category: correctness
+      lesson: L6
+      likelihood: medium
+
+  - id: rewrite.legacy-alias-method
+    languages: [csharp]
+    severity: ERROR
+    message: >-
+      Dead alias / one-hop facade (L6). Delete the alias or give it a second
+      implementation / real test seam — prefer deleting redirection.
+    patterns:
+      - pattern-either:
+          - pattern: |
+              public void ApplyPreset(...)
+              {
+                  ApplyGesturePreset(...);
+              }
+          - pattern: |
+              internal static string GetAssemblyVersionDisplay()
+              {
+                  return GetProductVersionDisplay();
+              }
+          - pattern: |
+              public const float SensitivityMin = ScaleMin;
+          - pattern: |
+              public const float SensitivityMax = ScaleMax;
+    metadata:
+      category: maintainability
+      lesson: L6
+
+  - id: rewrite.ensure-style-one-hop-alias
+    languages: [csharp]
+    severity: WARNING
+    message: >-
+      Ensure*-named method that only forwards to another symbol looks like a
+      useless alias (L6). Confirm it earns a seam, or inline/delete it.
+    patterns:
+      - pattern-regex: '(?:public|internal|private|protected)\s+(?:static\s+)?[\w.<>,\[\]]+\s+Ensure[A-Z]\w*\s*\([^;]*\)\s*\{\s*return\s+\w+'
+    metadata:
+      category: maintainability
+      lesson: L6
+      note: Heuristic; review hits before deleting.
+
+  - id: rewrite.dead-three-finger-on-appkit-path
+    languages: [csharp]
+    severity: ERROR
+    message: >-
+      Three-finger gesture claim on a path that ships with AppKit-only capture (L4).
+      AppKit defaults active fingerCount to 2 — three-finger orbit seeds are dead
+      on the ship path. Maps+ two-finger seeds and AppKitActiveFingerCount=2 are allowed.
+    patterns:
+      - pattern-either:
+          # Bindings / trigger writes that claim three fingers on the ship path.
+          - pattern: |
+              new TrackpadGestureBinding(TrackpadGesture.ThreeFingerDrag, ...)
+          - pattern: |
+              new TrackpadGestureBinding(TrackpadGesture.ThreeFingerSwipe, ...)
+          - pattern: |
+              new TrackpadGestureBinding(TrackpadGesture.ThreeFingerTap, ...)
+          - pattern: |
+              new StyleBindingRow(..., 3, 3, ...)
+    metadata:
+      category: correctness
+      lesson: L4
+      fingerCount-policy: >-
+        Allowed hardcodes: AppKitActiveFingerCount=2; MapsPlusSeed min/max 2.
+        Enum case labels in ToDisplayLabel are not flagged (catalog stubs only).
