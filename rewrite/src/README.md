@@ -1,5 +1,7 @@
-# Gesture library
+# Gesture library (`TrackpadCameraControl.Gestures`)
 
-`TrackpadCameraControl.Gestures` — shared primitive frame, `IGestureSource`, AppKit mapper/source, inject seam.
+Unity-reusable middle stack layer: `GestureFrame`, `IGestureSource`, AppKit backend, inject seam.
 
-No Cities / Colossal / Harmony / Feel types. Referenced by `rewrite/mod`.
+- No `ICities` / Colossal / Harmony / Feel / Maps+ types
+- CSL mod references this project and wires an `IGestureSource`
+- See features _Under the hood_ and ADR 0006
