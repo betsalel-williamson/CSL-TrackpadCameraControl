@@ -176,5 +176,64 @@ namespace TrackpadCameraControl
             }
         }
     }
+
+    [HarmonyPatch]
+    internal static class OptionsKeymappingPanelRefreshPatch
+    {
+        private static MethodBase TargetMethod()
+        {
+            Type panelType = AccessTools.TypeByName("OptionsKeymappingPanel");
+            return panelType == null ? null : AccessTools.Method(panelType, "RefreshKeyMapping");
+        }
+
+        public static void Postfix()
+        {
+            VanillaCameraKeyLabelsWatch.NotifyLabelsChangedFromGame();
+        }
+    }
+
+    [HarmonyPatch]
+    internal static class OptionsKeymappingPanelResetPatch
+    {
+        private static MethodBase TargetMethod()
+        {
+            Type panelType = AccessTools.TypeByName("OptionsKeymappingPanel");
+            return panelType == null ? null : AccessTools.Method(panelType, "ResetKeyMapping");
+        }
+
+        public static void Postfix()
+        {
+            VanillaCameraKeyLabelsWatch.NotifyLabelsChangedFromGame();
+        }
+    }
+
+    [HarmonyPatch]
+    internal static class OptionsKeymappingPanelClearPatch
+    {
+        private static MethodBase TargetMethod()
+        {
+            Type panelType = AccessTools.TypeByName("OptionsKeymappingPanel");
+            return panelType == null ? null : AccessTools.Method(panelType, "OnClearKeyMapping");
+        }
+
+        public static void Postfix()
+        {
+            VanillaCameraKeyLabelsWatch.NotifyLabelsChangedFromGame();
+        }
+    }
+
+    [HarmonyPatch(typeof(SavedInputKey), "value", MethodType.Setter)]
+    internal static class SavedInputKeyValueSetterPatch
+    {
+        public static void Postfix(SavedInputKey __instance)
+        {
+            if (!VanillaCameraKeyLabels.IsWatchedCameraKey(__instance))
+            {
+                return;
+            }
+
+            VanillaCameraKeyLabelsWatch.NotifyLabelsChangedFromGame();
+        }
+    }
 }
 #endif

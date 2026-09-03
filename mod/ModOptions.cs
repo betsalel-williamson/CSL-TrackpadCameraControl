@@ -50,20 +50,29 @@ namespace TrackpadCameraControl
         public static readonly string CadDescription =
             "Same pan/pinch/yaw as Maps+. Three-finger drag orbits (may fight OS Mission Control / Spaces).";
 
-        /// <summary>Pan section heading: meaning + Maps+ activation.</summary>
-        public const string OpHeadingPan = "Pan — Slide the camera laterally · two-finger drag";
+        /// <summary>Pan section body copy for Options (group title is separate).</summary>
+        public static string OpDescriptionPan => VanillaCameraKeyLabels.OpDescriptionPan;
 
-        /// <summary>Zoom section heading: meaning + Maps+ activation.</summary>
-        public const string OpHeadingZoom =
-            "Zoom — Change camera distance / size · pinch (mouse wheel: vanilla zoom)";
+        /// <summary>Zoom section body copy for Options (group title is separate).</summary>
+        public static string OpDescriptionZoom => VanillaCameraKeyLabels.OpDescriptionZoom;
 
-        /// <summary>Rotate section heading: meaning + Maps+ activation.</summary>
-        public const string OpHeadingRotate =
-            "Rotate — Yaw around the vertical axis · two-finger rotate";
+        /// <summary>Rotate section body copy for Options (group title is separate).</summary>
+        public static string OpDescriptionRotate => VanillaCameraKeyLabels.OpDescriptionRotate;
 
-        /// <summary>Orbit section heading: meaning + Maps+ activation.</summary>
-        public const string OpHeadingOrbit =
-            "Orbit — Pitch + yaw around the pivot · Option (⌥)+two-finger drag";
+        /// <summary>Orbit section body copy for Options (group title is separate).</summary>
+        public static string OpDescriptionOrbit => VanillaCameraKeyLabels.OpDescriptionOrbit;
+
+        /// <summary>Pan section heading for Debug panel (includes title line).</summary>
+        public static string OpHeadingPan => VanillaCameraKeyLabels.OpHeadingPan;
+
+        /// <summary>Zoom section heading for Debug panel (includes title line).</summary>
+        public static string OpHeadingZoom => VanillaCameraKeyLabels.OpHeadingZoom;
+
+        /// <summary>Rotate section heading for Debug panel (includes title line).</summary>
+        public static string OpHeadingRotate => VanillaCameraKeyLabels.OpHeadingRotate;
+
+        /// <summary>Orbit section heading for Debug panel (includes title line).</summary>
+        public static string OpHeadingOrbit => VanillaCameraKeyLabels.OpHeadingOrbit;
 
         public static ModSettingsStore Store { get; set; }
 

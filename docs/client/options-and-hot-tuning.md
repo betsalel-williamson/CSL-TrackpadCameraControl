@@ -19,14 +19,14 @@ A **dropdown** lists built-in and named [feel presets](../glossary/feel-preset.m
 
 Sections appear in order **General → Zoom → Pan → Rotate → Orbit**. Rhythm uses native Colossal **AddGroup**: a short group title with the native glow underline, and controls nested in that group’s Content.
 
-For each camera op, a short heading states **what it means** and **what activates it** on the shipped Maps+ style:
+For each camera op, the **title** is on its own line; the next lines state **Maps+ activation** and the player’s current **vanilla** bindings (from Cities keymappings / Options labels, not hardcoded prose). Those binding lines **refresh when keymappings change** via game keymapping events (Debug panel rebuilds; Options descriptions update while the mod tab is open).
 
-| Op | Meaning | Activation (Maps+) |
-| --- | --- | --- |
-| Zoom | Change camera distance / size | Pinch (mouse wheel uses vanilla zoom) |
-| Pan | Slide the camera laterally | Two-finger drag (stays within city bounds) |
-| Rotate | Yaw the camera, or rotate a place/relocate ghost | Two-finger rotate |
-| Orbit | Pitch + yaw around the pivot (or around a selection) | Option (`⌥`)+two-finger drag |
+| Op     | Meaning                                              | Activation (Maps+)           | Vanilla (still on)                           |
+| ------ | ---------------------------------------------------- | ---------------------------- | -------------------------------------------- |
+| Zoom   | Change camera distance / size                        | Pinch                        | Mouse-wheel option label + zoom key bindings |
+| Pan    | Slide the camera laterally                           | Two-finger drag              | Edge scrolling option + move key bindings    |
+| Rotate | Yaw the camera, or rotate a place/relocate ghost     | Two-finger rotate            | Rotate-left / rotate-right bindings          |
+| Orbit  | Pitch + yaw around the pivot (or around a selection) | Option (`⌥`)+two-finger drag | Rotate-camera mouse binding                  |
 
 Product-surface Options controls: **Sensitivity** sliders only (about **0.1×–2×** factory default). Orbit pitch follows vanilla **0–90°** (no separate Pitch min/max controls). There is no Enable-per-op or Reverse UI. Labels say **Sensitivity** (not drag scale).
 

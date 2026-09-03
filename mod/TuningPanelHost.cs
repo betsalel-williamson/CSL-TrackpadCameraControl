@@ -57,6 +57,9 @@ namespace TrackpadCameraControl
 
             ModOptions.SettingsChanged -= OnSettingsChanged;
             ModOptions.SettingsChanged += OnSettingsChanged;
+            VanillaCameraKeyLabelsWatch.LabelsChanged -= OnKeymappingLabelsChanged;
+            VanillaCameraKeyLabelsWatch.LabelsChanged += OnKeymappingLabelsChanged;
+            VanillaCameraKeyLabelsWatch.EnsureHooked();
 
             _root = view.AddUIComponent(typeof(UIPanel)) as UIPanel;
             if (_root == null)
@@ -73,12 +76,11 @@ namespace TrackpadCameraControl
             _root.relativePosition = new Vector3(s.DebugPanelPosX, s.DebugPanelPosY, 0f);
             _root.canFocus = true;
             _root.isInteractive = true;
-            _root.eventMouseDown += (c, e) =>
-            {
-                _root.BringToFront();
-            };
+            _root.eventMouseDown += (c, e) => OnPanelMouseDown();
 
             BuildTitleBar();
+            ResetPanelFocusVisual();
+            ApplyPanelFocusVisual();
 
             _nextY = TitleBarHeight + 8f;
 
@@ -154,6 +156,7 @@ namespace TrackpadCameraControl
         public static void Destroy()
         {
             ModOptions.SettingsChanged -= OnSettingsChanged;
+            VanillaCameraKeyLabelsWatch.LabelsChanged -= OnKeymappingLabelsChanged;
 
             if (_root != null)
             {
@@ -188,6 +191,16 @@ namespace TrackpadCameraControl
             if (_root == null)
             {
                 ApplyVisibility();
+                return;
+            }
+
+            _rebuildQueued = true;
+        }
+
+        private static void OnKeymappingLabelsChanged()
+        {
+            if (_root == null)
+            {
                 return;
             }
 
@@ -258,8 +271,6 @@ namespace TrackpadCameraControl
             _titleBar.height = TitleBarHeight;
             _titleBar.relativePosition = Vector3.zero;
             _titleBar.backgroundSprite = "GenericPanel";
-            // Soft translucent strip over MenuPanel2 (not opaque punch-out).
-            _titleBar.color = new Color32(40, 40, 40, 160);
             _titleBar.isInteractive = true;
 
             UIDragHandle drag = _titleBar.AddUIComponent<UIDragHandle>();
@@ -268,8 +279,13 @@ namespace TrackpadCameraControl
             // Mouse-up is handled by UIDragHandle, not the title-bar UIPanel.
             drag.eventMouseUp += (c, e) => SavePanelPosition();
 
-            _title = AddLabel(_titleBar, Mod.OptionsTitle, Col0, 8f);
+            _title = AddLabel(_titleBar, Mod.OptionsTitle, 0f, 0f);
             _title.textScale = 1.1f;
+            _title.autoSize = false;
+            _title.width = PanelWidth - (HeaderButtonSize * 2f) - 8f;
+            _title.height = TitleBarHeight;
+            _title.textAlignment = UIHorizontalAlignment.Center;
+            _title.verticalAlignment = UIVerticalAlignment.Middle;
             // Title text is decorative; drag comes from the title-bar strip.
             _title.isInteractive = false;
 
@@ -760,18 +776,49 @@ namespace TrackpadCameraControl
 
         private static void AddOpHeading(string text)
         {
-            UILabel label = _root.AddUIComponent<UILabel>();
-            label.text = text;
-            label.relativePosition = new Vector3(Col0, _nextY);
-            label.textColor = Color.white;
-            // Full content width so long op copy does not collide with Sensitivity fields.
-            label.width = PanelWidth - (FieldGutter * 2f);
-            label.height = 36f;
-            label.autoSize = false;
-            label.autoHeight = true;
-            label.wordWrap = true;
-            label.PerformLayout();
-            _nextY += Mathf.Max(28f, label.height + 8f);
+            if (string.IsNullOrEmpty(text))
+            {
+                return;
+            }
+
+            string[] lines = text.Split('\n');
+            if (lines.Length == 0)
+            {
+                return;
+            }
+
+            UILabel titleLabel = _root.AddUIComponent<UILabel>();
+            titleLabel.text = lines[0];
+            titleLabel.relativePosition = new Vector3(Col0, _nextY);
+            titleLabel.textColor = Color.white;
+            titleLabel.autoSize = true;
+            titleLabel.PerformLayout();
+            _nextY += titleLabel.height + 2f;
+
+            for (int i = 1; i < lines.Length; i++)
+            {
+                string line = lines[i];
+                if (string.IsNullOrEmpty(line))
+                {
+                    continue;
+                }
+
+                AddOpHeadingBodyLine(line);
+            }
+
+            _nextY += 6f;
+        }
+
+        private static void AddOpHeadingBodyLine(string line)
+        {
+            UILabel bodyLabel = _root.AddUIComponent<UILabel>();
+            bodyLabel.text = line;
+            bodyLabel.relativePosition = new Vector3(Col0, _nextY);
+            bodyLabel.textColor = Color.white;
+            bodyLabel.textScale = 0.85f;
+            bodyLabel.autoSize = true;
+            bodyLabel.PerformLayout();
+            _nextY += Mathf.Max(16f, bodyLabel.height + 4f);
         }
 
         private static void AddCheckRow(

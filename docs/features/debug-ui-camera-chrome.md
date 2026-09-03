@@ -14,7 +14,7 @@ Give players an on-screen **Debug** panel (debug menu / floating tuning surface)
 
 One floating panel while a city is loaded:
 
-1. Window title: mod name + version. The title bar is the drag handle and hosts native Cities circular **close** and **gear** (Options) controls. Header buttons are translucent at rest and stronger on hover. Gear opens vanilla **OPTIONS**. Closing the panel (while Options still allows Debug) leaves a floating **Debug** reopen chip.
+1. Window title: mod name + version. The title bar is the drag handle and hosts native Cities circular **close** and **gear** (Options) controls. Header buttons are translucent at rest and stronger on hover. While the pointer is over the panel, the body and title bar are fully opaque; moving off softens both so the city shows through. Gear opens vanilla **OPTIONS**. Closing the panel (while Options still allows Debug) leaves a floating **Debug** reopen chip.
 2. Feel preset row (Slow / Default / Fast / **New Preset** when dirty, Save as… last in the dropdown, Load on select, Reset to factory).
 3. Sections in order **General → Zoom → Pan → Rotate → Orbit**. Label + Sensitivity control share one row.
 4. Footer line: **Built (UTC)** and **asm** identity — confirm the latest compile loaded after auto-reload; **Copy** pastes build info to the clipboard. **Include system info (OS, devices)** (default on) adds OS + Mac model, connected keyboard/mouse/trackpad **models** (VID:PID / transport; duplicates as ×N; never serials), and dependency-critical **assembly** versions (Unity, Harmony, game, this mod) for QA. Both the Copy checkbox and title-bar dismiss state **persist across sessions** (schema 4).
@@ -39,7 +39,7 @@ Schema may retain an Assist-named field; the product label is **Show debug panel
 
 ## Acceptance criteria
 
-- With Show debug panel on, the floating panel shows feel presets and tunables while a city is loaded; title bar drag moves the whole panel 1:1 with the cursor; native circular close and gear appear in the title bar (translucent at rest, stronger on hover); gear opens vanilla OPTIONS.
+- With Show debug panel on, the floating panel shows feel presets and tunables while a city is loaded; title bar drag moves the whole panel 1:1 with the cursor; native circular close and gear appear in the title bar (translucent at rest, stronger on hover); hovering the panel shows it at full opacity; moving off softens it so the city shows through; gear opens vanilla OPTIONS.
 - A change in the Debug panel appears immediately in Options (and the reverse); every change autosaves.
 - When `EnableAssistChrome` is on, pads/buttons move the camera through the shared apply path.
 - Turning Show debug panel off removes the panel and the floating Debug reopen chip immediately (no restart).

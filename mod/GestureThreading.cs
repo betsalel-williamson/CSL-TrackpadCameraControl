@@ -14,6 +14,7 @@ namespace TrackpadCameraControl
                 Mod.Runtime?.Pipeline?.Tick();
 #if HAS_CITIES
                 TuningPanelHost.ProcessPendingUiRebuild();
+                TuningPanelHost.ProcessPanelFocusVisual();
 #endif
             }
             catch
