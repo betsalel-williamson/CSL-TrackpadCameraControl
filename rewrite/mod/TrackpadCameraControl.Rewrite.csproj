@@ -1,0 +1,161 @@
+<!--
+  Rewrite DLL targets net35 (CS1 Unity Mono / mscorlib). Parallel to shipping
+  TrackpadCameraControl — deploys to Mods/TrackpadCameraControl.Rewrite.
+  Tests / CI: -p:EnableCitiesRefs=false when ICities.dll is missing.
+-->
+<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <TargetFramework>net35</TargetFramework>
+        <LangVersion>9.0</LangVersion>
+        <Nullable>disable</Nullable>
+        <ImplicitUsings>disable</ImplicitUsings>
+        <RootNamespace>TrackpadCameraControl.Rewrite</RootNamespace>
+        <AssemblyName>TrackpadCameraControl.Rewrite</AssemblyName>
+        <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
+        <_PackageJsonPath>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)../../package.json'))</_PackageJsonPath>
+        <_PackageJsonContent Condition="Exists('$(_PackageJsonPath)')"
+            >$([System.IO.File]::ReadAllText('$(_PackageJsonPath)'))</_PackageJsonContent>
+        <Version Condition="'$(_PackageJsonContent)' != ''"
+            >$([System.Text.RegularExpressions.Regex]::Match($(_PackageJsonContent), '"version"\s*:\s*"([^"]+)"').Groups[1].Value)</Version>
+        <Version Condition="'$(Version)' == ''">0.0.0</Version>
+        <_AsmMajor>$([System.Text.RegularExpressions.Regex]::Match('$(Version)', '^(\d+)\.(\d+)').Groups[1].Value)</_AsmMajor>
+        <_AsmMinor>$([System.Text.RegularExpressions.Regex]::Match('$(Version)', '^(\d+)\.(\d+)').Groups[2].Value)</_AsmMinor>
+        <_AsmMajor Condition="'$(_AsmMajor)' == ''">0</_AsmMajor>
+        <_AsmMinor Condition="'$(_AsmMinor)' == ''">0</_AsmMinor>
+        <AssemblyVersion>$(_AsmMajor).$(_AsmMinor).*</AssemblyVersion>
+        <FileVersion>$(Version)</FileVersion>
+        <InformationalVersion>$(Version)</InformationalVersion>
+        <Deterministic>false</Deterministic>
+        <BuildTimestampUtc>$([System.DateTime]::UtcNow.ToString('yyyy-MM-ddTHH:mm:ssZ'))</BuildTimestampUtc>
+        <CitiesManaged Condition="'$(CitiesManaged)' == '' and '$(HOME)' != ''"
+            >$(HOME)/Library/Application Support/Steam/steamapps/common/Cities_Skylines/Cities.app/Contents/Resources/Data/Managed</CitiesManaged>
+        <CitiesMods Condition="'$(CitiesMods)' == '' and '$(HOME)' != ''"
+            >$(HOME)/Library/Application Support/Colossal Order/Cities_Skylines/Addons/Mods</CitiesMods>
+        <CitiesMods Condition="'$(CitiesMods)' == '' and '$(LOCALAPPDATA)' != ''"
+            >$(LOCALAPPDATA)\Colossal Order\Cities_Skylines\Addons\Mods</CitiesMods>
+        <ModDeployDir>$(CitiesMods)/TrackpadCameraControl.Rewrite</ModDeployDir>
+        <DisableImplicitFrameworkReferences>false</DisableImplicitFrameworkReferences>
+
+        <EnableCadGestureStyle Condition="'$(EnableCadGestureStyle)' == ''"
+            >false</EnableCadGestureStyle>
+        <EnableContactsCapture Condition="'$(EnableContactsCapture)' == ''"
+            >false</EnableContactsCapture>
+        <EnableAssistChrome Condition="'$(EnableAssistChrome)' == ''">false</EnableAssistChrome>
+    </PropertyGroup>
+
+    <Target Name="GenerateBuildInfo" BeforeTargets="BeforeCompile">
+        <PropertyGroup>
+            <_BuildInfoFile>$(IntermediateOutputPath)BuildInfo.g.cs</_BuildInfoFile>
+        </PropertyGroup>
+        <ItemGroup>
+            <_BuildInfoLines Include="namespace TrackpadCameraControl.Rewrite" />
+            <_BuildInfoLines Include="{" />
+            <_BuildInfoLines Include="    internal static class BuildInfo" />
+            <_BuildInfoLines Include="    {" />
+            <_BuildInfoLines Include="        internal const string ProductVersion = &quot;$(Version)&quot;%3B" />
+            <_BuildInfoLines Include="        internal const string BuildTimestampUtc = &quot;$(BuildTimestampUtc)&quot;%3B" />
+            <_BuildInfoLines Include="    }" />
+            <_BuildInfoLines Include="}" />
+        </ItemGroup>
+        <WriteLinesToFile File="$(_BuildInfoFile)" Lines="@(_BuildInfoLines)" Overwrite="true" />
+        <ItemGroup>
+            <Compile Include="$(_BuildInfoFile)" />
+            <FileWrites Include="$(_BuildInfoFile)" />
+        </ItemGroup>
+    </Target>
+
+    <Target
+        Name="DeployToCitiesMods"
+        AfterTargets="Build"
+        Condition="'$(SkipModDeploy)' != 'true' And '$(EnableCitiesRefs)' != 'false' And Exists('$(CitiesManaged)/ICities.dll') And '$(CitiesMods)' != ''"
+    >
+        <MakeDir Directories="$(ModDeployDir)" />
+        <Delete Files="$(ModDeployDir)/$(TargetFileName)" TreatErrorsAsWarnings="true" />
+        <Copy
+            SourceFiles="$(TargetPath)"
+            DestinationFolder="$(ModDeployDir)"
+            OverwriteReadOnlyFiles="true"
+        />
+        <Copy
+            SourceFiles="$(MSBuildThisFileDirectory)PreviewImage.png"
+            DestinationFolder="$(ModDeployDir)"
+            SkipUnchangedFiles="true"
+            Condition="Exists('$(MSBuildThisFileDirectory)PreviewImage.png')"
+        />
+        <Copy
+            SourceFiles="$(TargetDir)CitiesHarmony.API.dll"
+            DestinationFolder="$(ModDeployDir)"
+            SkipUnchangedFiles="true"
+            Condition="Exists('$(TargetDir)CitiesHarmony.API.dll')"
+        />
+        <Message Importance="high" Text="Deployed → $(ModDeployDir)/$(TargetFileName)" />
+    </Target>
+
+    <PropertyGroup Condition="'$(EnableCadGestureStyle)' == 'true'">
+        <DefineConstants>$(DefineConstants);ENABLE_CAD_GESTURE_STYLE</DefineConstants>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(EnableContactsCapture)' == 'true'">
+        <DefineConstants>$(DefineConstants);ENABLE_CONTACTS_CAPTURE</DefineConstants>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(EnableAssistChrome)' == 'true'">
+        <DefineConstants>$(DefineConstants);ENABLE_ASSIST_CHROME</DefineConstants>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference
+            Include="Microsoft.NETFramework.ReferenceAssemblies.net35"
+            Version="1.0.3"
+            PrivateAssets="all"
+        />
+    </ItemGroup>
+
+    <ItemGroup Condition="Exists('$(CitiesManaged)/ICities.dll') And '$(EnableCitiesRefs)' != 'false'">
+        <PackageReference Include="CitiesHarmony.API" Version="2.2.0">
+            <PrivateAssets>all</PrivateAssets>
+        </PackageReference>
+    </ItemGroup>
+
+    <PropertyGroup Condition="Exists('$(CitiesManaged)/ICities.dll') And '$(EnableCitiesRefs)' != 'false'">
+        <DefineConstants>$(DefineConstants);HAS_CITIES</DefineConstants>
+    </PropertyGroup>
+
+    <ItemGroup Condition="Exists('$(CitiesManaged)/ICities.dll') And '$(EnableCitiesRefs)' != 'false'">
+        <Reference Include="ICities">
+            <HintPath>$(CitiesManaged)/ICities.dll</HintPath>
+            <Private>false</Private>
+        </Reference>
+        <Reference Include="Assembly-CSharp">
+            <HintPath>$(CitiesManaged)/Assembly-CSharp.dll</HintPath>
+            <Private>false</Private>
+        </Reference>
+        <Reference Include="ColossalManaged">
+            <HintPath>$(CitiesManaged)/ColossalManaged.dll</HintPath>
+            <Private>false</Private>
+        </Reference>
+        <Reference Include="UnityEngine">
+            <HintPath>$(CitiesManaged)/UnityEngine.dll</HintPath>
+            <Private>false</Private>
+        </Reference>
+    </ItemGroup>
+
+    <!-- Contacts MultitouchSupport sources: only when the module is compiled on. -->
+    <ItemGroup Condition="'$(EnableContactsCapture)' == 'true'">
+        <Compile Include="..\..\src\TrackpadCapture\*.cs" Link="Capture\TrackpadCapture\%(Filename).cs" />
+    </ItemGroup>
+
+    <!-- Omit Contacts tick-path types from the ship DLL when the module is off. -->
+    <ItemGroup Condition="'$(EnableContactsCapture)' != 'true'">
+        <Compile Remove="Capture\InProcessGestureSource.cs" />
+        <Compile Remove="Capture\IpcGestureSource.cs" />
+        <Compile Remove="Capture\DragLowPass.cs" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <None
+            Include="PreviewImage.png"
+            Condition="Exists('$(MSBuildThisFileDirectory)PreviewImage.png')"
+        >
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+    </ItemGroup>
+</Project>
