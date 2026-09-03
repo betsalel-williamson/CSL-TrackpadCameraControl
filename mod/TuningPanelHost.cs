@@ -36,8 +36,9 @@ namespace TrackpadCameraControl
         private static UIButton _reopen;
         private static UILabel _presetDesc;
         private static UILabel _title;
-        private static UITextField _feelNameField;
         private static UIDropDown _feelDropdown;
+        private static UIButton _feelSaveAsButton;
+        private static UIButton _feelDeleteButton;
         private static string[] _feelDropdownItems;
         private static float _nextY;
         private static bool _handlingSettingsChanged;
@@ -190,10 +191,12 @@ namespace TrackpadCameraControl
             _optionsButton = null;
             _presetDesc = null;
             _title = null;
-            _feelNameField = null;
+            _feelSaveAsButton = null;
+            _feelDeleteButton = null;
             _feelDropdown = null;
             _feelDropdownItems = null;
             ClearRefreshBindings();
+            FeelSaveAsDialog.Close();
         }
 
         private static void OnSettingsChanged()
@@ -390,10 +393,10 @@ namespace TrackpadCameraControl
             // sprites belong on that button (AlgernonCommons / Skyve pattern), not on the DD.
             _feelDropdown = _root.AddUIComponent<UIDropDown>();
             _feelDropdown.tabIndex = -1;
-            _feelDropdown.width = 220f;
+            _feelDropdown.width = 200f;
             _feelDropdown.height = 28f;
             _feelDropdown.relativePosition = new Vector3(Col0, _nextY);
-            _feelDropdown.listWidth = 220;
+            _feelDropdown.listWidth = 200;
             _feelDropdown.listHeight = 500;
             _feelDropdown.itemHeight = 24;
             _feelDropdown.normalBgSprite = "ButtonMenu";
@@ -436,38 +439,44 @@ namespace TrackpadCameraControl
             // Subscribe after selectedIndex so init does not treat it as a user choice.
             _feelDropdown.eventSelectedIndexChanged += OnFeelDropdownSelected;
 
-            UIButton reset = MakeMenuButton("Reset", Col0 + 228f, _nextY, 72f);
+            UIButton reset = MakeMenuButton("Reset", Col0 + 208f, _nextY, 64f);
             reset.tabIndex = -1;
             reset.eventClick += (c, e) =>
             {
                 ModOptions.ApplyFeelDefault(s);
             };
+
+            _feelSaveAsButton = MakeMenuButton("Save as…", Col0 + 280f, _nextY, 88f);
+            _feelSaveAsButton.tabIndex = -1;
+            _feelSaveAsButton.isEnabled = ModOptions.IsFeelDirtyNewPreset(s);
+            _feelSaveAsButton.eventClick += (c, e) =>
+            {
+                e.Use();
+                FeelSaveAsDialog.Show(Mod.EnsureSettings(), RefreshFeelPresetButtons);
+            };
+
+            _feelDeleteButton = MakeMenuButton("Delete", Col0 + 376f, _nextY, 64f);
+            _feelDeleteButton.tabIndex = -1;
+            _feelDeleteButton.isEnabled = ModOptions.IsNamedUserFeelPreset(s);
+            _feelDeleteButton.eventClick += (c, e) =>
+            {
+                e.Use();
+                ModOptions.DeleteNamedFeelPreset(Mod.EnsureSettings());
+            };
             _nextY += 32f;
+        }
 
-            UILabel nameLbl = AddLabel(_root, "Name", Col0, _nextY);
-            nameLbl.width = FieldLabelW;
-            nameLbl.autoSize = false;
+        private static void RefreshFeelPresetButtons()
+        {
+            if (_feelSaveAsButton != null)
+            {
+                _feelSaveAsButton.isEnabled = ModOptions.IsFeelDirtyNewPreset(Mod.Settings);
+            }
 
-            _feelNameField = _root.AddUIComponent<UITextField>();
-            _feelNameField.width = 180f;
-            _feelNameField.height = 22f;
-            _feelNameField.relativePosition = new Vector3(
-                Col0 + FieldLabelW + FieldLabelGap,
-                _nextY
-            );
-            _feelNameField.normalBgSprite = "TextFieldPanel";
-            _feelNameField.hoveredBgSprite = "TextFieldPanelHovered";
-            _feelNameField.focusedBgSprite = "TextFieldPanel";
-            _feelNameField.selectionSprite = "EmptySprite";
-            // Colossal UIHorizontalAlignment has Left/Center/Right only (no Start/RTL).
-            // Default UITextField text is centered; LTR should be left (start) aligned.
-            _feelNameField.horizontalAlignment = UIHorizontalAlignment.Left;
-            _feelNameField.text = "";
-            _feelNameField.selectOnFocus = true;
-            _feelNameField.isInteractive = true;
-            // Click-focus + Enter confirm only — not in the product Tab cycle (R4 Save-as later).
-            WireTextFieldSubmit(_feelNameField, () => { }, includeInTabOrder: false);
-            _nextY += 30f;
+            if (_feelDeleteButton != null)
+            {
+                _feelDeleteButton.isEnabled = ModOptions.IsNamedUserFeelPreset(Mod.Settings);
+            }
         }
 
         private static void OnFeelDropdownSelected(UIComponent component, int index)
@@ -483,25 +492,7 @@ namespace TrackpadCameraControl
             }
 
             ModSettings s = Mod.EnsureSettings();
-            string label = _feelDropdownItems[index];
-            if (string.Equals(label, ModOptions.FeelPresetSaveAsLabel, StringComparison.Ordinal))
-            {
-                string name = _feelNameField != null ? _feelNameField.text : "";
-                if (!ModOptions.SaveNamedFeelPreset(s, name))
-                {
-                    if (_feelDropdown != null)
-                    {
-                        _feelDropdown.selectedIndex = ModOptions.IndexOfFeelPresetDropdownItem(
-                            _feelDropdownItems,
-                            s.ActiveFeelPresetName
-                        );
-                    }
-                }
-
-                return;
-            }
-
-            ModOptions.ApplyFeelPresetDropdownChoice(s, label);
+            ModOptions.ApplyFeelPresetDropdownChoice(s, _feelDropdownItems[index]);
         }
 
 #if ENABLE_CAD_GESTURE_STYLE
@@ -1101,6 +1092,9 @@ namespace TrackpadCameraControl
             btn.normalBgSprite = "ButtonMenu";
             btn.hoveredBgSprite = "ButtonMenuHovered";
             btn.pressedBgSprite = "ButtonMenuPressed";
+            btn.disabledBgSprite = "ButtonMenuDisabled";
+            btn.textColor = Color.white;
+            btn.disabledTextColor = new Color32(128, 128, 128, 255);
             return btn;
         }
 

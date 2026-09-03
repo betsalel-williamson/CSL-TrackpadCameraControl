@@ -15,8 +15,8 @@ namespace TrackpadCameraControl
     /// - Sensitivity uses <see cref="UIHelperBase.AddSlider"/> on a fixed [0, 1] UI domain;
     ///   <see cref="ModOptions.GainToSensitivityUi"/> / <see cref="ModOptions.SensitivityUiToGain"/>
     ///   map piecewise to 0.1× / 1× / 2× factory (UI 0.5 = Default / Debug field value).
-    /// - Feel presets use a dropdown; Save as… is the last entry plus a name text field
-    ///   (dropdown cannot collect a new name alone).
+    /// - Feel presets use a dropdown; Save as… is a button (enabled when dirty) that opens a name dialog;
+    ///   Delete is enabled for a named user preset.
     /// - Options controls bind to live <see cref="ModSettings"/> at build time only; Apply*
     ///   raises <see cref="ModOptions.SettingsChanged"/> for Debug rebuild (C2). Reopen Options
     ///   to refresh sliders after Debug edits — in-place rebuild is not practical under UIHelperBase.
@@ -25,6 +25,12 @@ namespace TrackpadCameraControl
     internal static class OptionsSettingsUi
     {
         private static readonly List<Action> SensitivitySliderRefreshes = new List<Action>(8);
+        private static Action _feelPresetSync;
+        private static UIDropDown _feelPresetDropdown;
+        private static string[] _feelPresetDropdownItems;
+        private static UIButton _saveAsButton;
+        private static UIButton _deleteButton;
+        private static bool _feelPresetDropdownSyncing;
 
         public static void Build(UIHelperBase helper, ModSettings s)
         {
@@ -34,6 +40,7 @@ namespace TrackpadCameraControl
             }
 
             SensitivitySliderRefreshes.Clear();
+            DetachFeelPresetSync();
 
             ModSettings factory = ModSettings.CreateFactoryDefaults();
 
@@ -299,63 +306,124 @@ namespace TrackpadCameraControl
                     )
             );
 
-            string[] presetLabels = ModOptions.GetFeelPresetDropdownItems(s);
-            string[] saveAsName = new string[] { "" };
+            _feelPresetDropdownItems = ModOptions.GetFeelPresetDropdownItems(s);
 
-            group.AddDropdown(
+            object dropdownCreated = group.AddDropdown(
                 "Feel preset",
-                presetLabels,
-                ModOptions.IndexOfFeelPresetDropdownItem(presetLabels, s.ActiveFeelPresetName),
+                _feelPresetDropdownItems,
+                ModOptions.IndexOfFeelPresetDropdownItem(
+                    _feelPresetDropdownItems,
+                    s.ActiveFeelPresetName
+                ),
                 sel =>
                 {
-                    if (sel < 0 || sel >= presetLabels.Length)
+                    if (_feelPresetDropdownSyncing)
                     {
                         return;
                     }
 
-                    string label = presetLabels[sel];
                     if (
-                        string.Equals(
-                            label,
-                            ModOptions.FeelPresetSaveAsLabel,
-                            StringComparison.Ordinal
-                        )
+                        _feelPresetDropdownItems == null
+                        || sel < 0
+                        || sel >= _feelPresetDropdownItems.Length
                     )
                     {
-                        ModOptions.SaveNamedFeelPreset(s, saveAsName[0]);
                         return;
                     }
 
-                    ModOptions.ApplyFeelPresetDropdownChoice(s, label);
+                    ModOptions.ApplyFeelPresetDropdownChoice(s, _feelPresetDropdownItems[sel]);
                 }
             );
+            _feelPresetDropdown = dropdownCreated as UIDropDown;
 
-            // Name field for Save as… (dropdown last entry cannot collect a new name alone).
-            object presetNameCreated = group.AddTextfield(
-                "Preset name",
-                "",
-                text =>
-                {
-                    saveAsName[0] = text ?? "";
-                },
-                text =>
-                {
-                    saveAsName[0] = text ?? "";
-                }
-            );
-            UITextField presetNameField = presetNameCreated as UITextField;
-            if (presetNameField != null)
-            {
-                // Match Debug feel name: start-aligned for LTR (Colossal has no RTL Start).
-                presetNameField.horizontalAlignment = UIHorizontalAlignment.Left;
-            }
-            group.AddButton(
+            object saveAsCreated = group.AddButton(
                 "Save as…",
                 () =>
                 {
-                    ModOptions.SaveNamedFeelPreset(s, saveAsName[0]);
+                    FeelSaveAsDialog.Show(Mod.EnsureSettings() ?? s, null);
                 }
             );
+            _saveAsButton = saveAsCreated as UIButton;
+            StyleFeelMenuButton(_saveAsButton);
+
+            object deleteCreated = group.AddButton(
+                "Delete",
+                () =>
+                {
+                    ModOptions.DeleteNamedFeelPreset(Mod.EnsureSettings() ?? s);
+                }
+            );
+            _deleteButton = deleteCreated as UIButton;
+            StyleFeelMenuButton(_deleteButton);
+
+            AttachFeelPresetSync();
+            RefreshFeelPresetControls();
+        }
+
+        private static void DetachFeelPresetSync()
+        {
+            if (_feelPresetSync != null)
+            {
+                ModOptions.SettingsChanged -= _feelPresetSync;
+                _feelPresetSync = null;
+            }
+        }
+
+        private static void AttachFeelPresetSync()
+        {
+            DetachFeelPresetSync();
+            _feelPresetSync = RefreshFeelPresetControls;
+            ModOptions.SettingsChanged += _feelPresetSync;
+        }
+
+        private static void RefreshFeelPresetControls()
+        {
+            ModSettings live = Mod.Settings;
+            if (live == null)
+            {
+                return;
+            }
+
+            if (_feelPresetDropdown != null)
+            {
+                string[] items = ModOptions.GetFeelPresetDropdownItems(live);
+                _feelPresetDropdownItems = items;
+                _feelPresetDropdownSyncing = true;
+                try
+                {
+                    _feelPresetDropdown.items = items;
+                    _feelPresetDropdown.selectedIndex = ModOptions.IndexOfFeelPresetDropdownItem(
+                        items,
+                        live.ActiveFeelPresetName
+                    );
+                }
+                finally
+                {
+                    _feelPresetDropdownSyncing = false;
+                }
+            }
+
+            if (_saveAsButton != null)
+            {
+                _saveAsButton.isEnabled = ModOptions.IsFeelDirtyNewPreset(live);
+            }
+
+            if (_deleteButton != null)
+            {
+                _deleteButton.isEnabled = ModOptions.IsNamedUserFeelPreset(live);
+            }
+        }
+
+        private static void StyleFeelMenuButton(UIButton button)
+        {
+            if (button == null)
+            {
+                return;
+            }
+
+            button.textColor = Color.white;
+            button.disabledTextColor = new Color32(128, 128, 128, 255);
+            button.disabledBgSprite = "ButtonMenuDisabled";
         }
 
         /// <summary>

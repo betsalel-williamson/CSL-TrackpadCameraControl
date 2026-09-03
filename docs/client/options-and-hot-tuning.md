@@ -13,7 +13,7 @@ On the shipped surface you see Maps+/AppleKit feel controls only. Pad/button chr
 
 ## Feel presets
 
-A **dropdown** lists built-in and named [feel presets](../glossary/feel-preset.md), loads the profile **on select**, and ends with **Save as…**. Dirty edits while a built-in is active move you to **New Preset** and autosave there. Details: [feel presets](./feel-presets.md).
+A **dropdown** lists built-in and named [feel presets](../glossary/feel-preset.md) and loads the profile **on select**. Dirty edits while a built-in is active move you to **New Preset** and enable **Save as…** (name dialog). **Delete** removes a named user preset and restores Default. Details: [feel presets](./feel-presets.md).
 
 ## Layout and per-op sections
 

@@ -716,6 +716,11 @@ namespace TrackpadCameraControl
                 return false;
             }
 
+            if (string.Equals(name, FeelProfiles.NameNewPreset, StringComparison.Ordinal))
+            {
+                return false;
+            }
+
             if (!Store.SaveUserPreset(name, settings, settings))
             {
                 return false;
@@ -762,12 +767,111 @@ namespace TrackpadCameraControl
             return Store.ListUserPresetNames();
         }
 
-        /// <summary>Last entry in the feel-preset dropdown — promotes current feel to a named slot.</summary>
+        /// <summary>
+        /// True when the active feel identity is a named user preset — not Slow/Default/Fast
+        /// and not the New Preset scratch slot.
+        /// </summary>
+        public static bool IsNamedUserFeelPreset(ModSettings settings)
+        {
+            return settings != null
+                && !string.IsNullOrEmpty(settings.ActiveFeelPresetName)
+                && !FeelProfiles.IsBuiltInName(settings.ActiveFeelPresetName)
+                && !string.Equals(
+                    settings.ActiveFeelPresetName,
+                    FeelProfiles.NameNewPreset,
+                    StringComparison.Ordinal
+                );
+        }
+
+        /// <summary>
+        /// Delete the active named user feel preset, persist, and apply Default.
+        /// Built-ins and New Preset cannot be deleted.
+        /// </summary>
+        public static bool DeleteNamedFeelPreset(ModSettings settings)
+        {
+            if (settings == null || Store == null || !IsNamedUserFeelPreset(settings))
+            {
+                return false;
+            }
+
+            Store.RemoveUserPreset(settings.ActiveFeelPresetName);
+            FeelProfiles.ApplyDefault(settings);
+            settings.ActiveFeelPresetName = FeelProfiles.NameDefault;
+            Store.SaveNow(settings);
+            RaiseSettingsChanged();
+            return true;
+        }
+
+        /// <summary>
+        /// Suggested Save as… name: overwrite the active named preset, otherwise the next
+        /// unused <c>New Preset N</c> (N starts at 1).
+        /// </summary>
+        public static string SuggestFeelSaveAsName(ModSettings settings)
+        {
+            if (IsNamedUserFeelPreset(settings))
+            {
+                return settings.ActiveFeelPresetName;
+            }
+
+            return NextNumberedNewPresetName();
+        }
+
+        /// <summary>Next unused name in the series New Preset 1, New Preset 2, …</summary>
+        public static string NextNumberedNewPresetName()
+        {
+            string prefix = FeelProfiles.NameNewPreset + " ";
+            int max = 0;
+            string[] named = ListNamedFeelPresetNames();
+            if (named != null)
+            {
+                for (int i = 0; i < named.Length; i++)
+                {
+                    string name = named[i];
+                    if (
+                        string.IsNullOrEmpty(name)
+                        || !name.StartsWith(prefix, StringComparison.Ordinal)
+                    )
+                    {
+                        continue;
+                    }
+
+                    string rest = name.Substring(prefix.Length);
+                    int n;
+                    if (
+                        int.TryParse(
+                            rest,
+                            NumberStyles.Integer,
+                            CultureInfo.InvariantCulture,
+                            out n
+                        )
+                        && n > max
+                    )
+                    {
+                        max = n;
+                    }
+                }
+            }
+
+            return prefix + (max + 1).ToString(CultureInfo.InvariantCulture);
+        }
+
+        /// <summary>True when the active feel identity is the dirty New Preset scratch slot.</summary>
+        public static bool IsFeelDirtyNewPreset(ModSettings settings)
+        {
+            return settings != null
+                && string.Equals(
+                    settings.ActiveFeelPresetName,
+                    FeelProfiles.NameNewPreset,
+                    StringComparison.Ordinal
+                );
+        }
+
+        /// <summary>Last entry label retained for tests / migration; no longer in the dropdown.</summary>
         public const string FeelPresetSaveAsLabel = "Save as…";
 
         /// <summary>
-        /// Dropdown items: Slow, Default, Fast, named user presets, New Preset (when present/active), Save as….
-        /// Shared by Options (C3) and the Debug panel (C4).
+        /// Dropdown items: Slow, Default, Fast, named user presets, New Preset (when present/active).
+        /// Shared by Options and the Debug panel. Save as… is a separate button + dialog.
         /// </summary>
         public static string[] GetFeelPresetDropdownItems(ModSettings settings)
         {
@@ -798,19 +902,12 @@ namespace TrackpadCameraControl
                 }
             }
 
-            bool newPresetActive =
-                settings != null
-                && string.Equals(
-                    settings.ActiveFeelPresetName,
-                    FeelProfiles.NameNewPreset,
-                    StringComparison.Ordinal
-                );
+            bool newPresetActive = IsFeelDirtyNewPreset(settings);
             if (hasNewPresetSlot || newPresetActive)
             {
                 items.Add(FeelProfiles.NameNewPreset);
             }
 
-            items.Add(FeelPresetSaveAsLabel);
             return items.ToArray();
         }
 

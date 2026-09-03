@@ -77,8 +77,10 @@ namespace TrackpadCameraControl
 
             field.submitOnFocusLost = true;
             field.canFocus = true;
-            // We own Tab; Colossal builtin would also move focus and skip a stop.
-            field.builtinKeyNavigation = false;
+            // Debug creates fields with AddUIComponent — default builtinKeyNavigation is false,
+            // which blocks Colossal digit insert. Options template fields already have it true;
+            // set explicitly so both paths type. We only Use() Tab/Enter below.
+            field.builtinKeyNavigation = true;
             if (includeInTabOrder)
             {
                 RegisterTabStop(field, tabScope);
