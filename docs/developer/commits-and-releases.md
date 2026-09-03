@@ -4,11 +4,11 @@
 
 Hooks are installed by `npm install` / bootstrap (`prepare` → husky). Same entrypoints run from husky and npm:
 
-| Hook         | Command                    | What it does                                                                                         |
-| ------------ | -------------------------- | ---------------------------------------------------------------------------------------------------- |
-| `pre-commit` | `npm run hooks:pre-commit` | **lint-staged** (cheap): Prettier / CSharpier / clang-format on **staged** files                     |
-| `commit-msg` | commitlint                 | Conventional Commits subject                                                                         |
-| `pre-push`   | `npm run hooks:pre-push`   | On **`main`**: `format:check` + `docs`. On feature branches: skip expensive checks (PR CI validates) |
+| Hook         | Command                    | What it does                                                                                  |
+| ------------ | -------------------------- | --------------------------------------------------------------------------------------------- |
+| `pre-commit` | `npm run hooks:pre-commit` | **lint-staged** (cheap): Prettier / CSharpier / clang-format on **staged** files              |
+| `commit-msg` | commitlint                 | Conventional Commits subject                                                                  |
+| `pre-push`   | `npm run hooks:pre-push`   | Every branch: `docs` (same compile+check as CI docs gate). On **`main`**: also `format:check` |
 
 Emergency skip: `HUSKY=0 git commit …` or `HUSKY=0 git push …`. Prefer fixing the failure over skipping.
 
