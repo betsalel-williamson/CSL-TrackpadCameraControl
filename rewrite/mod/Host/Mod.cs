@@ -17,7 +17,7 @@ namespace TrackpadCameraControl.Rewrite
         public const string E2eInjectEnvVar = "TRACKPAD_E2E_INJECT";
         public const string E2eInjectFlagFileName = "e2e-inject.flag";
 
-        /// <summary>Options tab / Content Manager title: mod name + assembly version.</summary>
+        /// <summary>Options tab / Content Manager title: mod name + product semver.</summary>
         public string Name => OptionsTitle;
 
         public string Description =>
@@ -42,20 +42,22 @@ namespace TrackpadCameraControl.Rewrite
         }
 
         /// <summary>
-        /// Debug panel title bar: mod name + assembly identity (changes each compile for reload QA).
-        /// Options / Content Manager keep <see cref="OptionsTitle"/> product semver.
+        /// Debug panel title bar. Dev builds (<see cref="BuildInfo.ShowDevBuildIdentity"/>)
+        /// show assembly identity for reload QA; release builds show product semver only.
         /// </summary>
         public static string DebugPanelTitle
         {
             get
             {
-                string asm = GetAssemblyIdentityDisplay();
-                if (string.IsNullOrEmpty(asm))
+                string version = BuildInfo.ShowDevBuildIdentity
+                    ? GetAssemblyIdentityDisplay()
+                    : GetProductVersionDisplay();
+                if (string.IsNullOrEmpty(version))
                 {
                     return "Trackpad Camera Control Rewrite (macOS)";
                 }
 
-                return "Trackpad Camera Control Rewrite (macOS) " + asm;
+                return "Trackpad Camera Control Rewrite (macOS) " + version;
             }
         }
 
@@ -81,8 +83,7 @@ namespace TrackpadCameraControl.Rewrite
             return null;
         }
 
-        /// <summary>Legacy alias for tests / callers expecting OptionsTitle version source.</summary>
-        /// <summary>UTC compile time stamped at MSBuild (Debug panel dev confirmation).</summary>
+        /// <summary>UTC compile time stamped at MSBuild (dev build footer only).</summary>
         internal static string GetAssemblyBuildTimestampUtcDisplay()
         {
             try
@@ -129,6 +130,11 @@ namespace TrackpadCameraControl.Rewrite
         /// </summary>
         internal static string GetBuildInfoFooterDisplay()
         {
+            if (!BuildInfo.ShowDevBuildIdentity)
+            {
+                return null;
+            }
+
             string built = GetAssemblyBuildTimestampUtcDisplay();
             if (string.IsNullOrEmpty(built))
             {
@@ -144,6 +150,11 @@ namespace TrackpadCameraControl.Rewrite
         /// </summary>
         internal static string GetBuildInfoPanelDisplay()
         {
+            if (!BuildInfo.ShowDevBuildIdentity)
+            {
+                return null;
+            }
+
             string builtUtc = GetAssemblyBuildTimestampUtcDisplay();
             if (string.IsNullOrEmpty(builtUtc))
             {

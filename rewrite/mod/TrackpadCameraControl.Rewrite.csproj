@@ -37,11 +37,15 @@
         <DisableImplicitFrameworkReferences>false</DisableImplicitFrameworkReferences>
 
         <EnableAssistChrome Condition="'$(EnableAssistChrome)' == ''">false</EnableAssistChrome>
+        <!-- When false (release CI), Debug chrome shows product semver only — no assembly identity footer. -->
+        <DevBuildIdentity Condition="'$(DevBuildIdentity)' == ''">true</DevBuildIdentity>
     </PropertyGroup>
 
     <Target Name="GenerateBuildInfo" BeforeTargets="BeforeCompile">
         <PropertyGroup>
             <_BuildInfoFile>$(IntermediateOutputPath)BuildInfo.g.cs</_BuildInfoFile>
+            <_ShowDevBuildIdentityCs>false</_ShowDevBuildIdentityCs>
+            <_ShowDevBuildIdentityCs Condition="'$(DevBuildIdentity)' == 'true'">true</_ShowDevBuildIdentityCs>
         </PropertyGroup>
         <ItemGroup>
             <_BuildInfoLines Include="namespace TrackpadCameraControl.Rewrite" />
@@ -50,6 +54,7 @@
             <_BuildInfoLines Include="    {" />
             <_BuildInfoLines Include="        internal const string ProductVersion = &quot;$(Version)&quot;%3B" />
             <_BuildInfoLines Include="        internal const string BuildTimestampUtc = &quot;$(BuildTimestampUtc)&quot;%3B" />
+            <_BuildInfoLines Include="        internal const bool ShowDevBuildIdentity = $(_ShowDevBuildIdentityCs)%3B" />
             <_BuildInfoLines Include="    }" />
             <_BuildInfoLines Include="}" />
         </ItemGroup>
