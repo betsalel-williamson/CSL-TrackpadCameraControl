@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # Shared pre-push entry (husky + manual: npm run hooks:pre-push).
-# main: full format + docs. Feature branches: skip (PR CI validates).
+# All branches: docs (same npm run docs as CI docs gate — catch orphan shards before push).
+# main (or HOOKS_FORCE_FULL=1): also format:check.
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 # shellcheck source=ensure-tool-path.sh
@@ -14,11 +15,8 @@ printf '==> pre-push on branch %s\n' "$branch"
 if [[ "${HOOKS_FORCE_FULL:-0}" == "1" || "$branch" == "main" ]]; then
   echo "==> pre-push: format:check"
   npm run format:check
-  echo "==> pre-push: docs"
-  npm run docs
-  echo "==> pre-push: ok"
-  exit 0
 fi
 
-echo "==> pre-push: skipping expensive checks on feature branch (CI validates the PR)"
-exit 0
+echo "==> pre-push: docs"
+npm run docs
+echo "==> pre-push: ok"

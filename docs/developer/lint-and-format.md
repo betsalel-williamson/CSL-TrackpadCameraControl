@@ -48,4 +48,4 @@ Validate runs on **macOS** so AppKit/IOKit QA paths can execute Darwin integrati
 
 `dotnet test` (CI csharp scope) includes native-resource leak pairing — see [harnesses and testing](./harnesses-and-testing.md).
 
-Locally, husky **pre-commit** formats staged files; **pre-push** runs the full format + docs gates only on `main` — see [commits and releases](./commits-and-releases.md).
+Locally, husky **pre-commit** formats staged files; **pre-push** always runs `docs`, and on `main` also `format:check` — see [commits and releases](./commits-and-releases.md).

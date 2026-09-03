@@ -18,6 +18,7 @@ How to work on **Trackpad Camera Control** — docs, layout, validation, and imp
   - [Harnesses and testing](./harnesses-and-testing.md)
   - [State ownership](./state-ownership.md)
   - [QA checklist (in-game)](./qa-checklist.md)
+  - [QA — Mac cold-boot / Steam overlay cursor](./qa-mac-boot-cursor.md)
   - [Local MVP install](./local-mvp-install.md)
   - [Mod reload during development](./mod-reload-during-development.md)
   - [Work item tracking](./work-item-tracking.md)
