@@ -220,6 +220,42 @@ namespace TrackpadCameraControl.Rewrite
             NotifyChanged();
         }
 
+        /// <summary>Title-bar close on floating Debug panel.</summary>
+        public void DismissDebugPanel()
+        {
+            if (_settings == null)
+            {
+                return;
+            }
+
+            _settings.DebugPanelDismissed = true;
+            MarkDirty();
+            if (_store != null)
+            {
+                _store.MarkDirtyAndMaybeFlush(_settings);
+            }
+
+            NotifyChanged();
+        }
+
+        /// <summary>Persist floating panel position after title-bar drag.</summary>
+        public void SaveDebugPanelPosition(float x, float y)
+        {
+            if (_settings == null)
+            {
+                return;
+            }
+
+            _settings.DebugPanelPosX = x;
+            _settings.DebugPanelPosY = y;
+            if (_store != null)
+            {
+                _store.MarkDirtyAndMaybeFlush(_settings);
+            }
+
+            NotifyChanged();
+        }
+
         public void ClearDirty()
         {
             _dirty = false;

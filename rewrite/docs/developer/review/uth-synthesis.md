@@ -4,7 +4,7 @@
 
 **Procedure:** Project skill `system-architecture-review` (`.agents/skills/system-architecture-review/`). Specialist lanes ran in parallel; findings live in sibling shards.
 
-**Overall verdict: Conditional** (feedback cycle in progress — P0/P1 closed below)
+**Overall verdict: Pass** (architecture P0/P1 closed; tier C playtest remains human)
 
 The stack split is real (gesture library owns AppKit; mod consumes frames). Style-table resolve, FeelMath purity, one catalog / two hosts structure, fake-per-layer tests, and layer-import lint are strengths.
 
@@ -20,31 +20,31 @@ The stack split is real (gesture library owns AppKit; mod consumes frames). Styl
 
 Closed from this Conditional review:
 
-| Item                    | Change                                                                                                                                                                                                                                                                      |
-| ----------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| P0 Host — tick hot-swap | Removed `EnsureInjectSourceIfArmed` / `EnsureCaptureSource` from `GesturePipeline.Tick`; inject still chosen once in `Mod.OnEnabled` when E2E armed; Tick still polls inject file protocol when source is `InjectGestureSource`.                                            |
-| P0 Host — aliases       | Removed `Mod.Pipeline` / `Mod.InjectSource` / `ModRuntime.Inject`; callers use `Mod.Runtime.Pipeline` / `Pipeline.Source`. Shared `FeelEditor` on `ModRuntime` / `Mod.Editor`.                                                                                              |
-| P0 Host — Harmony mouse | `ShouldRunVanillaMouseEvents()` with no rotate-binding parameter; deleted `ShouldSuppressVanillaMouseRotate` and `IsCameraMouseRotateHeld` reflection. Prefix blocks when unfocused; Postfix still flushes orbit. PatchAll kept (only two patch classes).                   |
-| P0 UI hosts             | `OptionsHost.Build` maps catalog kinds through `FeelEditor` (dropdown / buttons / checkbox / sliders). `DebugHost` accepts `FeelEditor`, wires `SettingsChanged`, `ApplyVisibility` from `AssistUiEnabled && !DebugPanelDismissed`. `FeelHostMapping.MapKind` + host tests. |
-| P1 Feel dirty flush     | `EnsureDirtyNewPreset` only sets New Preset + `UpsertUserPresetInMemory` (no `SaveEnvelope`); `ApplyGain` owns one `MarkDirtyAndMaybeFlush`. Regression tests added.                                                                                                        |
-| P1 Unity adapters       | Moved `GameUiContext` / `GameModifierKeys` to `Apply/`; `IGameUiContext` stays pure in `Policy/`. Dropped Policy lint carve-outs.                                                                                                                                           |
-| P2 aliases / queue      | Deleted `CameraApplicator`, `CameraControllerZoom`, `ModSettingsStore`. Inject queue capped at 64 like Apple.                                                                                                                                                               |
+| Item                    | Change                                                                                                                                                                                                                                                                                                                         |
+| ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| P0 Host — tick hot-swap | Removed `EnsureInjectSourceIfArmed` / `EnsureCaptureSource` from `GesturePipeline.Tick`; inject still chosen once in `Mod.OnEnabled` when E2E armed; Tick still polls inject file protocol when source is `InjectGestureSource`.                                                                                               |
+| P0 Host — aliases       | Removed `Mod.Pipeline` / `Mod.InjectSource` / `ModRuntime.Inject`; callers use `Mod.Runtime.Pipeline` / `Pipeline.Source`. Shared `FeelEditor` on `ModRuntime` / `Mod.Editor`.                                                                                                                                                 |
+| P0 Host — Harmony mouse | `ShouldRunVanillaMouseEvents()` with no rotate-binding parameter; deleted `ShouldSuppressVanillaMouseRotate` and `IsCameraMouseRotateHeld` reflection. Prefix blocks when unfocused; Postfix still flushes orbit. PatchAll kept (only two patch classes).                                                                      |
+| P0 UI hosts             | `OptionsHost.Build` maps catalog kinds through `FeelEditor` (dropdown / buttons / checkbox / sliders). `DebugHost` is a FeelCatalog skin via `FeelHostBinder` + `BuildPanelModel`; HAS_CITIES floating panel (title drag, close → `DismissDebugPanel`, reopen chip, position persist). `FeelHostMapping.MapKind` + host tests. |
+| P1 Feel dirty flush     | `EnsureDirtyNewPreset` only sets New Preset + `UpsertUserPresetInMemory` (no `SaveEnvelope`); `ApplyGain` owns one `MarkDirtyAndMaybeFlush`. Regression tests added.                                                                                                                                                           |
+| P1 Unity adapters       | Moved `GameUiContext` / `GameModifierKeys` to `Apply/`; `IGameUiContext` stays pure in `Policy/`. Dropped Policy lint carve-outs.                                                                                                                                                                                              |
+| P1 Selection port       | `FakeSelectionContext` (selection-only) + golden tests for Maps+ rotate → object yaw vs camera yaw.                                                                                                                                                                                                                            |
+| P2 aliases / queue      | Deleted `CameraApplicator`, `CameraControllerZoom`, `ModSettingsStore`. Inject queue capped at 64 like Apple.                                                                                                                                                                                                                  |
+| P2 Assist button-step   | `*Step*` fields remain on `ModSettings` for future Assist module; FeelCatalog / hosts omit them; regression test locks catalog ids. FeelMath button path retained for tests.                                                                                                                                                   |
 
-### Remaining Conditional items
+### Optional follow-up (non-blocking)
 
-- Debug floating Colossal panel chrome (visibility + descriptors wired; full floating UI still thin).
-- SA doc/root alignment (scripts README layer-import list; Semgrep roots mod vs mod+src) — partial / optional follow-up.
-- Selection-port goldens; trim Assist button-step fields when Assist is off.
-- Specialist shards below describe the pre-cycle audit; prefer this Feedback cycle table for as-built status.
+- SA doc/root alignment (scripts README layer-import list; Semgrep roots mod vs mod+src).
+- Tier C in-game playtest for floating Debug chrome pixel parity.
 
 ## Specialist shards
 
 - [Architecture / Host](./uth-architecture-host.md) — superseded in part by Feedback cycle
 - [Gesture library / Capture](./uth-gesture-library.md)
-- [Policy / Apply](./uth-policy-apply.md) — adapter move closed in Feedback cycle
-- [Feel / Settings](./uth-feel-settings.md) — dirty flush closed in Feedback cycle
-- [UI hosts](./uth-ui-hosts.md) — Options/Debug mapping closed in Feedback cycle
-- [Tests / SA](./uth-tests-sa.md) — host-mapping + coalesced-flush tests added
+- [Policy / Apply](./uth-policy-apply.md) — adapter move + selection golden closed
+- [Feel / Settings](./uth-feel-settings.md) — dirty flush + Assist step hygiene closed
+- [UI hosts](./uth-ui-hosts.md) — Options/Debug mapping closed
+- [Tests / SA](./uth-tests-sa.md) — host-mapping, coalesced-flush, selection goldens added
 
 ## Related
 

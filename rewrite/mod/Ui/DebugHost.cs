@@ -5,10 +5,9 @@ namespace TrackpadCameraControl.Rewrite
 {
     /// <summary>
     /// Debug host: floating panel chrome over the same FeelCatalog + shared FeelEditor.
-    /// Under HAS_CITIES a minimal floating panel can be layered later; visibility and
-    /// descriptor inventory are wired for tests and Options parity today.
+    /// Catalog binding is shared with Options via <see cref="FeelHostBinder"/>.
     /// </summary>
-    public static class DebugHost
+    public static partial class DebugHost
     {
         private static FeelEditor _editor;
         private static bool _settingsHooked;
@@ -34,6 +33,15 @@ namespace TrackpadCameraControl.Rewrite
             return FeelHostMapping.MapKind(catalogKind);
         }
 
+        /// <summary>
+        /// Ordered descriptor + live value projections — proves Debug is a FeelCatalog skin without Colossal.
+        /// </summary>
+        public static IList<FeelPanelEntry> BuildPanelModel(FeelEditor editor = null)
+        {
+            FeelEditor target = editor ?? _editor;
+            return FeelHostBinder.BuildPanelModel(target);
+        }
+
         public static void EnsureCreated(FeelEditor editor = null)
         {
             if (editor != null)
@@ -56,6 +64,9 @@ namespace TrackpadCameraControl.Rewrite
             }
 
             IsCreated = true;
+#if HAS_CITIES
+            EnsurePanelBuilt();
+#endif
             ApplyVisibility();
         }
 
@@ -65,10 +76,28 @@ namespace TrackpadCameraControl.Rewrite
             if (settings == null)
             {
                 IsVisible = false;
+#if HAS_CITIES
+                ApplyPanelVisibility();
+#endif
                 return;
             }
 
-            IsVisible = settings.AssistUiEnabled && !settings.DebugPanelDismissed;
+            IsVisible = ShouldShowRoot(settings.AssistUiEnabled, settings.DebugPanelDismissed);
+#if HAS_CITIES
+            ApplyPanelVisibility();
+#endif
+        }
+
+        /// <summary>Shared visibility rule with shipping TuningPanelHost.</summary>
+        public static bool ShouldShowRoot(bool assistEnabled, bool dismissed)
+        {
+            return assistEnabled && !dismissed;
+        }
+
+        /// <summary>Reopen chip when assist is on but user dismissed the panel.</summary>
+        public static bool ShouldShowReopen(bool assistEnabled, bool dismissed)
+        {
+            return assistEnabled && dismissed;
         }
 
         public static void Destroy()
@@ -79,6 +108,9 @@ namespace TrackpadCameraControl.Rewrite
                 _settingsHooked = false;
             }
 
+#if HAS_CITIES
+            DestroyPanel();
+#endif
             IsCreated = false;
             IsVisible = false;
             _editor = null;
@@ -86,7 +118,11 @@ namespace TrackpadCameraControl.Rewrite
 
         private static void OnSettingsChanged()
         {
+#if HAS_CITIES
+            OnPanelSettingsChanged();
+#else
             ApplyVisibility();
+#endif
         }
     }
 }

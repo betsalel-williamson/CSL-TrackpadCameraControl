@@ -315,6 +315,10 @@ namespace TrackpadCameraControl.Rewrite.Tests
                 DebugHost.ApplyVisibility();
                 Assert.False(DebugHost.IsVisible);
 
+                editor.SetShowDebugPanel(true);
+                DebugHost.ApplyVisibility();
+                Assert.True(DebugHost.IsVisible);
+
                 DebugHost.Destroy();
                 Assert.False(DebugHost.IsCreated);
             }
@@ -326,6 +330,94 @@ namespace TrackpadCameraControl.Rewrite.Tests
                     File.Delete(path);
                 }
             }
+        }
+
+        [Fact]
+        public void DebugHost_BuildPanelModel_MatchesCatalogInventoryAndValues()
+        {
+            string path = Path.Combine(Path.GetTempPath(), "tcc-feel-" + Path.GetRandomFileName());
+            try
+            {
+                var store = new SettingsStore(path);
+                ModSettings settings = store.LoadOrFactory();
+                settings.ActiveFeelPresetName = FeelProfiles.NameFast;
+                settings.ZoomGain = 1.25f;
+                settings.AssistUiEnabled = true;
+                var editor = new FeelEditor(settings, store);
+
+                var model = DebugHost.BuildPanelModel(editor);
+                var descriptors = DebugHost.BuildDescriptors();
+
+                Assert.Equal(descriptors.Count, model.Count);
+                for (int i = 0; i < descriptors.Count; i++)
+                {
+                    Assert.Equal(descriptors[i].Id, model[i].Id);
+                    Assert.Equal(descriptors[i].Section, model[i].Section);
+                    Assert.Equal(
+                        FeelHostMapping.MapKind(descriptors[i].Kind),
+                        model[i].ToolkitKind
+                    );
+                }
+
+                FeelPanelEntry preset = FindEntry(model, "feelPreset");
+                Assert.Equal("dropdown", preset.ValueKind);
+                Assert.Equal(FeelProfiles.NameFast, preset.TextValue);
+
+                FeelPanelEntry zoom = FindEntry(model, "zoomSensitivity");
+                Assert.Equal("slider", zoom.ValueKind);
+                Assert.NotNull(zoom.NumericValue);
+
+                FeelPanelEntry showDebug = FindEntry(model, "showDebugPanel");
+                Assert.Equal("toggle", showDebug.ValueKind);
+                Assert.True(showDebug.BoolValue);
+            }
+            finally
+            {
+                if (File.Exists(path))
+                {
+                    File.Delete(path);
+                }
+            }
+        }
+
+        [Fact]
+        public void Catalog_Ids_DoNotExposeAssistButtonSteps()
+        {
+            foreach (FeelCatalogField field in FeelCatalog.AllFields())
+            {
+                Assert.DoesNotContain("Step", field.Id, StringComparison.OrdinalIgnoreCase);
+            }
+
+            foreach (FeelControlDescriptor d in OptionsHost.BuildDescriptors())
+            {
+                Assert.DoesNotContain("Step", d.Id, StringComparison.OrdinalIgnoreCase);
+            }
+        }
+
+        [Fact]
+        public void DebugHost_ShouldShowRootAndReopen_FollowAssistDismissRules()
+        {
+            Assert.True(DebugHost.ShouldShowRoot(true, false));
+            Assert.False(DebugHost.ShouldShowRoot(true, true));
+            Assert.False(DebugHost.ShouldShowRoot(false, false));
+            Assert.True(DebugHost.ShouldShowReopen(true, true));
+            Assert.False(DebugHost.ShouldShowReopen(true, false));
+        }
+
+        private static FeelPanelEntry FindEntry(
+            System.Collections.Generic.IList<FeelPanelEntry> model,
+            string id
+        )
+        {
+            for (int i = 0; i < model.Count; i++)
+            {
+                if (model[i].Id == id)
+                {
+                    return model[i];
+                }
+            }
+
+            throw new InvalidOperationException("Missing panel entry: " + id);
         }
     }
 }
