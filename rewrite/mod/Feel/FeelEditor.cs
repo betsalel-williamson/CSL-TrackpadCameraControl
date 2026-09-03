@@ -4,6 +4,7 @@ namespace TrackpadCameraControl.Rewrite
 {
     /// <summary>
     /// Preset dirty model and sensitivity writes. One dirty bit; coalesced autosave via store.
+    /// Options and Debug hosts share this editor — they do not own preset state.
     /// </summary>
     public sealed class FeelEditor
     {
@@ -63,6 +64,114 @@ namespace TrackpadCameraControl.Rewrite
             {
                 store.MarkDirtyAndMaybeFlush(live);
             }
+        }
+
+        /// <summary>Dropdown select: load Slow / Default / Fast / named / New Preset.</summary>
+        public bool LoadPreset(string name)
+        {
+            if (string.IsNullOrEmpty(name) || _settings == null)
+            {
+                return false;
+            }
+
+            if (string.Equals(name, FeelProfiles.NameSlow, StringComparison.Ordinal))
+            {
+                FeelProfiles.ApplySlow(_settings);
+                _settings.ActiveFeelPresetName = FeelProfiles.NameSlow;
+                _dirty = false;
+                NotifyChanged();
+                return true;
+            }
+
+            if (string.Equals(name, FeelProfiles.NameDefault, StringComparison.Ordinal))
+            {
+                FeelProfiles.ApplyDefault(_settings);
+                _settings.ActiveFeelPresetName = FeelProfiles.NameDefault;
+                _dirty = false;
+                NotifyChanged();
+                return true;
+            }
+
+            if (string.Equals(name, FeelProfiles.NameFast, StringComparison.Ordinal))
+            {
+                FeelProfiles.ApplyFast(_settings);
+                _settings.ActiveFeelPresetName = FeelProfiles.NameFast;
+                _dirty = false;
+                NotifyChanged();
+                return true;
+            }
+
+            if (_store != null && _store.TryLoadUserPreset(name, _settings))
+            {
+                _dirty = false;
+                NotifyChanged();
+                return true;
+            }
+
+            return false;
+        }
+
+        /// <summary>Save as… — enabled conceptually on New Preset; persists named feel snapshot.</summary>
+        public bool SaveAs(string name)
+        {
+            if (string.IsNullOrEmpty(name) || FeelProfiles.IsBuiltInName(name) || _store == null)
+            {
+                return false;
+            }
+
+            if (!_store.SaveUserPreset(name, _settings, _settings))
+            {
+                return false;
+            }
+
+            _settings.ActiveFeelPresetName = name;
+            _dirty = false;
+            if (_store != null)
+            {
+                _store.SaveNow(_settings);
+            }
+
+            NotifyChanged();
+            return true;
+        }
+
+        /// <summary>Delete named user preset only; applies Default and persists.</summary>
+        public bool DeleteNamedPreset(string name)
+        {
+            if (string.IsNullOrEmpty(name) || FeelProfiles.IsBuiltInName(name) || _store == null)
+            {
+                return false;
+            }
+
+            if (string.Equals(name, FeelProfiles.NameNewPreset, StringComparison.Ordinal))
+            {
+                return false;
+            }
+
+            if (!_store.DeleteUserPreset(name))
+            {
+                return false;
+            }
+
+            FeelProfiles.ApplyDefault(_settings);
+            _settings.ActiveFeelPresetName = FeelProfiles.NameDefault;
+            _dirty = false;
+            _store.SaveNow(_settings);
+            NotifyChanged();
+            return true;
+        }
+
+        public void ResetToFactory()
+        {
+            FeelProfiles.ApplyDefault(_settings);
+            _settings.ActiveFeelPresetName = FeelProfiles.NameDefault;
+            _dirty = false;
+            if (_store != null)
+            {
+                _store.SaveNow(_settings);
+            }
+
+            NotifyChanged();
         }
 
         public void MarkDirty()
