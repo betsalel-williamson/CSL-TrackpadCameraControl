@@ -27,6 +27,7 @@ coverage*.cobertura.xml
 
 # Local one-off reflection / probe tools (never ship)
 tools/
+.probe/
 
 # OpenTofu / Terraform (infra/github)
 .terraform/
