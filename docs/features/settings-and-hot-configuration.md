@@ -11,7 +11,7 @@ No feel or binding parameter is hardcoded in camera or gesture logic. Defaults e
 | In-game Debug panel               | Feel presets (incl. **New Preset** dirty), Reset, Sensitivity, Show debug panel                   |
 | Options → Trackpad Camera Control | Feel presets + Sensitivity sliders; window title is mod name + version; **no** pitch angle fields |
 
-One binding layer parses, rounds gains to three decimals (button steps to two), validates Options Sensitivity against the slider contract on player drag, and writes fields. A change on either surface updates live settings immediately and schedules a durable write (autosave).
+One binding layer parses, rounds product numerics to three decimals (`RoundGain`), validates Options Sensitivity against the slider contract on player drag, and writes fields. A change on either surface updates live settings immediately and schedules a durable write (autosave).
 
 Debug chrome pads/buttons and button-step fields appear only when `EnableAssistChrome` is on. Capture-backend picker and [low-pass](../glossary/low-pass.md) appear only when `EnableContactsCapture` is on. A CAD / Maps+ gesture-style switcher is **future** (not a v1 player surface); experimental builds may compile it via `EnableCadGestureStyle`. See [feel profiles and product flags](./adr/0003-feel-profiles-and-product-flags.md).
 
@@ -46,7 +46,7 @@ A [feel preset](../glossary/feel-preset.md) stores sensitivities, reverse flags,
 
 Under each op heading (**Zoom**, **Pan**, **Rotate**, **Orbit**) after **General**: short meaning + activation, then:
 
-- Per-op [Sensitivity](../glossary/sensitivity.md) **slider** (Options only): min **0.1×** that field’s factory default, max **2×**, step ≈ **10%** of factory default; display/apply **three** decimals for Sensitivity gains (button steps **two** decimals)
+- Per-op [Sensitivity](../glossary/sensitivity.md) **slider** (Options only): UI **[0, 1]** maps piecewise to **0.1× / 1× / 2×** factory (mid = Default); step ≈ **10%** of factory on the high side; display/apply **three** decimals (`RoundGain`)
 - Orbit: schema seeds OrbitPitchMin/Max **0** / **90** (vanilla). Live clamp is hardcoded to that range — not Options/Debug-tunable. Drag floors at **0°**; button writes clamp **0…90**. No yaw angle clamp.
 
 Also: [feel preset](../glossary/feel-preset.md) row (Slow / Default / Fast / New Preset when dirty, Save as… / Load, Reset to factory), **Show debug panel** (panel master switch; off also hides the floating Debug reopen chip).
@@ -107,7 +107,7 @@ Once orbit engages from the configured trigger, the session stays in orbit until
 
 ## Acceptance
 
-- Change a Sensitivity in Debug: gestures respond immediately; Debug UI shows the new value; Options sliders match after reopening the page (and the reverse for Options → Debug rebuild). Every edit autosaves; Sensitivity gains display **three** decimals; button steps **two**.
+- Change a Sensitivity in Debug: gestures respond immediately; Debug UI shows the new value; Options sliders match after reopening the page (and the reverse for Options → Debug rebuild). Every edit autosaves; product numerics display **three** decimals (`RoundGain`).
 - Quit and relaunch; tunables and named feel presets are restored from disk.
 - Editing a built-in switches active identity to **New Preset**; Slow / Default / Fast remain unchanged after autosave.
 - Save as… selects the named preset; further edits dirty to **New Preset** again.

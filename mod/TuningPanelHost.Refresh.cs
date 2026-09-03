@@ -11,7 +11,6 @@ namespace TrackpadCameraControl
         {
             public UITextField Field;
             public Func<float> Get;
-            public bool UseGainFormat;
         }
 
         private sealed class CheckBinding
@@ -39,25 +38,14 @@ namespace TrackpadCameraControl
             _opHeadingBindings.Clear();
         }
 
-        private static void RegisterFloatField(
-            UITextField field,
-            Func<float> get,
-            bool useGainFormat
-        )
+        private static void RegisterFloatField(UITextField field, Func<float> get)
         {
             if (field == null || get == null)
             {
                 return;
             }
 
-            _floatBindings.Add(
-                new FloatFieldBinding
-                {
-                    Field = field,
-                    Get = get,
-                    UseGainFormat = useGainFormat,
-                }
-            );
+            _floatBindings.Add(new FloatFieldBinding { Field = field, Get = get });
         }
 
         private static void RegisterCheck(UICheckBox box, Func<bool> get)
@@ -160,7 +148,7 @@ namespace TrackpadCameraControl
                     continue;
                 }
 
-                string next = FormatFieldValue(binding.Get(), binding.UseGainFormat);
+                string next = FormatFieldValue(binding.Get());
                 if (!string.Equals(binding.Field.text, next, StringComparison.Ordinal))
                 {
                     binding.Field.text = next;

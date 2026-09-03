@@ -1,7 +1,6 @@
 #if HAS_CITIES
 using System;
 using ColossalFramework.UI;
-using UnityEngine;
 
 namespace TrackpadCameraControl
 {
@@ -23,30 +22,36 @@ namespace TrackpadCameraControl
 
             component.canFocus = true;
             component.tabIndex = _nextTabIndex++;
-            component.builtinKeyNavigation = true;
+            // Tab cycling is owned by NumericTextFieldUi; builtin would double-advance.
+            component.builtinKeyNavigation = false;
         }
 
-        private static void WireTextFieldSubmit(UITextField field, Action submit)
+        private static void WireTextFieldSubmit(
+            UITextField field,
+            Action submit,
+            bool includeInTabOrder = true
+        )
         {
             if (field == null || submit == null)
             {
                 return;
             }
 
-            AssignTabOrder(field);
+            if (includeInTabOrder)
+            {
+                AssignTabOrder(field);
+            }
+            else
+            {
+                field.canFocus = true;
+                field.tabIndex = -1;
+            }
+
             field.submitOnFocusLost = true;
             field.eventTextSubmitted += (c, text) => submit();
-            field.eventKeyDown += (UIComponent component, UIKeyEventParameter p) =>
-            {
-                if (p.keycode == KeyCode.KeypadEnter)
-                {
-                    submit();
-                }
-                else if (p.keycode == KeyCode.Tab)
-                {
-                    submit();
-                }
-            };
+            // Keypad Enter: unfocus on key down. Tab: advance once on key down (wraps).
+            // Colossal only submits on Return by default.
+            NumericTextFieldUi.WireConfirmKeys(field, includeInTabOrder, tabScope: _root);
         }
 
         private static void WireFloatTextFieldSubmit(UITextField field, Action submit)
@@ -59,17 +64,16 @@ namespace TrackpadCameraControl
             UITextField field,
             ModSettings s,
             Func<float> get,
-            Action<ModSettings, float> apply,
-            bool useGainFormat
+            Action<ModSettings, float> apply
         )
         {
             if (!ModOptions.TryApplyFloat(s, field.text, apply))
             {
-                field.text = FormatFieldValue(get(), useGainFormat);
+                field.text = FormatFieldValue(get());
                 return;
             }
 
-            field.text = FormatFieldValue(get(), useGainFormat);
+            field.text = FormatFieldValue(get());
         }
     }
 }

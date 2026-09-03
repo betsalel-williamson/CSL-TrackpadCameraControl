@@ -25,8 +25,53 @@ namespace TrackpadCameraControl.Tests
         }
 
         [Fact]
+        public void SensitivityUi_Conversion_FactoryIsMidAndRoundTrips()
+        {
+            Assert.Equal(0f, ModOptions.SensitivityUiMin);
+            Assert.Equal(1f, ModOptions.SensitivityUiMax);
+            Assert.Equal(0.5f, ModOptions.SensitivityUiFactory);
+            Assert.Equal(0.05f, ModOptions.SensitivityUiStep);
+
+            float factory = 2.00f;
+            // Anchors: 0.1× / 1× / 2× (piecewise — not a single linear span).
+            Assert.Equal(0.5f, ModOptions.GainToSensitivityUi(factory, factory), 3);
+            Assert.Equal(0f, ModOptions.GainToSensitivityUi(0.2f, factory), 3);
+            Assert.Equal(1f, ModOptions.GainToSensitivityUi(4f, factory), 3);
+
+            Assert.Equal(2.00f, ModOptions.SensitivityUiToGain(0.5f, factory), 3);
+            Assert.Equal(0.2f, ModOptions.SensitivityUiToGain(0f, factory), 3);
+            Assert.Equal(4.00f, ModOptions.SensitivityUiToGain(1f, factory), 3);
+
+            // One notch above mid ≈ +10% of factory on the high side.
+            float up = ModOptions.SensitivityUiToGain(
+                ModOptions.SensitivityUiFactory + ModOptions.SensitivityUiStep,
+                factory
+            );
+            Assert.Equal(RoundGainLocal(factory * 1.1f), up, 3);
+
+            // Round-trip UI notches.
+            for (float ui = 0f; ui <= 1f + 0.001f; ui += ModOptions.SensitivityUiStep)
+            {
+                float gain = ModOptions.SensitivityUiToGain(ui, factory);
+                Assert.Equal(ui, ModOptions.GainToSensitivityUi(gain, factory), 2);
+            }
+
+            // Pan-scale factory (0.005) still mid-tracks to the Debug field value.
+            Assert.Equal(0.5f, ModOptions.GainToSensitivityUi(0.005f, 0.005f), 3);
+            Assert.Equal(0.005f, ModOptions.SensitivityUiToGain(0.5f, 0.005f), 3);
+            Assert.Equal(0.001f, ModOptions.SensitivityUiToGain(0f, 0.005f), 3);
+            Assert.Equal(0.010f, ModOptions.SensitivityUiToGain(1f, 0.005f), 3);
+        }
+
+        private static float RoundGainLocal(float value)
+        {
+            return ModOptions.RoundGain(value);
+        }
+
+        [Fact]
         public void ClampGainToFactoryRange_ClampsAndRounds()
         {
+            Assert.Equal(0.05f, ModOptions.ClampGainToFactoryRange(0f, 0.50f));
             Assert.Equal(0.05f, ModOptions.ClampGainToFactoryRange(0.01f, 0.50f));
             Assert.Equal(1.00f, ModOptions.ClampGainToFactoryRange(9f, 0.50f));
             Assert.Equal(0.551f, ModOptions.ClampGainToFactoryRange(0.551f, 0.50f));
@@ -41,7 +86,7 @@ namespace TrackpadCameraControl.Tests
             ModOptions.ApplyOrbitPitchMin(s, -3f);
             Assert.Equal(0f, s.OrbitPitchMin);
             ModOptions.ApplyOrbitPitchMin(s, 12.345f);
-            Assert.Equal(12.35f, s.OrbitPitchMin);
+            Assert.Equal(12.345f, s.OrbitPitchMin);
         }
 
         [Fact]

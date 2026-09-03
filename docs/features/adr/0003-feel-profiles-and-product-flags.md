@@ -17,7 +17,7 @@ ADR 0002 treated Maps+ and CAD as Options **presets that seed** bindings and fee
    - `EnableContactsCapture` — Contacts interpreter, backend picker, and low-pass for that path
    - `EnableAssistChrome` — Assist nudge buttons and Btn sensitivity fields
 
-3. **Sensitivity.** Canonical term is **Sensitivity** (synonyms: speed, scale, drag scale). Product numeric sensitivities are **> 0** and round/display/apply to **three decimal places** (`RoundGain`); button-step fields stay at two decimals.
+3. **Sensitivity.** Canonical term is **Sensitivity** (synonyms: speed, scale, drag scale). Product numeric fields (sensitivities, button steps, deadbands, pitch) are **> 0** where required and round/display/apply to **three decimal places** (`RoundGain`).
 
 4. **Scroll and UI gates.** Precise trackpad scroll → pan (suppress vanilla zoom when applying world pan). Mouse wheel → vanilla zoom (not mod pan). No mod camera ops when Options/menus are open or the pointer is over active popups; two-finger then scrolls UI.
 

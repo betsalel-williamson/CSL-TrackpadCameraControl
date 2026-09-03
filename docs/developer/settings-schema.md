@@ -2,7 +2,7 @@
 
 Logical schema for ModSettings. Field names in source may differ; this shard is the contract. Defaults belong only in the settings defaults factory — not in camera update logic.
 
-Canonical UI term: **[Sensitivity](../glossary/sensitivity.md)**. Persist / code names use control-systems language (**gain**). Synonyms in older docs: drag scale, speed, scale. Sensitivity gains round to **three decimal places** (`RoundGain`); button-step fields round to **two**; gain values must be **> 0**.
+Canonical UI term: **[Sensitivity](../glossary/sensitivity.md)**. Persist / code names use control-systems language (**gain**). Synonyms in older docs: drag scale, speed, scale. Product numeric fields (Sensitivity gains, button steps, deadbands, pitch limits) round to **three decimal places** (`RoundGain`); gain values must be **> 0**.
 
 Product-surface gates: [feature flags](./feature-flags.md). Planning: [AppleKit Maps+ feel surface design](../superpowers/specs/2026-08-29-applekit-feel-surface-design.md).
 
@@ -57,7 +57,7 @@ Used by trackpad gestures (and Assist chrome pads when `EnableAssistChrome` is o
 
 **Numeric policy:** each gain must be **> 0**; parse/apply round to **three** decimals (pan/orbit after folding the former 0.01 AppKit scroll unit into defaults).
 
-**Product Sensitivity sliders:** for each axis, UI range is **0.1×–2×** that axis’s factory Default value, with step ≈ **10%** of the factory default (rounded to three decimals; values must stay **> 0**).
+**Product Sensitivity sliders:** UI domain **[0, 1]** maps piecewise to **0.1× / 1× / 2×** factory (UI **0.5** = Default / Debug field). High-side step ≈ **10%** of factory (`SensitivityUiStep` 0.05; `RoundGain`).
 
 **Schema 2:** AppKit scroll deltas are raw; schema 1 files migrate by ×0.01 on pan/orbit gain and ÷0.01 on motion deadband (legacy element `MotionDeadzone`).
 
@@ -109,7 +109,7 @@ Used by Assist chrome nudge buttons only — product UI when `EnableAssistChrome
 | ZoomStep       | float | 0.05         | yes |
 | RotateStep     | float | 2.00         | yes |
 
-Exact button-step seeds may be tuned in the defaults factory; document new seeds here when they change. Button-step fields round to two decimals; Sensitivity gains use three (`RoundGain`).
+Exact button-step seeds may be tuned in the defaults factory; document new seeds here when they change. Button-step fields and Sensitivity gains both use three decimals (`RoundGain`).
 
 ## Apply math (contract)
 
