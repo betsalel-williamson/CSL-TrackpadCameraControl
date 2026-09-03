@@ -1,6 +1,6 @@
 {
   "name": "csl-trackpad-camera-control",
-  "version": "0.2.0",
+  "version": "1.0.0",
   "description": "Cities: Skylines I mod — trackpad multitouch camera control (pan, orbit, zoom); macOS backend first",
   "license": "MIT",
   "repository": {
