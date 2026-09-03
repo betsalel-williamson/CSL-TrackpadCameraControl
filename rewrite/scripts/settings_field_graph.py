@@ -14,7 +14,7 @@ Exclusions (documented):
                   unless listed in ALLOW_SCHEMA_NON_FIELD (warn-only escape hatch)
 
 Heuristic: a read is `.FieldName` not followed by `=`. Writes alone do not count.
-Scan roots: rewrite/mod/{Policy,Apply,Capture,Host} (and any other non-Settings/Ui).
+Scan roots: rewrite/mod/{Policy,Apply,Host} (and any other non-Feel/Ui).
 """
 
 from __future__ import annotations
@@ -51,7 +51,7 @@ SCHEMA_NON_FIELD = frozenset(
     }
 )
 
-EXCLUDE_DIR_NAMES = frozenset({"Settings", "Ui", "obj", "bin"})
+EXCLUDE_DIR_NAMES = frozenset({"Settings", "Feel", "Ui", "obj", "bin"})
 
 
 def find_repo_root(start: Path) -> Path:
@@ -140,7 +140,9 @@ def main() -> int:
 
     script_dir = Path(__file__).resolve().parent
     repo = args.repo_root or find_repo_root(script_dir)
-    settings_path = repo / "rewrite" / "mod" / "Settings" / "ModSettings.cs"
+    settings_path = repo / "rewrite" / "mod" / "Feel" / "ModSettings.cs"
+    if not settings_path.is_file():
+        settings_path = repo / "rewrite" / "mod" / "Settings" / "ModSettings.cs"
     mod_root = repo / "rewrite" / "mod"
 
     if not settings_path.is_file():

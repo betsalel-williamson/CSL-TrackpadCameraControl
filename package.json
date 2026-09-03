@@ -21,8 +21,8 @@
     "docs:check": "mdcp check --config docs/mdcp.config.json --docs-root docs --skip-vale --require-lint",
     "docs:fix": "mdcp fix --config docs/mdcp.config.json --docs-root docs",
     "format:docs": "npm run docs:fix",
-    "format:csharp": "dotnet tool restore && dotnet tool run csharpier format mod/ src/ tests/ rewrite/mod/ rewrite/tests/",
-    "format:csharp:check": "dotnet tool restore && dotnet tool run csharpier check mod/ src/ tests/ rewrite/mod/ rewrite/tests/",
+    "format:csharp": "dotnet tool restore && dotnet tool run csharpier format mod/ src/ tests/ rewrite/mod/ rewrite/src/ rewrite/tests/",
+    "format:csharp:check": "dotnet tool restore && dotnet tool run csharpier check mod/ src/ tests/ rewrite/mod/ rewrite/src/ rewrite/tests/",
     "format:native": "bash scripts/format-native.sh format",
     "format:native:check": "bash scripts/format-native.sh check",
     "format": "npm run format:docs && npm run format:csharp && npm run format:native",
@@ -41,9 +41,10 @@
     "docs:rewrite:fix": "mdcp fix --config rewrite/docs/mdcp.config.json --docs-root rewrite/docs",
     "docs:rewrite": "npm run docs:rewrite:compile && npm run docs:rewrite:check",
     "sa:rewrite": "bash rewrite/scripts/sa-rewrite.sh",
-    "sa:rewrite:semgrep": "semgrep scan --config rewrite/scripts/semgrep/rewrite.yml --error --severity ERROR --metrics off rewrite/mod",
+    "sa:rewrite:semgrep": "semgrep scan --config rewrite/scripts/semgrep/rewrite.yml --error --severity ERROR --metrics off rewrite/mod rewrite/src",
     "sa:rewrite:settings-graph": "python3 rewrite/scripts/settings_field_graph.py",
-    "sa:rewrite:leak-pairing": "python3 rewrite/scripts/native_leak_pairing.py"
+    "sa:rewrite:leak-pairing": "python3 rewrite/scripts/native_leak_pairing.py",
+    "sa:rewrite:layer-import": "python3 rewrite/scripts/layer_import_lint.py"
   },
   "lint-staged": {
     "*.{json,jsonc,yml,yaml,md}": [
@@ -59,6 +60,9 @@
       "bash scripts/lint-staged-csharpier.sh"
     ],
     "rewrite/mod/**/*.cs": [
+      "bash scripts/lint-staged-csharpier.sh"
+    ],
+    "rewrite/src/**/*.cs": [
       "bash scripts/lint-staged-csharpier.sh"
     ],
     "rewrite/tests/**/*.cs": [
