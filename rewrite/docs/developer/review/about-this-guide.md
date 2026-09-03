@@ -4,7 +4,7 @@
 
 **Purpose:** Record organized product feedback and specialist findings from the **clone-and-strip experiment**. That path is **closed**. Do not treat R7 in-game sign-off of the clone as architecture success.
 
-**Current path:** [ADR 0005](../../features/adr/0005-ux-parity-not-source-parity.md) and lesson L13 — rebuild from [UI parity](../../glossary/ui-parity.md) and Maps+ dynamics, not from shipping C#. Recovery design lives in the session spec _Rewrite from UX contract, not source clone_ under repo-root `docs/superpowers/specs/`.
+**Current path:** Features ADR 0005 and lesson L13 — rebuild from [UI parity](../../glossary/ui-parity.md) and Maps+ dynamics, not from shipping C#. Recovery design lives in the session spec _Rewrite from UX contract, not source clone_ under repo-root `docs/superpowers/specs/`.
 
 **Workflow (historical):**
 

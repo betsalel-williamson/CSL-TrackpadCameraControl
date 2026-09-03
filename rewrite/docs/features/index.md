@@ -4,6 +4,8 @@ Target contracts for the clean-architecture rewrite. Shipping as-built docs rema
 
 - [Feature guide (rewrite)](#table-of-contents)
   - [About this guide](./about-this-guide.md)
+  - [Under the hood](./under-the-hood.md)
+  - [Feel catalog](./feel-catalog.md)
   - [Greenfield redesign lessons](./greenfield-redesign-lessons.md)
   - [Parity with shipping](./parity-with-shipping.md)
   - [Trackpad camera](./trackpad-camera.md)
@@ -17,3 +19,4 @@ Target contracts for the clean-architecture rewrite. Shipping as-built docs rema
     - [ADR 0003 — Feel profiles and product flags](./adr/0003-feel-profiles-and-product-flags.md)
     - [ADR 0004 — Style table-driven resolve](./adr/0004-style-table-driven-resolve.md)
     - [ADR 0005 — UX parity is not source parity](./adr/0005-ux-parity-not-source-parity.md)
+    - [ADR 0006 — Gesture library vs CSL mod surface](./adr/0006-gesture-library-vs-mod-surface.md)

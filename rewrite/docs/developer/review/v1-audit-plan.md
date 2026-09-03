@@ -1,6 +1,6 @@
 # v1 audit and cleanup plan (rewrite mod)
 
-**Status:** Closed. R0–R6 ran against a source clone. That experiment failed the greenfield intent ([ADR 0005](../../features/adr/0005-ux-parity-not-source-parity.md)). **Do not run R7 as the success path** for the cloned DLL.
+**Status:** Closed. R0–R6 ran against a source clone. That experiment failed the greenfield intent (features ADR 0005). **Do not run R7 as the success path** for the cloned DLL.
 
 Further implementation follows the recovery design _Rewrite from UX contract, not source clone_ (repo-root session spec) after maintainer approval: quarantine clone sources, lock the UX inventory, oracle tests, then replace the assembly.
 

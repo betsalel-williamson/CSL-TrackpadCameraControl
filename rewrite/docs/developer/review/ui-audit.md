@@ -1,6 +1,6 @@
 # UI / product surface audit (rewrite v1)
 
-**Status:** Findings from the clone experiment (closed). “Structural parity with shipping” below describes copied builders — that is the defect [ADR 0005](../../features/adr/0005-ux-parity-not-source-parity.md) forbids, not a strength to preserve.
+**Status:** Findings from the clone experiment (closed). “Structural parity with shipping” below describes copied builders — that is the defect features ADR 0005 forbids, not a strength to preserve.
 
 Specialist pass for Options and Debug UI parity vs shipping, prototype `#if` residue, and version chrome.
 

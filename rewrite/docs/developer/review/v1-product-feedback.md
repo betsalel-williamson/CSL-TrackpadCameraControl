@@ -1,6 +1,6 @@
 # Organized product feedback (rewrite v1)
 
-**Status:** Historical. Prototype carryover was stripped; the remaining failure is **source cloning** of the shipping feel UI and apply path ([ADR 0005](../../features/adr/0005-ux-parity-not-source-parity.md)).
+**Status:** Historical. Prototype carryover was stripped; the remaining failure is **source cloning** of the shipping feel UI and apply path (features ADR 0005).
 
 Feedback from the original code review and greenfield redesign, applied to the **built** `rewrite/mod` tree. v1 treats internal prototypes as complete; the rewrite must not ship prototype seams.
 

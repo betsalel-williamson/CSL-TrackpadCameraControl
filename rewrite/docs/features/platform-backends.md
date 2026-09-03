@@ -2,7 +2,7 @@
 
 ## Intent
 
-Keep product language and Options **platform-neutral**. Isolate OS capture behind one shared primitive/frame contract. Capture runs **in-process** in the mod DLL.
+Keep product language and Options **platform-neutral**. Isolate OS capture behind one shared primitive/frame contract in the [gesture library](../glossary/gesture-library.md). The [mod surface](../glossary/mod-surface.md) only selects and connects an `IGestureSource` — it does not own AppKit P/Invoke ([ADR 0006](./adr/0006-gesture-library-vs-mod-surface.md)).
 
 ## Policy
 
@@ -15,7 +15,7 @@ Keep product language and Options **platform-neutral**. Isolate OS capture behin
 
 ## Backend contract
 
-A backend must:
+A backend in the gesture library must:
 
 - Emit the shared Capture primitive contract while the game is focused (when configured).
 - Emit an **honest finger count** for the active contact set (lesson L4).
@@ -24,7 +24,7 @@ A backend must:
 
 ## macOS (v1)
 
-- **AppKit (ship):** in-process AppKit local monitor (scroll / magnify / rotate) → the same primitives. No Accessibility. Precise scroll deltas drive pan; non-precise (mouse wheel) are not mapped to pan. This is the **only** path playtested for v1.
+- **AppKit (ship):** in-process AppKit local monitor (scroll / magnify / rotate) → the same primitives, implemented under `rewrite/src`. No Accessibility. Precise scroll deltas drive pan; non-precise (mouse wheel) are not mapped to pan. This is the **only** path playtested for v1.
 - **Finger count:** AppKit reports two-finger contact for scroll/magnify/rotate events on the ship path. Maps+ seed chords use two-finger rows only.
 - Maps+ orbit modifier defaults to Option (`⌥`).
 - Maintainer E2E inject (`InjectGestureSource`) is a test seam only — not a player backend.
@@ -39,4 +39,4 @@ A backend must:
 - High-level feature shards describe trackpads and feel presets, not “Mac-only product.”
 - README and client install state which backends ship today without rewriting the capability contract.
 - Durable docs do not treat a C helper binary or socket host as the Capture path.
-- Rewrite v1 tree contains **only** `AppleGestureSource` (+ inject harness) under `Capture/`.
+- Rewrite v1: AppKit (+ inject harness) live in the gesture library; the mod wires the source only.

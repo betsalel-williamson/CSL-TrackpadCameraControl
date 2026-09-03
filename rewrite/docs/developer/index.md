@@ -2,7 +2,7 @@
 
 Contributor contracts for the `rewrite/` target tree — layout, state, settings, flags, harnesses, quality gates, install, and parity QA.
 
-North star: greenfield redesign lessons (L1–L13) in the features guide. [UI parity](../glossary/ui-parity.md) is player-facing; [ADR 0005](../features/adr/0005-ux-parity-not-source-parity.md) forbids cloning shipping sources.
+North star: greenfield redesign lessons (L1–L13) in the features guide. Start with features _Under the hood_. Glossary _UI parity_ is player-facing; ADR 0005 forbids cloning shipping sources; ADR 0006 separates gesture library from mod surface.
 
 - [Developer guide (rewrite)](#table-of-contents)
   - [About this guide](./about-this-guide.md)
