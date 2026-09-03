@@ -1,13 +1,23 @@
-# Rewrite v1 audit (review guide)
+# Rewrite review guide
 
-**Audience:** Contributors reconciling why the first rewrite implementation failed and what contracts replace it.
+**Audience:** Contributors and agents performing system architecture reviews of `rewrite/`.
 
-**Purpose:** Record organized product feedback and specialist findings from the **clone-and-strip experiment**. That path is **closed**. Do not treat R7 in-game sign-off of the clone as architecture success.
+**Procedure:** Use project skill **`system-architecture-review`** (`.agents/skills/system-architecture-review/SKILL.md`). That skill defines specialist lanes, the Strengths / Weaknesses / Critical template, import-matrix checks, and the rule that prototype clones are weaknesses — not strengths.
 
-**Current path:** Features ADR 0005 and lesson L13 — rebuild from [UI parity](../../glossary/ui-parity.md) and Maps+ dynamics, not from shipping C#. Recovery design lives in the session spec _Rewrite from UX contract, not source clone_ under repo-root `docs/superpowers/specs/`.
+## Current review — under-the-hood redesign (2026-09-03)
 
-**Workflow (historical):**
+- [Synthesis — Conditional](./uth-synthesis.md)
+- [Architecture / Host](./uth-architecture-host.md)
+- [Gesture library / Capture](./uth-gesture-library.md)
+- [Policy / Apply](./uth-policy-apply.md)
+- [Feel / Settings](./uth-feel-settings.md)
+- [UI hosts](./uth-ui-hosts.md)
+- [Tests / SA](./uth-tests-sa.md)
 
-1. Read [organized product feedback](./v1-product-feedback.md) (user scope vs prototype carryover).
-2. The [v1 audit and cleanup plan](./v1-audit-plan.md) is closed after R6; do not continue it.
-3. Specialist shards remain as findings (capture, settings, UI, release, tests).
+## Clone experiment (closed — historical)
+
+Do not treat R7 in-game sign-off of the clone as architecture success. Findings remain context only.
+
+- [Organized product feedback](./v1-product-feedback.md)
+- [v1 audit and cleanup plan](./v1-audit-plan.md) (closed)
+- Specialist clone-era shards (`architecture-audit.md`, `capture-audit.md`, …) describe the **quarantined clone**, not the under-the-hood tree.

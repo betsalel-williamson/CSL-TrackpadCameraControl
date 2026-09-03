@@ -19,15 +19,19 @@ North star: greenfield redesign lessons (L1–L13) in the features guide. Start 
 
 - [In-game parity checklist (tier C)](./in-game-parity-checklist.md)
 
-## Clone experiment (closed)
+## System architecture review
 
-The clone-and-strip pass is **closed**. Do not extend quarantined `rewrite/mod` sources as the v1 path. Findings remain as context only.
+Procedure: project skill `system-architecture-review`. Latest pass:
 
 - [About the review guide](./review/about-this-guide.md)
+- [Under-the-hood synthesis (Conditional)](./review/uth-synthesis.md)
+
+## Clone experiment (closed — historical)
+
 - [Organized product feedback](./review/v1-product-feedback.md)
 - [v1 audit and cleanup plan](./review/v1-audit-plan.md) (closed)
 
-### Specialist audit shards (R1)
+### Specialist audit shards (clone-era — historical)
 
 - [Architecture audit](./review/architecture-audit.md)
 - [Capture layer audit](./review/capture-audit.md)
