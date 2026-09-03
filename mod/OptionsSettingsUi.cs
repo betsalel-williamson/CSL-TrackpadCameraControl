@@ -523,8 +523,7 @@ namespace TrackpadCameraControl
             {
                 field.submitOnFocusLost = true;
                 field.selectOnFocus = true;
-                field.allowFloats = true;
-                field.numericalOnly = false;
+                NumericTextFieldUi.ConfigureFloatField(field);
             }
         }
     }

@@ -101,6 +101,10 @@ namespace TrackpadCameraControl
 
             dest.OrbitPitchMin = source.OrbitPitchMin;
             dest.OrbitPitchMax = source.OrbitPitchMax;
+
+            dest.MotionDeadband = source.MotionDeadband;
+            dest.PinchDeadband = source.PinchDeadband;
+            dest.YawDeadband = source.YawDeadband;
         }
 
         /// <summary>Snapshot feel fields into a new ModSettings instance.</summary>

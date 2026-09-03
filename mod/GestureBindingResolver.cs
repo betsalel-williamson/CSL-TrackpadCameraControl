@@ -30,12 +30,12 @@ namespace TrackpadCameraControl
 
             CameraOp ops = CameraOp.None;
 
-            if (settings.ZoomEnabled && Abs(frame.pinchScaleDelta) > settings.PinchEpsilon)
+            if (settings.ZoomEnabled && Abs(frame.pinchScaleDelta) > settings.PinchDeadband)
             {
                 ops |= CameraOp.Zoom;
             }
 
-            if (settings.YawEnabled && Abs(frame.rotateDelta) > settings.RotateEpsilon)
+            if (settings.YawEnabled && Abs(frame.rotateDelta) > settings.YawDeadband)
             {
                 ops |= CameraOp.Yaw;
             }
@@ -80,10 +80,10 @@ namespace TrackpadCameraControl
                 return ops;
             }
 
-            float pinchEps = settings.PinchEpsilon > 1e-8f ? settings.PinchEpsilon : 0.001f;
-            float rotEps = settings.RotateEpsilon > 1e-8f ? settings.RotateEpsilon : 0.001f;
-            float zoomScore = Abs(frame.pinchScaleDelta) / pinchEps;
-            float yawScore = Abs(frame.rotateDelta) / rotEps;
+            float pinchDeadband = settings.PinchDeadband > 1e-8f ? settings.PinchDeadband : 0.001f;
+            float yawDeadband = settings.YawDeadband > 1e-8f ? settings.YawDeadband : 0.001f;
+            float zoomScore = Abs(frame.pinchScaleDelta) / pinchDeadband;
+            float yawScore = Abs(frame.rotateDelta) / yawDeadband;
 
             if (zoomScore >= yawScore)
             {
@@ -135,9 +135,9 @@ namespace TrackpadCameraControl
                     && Abs(frame.rotateDelta) >= Abs(frame.centroidDeltaY);
             }
 
-            float rotEps = settings.RotateEpsilon > 1e-8f ? settings.RotateEpsilon : 0.001f;
-            float dead = settings.MotionDeadband > 1e-8f ? settings.MotionDeadband : 0.1f;
-            float yawScore = Abs(frame.rotateDelta) / rotEps;
+            float yawDeadband = settings.YawDeadband > 1e-8f ? settings.YawDeadband : 0.001f;
+            float dead = settings.MotionDeadband > 1e-8f ? settings.MotionDeadband : 0.001f;
+            float yawScore = Abs(frame.rotateDelta) / yawDeadband;
             float motionScore = Max(Abs(frame.centroidDeltaX), Abs(frame.centroidDeltaY)) / dead;
             return yawScore > 0f && yawScore >= motionScore;
         }

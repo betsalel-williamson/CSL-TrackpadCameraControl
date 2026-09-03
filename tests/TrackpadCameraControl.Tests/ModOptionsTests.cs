@@ -63,6 +63,30 @@ namespace TrackpadCameraControl.Tests
         }
 
         [Fact]
+        public void ApplyMotionDeadband_RejectsNegative_KeepsPrevious()
+        {
+            var settings = new ModSettings { MotionDeadband = 0.05f };
+            ModOptions.ApplyMotionDeadband(settings, -1f);
+            Assert.Equal(0.05f, settings.MotionDeadband);
+        }
+
+        [Fact]
+        public void ApplyPinchDeadband_StoresRoundedNonNegative()
+        {
+            var settings = new ModSettings();
+            ModOptions.ApplyPinchDeadband(settings, 0.123456f);
+            Assert.Equal(0.123f, settings.PinchDeadband);
+        }
+
+        [Fact]
+        public void ApplyYawDeadband_AcceptsZero()
+        {
+            var settings = new ModSettings { YawDeadband = 0.5f };
+            ModOptions.ApplyYawDeadband(settings, 0f);
+            Assert.Equal(0f, settings.YawDeadband);
+        }
+
+        [Fact]
         public void EnsureSettings_ReusesExisting()
         {
             ModTestState.Reset();

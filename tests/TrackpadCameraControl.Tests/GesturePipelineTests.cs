@@ -269,7 +269,7 @@ namespace TrackpadCameraControl.Tests
             {
                 OrbitTrigger = OrbitTrigger.ModifierPlusTwoFinger,
                 MotionDeadband = 0.001f,
-                RotateEpsilon = 0.001f,
+                YawDeadband = 0.001f,
             };
             var session = new GestureSession();
 
@@ -310,7 +310,7 @@ namespace TrackpadCameraControl.Tests
             {
                 OrbitTrigger = OrbitTrigger.ModifierPlusTwoFinger,
                 MotionDeadband = 0.001f,
-                RotateEpsilon = 0.001f,
+                YawDeadband = 0.001f,
             };
             var session = new GestureSession();
 
@@ -354,7 +354,7 @@ namespace TrackpadCameraControl.Tests
                 OrbitYawGain = 1f,
                 OrbitPitchGain = 1f,
                 MotionDeadband = 0.001f,
-                RotateEpsilon = 0.001f,
+                YawDeadband = 0.001f,
             };
             var inject = new InjectGestureSource();
             var cam = new FakeCameraController
@@ -540,9 +540,9 @@ namespace TrackpadCameraControl.Tests
     public class GestureBindingResolverTests
     {
         [Fact]
-        public void ResolveCandidates_PinchAboveEpsilon_IncludesZoom()
+        public void ResolveCandidates_PinchAboveDeadband_IncludesZoom()
         {
-            var settings = new ModSettings { ZoomEnabled = true, PinchEpsilon = 0.001f };
+            var settings = new ModSettings { ZoomEnabled = true, PinchDeadband = 0.001f };
             var frame = Frame(pinch: 0.05f);
 
             Assert.Equal(
@@ -552,9 +552,9 @@ namespace TrackpadCameraControl.Tests
         }
 
         [Fact]
-        public void ResolveCandidates_PinchBelowEpsilon_NoZoom()
+        public void ResolveCandidates_PinchBelowDeadband_NoZoom()
         {
-            var settings = new ModSettings { ZoomEnabled = true, PinchEpsilon = 0.01f };
+            var settings = new ModSettings { ZoomEnabled = true, PinchDeadband = 0.01f };
             var frame = Frame(pinch: 0.001f);
 
             Assert.Equal(
@@ -566,7 +566,7 @@ namespace TrackpadCameraControl.Tests
         [Fact]
         public void ResolveCandidates_ZoomDisabled_NoZoom()
         {
-            var settings = new ModSettings { ZoomEnabled = false, PinchEpsilon = 0.001f };
+            var settings = new ModSettings { ZoomEnabled = false, PinchDeadband = 0.001f };
             var frame = Frame(pinch: 0.05f);
 
             Assert.Equal(
@@ -578,7 +578,7 @@ namespace TrackpadCameraControl.Tests
         [Fact]
         public void ResolveCandidates_Concurrent_PinchAndDrag_IncludesZoomAndPan()
         {
-            var settings = new ModSettings { PinchEpsilon = 0.001f, MotionDeadband = 0.001f };
+            var settings = new ModSettings { PinchDeadband = 0.001f, MotionDeadband = 0.001f };
             var frame = Frame(fingers: 2, pinch: 0.05f, dx: 0.02f, dy: 0f);
 
             CameraOp ops = GestureBindingResolver.ResolveCandidates(frame, settings, false);
@@ -590,7 +590,7 @@ namespace TrackpadCameraControl.Tests
         [Fact]
         public void ExclusiveZoomVersusYaw_KeepsDominantPinch()
         {
-            var settings = new ModSettings { PinchEpsilon = 0.001f, RotateEpsilon = 0.001f };
+            var settings = new ModSettings { PinchDeadband = 0.001f, YawDeadband = 0.001f };
             var frame = Frame(pinch: 0.05f, rotate: 0.01f);
             CameraOp ops = CameraOp.Zoom | CameraOp.Yaw;
             Assert.Equal(
@@ -602,7 +602,7 @@ namespace TrackpadCameraControl.Tests
         [Fact]
         public void ExclusiveZoomVersusYaw_KeepsDominantRotate()
         {
-            var settings = new ModSettings { PinchEpsilon = 0.001f, RotateEpsilon = 0.001f };
+            var settings = new ModSettings { PinchDeadband = 0.001f, YawDeadband = 0.001f };
             var frame = Frame(pinch: 0.002f, rotate: 0.5f);
             CameraOp ops = CameraOp.Zoom | CameraOp.Yaw;
             Assert.Equal(
@@ -614,7 +614,7 @@ namespace TrackpadCameraControl.Tests
         [Fact]
         public void ExclusiveOrbitVersusYaw_DropsYawWhenOrbitDominant()
         {
-            var settings = new ModSettings { RotateEpsilon = 0.001f, MotionDeadband = 0.1f };
+            var settings = new ModSettings { YawDeadband = 0.001f, MotionDeadband = 0.1f };
             var frame = Frame(dx: 5f, dy: 5f, rotate: 0.001f);
             Assert.Equal(
                 CameraOp.Orbit,
@@ -629,7 +629,7 @@ namespace TrackpadCameraControl.Tests
         [Fact]
         public void ExclusiveOrbitVersusYaw_KeepsYawWhenTwistDominant()
         {
-            var settings = new ModSettings { RotateEpsilon = 0.001f, MotionDeadband = 0.1f };
+            var settings = new ModSettings { YawDeadband = 0.001f, MotionDeadband = 0.1f };
             var frame = Frame(dx: 0.01f, dy: 0.01f, rotate: 2f);
             Assert.Equal(
                 CameraOp.Yaw,
@@ -714,7 +714,7 @@ namespace TrackpadCameraControl.Tests
             var settings = new ModSettings
             {
                 GestureResolveMode = GestureResolveMode.Concurrent,
-                PinchEpsilon = 0.001f,
+                PinchDeadband = 0.001f,
                 MotionDeadband = 0.001f,
             };
             var session = new GestureSession();
@@ -783,8 +783,8 @@ namespace TrackpadCameraControl.Tests
             {
                 OrbitTrigger = OrbitTrigger.ModifierPlusTwoFinger,
                 MotionDeadband = 0.001f,
-                PinchEpsilon = 0.001f,
-                RotateEpsilon = 0.001f,
+                PinchDeadband = 0.001f,
+                YawDeadband = 0.001f,
             };
             var session = new GestureSession();
 
@@ -865,7 +865,7 @@ namespace TrackpadCameraControl.Tests
             var settings = new ModSettings
             {
                 GestureResolveMode = GestureResolveMode.PrimaryOnly,
-                PinchEpsilon = 0.001f,
+                PinchDeadband = 0.001f,
                 MotionDeadband = 0.001f,
             };
             var session = new GestureSession();
@@ -891,7 +891,7 @@ namespace TrackpadCameraControl.Tests
             var settings = new ModSettings
             {
                 GestureResolveMode = GestureResolveMode.SessionLock,
-                PinchEpsilon = 0.001f,
+                PinchDeadband = 0.001f,
                 MotionDeadband = 0.001f,
             };
             var session = new GestureSession();
@@ -1078,7 +1078,7 @@ namespace TrackpadCameraControl.Tests
             {
                 ZoomEnabled = true,
                 ZoomGain = 1f,
-                PinchEpsilon = 0.001f,
+                PinchDeadband = 0.001f,
             };
             var inject = new InjectGestureSource();
             var cam = new FakeCameraController { Size = 200f };

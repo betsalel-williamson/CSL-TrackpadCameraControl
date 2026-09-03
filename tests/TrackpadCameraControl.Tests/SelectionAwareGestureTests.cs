@@ -263,7 +263,7 @@ namespace TrackpadCameraControl.Tests
             {
                 YawEnabled = true,
                 YawRotateGain = 1f,
-                RotateEpsilon = 0.001f,
+                YawDeadband = 0.001f,
             };
             var inject = new InjectGestureSource();
             var cam = new FakeCameraController { AngleX = 12f };
@@ -294,7 +294,7 @@ namespace TrackpadCameraControl.Tests
             {
                 YawEnabled = true,
                 YawRotateGain = 1f,
-                RotateEpsilon = 0.001f,
+                YawDeadband = 0.001f,
             };
             var inject = new InjectGestureSource();
             var cam = new FakeCameraController { AngleX = 12f };

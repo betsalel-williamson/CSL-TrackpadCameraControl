@@ -242,7 +242,7 @@ namespace TrackpadCameraControl.Tests
             ModSettings loaded = store.LoadOrFactory();
             Assert.Equal(120f, loaded.DebugPanelPosX);
             Assert.Equal(88f, loaded.DebugPanelPosY);
-            Assert.Equal(5, ModSettingsStore.CurrentSchemaVersion);
+            Assert.Equal(6, ModSettingsStore.CurrentSchemaVersion);
         }
 
         [Fact]

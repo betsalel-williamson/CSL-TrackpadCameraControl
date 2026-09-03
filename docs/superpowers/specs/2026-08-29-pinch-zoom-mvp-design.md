@@ -31,13 +31,13 @@ Two backends behind `IGestureSource`:
 
 ## Components
 
-| Piece                    | Responsibility                                                     |
-| ------------------------ | ------------------------------------------------------------------ |
-| TrackpadBridge (macOS)   | MultitouchSupport → pinch scale delta → socket frames              |
-| Shared protocol          | Fixed binary `GestureFrame` layout                                 |
-| `IpcGestureSource`       | Connect, read, reconnect; fail soft                                |
-| `InProcessGestureSource` | Stub: disconnected                                                 |
-| Resolver / applicator    | Zoom only, using `ZoomSensitivity` / `InvertZoom` / `PinchEpsilon` |
+| Piece                    | Responsibility                                                      |
+| ------------------------ | ------------------------------------------------------------------- |
+| TrackpadBridge (macOS)   | MultitouchSupport → pinch scale delta → socket frames               |
+| Shared protocol          | Fixed binary `GestureFrame` layout                                  |
+| `IpcGestureSource`       | Connect, read, reconnect; fail soft                                 |
+| `InProcessGestureSource` | Stub: disconnected                                                  |
+| Resolver / applicator    | Zoom only, using `ZoomSensitivity` / `InvertZoom` / `PinchDeadband` |
 
 ## Fail-soft
 
