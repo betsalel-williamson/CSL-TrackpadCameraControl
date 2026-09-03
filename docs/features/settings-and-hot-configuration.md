@@ -13,7 +13,7 @@ No feel or binding parameter is hardcoded in camera or gesture logic. Defaults e
 
 One binding layer parses, rounds product numerics to three decimals (`RoundGain`), validates Options Sensitivity against the slider contract on player drag, and writes fields. A change on either surface updates live settings immediately and schedules a durable write (autosave).
 
-Debug chrome pads/buttons and button-step fields appear only when `EnableAssistChrome` is on. Capture-backend picker and [low-pass](../glossary/low-pass.md) appear only when `EnableContactsCapture` is on. A CAD / Maps+ gesture-style switcher is **future** (not a v1 player surface); experimental builds may compile it via `EnableCadGestureStyle`. See [feel profiles and product flags](./adr/0003-feel-profiles-and-product-flags.md).
+Debug chrome pads/buttons and button-step fields appear only if `EnableAssistChrome` is compiled on (**future** — not shipped). Capture-backend picker and [low-pass](../glossary/low-pass.md) were designed for Contacts (`EnableContactsCapture`) — that path is **unfinished** and off for ship. A CAD / Maps+ gesture-style switcher is **future** (`EnableCadGestureStyle`). See [feel profiles and product flags](./adr/0003-feel-profiles-and-product-flags.md) and `docs/developer/feature-flags.md`.
 
 ## Layout (contract)
 
@@ -52,17 +52,17 @@ Under each op heading (**Zoom**, **Pan**, **Rotate**, **Orbit**) after **General
 
 Also: [feel preset](../glossary/feel-preset.md) row (Slow / Default / Fast / New Preset when dirty, Save as…, Delete, Reset to factory), **Show debug panel** (panel master switch; off also hides the floating Debug reopen chip).
 
-## Tunables (flagged off)
+## Tunables (future / unfinished — not on ship surface)
 
-- Gesture-style switcher (CAD) — future; `EnableCadGestureStyle` for experimental builds only
-- Capture backend picker and [low-pass](../glossary/low-pass.md) — `EnableContactsCapture`
-- [Button step](../glossary/button-step.md) / Debug chrome — `EnableAssistChrome`
+- Gesture-style switcher (CAD) — **future**; `EnableCadGestureStyle` for experiments only
+- Capture backend picker and [low-pass](../glossary/low-pass.md) — tied to **unfinished** Contacts (`EnableContactsCapture`); not a v1 QA path
+- [Button step](../glossary/button-step.md) / Debug chrome — **future**; `EnableAssistChrome`
 - Deadzones and resolve-mode advanced fields (schema retains; not required on the slim surface)
 - Enable-per-op and Reverse controls (schema/factory retain; not on product UI)
 
 ## Apply math (contract)
 
-Let `raw` be the resolved gesture delta for that axis. Optional [low-pass](../glossary/low-pass.md) may replace `raw` when Contacts capture is enabled.
+Let `raw` be the resolved gesture delta for that axis. Optional [low-pass](../glossary/low-pass.md) is **future** (Contacts unfinished); ship applies raw → Sensitivity → camera.
 
 **Invert:** if the matching invert flag is on in settings, multiply the signed delta by `-1` after scaling (schema-backed; not a product UI control).
 
@@ -116,5 +116,5 @@ Once orbit engages from the configured trigger, the session stays in orbit until
 - Reset to factory and Slow / Default / Fast match the feel-profile contract.
 - Product UI shows no Enable-per-op or Reverse; section order is General → Zoom → Pan → Rotate → Orbit.
 - Pitch clamps to vanilla **0°–90°** (hardcoded in apply; not Options/Debug-tunable); pan apply clamps the camera target to the unlocked game area; yaw has no angle clamp.
-- While flags are off: no CAD / gesture-style switcher (CAD is future), no backend picker, no Btn fields, no low-pass.
+- On the ship surface: no CAD / gesture-style switcher, no backend picker, no Btn fields, no low-pass (**Contacts** and Assist chrome remain unfinished futures).
 - Grep of camera/gesture logic finds no numeric feel literals outside the settings defaults factory.

@@ -51,21 +51,20 @@ Two-finger **rotation** writes `AngleX` (or ghost angles) directly and clears bo
 - With AppleKit and Maps+ defaults, pan, zoom, **rotation**, and `⌥`+two-finger orbit work in-game; pan stays within the unlocked game area; orbit pitch stays within **0°**–**90°**; rotation is not angle-clamped; starting rotation hard-handoffs leftover orbit coast.
 - Selection-aware rotate / Option-orbit match [selection-aware gestures](./selection-aware-gestures.md).
 - Slow / Default / Fast stay immutable; dirty edits use **New Preset** per [settings and hot configuration](./settings-and-hot-configuration.md); Sensitivity uses the slider contract (0.1×–2× factory default).
-- Changing Sensitivity or pitch limits in Options or the Debug panel applies hot, stays in sync, and autosaves across quit.
+- Changing Sensitivity in Options or the Debug panel applies hot, stays in sync, and autosaves across quit. Orbit pitch is vanilla **0°–90°** (not Options-tunable).
 - Orbit latch continues orbit after modifier release until fingers lift.
 - Concurrent resolve allows pan + zoom + yaw in the same frame when not orbit-latched.
 - One-finger building tools remain usable.
 - [Vanilla camera suppress](./vanilla-camera-suppress.md): precise trackpad pan without vanilla zoom; mouse wheel zooms; middle-mouse orbit still vanilla; no mod camera when menus open or pointer over popups.
 - Without a platform backend, the mod enables cleanly; keyboard, edge pan, and gamepad stay.
 - If Cities Harmony is missing, the mod enables without crashing; pan may fight vanilla scroll-zoom.
-- While product flags are off: no Contacts picker, no low-pass UI, no Debug chrome / button-step fields; no CAD / gesture-style switcher (CAD is future).
+- While ship flags are off: no Contacts picker, no low-pass UI, no Debug chrome / button-step fields; no CAD / gesture-style switcher (**CAD**, **Contacts**, and Assist chrome are **future** — Contacts was not troubleshot for v1).
 - Disable the mod to restore full vanilla camera input.
 
 ## Non-goals (v1)
 
 - Optical [roll](../glossary/roll.md) (CS1 camera is yaw/pitch only).
 - Full Windows / Linux multitouch backends (stubs only; see [platform backends](./platform-backends.md)).
-- Steam Workshop packaging (after local install works).
-- Synthetic middle-mouse injection as the primary path.
-- Shipping CAD three-finger orbit or Contacts / Debug chrome to all players in this pass.
+- Synthetic middle-mouse injection as the primary path (vanilla middle-mouse orbit remains available alongside trackpad).
+- Shipping **CAD** three-finger orbit, **Contacts** capture, or Assist / Debug chrome pads to players — those are **future**; Contacts was never product-validated.
 - Re-enabling Enable-per-op or Reverse on the product UI this pass.

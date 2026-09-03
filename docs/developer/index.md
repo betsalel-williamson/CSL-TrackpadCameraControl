@@ -9,6 +9,7 @@ How to work on **Trackpad Camera Control** — docs, layout, validation, and imp
   - [Documentation workflow](./documentation-workflow.md)
   - [Lint and format](./lint-and-format.md)
   - [Commits and releases](./commits-and-releases.md)
+  - [Release process](./release-process.md)
   - [GitHub project controls](./github-project-controls.md)
   - [Community and marketing](./community-and-marketing.md)
   - [Workshop storefront](./workshop-storefront.md)

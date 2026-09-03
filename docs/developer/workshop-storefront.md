@@ -1,6 +1,6 @@
 # Workshop storefront
 
-Paste-ready **Steam Workshop** and **Content Manager** title, description, and search keywords for Trackpad Camera Control. Announcement sequencing stays in [Community and marketing](./community-and-marketing.md). Naming identity: [Repository layout](./repository-layout.md).
+Paste-ready **Steam Workshop** and **Content Manager** title, description, and search keywords for Trackpad Camera Control. How to ship a Release and Share from a Mac: [Release process](./release-process.md). Announcement sequencing stays in [Community and marketing](./community-and-marketing.md). Naming identity: [Repository layout](./repository-layout.md).
 
 ## Naming policy
 
@@ -21,7 +21,7 @@ Trackpad Camera Control (macOS)
 In-game `IUserMod.Name` / Options title uses the same core + tag, then the assembly version:
 
 ```text
-Trackpad Camera Control (macOS) 0.x.y
+Trackpad Camera Control (macOS) 1.0.0
 ```
 
 ## Short description
@@ -29,7 +29,7 @@ Trackpad Camera Control (macOS) 0.x.y
 Use for `IUserMod.Description` and as the Workshop subtitle / first skim line:
 
 ```text
-macOS trackpad camera — pan, pinch zoom, orbit. No middle mouse. Windows/Linux not supported yet.
+macOS trackpad camera — pan, pinch zoom, orbit. Middle-mouse orbit still works. Windows/Linux not supported.
 ```
 
 ## Workshop long description
@@ -37,7 +37,9 @@ macOS trackpad camera — pan, pinch zoom, orbit. No middle mouse. Windows/Linux
 Paste into the Workshop description field (adjust version notes as needed):
 
 ```text
-macOS-only multitouch camera for Cities: Skylines I. Pan, pinch zoom, and orbit from a laptop trackpad — no three-button mouse.
+Version 1.0.0 — first public macOS release.
+
+macOS-only multitouch camera for Cities: Skylines I. Pan, pinch zoom, rotate, and Option-orbit from a laptop trackpad. A real mouse still works alongside (wheel zoom, middle-mouse orbit).
 
 What you get
 • Maps+ gestures: two-finger pan, pinch zoom, Option (⌥) + two-finger orbit, two-finger rotate for yaw / selection
@@ -47,11 +49,21 @@ What you get
 Requires
 • Cities: Skylines I
 • Cities Harmony (required for vanilla camera suppress)
-• macOS trackpad (AppleKit capture)
+  https://steamcommunity.com/sharedfiles/filedetails/?id=2040656402
+• macOS trackpad (AppKit capture)
+
+Getting started
+1. Subscribe to Cities Harmony and enable it in Content Manager
+2. Subscribe to this mod and enable it
+3. Load a city, click the game window so it is focused
+4. Two-finger drag to pan, pinch to zoom, Option (⌥)+two-finger to orbit
+5. Options → Trackpad Camera Control to change Sensitivity or Slow / Default / Fast
+
+If gestures do nothing: keep the game focused; turn off Mission Control / three-finger swipes stealing the trackpad (player guide on GitHub).
 
 Compatibility (tested platforms)
 • AppKit gesture APIs are old; we only claim what we (or you) have playtested.
-• Maintainer matrix lives in the GitHub QA checklist — update that table when you confirm a pass.
+• Maintainer Pass: macOS 26.5.2 / Mac14,2 (M2 Air); macOS 26.6.2 / Mac17,6 — see GitHub QA checklist.
 • Not yet a full OS matrix — older macOS that still runs CS1 may work but is unproven until reported.
 
 Share your setup
@@ -63,12 +75,6 @@ Not supported
 
 Scope
 • Trackpad gesture input only — not a full camera suite (saved views, zoom-limit overhaul, free-cam).
-
-Install
-1. Subscribe to Cities Harmony and enable it
-2. Subscribe to this mod and enable it in Content Manager
-3. Load a city, keep the game focused
-4. Try two-finger pan and pinch zoom
 
 Conflicts
 • macOS Mission Control / system gestures can steal multitouch — see the player guide OS conflict notes on GitHub if gestures do nothing
@@ -93,9 +99,21 @@ Secondary (description / README; Workshop tag limits may not fit all):
 
 Do **not** add `windows` or `linux` as capability tags until those backends ship.
 
+## Share dialog (not description body)
+
+Set these in Content Manager **Share** / **Update** ([Release process](./release-process.md)):
+
+| Field          | v1                                                                                       |
+| -------------- | ---------------------------------------------------------------------------------------- |
+| Required items | [Cities Harmony](https://steamcommunity.com/sharedfiles/filedetails/?id=2040656402) only |
+| Preview        | `PreviewImage.png` in the local Mods folder (512×512 PNG)                                |
+| Visibility     | Hidden or friends-only until splash readiness, then public                               |
+
+Do not mark [Skyve](https://steamcommunity.com/sharedfiles/filedetails/?id=2881031511) as required.
+
 ## Tested platforms (public claim)
 
-Keep the Workshop **Compatibility** blurb honest: claim only rows that appear in [QA checklist — Known good platforms](./qa-checklist.md). Before the first public splash, complete at least one maintainer Session platform row and copy that into the known-good table.
+Keep the Workshop **Compatibility** blurb honest: claim only rows that appear in [QA checklist — Known good platforms](./qa-checklist.md). Two maintainer Macs are **Pass** for v1; refresh Workshop copy when the claim changes.
 
 Invite players (Workshop comments or GitHub issues) to report:
 

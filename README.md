@@ -2,13 +2,26 @@
 
 **Cities: Skylines I** mod for **trackpad** camera control — pan, orbit, and zoom via multitouch (pinch, two-finger), with hot-configurable Options.
 
-> Status: **macOS v1** — Maps+ gestures (pan, pinch zoom, orbit) via in-process AppleKit capture. Content Manager / Workshop title: **Trackpad Camera Control (macOS)**.
+> Status: **macOS v1** — Maps+ gestures (pan, pinch zoom, rotate, orbit) via in-process **AppKit** capture. Content Manager / Workshop title: **Trackpad Camera Control (macOS)**.
 >
-> **Implementation status:** macOS first. Windows / Linux backends are stubs. High-level design and Options are platform-neutral.
+> **Implementation status:** macOS AppKit first. Windows / Linux backends are stubs. Contacts MultitouchSupport and CAD three-finger orbit remain **future / unfinished**. High-level design and Options are platform-neutral.
+
+![Content Manager / Workshop preview](mod/PreviewImage.png)
 
 ## Why this exists
 
 CS1 camera orbit expects a middle mouse button. Trackpad players have asked for map-app-style gestures for years; no Workshop mod ships true multitouch camera control. Vanilla workarounds (Rotate Camera Modifier + OS middle-click tools) are partial. This project fills that gap.
+
+## Getting started (macOS)
+
+v1 is **macOS only**. Windows and Linux are unsupported.
+
+1. Subscribe to [Cities Harmony](https://steamcommunity.com/sharedfiles/filedetails/?id=2040656402) and enable it.
+2. Enable **Trackpad Camera Control (macOS)** in Content Manager (Workshop when published, or [local install](docs/developer/local-mvp-install.md)).
+3. Load a city and click the game so it is focused.
+4. Two-finger drag pans, pinch zooms, Option (`⌥`)+two-finger orbits. Tune Sensitivity in Options.
+
+More: [Install and first run](docs/client/install-and-first-run.md). Harmony must be on or trackpad pan may fight vanilla zoom. [Skyve](https://steamcommunity.com/sharedfiles/filedetails/?id=2881031511) is optional and not required.
 
 ## Search keywords
 
@@ -32,7 +45,7 @@ v1 ships **[Maps+](docs/glossary/maps-plus-preset.md)** only:
 - Two-finger rotate → camera rotate (or place/relocate ghost)
 - Option (`⌥`)+two-finger drag → orbit (macOS)
 
-Feel (Slow / Default / Fast, Sensitivity) is hot-editable in Options — separate from which fingers map to which op. A **CAD** three-finger orbit style may come later; it is not a player choice in this release.
+Feel (Slow / Default / Fast, Sensitivity) is hot-editable in Options — separate from which fingers map to which op. **CAD** three-finger orbit is a **future** gesture style (not a player choice in this release). A real mouse still works: wheel zoom and middle-mouse orbit stay vanilla alongside trackpad gestures.
 
 ## Docs
 
@@ -51,6 +64,7 @@ npm run format:check  # csharpier + clang-format (see docs/developer/lint-and-fo
 | Contributor guide       | [`docs/developer/`](docs/developer/)                                                     |
 | Community / marketing   | [`docs/developer/community-and-marketing.md`](docs/developer/community-and-marketing.md) |
 | Workshop storefront     | [`docs/developer/workshop-storefront.md`](docs/developer/workshop-storefront.md)         |
+| Release process         | [`docs/developer/release-process.md`](docs/developer/release-process.md)                 |
 | Personas                | [`docs/client/personas.md`](docs/client/personas.md)                                     |
 | Glossary                | [`docs/glossary/`](docs/glossary/)                                                       |
 

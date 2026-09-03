@@ -12,12 +12,24 @@ How players get the mod running. Who this is for: [Personas](./personas.md). Whe
 
 Until Workshop publishes, treat GitHub Release + local install as the supported player/tester path. Do not imply a Workshop item exists before it does. When published, the Workshop and Content Manager title is **Trackpad Camera Control (macOS)** — paste-ready storefront copy lives in `docs/developer/workshop-storefront.md`.
 
+## Getting started (macOS)
+
+v1 is **macOS only**. Windows and Linux can show the mod in Content Manager; trackpad gestures will not work.
+
+1. Subscribe to [Cities Harmony](https://steamcommunity.com/sharedfiles/filedetails/?id=2040656402) and **enable** it.
+2. Install this mod (Workshop subscribe when published, or local DLL via the beta path above) and **enable** it in Content Manager.
+3. Load a city (not menus-only). Click the game window so it is focused.
+4. Two-finger drag **pans**, pinch **zooms**, two-finger twist **rotates** heading, Option (`⌥`)+two-finger drag **orbits**.
+5. Open **Options → Trackpad Camera Control** for Sensitivity and Slow / Default / Fast.
+
+Harmony must be enabled or two-finger pan may still fight vanilla scroll-zoom. [Skyve](https://steamcommunity.com/sharedfiles/filedetails/?id=2881031511) is optional (load order / compatibility helper). It is **not** required; its Mac app needs Wine and is separate from this mod.
+
 ## Requirements
 
 - Cities: Skylines I
 - [Cities Harmony](https://steamcommunity.com/sharedfiles/filedetails/?id=2040656402) subscribed and enabled — **required** for [vanilla camera suppress](../glossary/vanilla-camera-suppress.md) (without it, trackpad pan may still fight vanilla scroll-zoom)
 - Trackpad Camera Control installed via a path in the table above
-- A **supported trackpad backend** for your OS (v1 ships macOS AppleKit; other platforms show unsupported until a backend exists)
+- A **supported trackpad backend** for your OS (v1 ships **macOS AppKit** only; other platforms show unsupported until a backend exists)
 - **Tested macOS versions** are listed in the developer QA checklist (`docs/developer/qa-checklist.md`, known-good table). If your Mac is not listed, try it and share your setup — Workshop comment or a GitHub issue — so we can expand the list.
 
 ## Vanilla camera while the mod is on
@@ -33,7 +45,7 @@ Disable the mod in Content Manager to restore full vanilla camera input. There i
 
 ## First run (current)
 
-Shipped capture is **AppleKit** with [Maps+](../glossary/maps-plus-preset.md) gesture style. Tune [Sensitivity](../glossary/sensitivity.md) and [feel presets](./feel-presets.md) from Options or the optional [Debug panel](./debug-ui.md). Contacts and pad/button chrome stay off the product surface unless their maintainer flags are on. CAD three-finger orbit is a future style, not a v1 player choice.
+Shipped capture is **AppKit** with [Maps+](../glossary/maps-plus-preset.md) gesture style. Tune [Sensitivity](../glossary/sensitivity.md) and [feel presets](./feel-presets.md) from Options or the optional [Debug panel](./debug-ui.md). There is no player capture-backend switcher. **CAD** three-finger orbit, **Contacts** capture, and Assist chrome pads are **future** directions (not troubleshot for v1) — see `docs/developer/feature-flags.md`.
 
 1. Subscribe and enable **Cities Harmony**.
 2. Enable **Trackpad Camera Control** in Content Manager.

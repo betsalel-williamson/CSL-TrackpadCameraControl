@@ -50,7 +50,7 @@ npm run version-packages    # apply changesets → version + CHANGELOG (maintain
 
 This package uses Changesets for **version + CHANGELOG** and **GitHub Releases** (source archives for beta testers). Players will eventually install from **Steam Workshop**. This project does **not** publish to the npm registry.
 
-The in-game **product** version (`Mod.OptionsTitle`, e.g. `Trackpad Camera Control (macOS) 0.2.0`) is `package.json` `"version"` stamped into `BuildInfo.ProductVersion` / InformationalVersion at **MSBuild** time. After `npm run version-packages` bumps `package.json`, the next mod build picks up the new semver — no separate sync step.
+The in-game **product** version (`Mod.OptionsTitle`, e.g. `Trackpad Camera Control (macOS) 1.0.0`) is `package.json` `"version"` stamped into `BuildInfo.ProductVersion` / InformationalVersion at **MSBuild** time. After `npm run version-packages` bumps `package.json`, the next mod build picks up the new semver — no separate sync step.
 
 `AssemblyVersion` is `Major.Minor.*` (build/revision change every compile) so Cities can auto-reload during development — see [mod reload during development](./mod-reload-during-development.md). That identity is **not** the storefront / Options product version.
 
@@ -61,7 +61,7 @@ On push to `main`, `.github/workflows/release.yml`:
 1. **Version** — opens/updates the Changesets version PR when changesets are pending.
 2. **GitHub Release** — when there is nothing left to version, runs `changeset tag` and creates a GitHub Release (source zip/tar only).
 
-Beta install from a release: [Local MVP install](./local-mvp-install.md).
+Beta install from a release: [Local MVP install](./local-mvp-install.md). Ship a version and Share on Mac: [Release process](./release-process.md).
 
 After a Release (or Workshop publish), follow [Community and marketing](./community-and-marketing.md) for soft vs public announcement — do not splash Reddit/Workshop until public-splash readiness there is met.
 

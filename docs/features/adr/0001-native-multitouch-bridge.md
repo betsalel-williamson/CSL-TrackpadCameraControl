@@ -14,14 +14,14 @@ A separate C helper duplicated Multitouch and wire logic beside the mod. Capture
 
 ## Decision
 
-Capture OS contacts and Apple-classified gestures **in-process** in the mod DLL behind a shared **gesture primitive** contract and a single `IGestureSource` seam. Two macOS interpreters (flag-selected):
+Capture OS gesture events **in-process** in the mod DLL behind a shared **gesture primitive** contract and a single `IGestureSource` seam. **v1 ships AppKit only:**
 
-| Interpreter       | Role                                                                                      |
-| ----------------- | ----------------------------------------------------------------------------------------- |
-| **Contacts**      | MultitouchSupport contacts → primitives (portable template for other OSes).               |
-| **AppleGestures** | AppKit local monitor (scroll / magnify / rotate) → the same primitives. No Accessibility. |
+| Interpreter       | Role                                                                                      | v1 status                                 |
+| ----------------- | ----------------------------------------------------------------------------------------- | ----------------------------------------- |
+| **AppleGestures** | AppKit local monitor (scroll / magnify / rotate) → the same primitives. No Accessibility. | **Shipped / playtested**                  |
+| **Contacts**      | MultitouchSupport contacts → primitives (portable template for other OSes).               | **Future / unfinished** — not productized |
 
-Inspect capture via a **session capture log** (`TRACKPAD_CAPTURE_LOG`). The C# TrackpadBridge console host remains in the repo as an optional dev socket experiment; it is not the playtest path. The prior **C** helper is **retired**. Binding and camera writes always stay in C#. Ship the **macOS** path first; Windows and Linux remain stubs behind the same interface.
+Inspect capture via a **session capture log** (`TRACKPAD_CAPTURE_LOG`). The C# TrackpadBridge console host remains in the repo as an optional dev socket experiment; it is not the playtest path. The prior **C** helper is **retired**. Binding and camera writes always stay in C#. Ship the **macOS** AppKit path first; Windows and Linux remain stubs behind the same interface.
 
 Language surface for the mod DLL: **net35** with **C# 9**, using Mono-safe BCL APIs only.
 

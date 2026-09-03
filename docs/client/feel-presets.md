@@ -23,7 +23,7 @@ Built-ins (**Slow**, **Default**, **Fast**) are **immutable** — the mod never 
 | Yaw (rotate) Sensitivity      | 2.00                         |
 | Orbit yaw / pitch Sensitivity | 1.00 / 1.00                  |
 | Gesture style                 | Maps+ (`⌥`+two-finger orbit) |
-| Capture                       | AppleKit                     |
+| Capture                       | AppKit                       |
 | Orbit pitch                   | vanilla **0** / **90**       |
 
 **Sensitivity** sliders use a **[0, 1]** UI track mapped piecewise to about **0.1×–2×** factory (mid = Default).

@@ -8,25 +8,25 @@ Planning context: [AppleKit Maps+ feel surface design](../superpowers/specs/2026
 
 ## Flags
 
-| Doc / property name     | Compile symbol             | When off (ship)                                                              | When on                                                        |
-| ----------------------- | -------------------------- | ---------------------------------------------------------------------------- | -------------------------------------------------------------- |
-| `EnableCadGestureStyle` | `ENABLE_CAD_GESTURE_STYLE` | Maps+ / AppleKit only; **CAD is future** — no player switcher                | Experimental: CAD / three-finger orbit as a compiled-in choice |
-| `EnableContactsCapture` | `ENABLE_CONTACTS_CAPTURE`  | AppleKit only; no backend picker; no [low-pass](../glossary/low-pass.md)     | Contacts interpreter + picker; LP UI and processing            |
-| `EnableAssistChrome`    | `ENABLE_ASSIST_CHROME`     | No Assist nudge buttons; no [button step](../glossary/button-step.md) fields | Assist chrome + Btn fields                                     |
+| Doc / property name     | Compile symbol             | When off (ship)                                                              | Status when compiled on                                                                |
+| ----------------------- | -------------------------- | ---------------------------------------------------------------------------- | -------------------------------------------------------------------------------------- |
+| `EnableCadGestureStyle` | `ENABLE_CAD_GESTURE_STYLE` | Maps+ / AppKit only; **CAD is future** — no player switcher                  | **Future** — three-finger orbit choice; not a v1 validation target                     |
+| `EnableContactsCapture` | `ENABLE_CONTACTS_CAPTURE`  | AppKit only; no backend picker; no [low-pass](../glossary/low-pass.md)       | **Unfinished** — Contacts + LP UI may compile in, but the path was **not** troubleshot |
+| `EnableAssistChrome`    | `ENABLE_ASSIST_CHROME`     | No Assist nudge buttons; no [button step](../glossary/button-step.md) fields | **Future** — Assist chrome + Btn fields; not part of shipped play                      |
 
-There is **no** separate low-pass flag. LP rides `EnableContactsCapture` / `ENABLE_CONTACTS_CAPTURE`.
+There is **no** separate low-pass flag. LP was tied to Contacts; with Contacts unfinished, ship builds have neither.
 
-## How to turn a flag on (local / experimental builds)
+## How to turn a flag on (local experiments only)
 
 From the worktree, pass MSBuild properties when building the mod (or set them in `mod/TrackpadCameraControl.csproj`):
 
 ```bash
-dotnet build mod/TrackpadCameraControl.csproj -p:EnableContactsCapture=true
+dotnet build mod/TrackpadCameraControl.csproj -p:EnableAssistChrome=true
 ```
 
 Multiple flags: `-p:EnableCadGestureStyle=true -p:EnableAssistChrome=true`.
 
-Default ship and `./scripts/install-mod-local.sh` leave all three **false** (symbols undefined).
+Default ship and `./scripts/install-mod-local.sh` leave all three **false** (symbols undefined). **Do not** treat `EnableContactsCapture=true` or `TRACKPAD_CAPTURE_BACKEND=contacts` as a supported QA recipe — reopen Contacts only with a dedicated validation plan.
 
 ## Rules
 

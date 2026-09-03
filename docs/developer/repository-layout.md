@@ -6,6 +6,8 @@ Target layout (phase 1 has docs only; later phases fill code trees):
 CSL-TrackpadCameraControl/
   docs/                 # MDCP shards (source of truth for intent)
   mod/                  # C# Cities: Skylines I mod (CitiesHarmony Patcher for vanilla camera suppress)
+                          # PreviewImage.png — Content Manager / Workshop thumbnail
+  src/TrackpadCapture/  # Multitouch → GestureFrame (compiled into the mod DLL; also used by optional bridge)
   src/TrackpadCapture/  # Multitouch → GestureFrame (compiled into the mod DLL; also used by optional bridge)
   src/TrackpadBridge/   # Optional dev socket host (TrackpadBridge); playtest uses in-process capture
   src/AppleGestureProbe/ # Spike: C# AppKit gesture logger (macOS, not a backend)

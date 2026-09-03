@@ -6,11 +6,13 @@ Keep product language and Options **platform-neutral**. Isolate OS capture behin
 
 ## Policy
 
-| Layer                                      | Stance                                                                      |
-| ------------------------------------------ | --------------------------------------------------------------------------- |
-| Features, client Outcomes, settings schema | No required OS brand in the capability story                                |
-| First shipping backend                     | **macOS** AppleKit (AppleGestures). Contacts behind `EnableContactsCapture` |
-| Windows / Linux                            | Stubs with the same interface; contributor implementations welcome          |
+| Layer                                      | Stance                                                                             |
+| ------------------------------------------ | ---------------------------------------------------------------------------------- |
+| Features, client Outcomes, settings schema | No required OS brand in the capability story                                       |
+| First shipping backend                     | **macOS AppKit** (AppleGestures) — only validated path                             |
+| Windows / Linux                            | Stubs; not supported in v1                                                         |
+| Contacts (MultitouchSupport)               | **Future / unfinished** — code may remain behind `EnableContactsCapture`; not QA’d |
+| TrackpadBridge socket host                 | Dev experiment only (`BridgeEnabled` off); not playtest                            |
 
 ## Backend contract
 
@@ -22,8 +24,8 @@ A backend must:
 
 ## macOS (v1)
 
-- **AppleGestures / AppleKit (shipped):** in-process AppKit local monitor (scroll / magnify / rotate → same primitives). No Accessibility. Precise scroll deltas drive pan; non-precise (mouse wheel) are not mapped to pan.
-- **Contacts:** in-process MultitouchSupport contacts → primitives. Product UI and default path only when `EnableContactsCapture` is on (or `TRACKPAD_CAPTURE_BACKEND=contacts` for maintainers).
+- **AppleGestures / AppKit (shipped):** in-process AppKit local monitor (scroll / magnify / rotate → same primitives). No Accessibility. Precise scroll deltas drive pan; non-precise (mouse wheel) are not mapped to pan. This is the **only** path playtested for v1.
+- **Contacts (future):** MultitouchSupport contact streaming was an early alternate interpreter. It is **not** productized: compile flag `EnableContactsCapture` may still exist for experiments, but Contacts was **not** troubleshot for ship and must not be offered to players or treated as a maintainer QA path. Revisit only with a dedicated validation pass.
 - Interpreters may log frames to a capture log file (path overridable with `TRACKPAD_CAPTURE_LOG`).
 - Maps+ orbit modifier defaults to Option (`⌥`).
 - Client notes for Mission Control live under the client guide’s platform conflicts shard.

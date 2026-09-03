@@ -16,10 +16,10 @@ Turning **Show debug panel** **off** hides both the Debug panel and the floating
 
 1. Load a city — the floating panel appears when Debug is on.
 2. Use the feel-preset **dropdown** (built-ins, your named presets, **New Preset** when dirty), **Save as…** when on New Preset, and **Delete** when a named user preset is active — see [feel presets](./feel-presets.md).
-3. Sections follow **General → Zoom → Pan → Rotate → Orbit**. Op headings show Maps+ activation plus a **Keymapping(s):** line with live Cities binding labels (see [Options and hot tuning](./options-and-hot-tuning.md)). Edit **Sensitivity** and per-op **Deadband** (activation threshold — ignores gesture noise below the bound; not the Contacts low-pass filter). Orbit pitch uses vanilla **0–90°** (not tunable here).
+3. Sections follow **General → Zoom → Pan → Rotate → Orbit**. Op headings show Maps+ activation plus a **Keymapping(s):** line with live Cities binding labels (see [Options and hot tuning](./options-and-hot-tuning.md)). Edit **Sensitivity** and per-op **Deadband** (activation threshold — ignores gesture noise below the bound). Orbit pitch uses vanilla **0–90°** (not tunable here).
 4. Close with the title-bar close control for a clean view; reopen from the floating Debug chip (when Show debug panel is on) or from Options. Use the gear to jump to Options → Trackpad Camera Control.
 
-There are no Enable-per-op or Reverse controls on the product surface. Pad/button chrome and capture-backend / low-pass controls stay behind their own flags and are not part of shipped play. There is no CAD / gesture-style switcher in v1.
+There are no Enable-per-op or Reverse controls on the product surface. Pad/button chrome, capture-backend, and low-pass controls are **not** part of shipped play (Contacts / Assist chrome are unfinished futures). There is no CAD / gesture-style switcher in v1.
 
 ## Validate camera controls
 

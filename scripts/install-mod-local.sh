@@ -42,4 +42,7 @@ echo "Build finished (post-build should have deployed to ${DEST})."
 echo "Cities auto-reloads when AssemblyVersion changes — see mod-reload-during-development.md"
 echo "Capture: in-process AppKit (default, mod DLL). Optional TrackpadBridge socket experiment in src/TrackpadBridge."
 echo "Debug panel footer: Built (UTC) + asm identity confirm the loaded build."
+if [[ -f "${DEST}/PreviewImage.png" ]]; then
+  echo "Preview → ${DEST}/PreviewImage.png"
+fi
 echo "Inspect: tail -f \"\${TMPDIR:-/tmp}/trackpad-camera-control.log\""

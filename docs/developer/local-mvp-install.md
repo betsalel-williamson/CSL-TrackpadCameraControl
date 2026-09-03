@@ -1,16 +1,14 @@
 # Local MVP install (macOS)
 
-Prove gestures with the in-process capture path (mod DLL only) and a local Mods-folder install. This is the **beta / contributor deploy** path until Steam Workshop packaging ships.
-
-Player-facing expectations after install: `docs/client/install-and-first-run.md`. When to point people at Release vs Workshop vs soft Discord: [Community and marketing](./community-and-marketing.md).
+Prove gestures with the in-process capture path (mod DLL only) and a local Mods-folder install. This is the **beta / contributor deploy** path and the folder Content Manager **Share** uploads on Mac. Player-facing install: `docs/client/install-and-first-run.md`. Release and Share checklist: [Release process](./release-process.md).
 
 ## Deploy roles
 
-| Path                          | Role today                                                         |
-| ----------------------------- | ------------------------------------------------------------------ |
-| This local install            | Beta testers and contributors prove the mod on a real game install |
-| GitHub Release source archive | Versioned input to this install (no prebuilt Workshop item yet)    |
-| Steam Workshop                | Future community subscribe path — not this script                  |
+| Path                          | Role today                                                                        |
+| ----------------------------- | --------------------------------------------------------------------------------- |
+| This local install            | Beta testers and contributors prove the mod; Mac **Share** reads this Mods folder |
+| GitHub Release source archive | Versioned input to this install (no prebuilt Workshop item yet until Share)       |
+| Steam Workshop                | After Share — subscribe path for players                                          |
 
 ## Beta from a GitHub Release
 
@@ -27,7 +25,7 @@ chmod +x scripts/install-mod-local.sh
 
 Requires Cities: Skylines Managed assemblies (default Steam macOS path). Override with `CitiesManaged=…` or `CITIES_MODS=…`.
 
-Restart the game after first install, or keep the game running and rebuild — post-build deploy + `AssemblyVersion` wildcards follow [Paradox Automate](https://skylines.paradoxwikis.com/Advanced_Mod_Setup#Automate) (see [mod reload during development](./mod-reload-during-development.md)). Capture runs **in-process AppKit** inside the mod DLL. Switch to Contacts (legacy) from Options, or `TRACKPAD_CAPTURE_BACKEND=contacts`.
+Restart the game after first install, or keep the game running and rebuild — post-build deploy + `AssemblyVersion` wildcards follow [Paradox Automate](https://skylines.paradoxwikis.com/Advanced_Mod_Setup#Automate) (see [mod reload during development](./mod-reload-during-development.md)). The script copies the DLL and **`PreviewImage.png`** (Content Manager / Workshop thumbnail). Capture is **in-process AppKit** inside the mod DLL — there is no companion process and no alternate Contacts playtest path.
 
 ## Capture log
 
@@ -39,15 +37,9 @@ tail -f "${TMPDIR:-/tmp}/trackpad-camera-control.log"
 
 Override the path with `TRACKPAD_CAPTURE_LOG` when launching the game.
 
-To use MultitouchSupport contacts instead of Apple AppKit events, launch the **game** with:
+v1 capture is **AppKit only**. A MultitouchSupport **Contacts** interpreter still exists in source behind `EnableContactsCapture`, but it is **not validated** and is **not** a supported playtest or player path — do not document or rely on `TRACKPAD_CAPTURE_BACKEND=contacts` for QA. See `docs/features/platform-backends.md` and [feature flags](./feature-flags.md).
 
-```bash
-TRACKPAD_CAPTURE_BACKEND=contacts
-```
-
-Default is `apple` (in-process AppKit). Env wins when set. You can also set `ModSettings.CaptureBackend` in memory.
-
-The prior native C `make` target under `native/mac/` is retired. The C# `src/TrackpadBridge` host is an optional experiment (`BridgeEnabled`), not the playtest path.
+The prior native C `make` target under `native/mac/` is retired. The C# `src/TrackpadBridge` host is an optional socket experiment (`BridgeEnabled` off) — not playtest.
 
 ## In game
 

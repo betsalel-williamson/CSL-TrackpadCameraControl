@@ -42,16 +42,17 @@ This shows overlay and game disagree about cursor ownership; cold-boot dual curs
 
 ### Session record
 
-| Field                    | Example / value                                 |
-| ------------------------ | ----------------------------------------------- |
-| Date                     | 2026-09-02                                      |
-| macOS / model            | 26.6.2 / Mac17,6                                |
-| Steam overlay            | On                                              |
-| Launch                   | Steam → Paradox launcher                        |
-| Mod build                | Built 2026-09-02T19:20:40Z · asm 0.2.9741.22220 |
-| Dual cursor on load      | Intermittent                                    |
-| Shift-Tab overlay ↔ game | Reproducible cursor swap                        |
-| Second Mac               | Same account, same class of issue               |
+| Field                    | Example / value                                                                 |
+| ------------------------ | ------------------------------------------------------------------------------- |
+| Date                     | 2026-09-02 (cursor investigation); platform reconfirmed 2026-09-03              |
+| macOS / model            | 26.6.2 / Mac17,6                                                                |
+| Steam overlay            | On                                                                              |
+| Launch                   | Steam → Paradox launcher                                                        |
+| Mod build                | Built 2026-09-03T01:11:24Z · asm 0.2.9741.32742 (also earlier 0.2.9741.22220)   |
+| Dual cursor on load      | Intermittent                                                                    |
+| Shift-Tab overlay ↔ game | Reproducible cursor swap                                                        |
+| Second Mac               | Same account — also Mac14,2 / 26.5.2 (see [qa-checklist.md](./qa-checklist.md)) |
+| Input (2026-09-03 Copy)  | Built-in trackpad; Magic Keyboard (BT); Logitech G500s (USB)                    |
 
 ---
 
