@@ -218,6 +218,87 @@ namespace TrackpadCameraControl.Tests
         }
 
         [Fact]
+        public void IsNamedUserFeelPreset_TrueOnlyForSavedNamedActive()
+        {
+            OpenStoreWithLive(out ModSettings live);
+            Assert.False(ModOptions.IsNamedUserFeelPreset(live));
+            Assert.False(ModOptions.IsNamedUserFeelPreset(null));
+
+            ModOptions.ApplyFeelSlow(live);
+            Assert.False(ModOptions.IsNamedUserFeelPreset(live));
+            ModOptions.ApplyFeelFast(live);
+            Assert.False(ModOptions.IsNamedUserFeelPreset(live));
+
+            ModOptions.ApplyPanGainX(live, 0.80f);
+            Assert.True(ModOptions.IsFeelDirtyNewPreset(live));
+            Assert.False(ModOptions.IsNamedUserFeelPreset(live));
+
+            Assert.True(ModOptions.SaveNamedFeelPreset(live, "CityCruise"));
+            Assert.True(ModOptions.IsNamedUserFeelPreset(live));
+            Assert.False(ModOptions.IsFeelDirtyNewPreset(live));
+        }
+
+        [Fact]
+        public void DeleteNamedFeelPreset_RemovesActiveNamed_AppliesDefault_Persists()
+        {
+            OpenStoreWithLive(out ModSettings live);
+            ModOptions.ApplyPanGainX(live, 0.80f);
+            Assert.True(ModOptions.SaveNamedFeelPreset(live, "CityCruise"));
+
+            int raised = 0;
+            ModOptions.SettingsChanged += () => raised++;
+
+            Assert.True(ModOptions.DeleteNamedFeelPreset(live));
+
+            Assert.Equal(FeelProfiles.NameDefault, live.ActiveFeelPresetName);
+            FeelExpectation.AssertMatchesFactoryFeel(live);
+            Assert.False(ModOptions.IsNamedUserFeelPreset(live));
+            Assert.DoesNotContain("CityCruise", ModOptions.ListNamedFeelPresetNames());
+            Assert.Equal(1, raised);
+
+            var reloadedStore = new ModSettingsStore(_path);
+            ModSettings reloaded = reloadedStore.LoadOrFactory();
+            Assert.Equal(FeelProfiles.NameDefault, reloaded.ActiveFeelPresetName);
+            Assert.DoesNotContain("CityCruise", reloadedStore.ListUserPresetNames());
+        }
+
+        [Fact]
+        public void DeleteNamedFeelPreset_RejectsBuiltInAndNewPreset()
+        {
+            OpenStoreWithLive(out ModSettings live);
+            Assert.False(ModOptions.DeleteNamedFeelPreset(live));
+            Assert.Equal(FeelProfiles.NameDefault, live.ActiveFeelPresetName);
+
+            ModOptions.ApplyFeelFast(live);
+            Assert.False(ModOptions.DeleteNamedFeelPreset(live));
+            Assert.Equal(FeelProfiles.NameFast, live.ActiveFeelPresetName);
+
+            ModOptions.ApplyPanGainX(live, 0.80f);
+            Assert.Equal(FeelProfiles.NameNewPreset, live.ActiveFeelPresetName);
+            Assert.False(ModOptions.DeleteNamedFeelPreset(live));
+            Assert.Equal(FeelProfiles.NameNewPreset, live.ActiveFeelPresetName);
+            ModSettings scratch;
+            Assert.True(ModOptions.Store.TryGetUserPreset(FeelProfiles.NameNewPreset, out scratch));
+        }
+
+        [Fact]
+        public void DeleteNamedFeelPreset_LeavesOtherNamedPresets()
+        {
+            OpenStoreWithLive(out ModSettings live);
+            ModOptions.ApplyPanGainX(live, 0.80f);
+            Assert.True(ModOptions.SaveNamedFeelPreset(live, "KeepMe"));
+            ModOptions.ApplyPanGainX(live, 0.70f);
+            Assert.True(ModOptions.SaveNamedFeelPreset(live, "DropMe"));
+
+            Assert.True(ModOptions.DeleteNamedFeelPreset(live));
+
+            Assert.Equal(FeelProfiles.NameDefault, live.ActiveFeelPresetName);
+            string[] names = ModOptions.ListNamedFeelPresetNames();
+            Assert.Contains("KeepMe", names);
+            Assert.DoesNotContain("DropMe", names);
+        }
+
+        [Fact]
         public void AfterSaveAs_FurtherEdit_DirtiesToNewPresetAgain()
         {
             OpenStoreWithLive(out ModSettings live);

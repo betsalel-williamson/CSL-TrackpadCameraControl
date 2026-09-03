@@ -768,21 +768,47 @@ namespace TrackpadCameraControl
         }
 
         /// <summary>
-        /// Suggested Save as… name: overwrite the active named preset, otherwise the next
-        /// unused <c>New Preset N</c> (N starts at 1).
+        /// True when the active feel identity is a named user preset — not Slow/Default/Fast
+        /// and not the New Preset scratch slot.
         /// </summary>
-        public static string SuggestFeelSaveAsName(ModSettings settings)
+        public static bool IsNamedUserFeelPreset(ModSettings settings)
         {
-            if (
-                settings != null
+            return settings != null
                 && !string.IsNullOrEmpty(settings.ActiveFeelPresetName)
                 && !FeelProfiles.IsBuiltInName(settings.ActiveFeelPresetName)
                 && !string.Equals(
                     settings.ActiveFeelPresetName,
                     FeelProfiles.NameNewPreset,
                     StringComparison.Ordinal
-                )
-            )
+                );
+        }
+
+        /// <summary>
+        /// Delete the active named user feel preset, persist, and apply Default.
+        /// Built-ins and New Preset cannot be deleted.
+        /// </summary>
+        public static bool DeleteNamedFeelPreset(ModSettings settings)
+        {
+            if (settings == null || Store == null || !IsNamedUserFeelPreset(settings))
+            {
+                return false;
+            }
+
+            Store.RemoveUserPreset(settings.ActiveFeelPresetName);
+            FeelProfiles.ApplyDefault(settings);
+            settings.ActiveFeelPresetName = FeelProfiles.NameDefault;
+            Store.SaveNow(settings);
+            RaiseSettingsChanged();
+            return true;
+        }
+
+        /// <summary>
+        /// Suggested Save as… name: overwrite the active named preset, otherwise the next
+        /// unused <c>New Preset N</c> (N starts at 1).
+        /// </summary>
+        public static string SuggestFeelSaveAsName(ModSettings settings)
+        {
+            if (IsNamedUserFeelPreset(settings))
             {
                 return settings.ActiveFeelPresetName;
             }

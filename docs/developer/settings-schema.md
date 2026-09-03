@@ -219,13 +219,13 @@ EMA on continuous deltas after resolve, before apply — see glossary **low-pass
 
 Primary player model: **[feel presets](../glossary/feel-preset.md)** (sensitivities, reverse, enables, pitch limits) — not gesture-style seeds.
 
-| Profile                    | Contract                                                                                                                                                 |
-| -------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Default / Reset to factory | Factory Default table above (SignInvertPanX true; gain seeds; OrbitPitchMin/Max 0–90 schema seeds)                                                       |
-| Slow                       | Default gain fields × **0.75**; reverse and pitch limits unchanged; round to three decimals (`RoundGain`)                                                |
-| Fast                       | Default gain fields × **1.25**; reverse and pitch limits unchanged; round to three decimals (`RoundGain`)                                                |
-| **New Preset**             | Scratch identity when the player dirties an active built-in or named preset; autosave writes here; built-ins Slow / Default / Fast are never overwritten |
-| Named Save as… / Load      | Full feel set in `userPresets[]`; after Save as…, the named preset is selected; further edits dirty back to **New Preset**                               |
+| Profile                        | Contract                                                                                                                                                                       |
+| ------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Default / Reset to factory     | Factory Default table above (SignInvertPanX true; gain seeds; OrbitPitchMin/Max 0–90 schema seeds)                                                                             |
+| Slow                           | Default gain fields × **0.75**; reverse and pitch limits unchanged; round to three decimals (`RoundGain`)                                                                      |
+| Fast                           | Default gain fields × **1.25**; reverse and pitch limits unchanged; round to three decimals (`RoundGain`)                                                                      |
+| **New Preset**                 | Scratch identity when the player dirties an active built-in or named preset; autosave writes here; built-ins Slow / Default / Fast are never overwritten                       |
+| Named Save as… / Load / Delete | Full feel set in `userPresets[]`; after Save as…, the named preset is selected; further edits dirty back to **New Preset**; Delete removes a named profile and applies Default |
 
 | Field                | Type   | Role                                                                                              | Hot |
 | -------------------- | ------ | ------------------------------------------------------------------------------------------------- | --- |
@@ -237,7 +237,7 @@ Live settings load and save through a versioned XML file under the Cities user-d
 | ------------- | -------------------------------------------------------- |
 | schemaVersion | Envelope version                                         |
 | current       | Full ModSettings blob (includes active feel preset name) |
-| userPresets[] | Named feel profiles for Save as… / Load                  |
+| userPresets[] | Named feel profiles for Save as… / Load / Delete         |
 
 Missing or corrupt file → factory defaults (no crash), then persist the recovered blob. **Reset to factory** restores schema defaults into `current` and writes the file.
 

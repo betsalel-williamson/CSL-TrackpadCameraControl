@@ -15,7 +15,7 @@ Turning **Show debug panel** **off** hides both the Debug panel and the floating
 ## How to use it (shipped surface)
 
 1. Load a city — the floating panel appears when Debug is on.
-2. Use the feel-preset **dropdown** (built-ins, your named presets, **New Preset** when dirty) and **Save as…** when enabled — see [feel presets](./feel-presets.md).
+2. Use the feel-preset **dropdown** (built-ins, your named presets, **New Preset** when dirty), **Save as…** when on New Preset, and **Delete** when a named user preset is active — see [feel presets](./feel-presets.md).
 3. Sections follow **General → Zoom → Pan → Rotate → Orbit**. Op headings show Maps+ activation plus a **Keymapping(s):** line with live Cities binding labels (see [Options and hot tuning](./options-and-hot-tuning.md)). Edit **Sensitivity** and per-op **Deadband** (activation threshold — ignores gesture noise below the bound; not the Contacts low-pass filter). Orbit pitch uses vanilla **0–90°** (not tunable here).
 4. Close with the title-bar close control for a clean view; reopen from the floating Debug chip (when Show debug panel is on) or from Options. Use the gear to jump to Options → Trackpad Camera Control.
 

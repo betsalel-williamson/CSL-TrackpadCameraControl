@@ -77,7 +77,10 @@ namespace TrackpadCameraControl
 
             field.submitOnFocusLost = true;
             field.canFocus = true;
-            // Keep builtinKeyNavigation on so digits/keypad still insert; we only Use() Tab/Enter.
+            // Debug creates fields with AddUIComponent — default builtinKeyNavigation is false,
+            // which blocks Colossal digit insert. Options template fields already have it true;
+            // set explicitly so both paths type. We only Use() Tab/Enter below.
+            field.builtinKeyNavigation = true;
             if (includeInTabOrder)
             {
                 RegisterTabStop(field, tabScope);

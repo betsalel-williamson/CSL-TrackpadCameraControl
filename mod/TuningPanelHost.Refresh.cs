@@ -135,7 +135,7 @@ namespace TrackpadCameraControl
                 _feelDropdown.selectedIndex = index;
             }
 
-            RefreshFeelSaveAsEnabled();
+            RefreshFeelPresetButtons();
             return true;
         }
 

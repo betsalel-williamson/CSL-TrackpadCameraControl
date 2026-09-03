@@ -33,14 +33,15 @@ A [feel preset](../glossary/feel-preset.md) stores sensitivities, reverse flags,
 | Slow       | Default sensitivities × 0.75 (three decimals); reverse and pitch limits unchanged                  |
 | Fast       | Default sensitivities × 1.25 (three decimals); reverse and pitch limits unchanged                  |
 | New Preset | Scratch identity when the player dirties a built-in or named preset; autosave writes here          |
-| Named      | Save as… / Load on the persist `userPresets` envelope                                              |
+| Named      | Save as… / Load / Delete on the persist `userPresets` envelope                                     |
 
 ### Dirty model and built-ins
 
 - Built-in **Slow / Default / Fast** are immutable: never overwritten by edits or autosave.
 - Editing feel while a built-in or named preset is active switches the active identity to **New Preset**; autosave persists into that scratch profile.
-- Preset dropdown: selecting an entry **loads** it; **Save as…** is the last entry.
+- Preset dropdown: selecting an entry **loads** it. **Save as…** is a separate button, enabled on **New Preset**.
 - After **Save as…**, the named preset is selected; further edits dirty to **New Preset** again.
+- **Delete** is enabled only for a named user preset (not Slow / Default / Fast, not New Preset). It removes that profile, applies Default, and persists — no confirm.
 
 ## Tunables (product surface, all hot)
 
@@ -49,7 +50,7 @@ Under each op heading (**Zoom**, **Pan**, **Rotate**, **Orbit**) after **General
 - Per-op [Sensitivity](../glossary/sensitivity.md) **slider** (Options only): UI **[0, 1]** maps piecewise to **0.1× / 1× / 2×** factory (mid = Default); step ≈ **10%** of factory on the high side; display/apply **three** decimals (`RoundGain`)
 - Orbit: schema seeds OrbitPitchMin/Max **0** / **90** (vanilla). Live clamp is hardcoded to that range — not Options/Debug-tunable. Drag floors at **0°**; button writes clamp **0…90**. No yaw angle clamp.
 
-Also: [feel preset](../glossary/feel-preset.md) row (Slow / Default / Fast / New Preset when dirty, Save as… / Load, Reset to factory), **Show debug panel** (panel master switch; off also hides the floating Debug reopen chip).
+Also: [feel preset](../glossary/feel-preset.md) row (Slow / Default / Fast / New Preset when dirty, Save as…, Delete, Reset to factory), **Show debug panel** (panel master switch; off also hides the floating Debug reopen chip).
 
 ## Tunables (flagged off)
 
@@ -111,6 +112,7 @@ Once orbit engages from the configured trigger, the session stays in orbit until
 - Quit and relaunch; tunables and named feel presets are restored from disk.
 - Editing a built-in switches active identity to **New Preset**; Slow / Default / Fast remain unchanged after autosave.
 - Save as… selects the named preset; further edits dirty to **New Preset** again.
+- Delete on a named user preset removes it, applies Default, and persists; built-ins and New Preset cannot be deleted.
 - Reset to factory and Slow / Default / Fast match the feel-profile contract.
 - Product UI shows no Enable-per-op or Reverse; section order is General → Zoom → Pan → Rotate → Orbit.
 - Pitch clamps to vanilla **0°–90°** (hardcoded in apply; not Options/Debug-tunable); pan apply clamps the camera target to the unlocked game area; yaw has no angle clamp.

@@ -15,7 +15,8 @@ namespace TrackpadCameraControl
     /// - Sensitivity uses <see cref="UIHelperBase.AddSlider"/> on a fixed [0, 1] UI domain;
     ///   <see cref="ModOptions.GainToSensitivityUi"/> / <see cref="ModOptions.SensitivityUiToGain"/>
     ///   map piecewise to 0.1× / 1× / 2× factory (UI 0.5 = Default / Debug field value).
-    /// - Feel presets use a dropdown; Save as… is a button (enabled when dirty) that opens a name dialog.
+    /// - Feel presets use a dropdown; Save as… is a button (enabled when dirty) that opens a name dialog;
+    ///   Delete is enabled for a named user preset.
     /// - Options controls bind to live <see cref="ModSettings"/> at build time only; Apply*
     ///   raises <see cref="ModOptions.SettingsChanged"/> for Debug rebuild (C2). Reopen Options
     ///   to refresh sliders after Debug edits — in-place rebuild is not practical under UIHelperBase.
@@ -28,6 +29,7 @@ namespace TrackpadCameraControl
         private static UIDropDown _feelPresetDropdown;
         private static string[] _feelPresetDropdownItems;
         private static UIButton _saveAsButton;
+        private static UIButton _deleteButton;
         private static bool _feelPresetDropdownSyncing;
 
         public static void Build(UIHelperBase helper, ModSettings s)
@@ -342,6 +344,18 @@ namespace TrackpadCameraControl
                 }
             );
             _saveAsButton = saveAsCreated as UIButton;
+            StyleFeelMenuButton(_saveAsButton);
+
+            object deleteCreated = group.AddButton(
+                "Delete",
+                () =>
+                {
+                    ModOptions.DeleteNamedFeelPreset(Mod.EnsureSettings() ?? s);
+                }
+            );
+            _deleteButton = deleteCreated as UIButton;
+            StyleFeelMenuButton(_deleteButton);
+
             AttachFeelPresetSync();
             RefreshFeelPresetControls();
         }
@@ -393,6 +407,23 @@ namespace TrackpadCameraControl
             {
                 _saveAsButton.isEnabled = ModOptions.IsFeelDirtyNewPreset(live);
             }
+
+            if (_deleteButton != null)
+            {
+                _deleteButton.isEnabled = ModOptions.IsNamedUserFeelPreset(live);
+            }
+        }
+
+        private static void StyleFeelMenuButton(UIButton button)
+        {
+            if (button == null)
+            {
+                return;
+            }
+
+            button.textColor = Color.white;
+            button.disabledTextColor = new Color32(128, 128, 128, 255);
+            button.disabledBgSprite = "ButtonMenuDisabled";
         }
 
         /// <summary>

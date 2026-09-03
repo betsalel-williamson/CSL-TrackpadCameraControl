@@ -28,11 +28,13 @@ Built-ins (**Slow**, **Default**, **Fast**) are **immutable** — the mod never 
 
 **Sensitivity** sliders use a **[0, 1]** UI track mapped piecewise to about **0.1×–2×** factory (mid = Default).
 
-## Dropdown, New Preset, and Save as…
+## Dropdown, New Preset, Save as…, and Delete
 
 Selecting an entry in the dropdown **loads** that profile immediately.
 
 If you edit while a built-in (or any named preset) is active, the active identity becomes **New Preset** and the change **autosaves** there (Options and Debug dropdowns update live). **Save as…** (next to Reset on Debug; in Options General) becomes **enabled** when you are on New Preset. Click it to open a name dialog prefilled with the next free **New Preset 1**, **New Preset 2**, … (or the current named preset if you dirty a named profile). Type or edit the name, then Cancel / OK. You cannot save as Slow / Default / Fast; saving over another named preset replaces it without a confirm. Cancel leaves New Preset unsaved as a named profile. Named profiles persist with your other mod settings across quit.
+
+**Delete** (next to Save as… on Debug and Options) is **enabled** only when the active feel is a **named user preset** you saved — not Slow / Default / Fast, and not New Preset. Click it to remove that named profile immediately (no confirm). The active feel switches to **Default**. Disabled Save as… / Delete labels show **grey** text.
 
 ## Reset to factory
 
