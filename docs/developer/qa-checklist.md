@@ -24,7 +24,7 @@ AppKit APIs we use date to ~macOS 10.6; **practical support is “whatever still
 
 First public macOS tag. Automated suite is recorded here; in-game boxes in the lists below are the remaining splash gate. Copy those lists into the launch PR as you check them. After a full in-game pass, replace the known-good placeholder and refresh [Workshop storefront](./workshop-storefront.md) Compatibility.
 
-### Session platform (this release)
+### Session platform (this release) — machine 1
 
 | Field                | Value                                                                                         |
 | -------------------- | --------------------------------------------------------------------------------------------- |
@@ -35,6 +35,20 @@ First public macOS tag. Automated suite is recorded here; in-game boxes in the l
 | Mod version / commit | Assembly `0.2.0` on this branch until the Changesets version PR; tree from `main` (`bcdfd1d`) |
 | Result               | Automated pass; in-game hardware pass still required before Workshop splash                   |
 | Notes                | Coverlet ~47% line is expected — capture, Harmony timing, and UI stay session-tested          |
+
+### Session platform (this release) — machine 2
+
+Second maintainer Mac (same Steam account as machine 1). Pasted from Debug **Copy** with **Include system info**.
+
+| Field                | Value                                                                                                                                       |
+| -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| macOS version        | 26.6.2                                                                                                                                      |
+| Mac model            | Mac17,6                                                                                                                                     |
+| Trackpad             | Built-in (Apple Internal Keyboard / Trackpad)                                                                                               |
+| Chip                 | Apple silicon                                                                                                                               |
+| Mod version / commit | asm `0.2.9741.32742` · Built (UTC) `2026-09-03T01:11:24Z` · tip `docs/v1-launch-qa`                                                         |
+| Result               | Session recorded — complete in-game checklist boxes on this machine before marking known-good Pass                                          |
+| Notes                | Also Magic Keyboard (Bluetooth) + Logitech G500s USB mouse. Unity 5.6.7f1 · ICities 1.17.0.0 · CitiesHarmony.API 2.0.0.0 · 0Harmony 2.0.1.0 |
 
 ### Automated suite (2026-08-31)
 
@@ -51,9 +65,10 @@ First public macOS tag. Automated suite is recorded here; in-game boxes in the l
 
 Maintainer and community reports. Prefer Workshop comments or a GitHub issue titled `platform: …` so we can fold rows here.
 
-| macOS                  | Hardware | Chip | Result | Source                                           |
-| ---------------------- | -------- | ---- | ------ | ------------------------------------------------ |
-| _(none published yet)_ |          |      |        | Add first maintainer pass before Workshop splash |
+| macOS  | Hardware                       | Chip          | Result           | Source                                                             |
+| ------ | ------------------------------ | ------------- | ---------------- | ------------------------------------------------------------------ |
+| 26.5.2 | MacBook Air M2, 2022 (Mac14,2) | Apple silicon | Session recorded | Maintainer machine 1 — v1 pre-release row above                    |
+| 26.6.2 | Mac17,6                        | Apple silicon | Session recorded | Maintainer machine 2 — Debug Copy 2026-09-03; asm `0.2.9741.32742` |
 
 ## Setup
 

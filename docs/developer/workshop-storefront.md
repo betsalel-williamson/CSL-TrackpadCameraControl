@@ -63,7 +63,7 @@ If gestures do nothing: keep the game focused; turn off Mission Control / three-
 
 Compatibility (tested platforms)
 • AppKit gesture APIs are old; we only claim what we (or you) have playtested.
-• Maintainer matrix lives in the GitHub QA checklist — update that table when you confirm a pass.
+• Maintainer sessions recorded: macOS 26.5.2 / Mac14,2 (M2 Air); macOS 26.6.2 / Mac17,6 — see GitHub QA checklist.
 • Not yet a full OS matrix — older macOS that still runs CS1 may work but is unproven until reported.
 
 Share your setup
