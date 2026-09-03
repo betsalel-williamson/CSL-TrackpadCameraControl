@@ -73,6 +73,10 @@ Install
 Conflicts
 • macOS Mission Control / system gestures can steal multitouch — see the player guide OS conflict notes on GitHub if gestures do nothing
 
+Known issues (not caused by this mod)
+• On Mac, Cities/Steam/Unity sometimes show the macOS arrow instead of (or on top of) the in-game cursor after launch, or after Shift-Tab to the Steam overlay and back. That handoff is a pre-existing Steam/Paradox launcher/Unity Mac quirk — this mod does not own or fix it in v1.
+• Workaround: Shift-Tab out of the Steam overlay back into the game (or Cmd-Tab once) so the in-game cursor returns. Gestures still work when the game window is focused.
+
 Source / issues
 https://github.com/betsalel-williamson/CSL-TrackpadCameraControl
 ```

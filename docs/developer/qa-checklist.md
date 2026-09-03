@@ -65,6 +65,7 @@ Maintainer and community reports. Prefer Workshop comments or a GitHub issue tit
 
 - [ ] Options open: two-finger scrolls Options; city does not pan/orbit from the mod
 - [ ] Pointer over Debug panel (or another popup): two-finger scrolls/drags UI, not city camera
+- [ ] Debug title-bar **gear** opens Options focused on **Trackpad Camera Control** (not last-used category); Options still stacks above Debug
 
 ## Optional (only when flags are on)
 

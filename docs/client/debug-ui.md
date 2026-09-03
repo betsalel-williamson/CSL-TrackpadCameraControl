@@ -2,7 +2,7 @@
 
 The in-game **Debug** panel is the floating window for [feel presets](./feel-presets.md) and per-op tunables beside the city view. It shares the same live **ModSettings** as Options → Trackpad Camera Control: camera feel updates immediately from either surface; the Debug panel **prefers in-place updates** of fields and Gesture/Keymapping labels when settings change (full recreate only if structure cannot be refreshed); every change **autosaves**.
 
-Drag the panel by its **title bar** (mod name + version). The title bar uses native Cities chrome: a circular **close** control and a circular **gear** (Options). At rest those header buttons are translucent; on hover they strengthen. Hover the panel for full opacity; move off and it softens so you can see through it. The gear opens vanilla **OPTIONS** (the game’s Options window). Closing the panel leaves a floating **Debug** reopen chip when Options still allows the panel.
+Drag the panel by its **title bar** (mod name + version). The title bar uses native Cities chrome: a circular **close** control and a circular **gear** (Options). At rest those header buttons are translucent; on hover they strengthen. Hover the panel for full opacity; move off and it softens so you can see through it. The gear opens the game’s **Options** window focused on **Trackpad Camera Control**. Closing the panel leaves a floating **Debug** reopen chip when Options still allows the panel.
 
 ## Turn the panel on or off
 
@@ -17,7 +17,7 @@ Turning **Show debug panel** **off** hides both the Debug panel and the floating
 1. Load a city — the floating panel appears when Debug is on.
 2. Use the feel-preset **dropdown** (built-ins, your named presets, **Save as…**) — see [feel presets](./feel-presets.md).
 3. Sections follow **General → Zoom → Pan → Rotate → Orbit**. Op headings show Maps+ activation plus a **Keymapping(s):** line with live Cities binding labels (see [Options and hot tuning](./options-and-hot-tuning.md)). Edit **Sensitivity** and per-op **Deadband** (activation threshold — ignores gesture noise below the bound; not the Contacts low-pass filter). Orbit pitch uses vanilla **0–90°** (not tunable here).
-4. Close with the title-bar close control for a clean view; reopen from the floating Debug chip (when Show debug panel is on) or from Options. Use the gear to jump to vanilla OPTIONS.
+4. Close with the title-bar close control for a clean view; reopen from the floating Debug chip (when Show debug panel is on) or from Options. Use the gear to jump to Options → Trackpad Camera Control.
 
 There are no Enable-per-op or Reverse controls on the product surface. Pad/button chrome, CAD switcher, and capture-backend / low-pass controls stay behind their own flags and are not part of shipped play.
 

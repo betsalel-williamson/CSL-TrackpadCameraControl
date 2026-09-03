@@ -84,5 +84,6 @@ This shows overlay and game disagree about cursor ownership; cold-boot dual curs
 ## v1 product guidance
 
 - **QA:** Treat dual cursor / overlay cursor swap as **environment known issue**, not a mod regression.
+- **Workshop / mod description:** Paste-ready **Known issues** copy lives in [workshop-storefront.md](./workshop-storefront.md) — keep that text honest that this is Steam/Unity/Paradox Mac, not the mod.
 - **First-run / support:** Point at Shift-Tab or focus cycle if tools mis-click; do not tell players the mod “fixes” Mac cursor.
 - **Code:** No further `GameFocusActivation` expansion in Round 3 / v1 launch stack.
