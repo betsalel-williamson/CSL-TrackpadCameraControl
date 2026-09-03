@@ -55,7 +55,7 @@ User-facing Debug QoL lives in **`ModSettings`** schema ≥4 and `settings.xml`:
 
 Focus, menu, pointer-over-UI, selection, and camera pose remain derived each frame — not static UI fields.
 
-**Boot focus:** on city load, `GameFocusActivation.TryActivate()` requests AppKit key-window focus once (see `LoadingExtension`). This is not stored — subsequent focus checks still use `InputGates` / Unity each tick.
+**Boot focus / capture arm:** on city load, `LoadingExtension` requests AppKit key-window focus and arms gesture capture connect. Neither is stored — focus and gates are re-queried each tick via `InputGates`.
 
 ## Related
 

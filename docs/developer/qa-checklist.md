@@ -35,12 +35,14 @@ Maintainer and community reports. Prefer Workshop comments or a GitHub issue tit
 - [ ] City loaded (not menus-only)
 - [ ] Game window focused
 - [ ] Cold boot → load city: no OS hardware cursor overlaying the in-game cursor; one-finger tools work without alt-tab first
+- [ ] Fresh city load: pan, pinch, rotate, and Option-orbit work without opening Debug panel or Options
 - [ ] Maps+ / Default feel (Options or Debug panel)
 - [ ] Session platform row filled above
 
 ## Trackpad camera
 
 - [ ] Two-finger drag **pans**; does **not** also vanilla-zoom
+- [ ] Gestures respond within ~5 s of city load on cold boot (Debug panel off)
 - [ ] Pinch **zooms**
 - [ ] Two-finger twist **rotates** heading (no pitch; hard-handoffs leftover orbit coast)
 - [ ] Option (`⌥`)+two-finger drag **orbits** (orbit yaw **and** pitch); twist ignored while Option owns contact

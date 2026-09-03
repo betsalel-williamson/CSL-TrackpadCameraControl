@@ -2,6 +2,7 @@ using System;
 using System.IO;
 #if HAS_CITIES
 using CitiesHarmony.API;
+using ColossalFramework.UI;
 using ICities;
 #endif
 
@@ -131,6 +132,19 @@ namespace TrackpadCameraControl
 
         public static ModRuntime Runtime { get; private set; }
 
+        /// <summary>Arm capture connect after city load or mod enable while a city is active.</summary>
+        public static void ArmCaptureOnLevelLoaded()
+        {
+            try
+            {
+                Runtime?.Pipeline?.ArmCapture();
+            }
+            catch
+            {
+                // fail soft
+            }
+        }
+
         /// <summary>Shim for call sites expecting <c>Mod.Pipeline</c>.</summary>
         public static GesturePipeline Pipeline => Runtime?.Pipeline;
 
@@ -220,6 +234,10 @@ namespace TrackpadCameraControl
             {
                 TuningPanelHost.EnsureCreated();
                 TuningPanelHost.ApplyVisibility();
+                if (UIView.GetAView() != null)
+                {
+                    ArmCaptureOnLevelLoaded();
+                }
             }
             catch
             {

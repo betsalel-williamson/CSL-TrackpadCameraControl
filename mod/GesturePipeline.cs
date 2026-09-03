@@ -146,6 +146,36 @@ namespace TrackpadCameraControl
             }
         }
 
+        /// <summary>Re-connect capture after city load or mod auto-reload while a city is active.</summary>
+        public void ArmCapture()
+        {
+            if (_source == null)
+            {
+                return;
+            }
+
+            try
+            {
+                _source.Disconnect();
+            }
+            catch
+            {
+                // fail soft
+            }
+
+            _reconnectCooldown = 0;
+            try
+            {
+                _source.Connect();
+            }
+            catch
+            {
+                // fail soft
+            }
+
+            GestureCaptureLog.Line("gestures armed");
+        }
+
         /// <summary>
         /// Hot-swap to inject when the e2e flag appears while the game is already running
         /// (smoke script arms flags after the mod may already be enabled).
