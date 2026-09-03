@@ -4,13 +4,13 @@ Target layout for the clean-architecture rewrite under `rewrite/`. Code and test
 
 ## Tree
 
-| Path               | Role                                                                    |
-| ------------------ | ----------------------------------------------------------------------- |
-| `rewrite/docs/`    | MDCP target contracts (this docs tree)                                  |
-| `rewrite/mod/`     | Cities: Skylines I mod assembly (`TrackpadCameraControl.Rewrite`)       |
-| `rewrite/src/`     | Capture and shared libraries consumed by the rewrite mod                |
-| `rewrite/tests/`   | Behavior fixtures, capture-session coverage, static-analysis gates      |
-| `rewrite/scripts/` | Rewrite-only helpers (optional; root scripts may also target this tree) |
+| Path               | Role                                                                                                                |
+| ------------------ | ------------------------------------------------------------------------------------------------------------------- |
+| `rewrite/docs/`    | MDCP target contracts (this docs tree)                                                                              |
+| `rewrite/mod/`     | Cities assembly (`TrackpadCameraControl.Rewrite`). Clone-era sources are quarantined until the UX-contract rebuild. |
+| `rewrite/src/`     | Capture and shared libraries consumed by the rewrite mod                                                            |
+| `rewrite/tests/`   | Behavior fixtures, capture-session coverage, static-analysis gates                                                  |
+| `rewrite/scripts/` | Rewrite-only helpers (optional; root scripts may also target this tree)                                             |
 
 Empty or stub folders are intentional during docs-first phases. The rewrite tree README lives at repo path `rewrite/README.md` (outside this MDCP root — plain pointer only).
 

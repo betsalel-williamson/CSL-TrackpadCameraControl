@@ -12,11 +12,13 @@ The rewrite splits work into three planes. Every tick walks them in order. No pl
 Capture (OS → primitives) → Policy (gates + session + style resolve) → Apply (feel math → camera / selection)
 ```
 
-| Plane   | Responsibility                                                                                                                                    |
-| ------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Capture | Platform backend fills one primitive/frame contract (honest finger count, centroid delta, pinch, rotate, modifiers). No pan/orbit/zoom decisions. |
-| Policy  | Input gates, orbit latch / session, and **style binding table** resolve → camera / selection **op set**.                                          |
-| Apply   | Feel math (Sensitivity, invert, deadzone when schema-backed) writes camera or place/relocate ghost. Pitch clamp is an apply constant.             |
+| Plane   | Responsibility                                                                                                                                                               |
+| ------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Capture | Platform backend fills one primitive/frame contract (honest finger count, centroid delta, pinch, rotate, modifiers). No pan/orbit/zoom decisions.                            |
+| Policy  | Input gates, orbit latch / session, and **style binding table** resolve → camera / selection **op set**.                                                                     |
+| Apply   | **Pure** feel math (Sensitivity, invert, deadzone when schema-backed) plus thin Cities adapters that write camera or place/relocate ghost. Pitch clamp is an apply constant. |
+
+Feel Options and Debug are **not** a fourth tick plane. They are two hosts over **one feel catalog** and **one editor API** (preset dirty model, Sensitivity, autosave). [UI parity](../glossary/ui-parity.md) is the player-facing contract; the hosts must not each own a copy of the product ([ADR 0005](./adr/0005-ux-parity-not-source-parity.md)).
 
 ```mermaid
 flowchart LR
@@ -66,6 +68,7 @@ CAD gesture style, Contacts capture, and Assist chrome stay behind positive `Ena
 - Fail soft if Capture is missing or fails to start, and if Cities Harmony is missing (gestures may still apply; scroll fight or missing orbit flush may remain).
 - Interpretation stays in Policy/Apply so feel and style seeds never require restarting Capture.
 - One primitive/frame contract across Capture and Policy — no dual frame types or copy bridges (see [greenfield redesign lessons](./greenfield-redesign-lessons.md) L3).
+- Do not implement planes or feel UI by copying shipping sources (L13).
 
 ## Open risks
 

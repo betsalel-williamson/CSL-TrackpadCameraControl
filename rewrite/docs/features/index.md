@@ -16,3 +16,4 @@ Target contracts for the clean-architecture rewrite. Shipping as-built docs rema
     - [ADR 0002 — Gesture presets as seeds](./adr/0002-gesture-presets-as-seeds.md)
     - [ADR 0003 — Feel profiles and product flags](./adr/0003-feel-profiles-and-product-flags.md)
     - [ADR 0004 — Style table-driven resolve](./adr/0004-style-table-driven-resolve.md)
+    - [ADR 0005 — UX parity is not source parity](./adr/0005-ux-parity-not-source-parity.md)

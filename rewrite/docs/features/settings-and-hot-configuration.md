@@ -15,7 +15,7 @@ One editor API serves both surfaces. A change updates the live blob immediately 
 
 Debug chrome pads/buttons and button-step fields appear only if `EnableAssistChrome` is **compiled** on. Capture-backend picker and low-pass exist only if `EnableContactsCapture` is compiled on. A CAD / Maps+ gesture-style switcher exists only if `EnableCadGestureStyle` is compiled on. Off modules are omitted from the ship DLL — not present as empty UI or tick no-ops.
 
-## Layout (UI 1:1 with shipping)
+## Layout ([UI parity](../glossary/ui-parity.md) with shipping)
 
 Section order on both product surfaces: **General → Zoom → Pan → Rotate → Orbit**.
 
@@ -23,7 +23,7 @@ Options section rhythm is native Colossal **AddGroup**: short group title + nati
 
 Product UI does **not** expose Enable-per-op or Reverse. Reverse and per-op enables remain in schema / factory feel data for Apply when set; the mod master on/off is the player enable switch.
 
-Refuse cleanup that changes Options/Debug order, labels, or feel math relative to shipping ([parity with shipping](./parity-with-shipping.md)).
+Refuse **player-visible** cleanup that changes Options/Debug order, labels, control kinds, or feel math relative to shipping ([parity with shipping](./parity-with-shipping.md), [UI parity](../glossary/ui-parity.md)). Internals of those surfaces must be a catalog plus two hosts, not copies of shipping builders ([ADR 0005](./adr/0005-ux-parity-not-source-parity.md)).
 
 ## Configuration layers
 
@@ -145,7 +145,7 @@ Once orbit engages from the style-resolved trigger, the session stays in orbit u
 - Save as… selects the named preset; further edits dirty to **New Preset** again.
 - Delete on a named user preset removes it, applies Default, and persists; built-ins and New Preset cannot be deleted.
 - Reset to factory and Slow / Default / Fast match the feel-profile contract.
-- Product UI shows no Enable-per-op or Reverse; section order is General → Zoom → Pan → Rotate → Orbit (1:1 with shipping).
+- Product UI shows no Enable-per-op or Reverse; section order is General → Zoom → Pan → Rotate → Orbit ([UI parity](../glossary/ui-parity.md) with shipping).
 - Pitch clamps to vanilla **0°–90°** (apply constant; not Options/Debug-tunable; absent from feel blob); pan apply clamps the camera target to the unlocked game area; yaw has no angle clamp.
 - On the ship surface: no CAD / gesture-style switcher, no backend picker, no Btn fields, no low-pass (those modules omitted from the DLL).
 - Every schema field documents a tick consumer or chrome-only / alias / non-field classification.

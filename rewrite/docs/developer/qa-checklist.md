@@ -4,7 +4,7 @@ Side-by-side pass/fail matrix: shipping `TrackpadCameraControl` vs rewrite `Trac
 
 **Session defaults:** Cities Harmony on; **only one** camera mod enabled; city loaded; game focused; Maps+ seeds; Default feel.
 
-Fill shipping and rewrite columns on the same machine / OS when possible. UI and Maps+ dynamics must stay **1:1** (L11).
+Fill shipping and rewrite columns on the same machine / OS when possible. Player-visible UI must stay at [UI parity](../glossary/ui-parity.md) and Maps+ dynamics must match (L11). Source identity with shipping is not a pass (L13).
 
 ## Session platform
 
@@ -103,4 +103,4 @@ Run only when deliberately compiling experimental modules ([Feature flags](./fea
 
 - [Harnesses and testing](./harnesses-and-testing.md)
 - [Settings schema](./settings-schema.md)
-- Features guide north star: greenfield redesign lessons (L1–L12)
+- Features guide north star: greenfield redesign lessons (L1–L13)

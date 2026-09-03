@@ -1,5 +1,7 @@
 # Organized product feedback (rewrite v1)
 
+**Status:** Historical. Prototype carryover was stripped; the remaining failure is **source cloning** of the shipping feel UI and apply path ([ADR 0005](../../features/adr/0005-ux-parity-not-source-parity.md)).
+
 Feedback from the original code review and greenfield redesign, applied to the **built** `rewrite/mod` tree. v1 treats internal prototypes as complete; the rewrite must not ship prototype seams.
 
 ## Theme: prototype carryover (violates L6, L9)
@@ -20,14 +22,14 @@ The rewrite copied shipping structure including compile-gated stubs. Greenfield 
 
 These must **not** regress while stripping prototypes:
 
-| Keep                                                | Why                                      |
-| --------------------------------------------------- | ---------------------------------------- |
-| Three-plane architecture (Capture → Policy → Apply) | L8 — greenfield core                     |
-| Style binding table + Maps+ seed resolve            | L1, L11 — parity vs hardcoded heuristics |
-| Feel profiles / hot tuning UI 1:1 with shipping     | L2, L11                                  |
-| Harmony scope (scroll suppress, orbit flush)        | L8                                       |
-| Tier A/B tests + `sa:rewrite` gates                 | L10                                      |
-| E2E inject for automated harness (maintainer-only)  | Test seam — evaluate vs F1/F3 scope      |
+| Keep                                                                                                                | Why                                      |
+| ------------------------------------------------------------------------------------------------------------------- | ---------------------------------------- |
+| Three-plane architecture (Capture → Policy → Apply)                                                                 | L8 — greenfield core                     |
+| Style binding table + Maps+ seed resolve                                                                            | L1, L11 — parity vs hardcoded heuristics |
+| Feel profiles / hot tuning at [UI parity](../../glossary/ui-parity.md) (look and interactions, not copied builders) | L2, L11, L13                             |
+| Harmony scope (scroll suppress, orbit flush)                                                                        | L8                                       |
+| Tier A/B tests + `sa:rewrite` gates                                                                                 | L10                                      |
+| E2E inject for automated harness (maintainer-only)                                                                  | Test seam — evaluate vs F1/F3 scope      |
 
 ## Theme: process expectations
 
