@@ -1,5 +1,11 @@
 # csl-trackpad-camera-control
 
+## 1.0.2
+
+### Patch Changes
+
+- f8f4cd8: Restore live Cities camera **Keymapping(s)** lookup on Options op sections (gesture line from the style table), refresh when bindings/locale change, and stop word-wrapped description labels from bloating Options group height.
+
 ## 1.0.1
 
 ### Patch Changes
