@@ -115,8 +115,10 @@ Set these in Content Manager **Share** / **Update** ([Release process](./release
 | Field          | v1                                                                                       |
 | -------------- | ---------------------------------------------------------------------------------------- |
 | Required items | [Cities Harmony](https://steamcommunity.com/sharedfiles/filedetails/?id=2040656402) only |
-| Preview        | `PreviewImage.png` in the local Mods folder (512×512 PNG)                                |
+| Preview        | Staging root `PreviewImage.png` beside `Content/` (512×512; ≤644×644)                    |
 | Visibility     | Hidden or friends-only until splash readiness, then public                               |
+
+Do not put `PreviewImage.png` inside `Content/`. Sync staging from the live Mods install with `./scripts/stage-workshop-update.sh` ([Release process](./release-process.md)).
 
 Do not mark [Skyve](https://steamcommunity.com/sharedfiles/filedetails/?id=2881031511) as required.
 
