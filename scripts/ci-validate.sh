@@ -75,6 +75,8 @@ select_scopes() {
     fi
     if path_is "$path" \
       "docs/*" \
+      "rewrite/docs/*" \
+      "rewrite/README.md" \
       "README.md" \
       "docs/mdcp.config.json" \
       ".prettierrc.json" \
@@ -86,6 +88,9 @@ select_scopes() {
       "mod/*" \
       "src/*" \
       "tests/*" \
+      "rewrite/mod/*" \
+      "rewrite/src/*" \
+      "rewrite/tests/*" \
       ".csharpierignore" \
       ".config/dotnet-tools.json" \
       "TrackpadCameraControl.sln" \

@@ -72,8 +72,11 @@ namespace TrackpadCameraControl.Rewrite
             );
             _root.canFocus = true;
             _root.isInteractive = true;
+            _root.eventMouseDown += (c, e) => OnPanelMouseDown();
 
             BuildTitleBar();
+            ResetPanelFocusVisual();
+            ApplyPanelFocusVisual();
             _nextY = TitleBarHeight + 8f;
             AddSection("Feel presets");
             AddFeelPresetRow(settings);
@@ -575,6 +578,11 @@ namespace TrackpadCameraControl.Rewrite
             if (_root != null)
             {
                 _root.isVisible = showRoot;
+                if (showRoot)
+                {
+                    ResetPanelFocusVisual();
+                    ApplyPanelFocusVisual();
+                }
             }
 
             if (_reopenButton != null)
