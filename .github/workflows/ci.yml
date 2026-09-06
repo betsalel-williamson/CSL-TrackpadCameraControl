@@ -1,15 +1,14 @@
 name: CI
 
+# Gates land on PRs only. Squash-merge to main does not re-run Validate.
+# Changesets / tags: .github/workflows/release.yml on push to main.
 on:
-  push:
-    branches: [main]
-  # Any PR base — stacked PRs target parent branches, not only main. Restricting to
-  # main left Commitlint/Validate stuck as "Expected — Waiting for status".
   pull_request:
+    # Any base — stacked PRs target parent branches, not only main.
     types: [opened, synchronize, reopened, ready_for_review]
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number }}
   cancel-in-progress: true
 
 # Force JS actions onto Node 24 (Node 20 deprecated on runners).
@@ -19,13 +18,11 @@ env:
 
 permissions:
   contents: read
-  actions: read
 
 jobs:
   commitlint:
     name: Commitlint
     runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request'
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -45,41 +42,9 @@ jobs:
           COMMITLINT_TO: ${{ github.event.pull_request.head.sha }}
         run: npx commitlint --from "$COMMITLINT_FROM" --to "$COMMITLINT_TO" --verbose
 
-  # On push (main), skip the macOS Validate suite when this exact SHA already had a
-  # successful CI run from pull_request. Squash merges mint a new SHA and still run.
-  # A thin always-green "Validate" job keeps required checks satisfied when skipped.
-  validate-needed:
-    name: Validate needed
-    runs-on: ubuntu-latest
-    outputs:
-      run: ${{ steps.gate.outputs.run }}
-    steps:
-      - id: gate
-        env:
-          GH_TOKEN: ${{ github.token }}
-          EVENT_NAME: ${{ github.event_name }}
-          REPO: ${{ github.repository }}
-          SHA: ${{ github.sha }}
-        run: |
-          set -euo pipefail
-          if [ "$EVENT_NAME" != "push" ]; then
-            echo "run=true" >> "$GITHUB_OUTPUT"
-            exit 0
-          fi
-          count="$(gh api "repos/${REPO}/actions/runs?head_sha=${SHA}&status=completed&per_page=50" \
-            --jq '[.workflow_runs[] | select(.name == "CI" and .event == "pull_request" and .conclusion == "success")] | length')"
-          if [ "$count" -gt 0 ]; then
-            echo "Validate already succeeded for ${SHA} on pull_request — skipping push re-run."
-            echo "run=false" >> "$GITHUB_OUTPUT"
-          else
-            echo "run=true" >> "$GITHUB_OUTPUT"
-          fi
-
-  validate-macos:
-    name: Validate (macos)
-    needs: validate-needed
-    if: needs.validate-needed.outputs.run == 'true'
-    # macOS: AppKit / IOKit QA paths and Apple-only assertions need Darwin (not Linux).
+  validate:
+    name: Validate
+    # macOS: AppKit / IOKit QA paths and Apple-only assertions need Darwin.
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -88,7 +53,6 @@ jobs:
           persist-credentials: false
 
       - name: Fetch PR base for path scoping
-        if: github.event_name == 'pull_request'
         env:
           BASE_REF: ${{ github.base_ref }}
         run: git fetch --no-tags --depth=1 origin "$BASE_REF"
@@ -112,36 +76,5 @@ jobs:
 
       - name: Run scoped validate
         env:
-          FORCE_FULL: ${{ github.ref == 'refs/heads/main' && github.event_name == 'push' && '1' || '0' }}
           GITHUB_BASE_REF: ${{ github.base_ref }}
         run: bash scripts/ci-validate.sh
-
-  validate:
-    name: Validate
-    needs: [validate-needed, validate-macos]
-    # Always report so required checks get success/failure (not "skipped") when
-    # macOS Validate is gated off or fails.
-    if: always() && !cancelled()
-    runs-on: ubuntu-latest
-    steps:
-      - name: Report Validate status
-        env:
-          GATE: ${{ needs.validate-needed.result }}
-          RUN: ${{ needs.validate-needed.outputs.run }}
-          MACOS: ${{ needs.validate-macos.result }}
-          SHA: ${{ github.sha }}
-        run: |
-          set -euo pipefail
-          if [ "$GATE" != "success" ]; then
-            echo "Validate gate failed (result=${GATE})."
-            exit 1
-          fi
-          if [ "$RUN" != "true" ]; then
-            echo "Skipped macOS Validate — SHA ${SHA} already passed CI on pull_request."
-            exit 0
-          fi
-          if [ "$MACOS" != "success" ]; then
-            echo "macOS Validate did not succeed (result=${MACOS})."
-            exit 1
-          fi
-          echo "macOS Validate succeeded."

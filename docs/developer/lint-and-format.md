@@ -39,10 +39,10 @@ Individual targets: `format:docs`, `format:csharp`, `format:native` (and matchin
 
 GitHub Actions (`.github/workflows/ci.yml`). Third-party actions are **pinned by commit SHA** (with a version comment), not floating tags.
 
-| Event            | Gates                                                                                                           |
-| ---------------- | --------------------------------------------------------------------------------------------------------------- |
-| **PR → main**    | **commitlint** (Ubuntu); one **validate** job on **macOS** for docs/format/`dotnet test` (tooling → full suite) |
-| **Push to main** | Full docs + C# + native format on **macOS**                                                                     |
+| Event            | Gates                                                                                                            |
+| ---------------- | ---------------------------------------------------------------------------------------------------------------- |
+| **Pull request** | **Commitlint** (Ubuntu) + **Validate** (macOS: docs / format / `dotnet test`, path-scoped; tooling → full suite) |
+| **Push to main** | **Release** only (Changesets version PR or tag) — CI does not re-run Validate after squash-merge                 |
 
 Validate runs on **macOS** so AppKit/IOKit QA paths can execute Darwin integration tests. Linux CI would still pass: mac-only sources are omitted at compile time (`QaClipboardReport.MacOS.cs`) and remaining probes use `[MacOsFact]` / `[SkipOnMacOsFact]` skip attributes. Pure formatting helpers stay cross-platform.
 
