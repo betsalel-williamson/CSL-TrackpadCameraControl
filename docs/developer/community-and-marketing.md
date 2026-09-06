@@ -14,21 +14,21 @@ Product names and search keywords: [repository layout](./repository-layout.md). 
 
 This product targets **Cities: Skylines I**. Do not invest primary effort in CS2-only rooms.
 
-| Priority        | Channel                                               | Role                                                                                                                |
-| --------------- | ----------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
-| 1 — Home base   | Steam Workshop (when published)                       | Canonical install + storefront. Title, tags, GIFs, required items, and change notes _are_ the ongoing announcement. |
-| 2 — Soft launch | Cities: Skylines Modding Discord                      | Early adopters, Harmony/compatibility feedback, Mac trackpad testers before a public splash.                        |
-| 3 — Reach       | Reddit `r/CitiesSkylines` + `r/CitiesSkylinesModding` | Discovery vs technical legitimacy. One post, Workshop or Release link, short demo GIF.                              |
-| 4 — Niche       | `r/macgaming`, Mac / laptop CS1 pockets in Discord    | Underserved Mac trackpad audience; strongest early word-of-mouth while v1 is macOS-first.                           |
-| 5 — Longevity   | GitHub Releases + README keywords                     | Beta source archives and contributor discovery — not primary player discovery once Workshop exists.                 |
-| Optional        | Paradox Plaza CS1 modding, Simtropolis, Bluesky/X     | Secondary; use when a thread already exists or someone asks.                                                        |
+| Priority        | Channel                                                                             | Role                                                                                                                |
+| --------------- | ----------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
+| 1 — Home base   | [Steam Workshop](https://steamcommunity.com/sharedfiles/filedetails/?id=3796575080) | Canonical install + storefront. Title, tags, GIFs, required items, and change notes _are_ the ongoing announcement. |
+| 2 — Soft launch | Cities: Skylines Modding Discord                                                    | Early adopters, Harmony/compatibility feedback, Mac trackpad testers before a public splash.                        |
+| 3 — Reach       | Reddit `r/CitiesSkylines` + `r/CitiesSkylinesModding`                               | Discovery vs technical legitimacy. One post, Workshop or Release link, short demo GIF.                              |
+| 4 — Niche       | `r/macgaming`, Mac / laptop CS1 pockets in Discord                                  | Underserved Mac trackpad audience; strongest early word-of-mouth while v1 is macOS-first.                           |
+| 5 — Longevity   | GitHub Releases + README keywords                                                   | Beta source archives and contributor discovery — not primary player discovery once Workshop exists.                 |
+| Optional        | Paradox Plaza CS1 modding, Simtropolis, Bluesky/X                                   | Secondary; use when a thread already exists or someone asks.                                                        |
 
 ## Announcement sequence
 
 Durable order — not a dated backlog:
 
 1. **Soft** — Modding Discord (and a few known Mac CS1 players). Validate install friction (Harmony, permissions, OS gesture conflicts) before hype.
-2. **Quiet distribute** — GitHub Release for betas today; Workshop item when packaging exists. Description must state **macOS-first** (and stub/unsupported elsewhere) so ratings are not ambushed.
+2. **Quiet distribute** — Workshop item is live ([3796575080](https://steamcommunity.com/sharedfiles/filedetails/?id=3796575080)); keep visibility honest (hidden/friends until splash readiness, then public). Description must state **macOS-first** (and stub/unsupported elsewhere) so ratings are not ambushed. GitHub Release remains for source/testers.
 3. **Public splash** — Reddit + Discord when the Maps+ gesture set feels shippable on a real trackpad session, with a 10–20s demo clip.
 4. **Ongoing** — Workshop comments and change notes; short “fixed X conflict” posts. Support _is_ marketing for utility mods.
 
@@ -68,7 +68,7 @@ Canonical Workshop / Content Manager title, short description, long description,
 
 | Audience                            | Install / deploy doc                            |
 | ----------------------------------- | ----------------------------------------------- |
-| Players (current / Workshop later)  | `docs/client/install-and-first-run.md`          |
+| Players (Workshop)                  | `docs/client/install-and-first-run.md`          |
 | Beta testers / local prove-out      | [Local MVP install](./local-mvp-install.md)     |
 | Versioning and Release jobs         | [Commits and releases](./release-process.md)    |
 | Workshop vs GitHub Release roles    | [Release process](./release-process.md)         |

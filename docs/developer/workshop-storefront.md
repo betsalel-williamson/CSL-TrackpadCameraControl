@@ -12,6 +12,15 @@ Paste-ready **Steam Workshop** and **Content Manager** title, description, and s
 
 `(macOS)` is a **temporary discoverability tag**, not product identity. When another OS backend ships, **update the same Workshop item**, drop the tag from the title, and keep the Workshop ID. Do not publish a second item.
 
+## Workshop item
+
+| Field                 | Value                                                             |
+| --------------------- | ----------------------------------------------------------------- |
+| **Published file ID** | `3796575080`                                                      |
+| **URL**               | https://steamcommunity.com/sharedfiles/filedetails/?id=3796575080 |
+
+Keep this ID for every Update. Never create a second Workshop item for another OS.
+
 ## Title
 
 ```text
@@ -21,7 +30,7 @@ Trackpad Camera Control (macOS)
 In-game `IUserMod.Name` / Options title uses the same core + tag, then the assembly version:
 
 ```text
-Trackpad Camera Control (macOS) 1.0.0
+Trackpad Camera Control (macOS) 1.0.1
 ```
 
 ## Short description
@@ -37,7 +46,7 @@ macOS trackpad camera — pan, pinch zoom, orbit. Middle-mouse orbit still works
 Paste into the Workshop description field (adjust version notes as needed):
 
 ```text
-Version 1.0.0 — first public macOS release.
+Version 1.0.1 — fix Options/Content Manager showing 0.0.0 after rewrite cutover; product semver only on default builds.
 
 macOS-only multitouch camera for Cities: Skylines I. Pan, pinch zoom, rotate, and Option-orbit from a laptop trackpad. A real mouse still works alongside (wheel zoom, middle-mouse orbit).
 

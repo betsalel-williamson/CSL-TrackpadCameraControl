@@ -4,20 +4,20 @@ How players get Trackpad Camera Control running. Who this is for: [Personas](./p
 
 ## Distribution paths
 
-| Path               | Who                      | How                                                                           |
-| ------------------ | ------------------------ | ----------------------------------------------------------------------------- |
-| **Beta (current)** | Early adopters / testers | GitHub Release source archive → build/install per developer local MVP install |
-| **Steam Workshop** | Most players (when live) | Subscribe; enable in Content Manager with Cities Harmony                      |
-| **Local rewrite**  | Contributors / testers   | `rewrite/docs/developer/local-mvp-install.md` with the rewrite assembly       |
+| Path               | Who                    | How                                                                                                                           |
+| ------------------ | ---------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
+| **Steam Workshop** | Most players           | [Subscribe](https://steamcommunity.com/sharedfiles/filedetails/?id=3796575080); enable in Content Manager with Cities Harmony |
+| **GitHub Release** | Contributors / testers | Source archive → build/install per developer local MVP install                                                                |
+| **Local rewrite**  | Contributors / testers | `rewrite/docs/developer/local-mvp-install.md` with the rewrite assembly                                                       |
 
-Until Workshop publishes, treat GitHub Release + local install as the supported player/tester path. When published, the Workshop and Content Manager title is **Trackpad Camera Control (macOS)**.
+Canonical player path is the Workshop item (**Trackpad Camera Control (macOS)**). GitHub Release remains for source builds and contributors.
 
 ## Getting started (macOS)
 
 v1 is **macOS only**. Windows and Linux may show the mod in Content Manager; trackpad gestures will not work.
 
 1. Subscribe to Cities Harmony and **enable** it.
-2. Install this mod and **enable** it in Content Manager.
+2. [Subscribe to Trackpad Camera Control](https://steamcommunity.com/sharedfiles/filedetails/?id=3796575080) and **enable** it in Content Manager.
 3. Load a city (not menus-only). Click the game window so it is focused.
 4. Two-finger drag **pans**, pinch **zooms**, two-finger twist **rotates** heading, Option (`⌥`)+two-finger drag **orbits**.
 5. Open **Options → Trackpad Camera Control** for Sensitivity and Slow / Default / Fast.
