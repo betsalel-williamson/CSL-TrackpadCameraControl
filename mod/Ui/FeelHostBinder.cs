@@ -198,8 +198,10 @@ namespace TrackpadCameraControl.Rewrite
             }
 
             AttachOptionsSync(helper);
+            VanillaCameraKeyLabelsWatch.EnsureHooked();
             RefreshAllSensitivitySliders();
             RefreshFeelPresetControls();
+            RefreshOpDescriptions();
         }
 
         private static void AttachOptionsSync(UIHelperBase helper)
@@ -209,6 +211,7 @@ namespace TrackpadCameraControl.Rewrite
             if (!_settingsHooked)
             {
                 FeelEditor.SettingsChanged += OnOptionsSettingsChanged;
+                VanillaCameraKeyLabelsWatch.LabelsChanged += RefreshOpDescriptions;
                 _settingsHooked = true;
             }
 
@@ -231,6 +234,7 @@ namespace TrackpadCameraControl.Rewrite
         {
             RefreshAllSensitivitySliders();
             RefreshFeelPresetControls();
+            RefreshOpDescriptions();
         }
 
         private static void OnOptionsRootVisibilityChanged(UIComponent component, bool visible)
@@ -239,7 +243,71 @@ namespace TrackpadCameraControl.Rewrite
             {
                 RefreshAllSensitivitySliders();
                 RefreshFeelPresetControls();
+                RefreshOpDescriptions();
             }
+        }
+
+        private static void RefreshOpDescriptions()
+        {
+            if (_optionsRoot == null)
+            {
+                return;
+            }
+
+            try
+            {
+                if (_optionsRoot.parent == null)
+                {
+                    DetachOptionsSync();
+                    return;
+                }
+            }
+            catch
+            {
+                DetachOptionsSync();
+                return;
+            }
+
+            SetOpDescriptionLabel(_optionsRoot, "OpHeadingZoom", OptionsHost.OpDescriptionZoom);
+            SetOpDescriptionLabel(_optionsRoot, "OpHeadingPan", OptionsHost.OpDescriptionPan);
+            SetOpDescriptionLabel(_optionsRoot, "OpHeadingRotate", OptionsHost.OpDescriptionRotate);
+            SetOpDescriptionLabel(_optionsRoot, "OpHeadingOrbit", OptionsHost.OpDescriptionOrbit);
+        }
+
+        private static void SetOpDescriptionLabel(UIComponent root, string name, string text)
+        {
+            UILabel label = FindRecursive(root, name) as UILabel;
+            if (label == null || label.text == text)
+            {
+                return;
+            }
+
+            label.text = text;
+            label.PerformLayout();
+        }
+
+        private static UIComponent FindRecursive(UIComponent parent, string name)
+        {
+            if (parent == null)
+            {
+                return null;
+            }
+
+            if (parent.name == name)
+            {
+                return parent;
+            }
+
+            foreach (UIComponent child in parent.components)
+            {
+                UIComponent hit = FindRecursive(child, name);
+                if (hit != null)
+                {
+                    return hit;
+                }
+            }
+
+            return null;
         }
 
         private static void RefreshAllSensitivitySliders()
@@ -312,12 +380,13 @@ namespace TrackpadCameraControl.Rewrite
                 return;
             }
 
+            // Match shipping Options rhythm: one logical line per \n, no word-wrap
+            // (wrap + fixed width balloons the group height with long Keymapping labels).
             UILabel label = root.AddUIComponent<UILabel>();
             label.name = "OpHeading" + opId;
             label.textScale = 0.85f;
             label.autoSize = true;
-            label.wordWrap = true;
-            label.width = Mathf.Max(200f, root.width - 20f);
+            label.wordWrap = false;
             label.text = text;
             label.PerformLayout();
         }

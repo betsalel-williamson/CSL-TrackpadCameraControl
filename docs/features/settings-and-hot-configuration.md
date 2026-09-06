@@ -78,7 +78,7 @@ A feel preset stores sensitivities, reverse flags, and enables — **not** gestu
 
 ## Tunables (product surface, all hot)
 
-Under each op heading (**Zoom**, **Pan**, **Rotate**, **Orbit**) after **General**: short meaning + activation, then:
+Under each op heading (**Zoom**, **Pan**, **Rotate**, **Orbit**) after **General**: two compact lines — **Gesture(s):** (style-table Maps+ chords) and **Keymapping(s):** (live Cities Options / camera bindings) — then:
 
 - Per-op Sensitivity **slider** (Options only): UI **[0, 1]** maps piecewise to **0.1× / 1× / 2×** factory (mid = Default); step ≈ **10%** of factory on the high side; display/apply **three** decimals
 - Orbit: pitch clamp is vanilla **0° / 90°** as an **apply constant** — not Options/Debug-tunable, not in the feel blob. Drag floors at **0°**; button writes (when Assist on) clamp **0…90**. No yaw angle clamp.
