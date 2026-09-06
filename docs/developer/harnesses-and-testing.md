@@ -1,6 +1,6 @@
 # Harnesses and testing
 
-How contributors prove rewrite behavior without treating fakes as end-to-end truth (greenfield redesign lessons L10). Prefer behavior contracts over implementation snapshots. Fakes must mirror stack layers (features _Under the hood_): one fake stands in for one subsystem.
+How contributors prove ship behavior without treating fakes as end-to-end truth (greenfield redesign lessons L10). Prefer behavior contracts over implementation snapshots. Fakes must mirror stack layers (features _Under the hood_): one fake stands in for one subsystem.
 
 ## Tiers
 

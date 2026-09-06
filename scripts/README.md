@@ -1,6 +1,6 @@
-# Rewrite static-analysis scripts (Phase 3)
+# Static-analysis scripts (Phase 3)
 
-Lint gates for `rewrite/mod` per [static-analysis-and-quality.md](../docs/developer/static-analysis-and-quality.md) and greenfield lessons **L1 / L6 / L10**. These are structural checks — not tier A–C behavior proof.
+Lint gates for `mod/` per [static-analysis-and-quality.md](../docs/developer/static-analysis-and-quality.md) and greenfield lessons **L1 / L6 / L10**. These are structural checks — not tier A–C behavior proof.
 
 ## Quick start
 
@@ -22,7 +22,7 @@ npm run sa:rewrite:layer-import
 Equivalent:
 
 ```bash
-bash rewrite/scripts/sa-rewrite.sh
+bash scripts/sa-rewrite.sh
 ```
 
 ## Prerequisites
@@ -37,7 +37,7 @@ This environment typically has Semgrep on `PATH` (`~/.local/bin/semgrep`). The o
 ## 1. Semgrep (`semgrep/rewrite.yml`)
 
 ```bash
-semgrep scan --config rewrite/scripts/semgrep/rewrite.yml --error --severity ERROR rewrite/mod
+semgrep scan --config scripts/semgrep/rewrite.yml --error --severity ERROR mod
 ```
 
 | Rule ID                                    | Intent                                                                                                                                                            |
@@ -55,10 +55,10 @@ semgrep scan --config rewrite/scripts/semgrep/rewrite.yml --error --severity ERR
 ## 2. Settings field → tick consumer graph
 
 ```bash
-python3 rewrite/scripts/settings_field_graph.py
+python3 scripts/settings_field_graph.py
 ```
 
-Parses public auto-properties on `rewrite/mod/Settings/ModSettings.cs`. Fails when a field is never **read** (`.Name` not followed by `=`) outside the Settings / UI persist layer.
+Parses public auto-properties on `mod/Feel/ModSettings.cs`. Fails when a field is never **read** (`.Name` not followed by `=`) outside the Feel / UI persist layer.
 
 ### Exclusions / allowlists
 
@@ -68,15 +68,15 @@ Parses public auto-properties on `rewrite/mod/Settings/ModSettings.cs`. Fails wh
 | **seed_identity**    | `GesturePreset`                                                                                                                   | Skipped — Maps+ only on v1; tick path reads `StyleTable`                                             |
 | **schema_non_field** | `BridgeEnabled`                                                                                                                   | **Fail** if present without an outside reader. Escape hatch: `--allow-schema-non-field` (warn only). |
 
-Persist/UI layers excluded from the consumer search: `rewrite/mod/Settings/**`, `rewrite/mod/Ui/**`.
+Persist/UI layers excluded from the consumer search: `mod/Feel/**`, `mod/Ui/**`.
 
 ## 3. Native leak pairing
 
 ```bash
-python3 rewrite/scripts/native_leak_pairing.py
+python3 scripts/native_leak_pairing.py
 ```
 
-Same pairing model as `tests/TrackpadCameraControl.Tests/NativeResourceLeakAnalyzer.cs`:
+Same pairing model as the historical bootstrap analyzer:
 
 | Acquire                                        | Release                                                 |
 | ---------------------------------------------- | ------------------------------------------------------- |
@@ -85,7 +85,7 @@ Same pairing model as `tests/TrackpadCameraControl.Tests/NativeResourceLeakAnaly
 | `.DeviceStart(`                                | `.DeviceStop(`                                          |
 | `addLocalMonitorForEventsMatchingMask`         | `removeMonitor:`                                        |
 
-**Scan roots:** `rewrite/mod`, `src/TrackpadCapture`, `src/TrackpadBridge`, `src/AppleGestureProbe`.
+**Scan roots:** `mod/`, `src/TrackpadCameraControl.Gestures`, and (if present) `bootstrap/src/{TrackpadCapture,TrackpadBridge,AppleGestureProbe}`.
 
 **Allowlist marker:** put `native-leak-ok:` plus a reason on the acquire line for process-lifetime or ownership-transfer cases.
 

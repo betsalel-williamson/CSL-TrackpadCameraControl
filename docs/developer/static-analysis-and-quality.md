@@ -1,10 +1,10 @@
 # Static analysis and quality
 
-Lint and structural gates for the rewrite tree. These catch ceremony, resource bugs, and **layer-import** violations early; they do **not** replace tier A–C behavior proof ([Harnesses and testing](./harnesses-and-testing.md), greenfield redesign lessons L10).
+Lint and structural gates for the primary ship tree. These catch ceremony, resource bugs, and **layer-import** violations early; they do **not** replace tier A–C behavior proof ([Harnesses and testing](./harnesses-and-testing.md), greenfield redesign lessons L10).
 
 ## Semgrep
 
-Run Semgrep rules over `rewrite/mod` and `rewrite/src` (and matching tests when rules need fixtures). Intended classes:
+Run Semgrep rules over `mod/` and `src/` (and matching tests when rules need fixtures). Intended classes:
 
 | Rule class                      | Intent                                                                          |
 | ------------------------------- | ------------------------------------------------------------------------------- |
@@ -13,7 +13,7 @@ Run Semgrep rules over `rewrite/mod` and `rewrite/src` (and matching tests when 
 | Tick-path empty modules         | Ban constructing no-op filters / chrome when the compile module is off          |
 | Settings field without consumer | Flag schema / settings members never read by resolve, apply, gates, or chrome   |
 
-Phase 3 gates live under `rewrite/scripts/` (`npm run sa:rewrite`). Rule IDs and allowlists: [scripts README](../../scripts/README.md) and `rewrite/scripts/semgrep/rewrite.yml`. This shard is the contract.
+Phase 3 gates live under `scripts/` (`npm run sa:rewrite`). Rule IDs and allowlists: [scripts README](../../scripts/README.md) and `scripts/semgrep/rewrite.yml`. This shard is the contract.
 
 ## Settings read/write graph
 
@@ -71,8 +71,8 @@ Construction on enable is the reverse ownership: settings live blob → runtime 
 
 Fail the gate when stack layers violate the import matrix in features _Under the hood_ / ADR 0006:
 
-- `rewrite/src` contains `ICities`, `Colossal`, `HarmonyLib`, or CSL Feel/Maps+ product types
-- `rewrite/mod` contains AppKit / Multitouch P/Invoke
+- `src/TrackpadCameraControl.Gestures` contains `ICities`, `Colossal`, `HarmonyLib`, or CSL Feel/Maps+ product types
+- `mod/` contains AppKit / Multitouch P/Invoke
 - A “pure” Policy / Apply / Feel file gains UnityEngine / ICities / Harmony / AppKit usings
 
 Csproj `Reference` sets must match: the gesture library never lists Cities managed DLLs.

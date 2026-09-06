@@ -1,5 +1,5 @@
-# Phase 3 Semgrep gates for rewrite/mod (static-analysis-and-quality.md, L1/L6/L10).
-# Run: semgrep scan --config rewrite/scripts/semgrep/rewrite.yml rewrite/mod
+# Phase 3 Semgrep gates for mod/ (static-analysis-and-quality.md, L1/L6/L10).
+# Run: semgrep scan --config scripts/semgrep/rewrite.yml mod
 #
 # fingerCount policy (L4):
 # - AppKit may hardcode active fingerCount=2 (scroll/magnify/rotate). That is allowed —

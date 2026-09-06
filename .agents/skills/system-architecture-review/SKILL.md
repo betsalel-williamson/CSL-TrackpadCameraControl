@@ -121,7 +121,7 @@ Write an index/synthesis shard:
 
 ### Step 6 — Delivery
 
-- MDCP shards under the project’s review guide (e.g. `rewrite/docs/developer/review/`)
+- MDCP shards under the project’s review guide (e.g. `docs/developer/review/`)
 - Update review guide index; run docs check
 - Commit/push when in a delivery branch
 - Summary to the user: verdict + top P0/P1 only (details in shards)

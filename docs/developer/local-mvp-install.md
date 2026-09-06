@@ -23,10 +23,10 @@ Requires Cities: Skylines Managed assemblies (override with `CitiesManaged` / `C
 
 ## A/B — last install wins
 
-Do **not** keep a parallel `TrackpadCameraControl.Rewrite` folder. Switch trees by reinstalling, then restart Cities (or rely on Automate reload when `AssemblyVersion` changes):
+Do **not** keep a parallel Mods folder. Switch trees by reinstalling, then restart Cities (or rely on Automate reload when `AssemblyVersion` changes):
 
 1. `./scripts/install-mod-local.sh` — play primary; Options/Debug show product semver.
-2. `./scripts/install-mod-local.sh --bootstrap` — play prototype; confirm Gestures.dll is gone.
+2. `./scripts/install-mod-local.sh --bootstrap` — play historical prototype; confirm Gestures.dll is gone.
 
 Cities Harmony stays enabled for either path.
 

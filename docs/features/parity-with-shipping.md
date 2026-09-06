@@ -2,7 +2,7 @@
 
 ## Intent
 
-Define what **must** match the shipping mod end-to-end, and what the clean-architecture rewrite **may** change. Internal elegance never excuses player-visible drift ([greenfield redesign lessons](./greenfield-redesign-lessons.md) L11).
+Define what **must** match the v1 player-visible surface, and what internals **may** change. Internal elegance never excuses player-visible drift ([greenfield redesign lessons](./greenfield-redesign-lessons.md) L11). The historical prototype under `bootstrap/` is the oracle for labels and Maps+ outcomes — not a paste source.
 
 ## Must match (definition of done)
 
@@ -20,7 +20,7 @@ Define what **must** match the shipping mod end-to-end, and what the clean-archi
 
 ### Gesture and dynamics parity (Maps+)
 
-- Two-finger pan, pinch zoom, two-finger rotate, Option (`⌥`)+two-finger orbit — same chords and outcomes as shipping.
+- Two-finger pan, pinch zoom, two-finger rotate, Option (`⌥`)+two-finger orbit — same chords and outcomes as the v1 contract.
 - Orbit latch, rotate-owned contact, Concurrent default, hard handoff of orbit coast into rotate.
 - Orbit from current look-at (no Target re-home); pitch **0°–90°**; no yaw angle clamp; pan clamped to unlocked game area.
 - Selection-aware place/relocate ghost rotate vs camera yaw — same as [selection-aware gestures](./selection-aware-gestures.md).
@@ -33,24 +33,23 @@ Define what **must** match the shipping mod end-to-end, and what the clean-archi
 | ---- | --------------------------------------------------------------------- |
 | A    | Golden Maps+ fixtures through style-table resolve + Apply             |
 | B    | Capture-session coverage per primitive (honest finger count included) |
-| C    | In-game UI + dynamics A/B against shipping                            |
+| C    | In-game UI + dynamics checklist (optional A/B vs `bootstrap/`)        |
 
 ## May differ
 
-- Assembly / mod folder name under the rewrite tree.
-- Internal plane split (Capture / Policy / Apply), type names, and folder layout — **must** differ from shipping sources (L13). Same player result with the same classes is a failed rewrite.
-- Style chords implemented as a **seeded binding table** consumed by resolve ([ADR 0004](./adr/0004-style-table-driven-resolve.md)) instead of shipping’s hardcoded Maps+ heuristics — **player-visible chords must still match**.
+- Internal plane split (Capture / Policy / Apply), type names, and folder layout — **must** differ from bootstrap sources (L13). Same player result with the same classes is a failed design.
+- Style chords implemented as a **seeded binding table** consumed by resolve ([ADR 0004](./adr/0004-style-table-driven-resolve.md)) instead of the prototype’s hardcoded Maps+ heuristics — **player-visible chords must still match**.
 - Feel UI implemented as a catalog + two hosts instead of parallel Options/Debug builders.
-- Compile-time omission of unfinished modules (no stub objects on the tick path) vs shipping’s unused flagged paths.
+- Compile-time omission of unfinished modules (no stub objects on the tick path) vs the prototype’s unused flagged paths.
 - One dirty bit / one flush autosave path (same durable outcome; no double XML write).
 - Removal of ceremonial fields that had no tick consumer (e.g. pitch in the feel blob).
 - Omission of prototype QA dumps from the v1 ship surface unless a later work item requires them.
 
 ## Must not copy
 
-- Shipping UI builders, settings stores, numeric-field stacks, camera/selection dumps, or QA chrome into `rewrite/` (including copy-then-tidy).
+- Bootstrap UI builders, settings stores, numeric-field stacks, camera/selection dumps, or QA chrome into `mod/` / `src/` (including copy-then-tidy).
 - Unfinished experiments (IPC, Contacts, CAD, Assist, file loggers, legacy XML schemas) as souvenirs.
-- Shipping `mod/` as the implementation template. It is an oracle for labels, layout rhythm, constants, and dynamics only.
+- `bootstrap/mod/` as the implementation template. It is an oracle for labels, layout rhythm, constants, and dynamics only.
 
 ## Must not claim
 
@@ -62,7 +61,7 @@ Define what **must** match the shipping mod end-to-end, and what the clean-archi
 
 ## Acceptance
 
-- A player moving from shipping to rewrite cannot tell the Maps+ gesture or Options/Debug feel surface apart, aside from any documented assembly/folder rename.
-- A maintainer opening rewrite sources **can** tell them apart from shipping: fewer concepts, one catalog, thin adapters (lessons L1–L13).
-- Tier A fixtures pass; tier C A/B signs off **visual and interaction** parity and dynamics — not source similarity.
-- Diff against shipping docs is intentional target cleanup, not silent capability loss.
+- A player cannot tell the Maps+ gesture or Options/Debug feel surface apart from the v1 contract.
+- A maintainer opening ship sources **can** tell them apart from `bootstrap/`: fewer concepts, one catalog, thin adapters (lessons L1–L13).
+- Tier A fixtures pass; tier C signs off **visual and interaction** parity and dynamics — not source similarity.
+- Diff against older docs is intentional cleanup, not silent capability loss.

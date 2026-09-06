@@ -1,12 +1,12 @@
 # In-game parity checklist (tier C)
 
-Run this **after** a rewrite DLL exists that was built from the UX contract, not as a sign-off of the quarantined clone. Shipping and rewrite share **one** Content Manager row (`TrackpadCameraControl`). Switch by reinstalling; last deploy wins.
+Run this against a **primary** local install built from the UX contract. Optional A/B against `bootstrap/` is historical reference only — last install wins on the shared `TrackpadCameraControl` Mods folder.
 
-Compare shipping vs rewrite on the same city save. Pass means the **player cannot tell the surfaces apart**. It does **not** mean rewrite C# matches shipping C#. Confirm which tree is loaded from Debug Copy (`TrackpadCameraControl` vs `TrackpadCameraControl.Rewrite`).
+Pass means the **player-visible Maps+ surface** matches the v1 contract (Options/Debug look and interaction, Maps+ chords). It does **not** mean C# matches the historical prototype. Confirm which tree is loaded from Debug Copy when A/B testing.
 
 ```bash
-./scripts/install-mod-local.sh              # shipping → Mods/TrackpadCameraControl
-./scripts/install-mod-local.sh --rewrite    # rewrite → same folder, same Content Manager name
+./scripts/install-mod-local.sh              # primary → Mods/TrackpadCameraControl
+./scripts/install-mod-local.sh --bootstrap  # optional historical A/B → same folder
 # Requires CitiesManaged / ICities.dll on this machine.
 ```
 
@@ -18,7 +18,7 @@ Compare shipping vs rewrite on the same city save. Pass means the **player canno
 | Feel presets: Slow / Default / Fast / New Preset / Save as… / Delete |       |
 | Sensitivity sliders hot-apply without restart                        |       |
 | Debug panel mirrors Options feel controls (same labels)              |       |
-| No CAD / Contacts / Assist chrome on ship flags (both builds)        |       |
+| No CAD / Contacts / Assist chrome on ship flags                      |       |
 
 ## Gestures / dynamics (Maps+)
 
@@ -35,4 +35,4 @@ Compare shipping vs rewrite on the same city save. Pass means the **player canno
 
 ## Notes
 
-Tier A/B (`dotnet test` rewrite fixtures + SA gates) do **not** replace this checklist. Capture honesty and Harmony orbit flush order need a real Cities session. Source similarity to `mod/` is not a pass.
+Tier A/B (`dotnet test` + SA gates) do **not** replace this checklist. Capture honesty and Harmony orbit flush order need a real Cities session. Source similarity to `bootstrap/mod/` is not a pass.

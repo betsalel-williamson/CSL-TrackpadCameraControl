@@ -1,10 +1,10 @@
-# Logging (rewrite v1)
+# Logging
 
-**Audience:** Contributors debugging the rewrite mod in Cities or headless tests.
+**Audience:** Contributors debugging the mod in Cities or headless tests.
 
 ## Default path
 
-The rewrite mod logs through **`ModLog`** (`rewrite/mod/Host/ModLog.cs`):
+The mod logs through **`ModLog`** (`mod/Host/ModLog.cs`):
 
 | Build                  | Behavior                                                                                |
 | ---------------------- | --------------------------------------------------------------------------------------- |
@@ -25,7 +25,7 @@ Then restart Cities (or re-arm capture). Traces go through the same `ModLog` pat
 
 ## What we removed
 
-v1 does **not** use the shipping mod's `GestureCaptureLog` file logger (hidden temp files, per-line flush). Player-visible parity does not include log file format.
+v1 does **not** use the historical prototype's `GestureCaptureLog` file logger (hidden temp files, per-line flush). Player-visible parity does not include log file format.
 
 ## Related
 

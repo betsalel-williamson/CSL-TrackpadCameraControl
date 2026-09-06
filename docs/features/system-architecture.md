@@ -9,8 +9,8 @@ Players feel map-app-like trackpad control inside Cities: Skylines I without buy
 See [under the hood](./under-the-hood.md) and [ADR 0006](./adr/0006-gesture-library-vs-mod-surface.md):
 
 1. **Native OS** — trackpad event sampling
-2. **[Gesture library](../glossary/gesture-library.md)** (`rewrite/src`) — frame contract + backends
-3. **[Mod surface](../glossary/mod-surface.md)** (`rewrite/mod`) — policy, feel, UI, Cities adapters, Harmony
+2. **[Gesture library](../glossary/gesture-library.md)** (`src/TrackpadCameraControl.Gestures`) — frame contract + backends
+3. **[Mod surface](../glossary/mod-surface.md)** (`mod/`) — policy, feel, UI, Cities adapters, Harmony
 
 ## Planes (tick inside the CSL mod)
 
