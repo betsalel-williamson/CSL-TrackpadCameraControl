@@ -1,5 +1,11 @@
 # csl-trackpad-camera-control
 
+## 1.0.1
+
+### Patch Changes
+
+- c0c59d6: Fix Options/Content Manager showing **0.0.0** after the rewrite cutover (package.json path), and keep assembly build/revision + Built footer opt-in for local reload QA (`--dev`) so default builds show product semver only.
+
 ## 1.0.0
 
 ### Major Changes
