@@ -25,18 +25,17 @@ namespace TrackpadCameraControl.Rewrite
     {
         public static IList<FeelCatalogField> Fields => FeelCatalog.AllFields();
 
-        /// <summary>Maps+ gesture blurbs for Options op groups (static ship copy).</summary>
-        public static string OpDescriptionZoom =>
-            "Gesture(s): pinch\nKeymapping(s): mouse wheel zoom";
+        /// <summary>
+        /// Op section body for Options: live Gesture(s) from the style table +
+        /// Keymapping(s) from Cities camera bindings / locale (when available).
+        /// </summary>
+        public static string OpDescriptionZoom => VanillaCameraKeyLabels.OpDescriptionZoom;
 
-        public static string OpDescriptionPan =>
-            "Gesture(s): two-finger drag\nKeymapping(s): edge pan / WASD";
+        public static string OpDescriptionPan => VanillaCameraKeyLabels.OpDescriptionPan;
 
-        public static string OpDescriptionRotate =>
-            "Gesture(s): two-finger twist\nKeymapping(s): rotate left/right";
+        public static string OpDescriptionRotate => VanillaCameraKeyLabels.OpDescriptionRotate;
 
-        public static string OpDescriptionOrbit =>
-            "Gesture(s): Option (⌥) + two-finger drag\nKeymapping(s): middle-mouse orbit";
+        public static string OpDescriptionOrbit => VanillaCameraKeyLabels.OpDescriptionOrbit;
 
         /// <summary>Pure mapping for unit tests — no Colossal session required.</summary>
         public static FeelControlKind MapKind(FeelControlKind catalogKind)

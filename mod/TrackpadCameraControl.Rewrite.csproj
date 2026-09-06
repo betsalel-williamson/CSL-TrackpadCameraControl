@@ -55,7 +55,8 @@
             <_BuildInfoLines Include="    {" />
             <_BuildInfoLines Include="        internal const string ProductVersion = &quot;$(Version)&quot;%3B" />
             <_BuildInfoLines Include="        internal const string BuildTimestampUtc = &quot;$(BuildTimestampUtc)&quot;%3B" />
-            <_BuildInfoLines Include="        internal const bool ShowDevBuildIdentity = $(_ShowDevBuildIdentityCs)%3B" />
+            <!-- static readonly (not const) so DevBuildIdentity branch arms do not trip CS0162 -->
+            <_BuildInfoLines Include="        internal static readonly bool ShowDevBuildIdentity = $(_ShowDevBuildIdentityCs)%3B" />
             <_BuildInfoLines Include="    }" />
             <_BuildInfoLines Include="}" />
         </ItemGroup>

@@ -292,6 +292,7 @@ namespace TrackpadCameraControl.Rewrite
             try
             {
                 DebugHost.Destroy();
+                VanillaCameraKeyLabelsWatch.Unhook();
             }
             catch
             {

@@ -1,11 +1,15 @@
 #if HAS_CITIES
 using System;
+using System.Reflection;
+using ColossalFramework;
 using HarmonyLib;
 using UnityEngine;
 
 namespace TrackpadCameraControl.Rewrite
 {
-    /// <summary>Two Harmony patches: scroll suppress + orbit flush. No capture/UI logic.</summary>
+    /// <summary>
+    /// Harmony patches: scroll suppress + orbit flush, plus Options keymapping label watch.
+    /// </summary>
     public static class Patcher
     {
         public const string HarmonyId = "com.betsalel.trackpadcameracontrol.rewrite";
@@ -23,7 +27,6 @@ namespace TrackpadCameraControl.Rewrite
             try
             {
                 Harmony harmony = new Harmony(HarmonyId);
-                // Only the two patch classes in this assembly (scroll suppress + orbit flush).
                 harmony.PatchAll(typeof(Patcher).Assembly);
                 patched = true;
             }
@@ -122,6 +125,65 @@ namespace TrackpadCameraControl.Rewrite
             {
                 // Fail soft every frame.
             }
+        }
+    }
+
+    [HarmonyPatch]
+    internal static class OptionsKeymappingPanelRefreshPatch
+    {
+        private static MethodBase TargetMethod()
+        {
+            Type panelType = AccessTools.TypeByName("OptionsKeymappingPanel");
+            return panelType == null ? null : AccessTools.Method(panelType, "RefreshKeyMapping");
+        }
+
+        public static void Postfix()
+        {
+            VanillaCameraKeyLabelsWatch.NotifyLabelsChangedFromGame();
+        }
+    }
+
+    [HarmonyPatch]
+    internal static class OptionsKeymappingPanelResetPatch
+    {
+        private static MethodBase TargetMethod()
+        {
+            Type panelType = AccessTools.TypeByName("OptionsKeymappingPanel");
+            return panelType == null ? null : AccessTools.Method(panelType, "ResetKeyMapping");
+        }
+
+        public static void Postfix()
+        {
+            VanillaCameraKeyLabelsWatch.NotifyLabelsChangedFromGame();
+        }
+    }
+
+    [HarmonyPatch]
+    internal static class OptionsKeymappingPanelClearPatch
+    {
+        private static MethodBase TargetMethod()
+        {
+            Type panelType = AccessTools.TypeByName("OptionsKeymappingPanel");
+            return panelType == null ? null : AccessTools.Method(panelType, "OnClearKeyMapping");
+        }
+
+        public static void Postfix()
+        {
+            VanillaCameraKeyLabelsWatch.NotifyLabelsChangedFromGame();
+        }
+    }
+
+    [HarmonyPatch(typeof(SavedInputKey), "value", MethodType.Setter)]
+    internal static class SavedInputKeyValueSetterPatch
+    {
+        public static void Postfix(SavedInputKey __instance)
+        {
+            if (!VanillaCameraKeyLabels.IsWatchedCameraKey(__instance))
+            {
+                return;
+            }
+
+            VanillaCameraKeyLabelsWatch.NotifyLabelsChangedFromGame();
         }
     }
 }

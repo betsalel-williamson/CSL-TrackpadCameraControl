@@ -12,23 +12,23 @@ Source this inventory from [settings and hot configuration](./settings-and-hot-c
 
 ## Fields (ship surface)
 
-| Section | Field id            | Player label     | Options                        | Debug                          | Notes                                      |
-| ------- | ------------------- | ---------------- | ------------------------------ | ------------------------------ | ------------------------------------------ |
-| General | `showDebugPanel`    | Show debug panel | Toggle (**first**)             | Hidden                         | Chrome; hides reopen chip when off         |
-| General | `feelPreset`        | Feel preset      | Dropdown                       | Dropdown                       | Slow / Default / Fast / New Preset / named |
-| General | `saveAs`            | Save as…         | Button                         | Button                         | Enabled on New Preset                      |
-| General | `deletePreset`      | Delete           | Button                         | Button                         | Named user presets only                    |
-| General | `reset`             | Reset            | Hidden                         | Button (label `Reset`)         | Loads Default feel; Debug only             |
-| Zoom    | `zoomSensitivity`   | Sensitivity      | Slider                         | Numeric                        | 0.1×–2× Options contract; three decimals   |
-| Zoom    | `zoomDeadband`      | Deadband         | Hidden                         | Numeric                        | Debug only                                 |
-| Pan     | `panSensitivityX`   | Sensitivity X    | Slider                         | Numeric                        | Separate X/Y; do not lock axes             |
-| Pan     | `panSensitivityY`   | Sensitivity Y    | Slider                         | Numeric                        | Separate X/Y; do not lock axes             |
-| Pan     | `panDeadband`       | Deadband         | Hidden                         | Numeric                        | Debug only                                 |
-| Rotate  | `rotateSensitivity` | Sensitivity      | Slider                         | Numeric                        | Same Sensitivity contract                  |
-| Rotate  | `rotateDeadband`    | Deadband         | Hidden                         | Numeric                        | Debug only                                 |
-| Orbit   | `orbitYawSensitivity`   | Sensitivity yaw  | Slider                         | Numeric                        | Separate yaw/pitch                         |
-| Orbit   | `orbitPitchSensitivity` | Sensitivity pitch | Slider                       | Numeric                        | Pitch clamp is apply constant — not a field |
-| Orbit   | `orbitDeadband`     | Deadband         | Hidden                         | Numeric                        | Debug only                                 |
+| Section | Field id                | Player label      | Options            | Debug                  | Notes                                       |
+| ------- | ----------------------- | ----------------- | ------------------ | ---------------------- | ------------------------------------------- |
+| General | `showDebugPanel`        | Show debug panel  | Toggle (**first**) | Hidden                 | Chrome; hides reopen chip when off          |
+| General | `feelPreset`            | Feel preset       | Dropdown           | Dropdown               | Slow / Default / Fast / New Preset / named  |
+| General | `saveAs`                | Save as…          | Button             | Button                 | Enabled on New Preset                       |
+| General | `deletePreset`          | Delete            | Button             | Button                 | Named user presets only                     |
+| General | `reset`                 | Reset             | Hidden             | Button (label `Reset`) | Loads Default feel; Debug only              |
+| Zoom    | `zoomSensitivity`       | Sensitivity       | Slider             | Numeric                | 0.1×–2× Options contract; three decimals    |
+| Zoom    | `zoomDeadband`          | Deadband          | Hidden             | Numeric                | Debug only                                  |
+| Pan     | `panSensitivityX`       | Sensitivity X     | Slider             | Numeric                | Separate X/Y; do not lock axes              |
+| Pan     | `panSensitivityY`       | Sensitivity Y     | Slider             | Numeric                | Separate X/Y; do not lock axes              |
+| Pan     | `panDeadband`           | Deadband          | Hidden             | Numeric                | Debug only                                  |
+| Rotate  | `rotateSensitivity`     | Sensitivity       | Slider             | Numeric                | Same Sensitivity contract                   |
+| Rotate  | `rotateDeadband`        | Deadband          | Hidden             | Numeric                | Debug only                                  |
+| Orbit   | `orbitYawSensitivity`   | Sensitivity yaw   | Slider             | Numeric                | Separate yaw/pitch                          |
+| Orbit   | `orbitPitchSensitivity` | Sensitivity pitch | Slider             | Numeric                | Pitch clamp is apply constant — not a field |
+| Orbit   | `orbitDeadband`         | Deadband          | Hidden             | Numeric                | Debug only                                  |
 
 **Not on the ship surface:** master General Sensitivity, Options Reset, Enable-per-op, Reverse, pitch min/max, CAD switcher, Contacts picker, low-pass, Assist button steps.
 
@@ -45,10 +45,10 @@ Source this inventory from [settings and hot configuration](./settings-and-hot-c
 
 ## Hosts
 
-| Host    | Skin                                                                                                                         | Shared           |
-| ------- | ---------------------------------------------------------------------------------------------------------------------------- | ---------------- |
-| Options | Colossal AddGroup rhythm; sliders; General = Show debug → Feel → Save as… → Delete; op description labels                    | Catalog + editor |
-| Debug   | 560px floating chrome (drag, opacity, close, gear); numeric Sensitivity + Deadband; Reset on Feel row; Copy/build footer     | Same catalog + editor |
+| Host    | Skin                                                                                                                                                                                             | Shared                |
+| ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | --------------------- |
+| Options | Colossal AddGroup rhythm; sliders; General = Show debug → Feel → Save as… → Delete; op description labels (**Gesture(s)** from style table + live **Keymapping(s)** from Cities camera bindings) | Catalog + editor      |
+| Debug   | 560px floating chrome (drag, opacity, close, gear); numeric Sensitivity + Deadband; Reset on Feel row; Copy/build footer                                                                         | Same catalog + editor |
 
 ### Debug Copy footer
 
