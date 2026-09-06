@@ -17,7 +17,7 @@ CS1 camera orbit expects a middle mouse button. Trackpad players have asked for 
 v1 is **macOS only**. Windows and Linux are unsupported.
 
 1. Subscribe to [Cities Harmony](https://steamcommunity.com/sharedfiles/filedetails/?id=2040656402) and enable it.
-2. Enable **Trackpad Camera Control (macOS)** in Content Manager (Workshop when published, or [local install](docs/developer/local-mvp-install.md)).
+2. Subscribe to [Trackpad Camera Control (macOS)](https://steamcommunity.com/sharedfiles/filedetails/?id=3796575080) and enable it in Content Manager (or [local install](docs/developer/local-mvp-install.md) for contributors).
 3. Load a city and click the game so it is focused.
 4. Two-finger drag pans, pinch zooms, Option (`⌥`)+two-finger orbits. Tune Sensitivity in Options.
 
@@ -29,12 +29,12 @@ More: [Install and first run](docs/client/install-and-first-run.md). Harmony mus
 
 ## Naming
 
-| Surface                         | Name                                                                                                                  |
-| ------------------------------- | --------------------------------------------------------------------------------------------------------------------- |
-| Core display                    | **Trackpad Camera Control**                                                                                           |
-| Workshop / Content Manager (v1) | **Trackpad Camera Control (macOS)** — temporary tag; see [Workshop storefront](docs/developer/workshop-storefront.md) |
-| Repository                      | [`CSL-TrackpadCameraControl`](https://github.com/betsalel-williamson/CSL-TrackpadCameraControl)                       |
-| Parallel                        | Named like [Joystick Camera Control](https://github.com/RenaKunisaki/CSL-JoystickCameraControl)                       |
+| Surface                         | Name                                                                                                                                                                              |
+| ------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Core display                    | **Trackpad Camera Control**                                                                                                                                                       |
+| Workshop / Content Manager (v1) | **Trackpad Camera Control (macOS)** — [Workshop item](https://steamcommunity.com/sharedfiles/filedetails/?id=3796575080); see [storefront](docs/developer/workshop-storefront.md) |
+| Repository                      | [`CSL-TrackpadCameraControl`](https://github.com/betsalel-williamson/CSL-TrackpadCameraControl)                                                                                   |
+| Parallel                        | Named like [Joystick Camera Control](https://github.com/RenaKunisaki/CSL-JoystickCameraControl)                                                                                   |
 
 ## Shipped gestures (Maps+)
 

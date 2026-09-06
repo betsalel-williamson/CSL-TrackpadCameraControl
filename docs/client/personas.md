@@ -12,7 +12,7 @@ Cities: Skylines I player on a **laptop trackpad** (often macOS) who wants Maps+
 
 ## Beta tester — early adopter
 
-Willing to install from a **GitHub Release** or local rewrite build before Workshop is the main path. Comfortable with Content Manager, Cities Harmony, and reporting capture bugs.
+Willing to install from the **Steam Workshop**, a **GitHub Release**, or a local rewrite build. Comfortable with Content Manager, Cities Harmony, and reporting capture bugs.
 
 **Guide home:** [Install and first run](./install-and-first-run.md). Build / copy steps: `rewrite/docs/developer/local-mvp-install.md`.
 

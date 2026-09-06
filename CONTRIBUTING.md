@@ -14,7 +14,7 @@ See **[Contributor setup](docs/developer/contributor-setup.md)** (`./scripts/boo
 
 ## Beta installs (testers)
 
-Use a **GitHub Release** source archive (or clone the release tag), then follow **[Local MVP install](docs/developer/local-mvp-install.md)** (`./scripts/install-mod-local.sh`). Steam Workshop shipping comes later. In-game expectations: **[Install and first run](docs/client/install-and-first-run.md)**. Personas: **[Personas](docs/client/personas.md)**.
+Players: subscribe on the [Steam Workshop](https://steamcommunity.com/sharedfiles/filedetails/?id=3796575080). Contributors: use a **GitHub Release** source archive (or clone the release tag), then follow **[Local MVP install](docs/developer/local-mvp-install.md)** (`./scripts/install-mod-local.sh`). In-game expectations: **[Install and first run](docs/client/install-and-first-run.md)**. Personas: **[Personas](docs/client/personas.md)**.
 
 ## Announcements
 
