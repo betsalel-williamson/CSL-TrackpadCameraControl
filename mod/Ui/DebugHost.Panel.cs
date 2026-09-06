@@ -344,11 +344,9 @@ namespace TrackpadCameraControl.Rewrite
 
         private static void AddBuildInfoFooter()
         {
+            // Built stamp + assembly identity are dev-only (DevBuildIdentity=true).
             string builtLine = Mod.GetBuildInfoPanelDisplay();
-            if (string.IsNullOrEmpty(builtLine))
-            {
-                builtLine = "Built (local): ?";
-            }
+            bool showBuilt = !string.IsNullOrEmpty(builtLine);
 
             _nextY += 8f;
             float actionsY = _nextY;
@@ -413,13 +411,16 @@ namespace TrackpadCameraControl.Rewrite
 
             _nextY = actionsY + FooterCopyButtonHeight + 4f;
 
-            UILabel label = AddLabel(_root, builtLine, Col0, _nextY);
-            label.textColor = new Color(1f, 1f, 1f, 0.75f);
-            label.autoSize = true;
-            label.wordWrap = false;
-            label.isInteractive = false;
-            label.PerformLayout();
-            _nextY += Mathf.Max(18f, label.height + 4f);
+            if (showBuilt)
+            {
+                UILabel label = AddLabel(_root, builtLine, Col0, _nextY);
+                label.textColor = new Color(1f, 1f, 1f, 0.75f);
+                label.autoSize = true;
+                label.wordWrap = false;
+                label.isInteractive = false;
+                label.PerformLayout();
+                _nextY += Mathf.Max(18f, label.height + 4f);
+            }
         }
 
         private static void AddSection(string title)

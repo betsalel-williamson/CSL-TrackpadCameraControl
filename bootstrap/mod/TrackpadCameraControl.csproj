@@ -20,7 +20,7 @@
         <AssemblyName>TrackpadCameraControl</AssemblyName>
         <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
         <!-- Product semver: package.json (Changesets). OptionsTitle reads BuildInfo.ProductVersion. -->
-        <_PackageJsonPath>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)../package.json'))</_PackageJsonPath>
+        <_PackageJsonPath>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)../../package.json'))</_PackageJsonPath>
         <_PackageJsonContent Condition="Exists('$(_PackageJsonPath)')"
             >$([System.IO.File]::ReadAllText('$(_PackageJsonPath)'))</_PackageJsonContent>
         <Version Condition="'$(_PackageJsonContent)' != ''"

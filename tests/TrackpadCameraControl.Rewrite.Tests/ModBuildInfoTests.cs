@@ -45,22 +45,36 @@ namespace TrackpadCameraControl.Rewrite.Tests
         }
 
         [Fact]
-        public void GetBuildInfoFooterDisplay_IsUtcTimestampOnly()
+        public void GetBuildInfoFooterDisplay_RespectsDevBuildIdentity()
         {
             string footer = Mod.GetBuildInfoFooterDisplay();
-            Assert.False(string.IsNullOrEmpty(footer));
-            Assert.StartsWith("Built (UTC):", footer);
-            Assert.DoesNotContain("\n", footer);
-            Assert.DoesNotContain("asm ", footer);
+            if (BuildInfo.ShowDevBuildIdentity)
+            {
+                Assert.False(string.IsNullOrEmpty(footer));
+                Assert.StartsWith("Built (UTC):", footer);
+                Assert.DoesNotContain("\n", footer);
+                Assert.DoesNotContain("asm ", footer);
+            }
+            else
+            {
+                Assert.Null(footer);
+            }
         }
 
         [Fact]
-        public void GetBuildInfoPanelDisplay_UsesLocalLabel()
+        public void GetBuildInfoPanelDisplay_RespectsDevBuildIdentity()
         {
             string line = Mod.GetBuildInfoPanelDisplay();
-            Assert.False(string.IsNullOrEmpty(line));
-            Assert.StartsWith("Built (local):", line);
-            Assert.DoesNotContain("asm ", line);
+            if (BuildInfo.ShowDevBuildIdentity)
+            {
+                Assert.False(string.IsNullOrEmpty(line));
+                Assert.StartsWith("Built (local):", line);
+                Assert.DoesNotContain("asm ", line);
+            }
+            else
+            {
+                Assert.Null(line);
+            }
         }
 
         [Fact]
@@ -79,15 +93,28 @@ namespace TrackpadCameraControl.Rewrite.Tests
         }
 
         [Fact]
-        public void DebugPanelTitle_IncludesVersionToken()
+        public void DebugPanelTitle_UsesProductSemverByDefault()
         {
             string title = Mod.DebugPanelTitle;
-            Assert.StartsWith("Trackpad Camera Control Rewrite (macOS) ", title);
+            Assert.StartsWith("Trackpad Camera Control (macOS) ", title);
+            Assert.DoesNotContain("Rewrite", title);
             string token = BuildInfo.ShowDevBuildIdentity
                 ? Mod.GetAssemblyIdentityDisplay()
                 : Mod.GetProductVersionDisplay();
             Assert.False(string.IsNullOrEmpty(token));
             Assert.EndsWith(token, title);
+            if (!BuildInfo.ShowDevBuildIdentity)
+            {
+                Assert.Equal(Mod.GetProductVersionDisplay(), token);
+                string asm = Mod.GetAssemblyIdentityDisplay();
+                if (!string.IsNullOrEmpty(asm) && asm != token)
+                {
+                    Assert.False(
+                        title.EndsWith(asm, StringComparison.Ordinal),
+                        "Debug title should not use assembly build/revision by default"
+                    );
+                }
+            }
         }
     }
 }

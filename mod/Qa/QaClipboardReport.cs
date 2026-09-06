@@ -12,16 +12,27 @@ namespace TrackpadCameraControl.Rewrite
         {
             StringBuilder sb = new StringBuilder();
 
-            string asm = Mod.GetAssemblyIdentityDisplay();
-            if (!string.IsNullOrEmpty(asm))
+            if (BuildInfo.ShowDevBuildIdentity)
             {
-                sb.AppendLine("TrackpadCameraControl.Rewrite: " + asm);
-            }
+                string asm = Mod.GetAssemblyIdentityDisplay();
+                if (!string.IsNullOrEmpty(asm))
+                {
+                    sb.AppendLine("TrackpadCameraControl: " + asm);
+                }
 
-            string built = Mod.GetBuildInfoFooterDisplay();
-            if (!string.IsNullOrEmpty(built))
+                string built = Mod.GetBuildInfoFooterDisplay();
+                if (!string.IsNullOrEmpty(built))
+                {
+                    sb.AppendLine(built);
+                }
+            }
+            else
             {
-                sb.AppendLine(built);
+                string product = Mod.GetProductVersionDisplay();
+                if (!string.IsNullOrEmpty(product))
+                {
+                    sb.AppendLine("TrackpadCameraControl: " + product);
+                }
             }
 
             if (includeSystemInfo)

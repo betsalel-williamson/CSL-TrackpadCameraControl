@@ -40,15 +40,16 @@ namespace TrackpadCameraControl.Rewrite
         {
             get
             {
+                // Product semver by default; assembly Major.Minor.Build.Revision only when DevBuildIdentity=true.
                 string version = BuildInfo.ShowDevBuildIdentity
                     ? GetAssemblyIdentityDisplay()
                     : GetProductVersionDisplay();
                 if (string.IsNullOrEmpty(version))
                 {
-                    return "Trackpad Camera Control Rewrite (macOS)";
+                    return "Trackpad Camera Control (macOS)";
                 }
 
-                return "Trackpad Camera Control Rewrite (macOS) " + version;
+                return "Trackpad Camera Control (macOS) " + version;
             }
         }
 
@@ -108,6 +109,11 @@ namespace TrackpadCameraControl.Rewrite
 
         internal static string GetBuildInfoFooterDisplay()
         {
+            if (!BuildInfo.ShowDevBuildIdentity)
+            {
+                return null;
+            }
+
             string built = GetAssemblyBuildTimestampUtcDisplay();
             if (string.IsNullOrEmpty(built))
             {
@@ -119,6 +125,11 @@ namespace TrackpadCameraControl.Rewrite
 
         internal static string GetBuildInfoPanelDisplay()
         {
+            if (!BuildInfo.ShowDevBuildIdentity)
+            {
+                return null;
+            }
+
             string builtUtc = GetAssemblyBuildTimestampUtcDisplay();
             if (string.IsNullOrEmpty(builtUtc))
             {
