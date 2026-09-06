@@ -1,10 +1,10 @@
-# Developer guide (rewrite)
+# Developer guide
 
-Contributor contracts for the `rewrite/` target tree — layout, state, settings, flags, harnesses, quality gates, install, and parity QA.
+Contributor contracts — layout, state, settings, flags, harnesses, quality gates, install, release, and parity QA.
 
 North star: greenfield redesign lessons (L1–L13) in the features guide. Start with features _Under the hood_. Glossary _UI parity_ is player-facing; ADR 0005 forbids cloning shipping sources; ADR 0006 separates gesture library from mod surface.
 
-- [Developer guide (rewrite)](#table-of-contents)
+- [Developer guide](#table-of-contents)
   - [About this guide](./about-this-guide.md)
   - [Repository layout](./repository-layout.md)
   - [State ownership](./state-ownership.md)
@@ -12,6 +12,9 @@ North star: greenfield redesign lessons (L1–L13) in the features guide. Start 
   - [Feature flags](./feature-flags.md)
   - [Logging](./logging.md)
   - [Release process](./release-process.md)
+  - [Workshop storefront](./workshop-storefront.md)
+  - [Community and marketing](./community-and-marketing.md)
+  - [Lint and format](./lint-and-format.md)
   - [Harnesses and testing](./harnesses-and-testing.md)
   - [Static analysis and quality](./static-analysis-and-quality.md)
   - [Local MVP install](./local-mvp-install.md)
