@@ -58,10 +58,10 @@ WorkshopStagingArea/<guid>/
 `PreviewImage.png` must **not** live inside `Content/` (copying the whole Mods folder into `Content/` is the usual mistake).
 
 1. `./scripts/install-mod-local.sh` — release build into live Mods (product semver).
-2. In Cities: Content Manager → Mods → **Workshop** row → **Update** → folder icon (creates/opens staging).
-3. `./scripts/stage-workshop-update.sh` — backs up current staging under `WorkshopStagingArea/_backups/`, then copies live Mods DLLs into `Content/` and `PreviewImage.png` beside it. Optional: `--install`, `--restore`.
-4. Back in Cities → **Update**, wait for **Committing changes**. Do not cancel mid-upload.
-5. Optional: temporarily move the local Mods copy out before Update if Content Manager shows duplicate rows.
+2. Prefer moving `Addons/Mods/TrackpadCameraControl` aside so Content Manager shows the **Workshop** row only.
+3. `./scripts/stage-workshop-update.sh` — backs up, then writes **1.0.x** into the subscribed Steam folder (`…/workshop/content/255710/3796575080`) and into the newest open Update staging package (`PreviewImage.png` beside `Content/`). Optional `--install`.
+4. In Cities → Workshop row → **Update**, wait for **Committing changes**.
+5. If using the folder-icon flow: open Update → folder icon first, then re-run the script so staging matches Steam.
 
 Paste-ready title / description / tags: [Workshop storefront](./workshop-storefront.md).
 
