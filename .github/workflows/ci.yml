@@ -67,7 +67,10 @@ jobs:
 
       - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
         with:
+          # Keep in sync with root global.json — macos-latest also ships SDK 10; without
+          # a pin, `dotnet` may pick 10 and hit intermittent MSB3491 AssemblyInfo races.
           dotnet-version: "8.0.x"
+          global-json-file: global.json
 
       - name: Install clang-format
         run: brew install clang-format

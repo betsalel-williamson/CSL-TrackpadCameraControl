@@ -9,7 +9,7 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: false
 
-# Force JS actions onto Node 24 (Node 20 deprecated on runners).
+# Force JS actions onto Node 24 (Node 20 deprecated on GitHub Actions runners).
 # https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
@@ -18,47 +18,19 @@ permissions:
   contents: read
 
 jobs:
-  version:
-    name: Version
+  # Single job: either open/update the version PR, or tag + GitHub Release.
+  # (A split Version / GitHub Release pair left a permanent "skipped" job in the UI
+  # whenever changesets were pending — looked like a broken release.)
+  release:
+    name: Version or GitHub Release
     runs-on: ubuntu-latest
     permissions:
       contents: write
       pull-requests: write
-    outputs:
-      hasChangesets: ${{ steps.changesets.outputs.has-changesets }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          persist-credentials: false
-
-      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
-        with:
-          node-version: "22"
-          cache: npm
-
-      - run: npm ci
-
-      - name: Create version PR when changesets are pending
-        id: changesets
-        uses: changesets/action@8488615a623b1b9c987934bb89eae8af6a946ac1 # v2.1.1
-        with:
-          version-script: npm run version-packages
-          pr-title: "chore: version packages"
-          commit-message: "chore: version packages"
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-
-  # Tag + GitHub Release (source archive). No npm registry. Workshop later.
-  github-release:
-    name: GitHub Release
-    needs: version
-    if: needs.version.outputs.hasChangesets == 'false'
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          # Tags must be pushable; action uses github-token for the push/release API.
+          # Tags + version PR need full history; token is used by changesets/action.
           fetch-depth: 0
           persist-credentials: false
 
@@ -69,10 +41,28 @@ jobs:
 
       - run: npm ci
 
-      - name: Tag and create GitHub Release
+      - name: Create version PR or tag GitHub Release
+        id: changesets
         uses: changesets/action@8488615a623b1b9c987934bb89eae8af6a946ac1 # v2.1.1
         with:
-          # Tag only — does not publish to npm. GitHub attaches source zip/tar to the release.
-          publish-script: npx changeset tag
+          # Pending .changeset/*.md → version PR (bumps package.json + CHANGELOG).
+          version-script: npm run version-packages
+          pr-title: "chore: version packages"
+          commit-message: "chore: version packages"
+          # No pending changesets → tag from package.json and create GitHub Release.
+          # Prefer git-tag (changeset tag is deprecated).
+          publish-script: npx changeset git-tag
           create-github-releases: true
           github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Summarize
+        run: |
+          echo "has-changesets=${{ steps.changesets.outputs.has-changesets }}"
+          echo "published=${{ steps.changesets.outputs.published }}"
+          if [[ "${{ steps.changesets.outputs.has-changesets }}" == "true" ]]; then
+            echo "Pending changesets → version PR opened/updated (merge it to cut the release)."
+          elif [[ "${{ steps.changesets.outputs.published }}" == "true" ]]; then
+            echo "No pending changesets → git tag + GitHub Release created."
+          else
+            echo "No pending changesets and nothing new to tag (already released at this version)."
+          fi
