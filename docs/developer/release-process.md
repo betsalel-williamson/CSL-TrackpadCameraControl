@@ -10,7 +10,7 @@
 | `FileVersion` / `InformationalVersion` | Same semver                                        | Release and dev                        |
 | `AssemblyVersion`                      | `Major.Minor.*` (wildcard build/revision)          | Always — Cities auto-reload during dev |
 
-Product semver bumps ride the monorepo Changesets flow — see root [commits and releases](../../../docs/developer/commits-and-releases.md). There is no separate `rewrite/package.json`.
+Product semver bumps ride the monorepo Changesets flow — see root [commits and releases](./release-process.md). There is no separate `rewrite/package.json`.
 
 ## Dev vs release build identity
 
@@ -52,4 +52,4 @@ Deploy folder: `Mods/TrackpadCameraControl` (same as shipping; last install wins
 
 - [Logging](./logging.md)
 - [Local MVP install](./local-mvp-install.md)
-- Root [release process](../../../docs/developer/release-process.md) (Workshop / GitHub Releases)
+- Root [release process](./release-process.md) (Workshop / GitHub Releases)

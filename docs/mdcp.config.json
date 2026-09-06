@@ -76,8 +76,8 @@
   },
   "lint": {
     "markdownlint": {
-      "shardsConfig": "../../node_modules/@bwilliamson/mdcp-presets/markdownlint-shards.markdownlint-cli2.jsonc",
-      "compiledConfig": "../../node_modules/@bwilliamson/mdcp-presets/markdownlint-compiled.markdownlint-cli2.jsonc"
+      "shardsConfig": "../node_modules/@bwilliamson/mdcp-presets/markdownlint-shards.markdownlint-cli2.jsonc",
+      "compiledConfig": "../node_modules/@bwilliamson/mdcp-presets/markdownlint-compiled.markdownlint-cli2.jsonc"
     }
   }
 }
