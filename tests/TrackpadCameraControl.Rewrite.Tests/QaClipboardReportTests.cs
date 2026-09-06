@@ -11,8 +11,15 @@ namespace TrackpadCameraControl.Rewrite.Tests
         {
             string text = QaClipboardReport.Format(false);
             Assert.False(string.IsNullOrEmpty(text));
-            Assert.StartsWith("TrackpadCameraControl.Rewrite:", text);
-            Assert.Contains("Built (UTC):", text);
+            Assert.StartsWith("TrackpadCameraControl:", text);
+            if (BuildInfo.ShowDevBuildIdentity)
+            {
+                Assert.Contains("Built (UTC):", text);
+            }
+            else
+            {
+                Assert.DoesNotContain("Built (UTC):", text);
+            }
             Assert.DoesNotContain("Mod:", text);
             Assert.DoesNotContain("--- System ---", text);
             Assert.DoesNotContain("--- Input devices ---", text);
@@ -43,10 +50,10 @@ namespace TrackpadCameraControl.Rewrite.Tests
         {
             string text = QaClipboardReport.Format(true);
             Assert.Contains("--- Assemblies ---", text);
-            Assert.StartsWith("TrackpadCameraControl.Rewrite:", text);
-            int first = text.IndexOf("TrackpadCameraControl.Rewrite:", StringComparison.Ordinal);
+            Assert.StartsWith("TrackpadCameraControl:", text);
+            int first = text.IndexOf("TrackpadCameraControl:", StringComparison.Ordinal);
             int second = text.IndexOf(
-                "TrackpadCameraControl.Rewrite:",
+                "TrackpadCameraControl:",
                 first + 1,
                 StringComparison.Ordinal
             );

@@ -6,18 +6,24 @@ ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 export PATH="${HOME}/.dotnet:${PATH}"
 
 MODE=primary
-if [[ $# -gt 0 ]]; then
+DEV_IDENTITY=0
+while [[ $# -gt 0 ]]; do
   case "$1" in
     -h | --help)
-      echo "Usage: $0 [--bootstrap|-b]"
+      echo "Usage: $0 [--bootstrap|-b] [--dev|-d]"
       echo "  Build + post-build copy into Mods/TrackpadCameraControl (last install wins)."
-      echo "  (default)         Build primary mod/ tree (post-cutover rewrite)"
+      echo "  (default)         Build primary mod/ tree (product semver in Options/Debug)"
       echo "  --bootstrap | -b  Build historical prototype under bootstrap/"
+      echo "  --dev | -d        Primary only: show assembly build/revision + Built footer"
       echo "  --rewrite | -r    Alias for default (kept for older docs/scripts)"
       exit 0
       ;;
     --bootstrap | -b)
       MODE=bootstrap
+      shift
+      ;;
+    --dev | -d)
+      DEV_IDENTITY=1
       shift
       ;;
     --rewrite | -r)
@@ -26,11 +32,11 @@ if [[ $# -gt 0 ]]; then
       ;;
     *)
       echo "Unknown option: $1" >&2
-      echo "Usage: $0 [--bootstrap|-b]" >&2
+      echo "Usage: $0 [--bootstrap|-b] [--dev|-d]" >&2
       exit 1
       ;;
   esac
-fi
+done
 
 MANAGED="${CitiesManaged:-${HOME}/Library/Application Support/Steam/steamapps/common/Cities_Skylines/Cities.app/Contents/Resources/Data/Managed}"
 MODS="${CITIES_MODS:-${HOME}/Library/Application Support/Colossal Order/Cities_Skylines/Addons/Mods}"
@@ -54,11 +60,17 @@ if [[ ! -f "${MANAGED}/ICities.dll" ]]; then
   exit 1
 fi
 
-dotnet build \
-  "${CSPROJ}" \
-  -c Release \
-  "-p:CitiesManaged=${MANAGED}" \
+BUILD_ARGS=(
+  "${CSPROJ}"
+  -c Release
+  "-p:CitiesManaged=${MANAGED}"
   "-p:CitiesMods=${MODS}"
+)
+if [[ "${DEV_IDENTITY}" == "1" ]]; then
+  BUILD_ARGS+=("-p:DevBuildIdentity=true")
+fi
+
+dotnet build "${BUILD_ARGS[@]}"
 
 mkdir -p "${DEST}"
 # Prior dual-folder QA left a second Content Manager row; last-install-wins uses one folder.
@@ -77,12 +89,17 @@ if [[ "${MODE}" == "primary" ]]; then
   fi
   echo "Gestures → ${GESTURES}"
   echo "Capture: in-process AppKit → style-table Policy → Apply (Mods/TrackpadCameraControl)."
+  if [[ "${DEV_IDENTITY}" == "1" ]]; then
+    echo "Dev identity: Debug title shows assembly build/revision; Built footer on."
+  else
+    echo "Options/Debug titles: product semver (use --dev for assembly build/revision)."
+  fi
   echo "Inspect: tail -f \"\${TMPDIR:-/tmp}/trackpad-camera-control-rewrite.log\""
 else
   echo "Capture: bootstrap prototype (in-process AppKit). Optional TrackpadBridge under bootstrap/src/TrackpadBridge."
   echo "Inspect: tail -f \"\${TMPDIR:-/tmp}/trackpad-camera-control.log\""
 fi
-echo "Debug panel footer: Built (UTC) + asm identity confirm the loaded build."
+echo "Reload/restart Cities to pick up the new DLL."
 if [[ -f "${DEST}/PreviewImage.png" ]]; then
   echo "Preview → ${DEST}/PreviewImage.png"
 fi

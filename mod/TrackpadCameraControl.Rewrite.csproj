@@ -37,8 +37,8 @@
         <DisableImplicitFrameworkReferences>false</DisableImplicitFrameworkReferences>
 
         <EnableAssistChrome Condition="'$(EnableAssistChrome)' == ''">false</EnableAssistChrome>
-        <!-- When false (release CI), Debug chrome shows product semver only — no assembly identity footer. -->
-        <DevBuildIdentity Condition="'$(DevBuildIdentity)' == ''">true</DevBuildIdentity>
+        <!-- When false (default), Debug chrome shows product semver only. Pass -p:DevBuildIdentity=true for local reload QA (assembly build/revision + Built footer). -->
+        <DevBuildIdentity Condition="'$(DevBuildIdentity)' == ''">false</DevBuildIdentity>
     </PropertyGroup>
 
     <Target Name="GenerateBuildInfo" BeforeTargets="BeforeCompile">
