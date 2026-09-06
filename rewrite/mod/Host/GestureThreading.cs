@@ -16,6 +16,20 @@ namespace TrackpadCameraControl.Rewrite
                 // fail soft
             }
         }
+
+        public override void OnUpdate(float realTimeDelta, float simulationTimeDelta)
+        {
+            _ = realTimeDelta;
+            _ = simulationTimeDelta;
+            try
+            {
+                DebugHost.ProcessPanelFocusVisual();
+            }
+            catch
+            {
+                // fail soft
+            }
+        }
     }
 }
 #endif
