@@ -94,7 +94,7 @@ if [[ "${MODE}" == "primary" ]]; then
   else
     echo "Options/Debug titles: product semver (use --dev for assembly build/revision)."
   fi
-  echo "Inspect: tail -f \"\${TMPDIR:-/tmp}/trackpad-camera-control-rewrite.log\""
+  echo "Inspect: tail -f \"\${TMPDIR:-/tmp}/trackpad-camera-control.log\""
 else
   echo "Capture: bootstrap prototype (in-process AppKit). Optional TrackpadBridge under bootstrap/src/TrackpadBridge."
   echo "Inspect: tail -f \"\${TMPDIR:-/tmp}/trackpad-camera-control.log\""

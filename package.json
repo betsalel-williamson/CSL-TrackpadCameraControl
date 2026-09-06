@@ -36,15 +36,11 @@
     "changeset:status": "changeset status",
     "version-packages": "changeset version",
     "commitlint": "commitlint --from HEAD~1 --to HEAD --verbose",
-    "docs:rewrite:compile": "mdcp compile --config rewrite/docs/mdcp.config.json --docs-root rewrite/docs",
-    "docs:rewrite:check": "mdcp check --config rewrite/docs/mdcp.config.json --docs-root rewrite/docs --skip-vale --require-lint",
-    "docs:rewrite:fix": "mdcp fix --config rewrite/docs/mdcp.config.json --docs-root rewrite/docs",
-    "docs:rewrite": "npm run docs:rewrite:compile && npm run docs:rewrite:check",
-    "sa:rewrite": "bash rewrite/scripts/sa-rewrite.sh",
-    "sa:rewrite:semgrep": "semgrep scan --config rewrite/scripts/semgrep/rewrite.yml --error --severity ERROR --metrics off rewrite/mod rewrite/src",
-    "sa:rewrite:settings-graph": "python3 rewrite/scripts/settings_field_graph.py",
-    "sa:rewrite:leak-pairing": "python3 rewrite/scripts/native_leak_pairing.py",
-    "sa:rewrite:layer-import": "python3 rewrite/scripts/layer_import_lint.py"
+    "sa:rewrite": "bash scripts/sa-rewrite.sh",
+    "sa:rewrite:semgrep": "semgrep scan --config scripts/semgrep/rewrite.yml --error --severity ERROR --metrics off mod src",
+    "sa:rewrite:settings-graph": "python3 scripts/settings_field_graph.py",
+    "sa:rewrite:leak-pairing": "python3 scripts/native_leak_pairing.py",
+    "sa:rewrite:layer-import": "python3 scripts/layer_import_lint.py"
   },
   "lint-staged": {
     "*.{json,jsonc,yml,yaml,md}": [
@@ -59,13 +55,7 @@
     "tests/**/*.cs": [
       "bash scripts/lint-staged-csharpier.sh"
     ],
-    "rewrite/mod/**/*.cs": [
-      "bash scripts/lint-staged-csharpier.sh"
-    ],
-    "rewrite/src/**/*.cs": [
-      "bash scripts/lint-staged-csharpier.sh"
-    ],
-    "rewrite/tests/**/*.cs": [
+    "bootstrap/**/*.cs": [
       "bash scripts/lint-staged-csharpier.sh"
     ],
     "native/**/*.{c,h}": [

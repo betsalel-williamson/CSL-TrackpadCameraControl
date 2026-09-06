@@ -1,8 +1,8 @@
 #!/usr/bin/env -S python3 -u
-"""Settings field → tick consumer graph (rewrite Phase 3).
+"""Settings field → tick consumer graph (Phase 3).
 
 Parses public auto-properties on ModSettings and fails when a live field is never
-*read* outside the Settings / UI persist layer (greenfield L1 / L12).
+*read* outside the Feel / UI persist layer (greenfield L1 / L12).
 
 Exclusions (documented):
   chrome          Options/Debug panel chrome — not camera math
@@ -14,7 +14,7 @@ Exclusions (documented):
                   unless listed in ALLOW_SCHEMA_NON_FIELD (warn-only escape hatch)
 
 Heuristic: a read is `.FieldName` not followed by `=`. Writes alone do not count.
-Scan roots: rewrite/mod/{Policy,Apply,Host} (and any other non-Feel/Ui).
+Scan roots: mod/{Policy,Apply,Host} (and any other non-Feel/Ui).
 """
 
 from __future__ import annotations
@@ -26,7 +26,7 @@ import sys
 from collections import defaultdict
 from pathlib import Path
 
-REPO_HINTS = ("rewrite", "package.json", "TrackpadCameraControl.sln")
+REPO_HINTS = ("mod", "package.json", "TrackpadCameraControl.sln")
 
 CHROME = frozenset(
     {
@@ -57,7 +57,7 @@ EXCLUDE_DIR_NAMES = frozenset({"Settings", "Feel", "Ui", "obj", "bin"})
 def find_repo_root(start: Path) -> Path:
     cur = start.resolve()
     for _ in range(8):
-        if (cur / "package.json").exists() and (cur / "rewrite").is_dir():
+        if (cur / "package.json").exists() and (cur / "mod").is_dir():
             return cur
         if cur.parent == cur:
             break
@@ -140,10 +140,10 @@ def main() -> int:
 
     script_dir = Path(__file__).resolve().parent
     repo = args.repo_root or find_repo_root(script_dir)
-    settings_path = repo / "rewrite" / "mod" / "Feel" / "ModSettings.cs"
+    settings_path = repo / "mod" / "Feel" / "ModSettings.cs"
     if not settings_path.is_file():
-        settings_path = repo / "rewrite" / "mod" / "Settings" / "ModSettings.cs"
-    mod_root = repo / "rewrite" / "mod"
+        settings_path = repo / "mod" / "Settings" / "ModSettings.cs"
+    mod_root = repo / "mod"
 
     if not settings_path.is_file():
         print(f"error: ModSettings not found at {settings_path}", file=sys.stderr)

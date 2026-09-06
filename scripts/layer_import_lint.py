@@ -1,9 +1,9 @@
 #!/usr/bin/env -S python3 -u
-"""Layer-import lint for rewrite stack boundaries (ADR 0006 / under-the-hood).
+"""Layer-import lint for stack boundaries (ADR 0006 / under-the-hood).
 
 Fails when:
-  - rewrite/src references ICities, Colossal, HarmonyLib, or CSL Feel/Maps+ product types
-  - rewrite/mod contains AppKit / Multitouch P/Invoke (DllImport of AppKit paths)
+  - src/TrackpadCameraControl.Gestures references ICities, Colossal, HarmonyLib, or CSL Feel/Maps+ product types
+  - mod/ contains AppKit / Multitouch P/Invoke (DllImport of AppKit paths)
   - a pure Policy / Apply / Feel file gains UnityEngine / ICities / Harmony / AppKit usings
 """
 
@@ -36,7 +36,7 @@ PURE_DIR_APPKIT = re.compile(r"\b(DllImport|libobjc|/System/Library/Frameworks/A
 def find_repo_root(start: Path) -> Path:
     cur = start.resolve()
     for _ in range(8):
-        if (cur / "package.json").exists() and (cur / "rewrite").is_dir():
+        if (cur / "package.json").exists() and (cur / "mod").is_dir():
             return cur
         if cur.parent == cur:
             break
@@ -63,13 +63,13 @@ def main() -> int:
     repo = args.repo_root or find_repo_root(Path(__file__).resolve().parent)
     failures: list[str] = []
 
-    lib_root = repo / "rewrite" / "src"
+    lib_root = repo / "src" / "TrackpadCameraControl.Gestures"
     for path in iter_cs(lib_root):
         text = path.read_text(encoding="utf-8", errors="replace")
         for m in LIBRARY_FORBIDDEN.finditer(text):
             failures.append(f"{path.relative_to(repo)}: library must not reference {m.group(1)}")
 
-    mod_root = repo / "rewrite" / "mod"
+    mod_root = repo / "mod"
     for path in iter_cs(mod_root):
         text = path.read_text(encoding="utf-8", errors="replace")
         rel = path.relative_to(repo)

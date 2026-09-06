@@ -1,14 +1,15 @@
 #!/usr/bin/env -S python3 -u
-"""Native leak pairing scan for the rewrite tree (Phase 3).
+"""Native leak pairing scan for the ship tree (Phase 3).
 
-Ports the approach of tests/TrackpadCameraControl.Tests/NativeResourceLeakAnalyzer.cs:
+Ports the approach of the historical bootstrap NativeResourceLeakAnalyzer:
 per-file acquire/release counts for GCHandle, CoreFoundation, Multitouch device, AppKit monitors.
 
-Scan roots (rewrite + linked capture sources):
-  rewrite/mod
-  src/TrackpadCapture   (linked when EnableContactsCapture=true)
-  src/TrackpadBridge
-  src/AppleGestureProbe
+Scan roots:
+  mod/
+  src/TrackpadCameraControl.Gestures
+  bootstrap/src/TrackpadCapture   (historical; skipped if absent)
+  bootstrap/src/TrackpadBridge
+  bootstrap/src/AppleGestureProbe
 
 Marker: a line containing `native-leak-ok:` skips that acquire (process-lifetime /
 ownership transfer). Do not use it to silence a real leak.
@@ -24,11 +25,11 @@ import sys
 from pathlib import Path
 
 SCAN_ROOTS = (
-    "rewrite/mod",
-    "rewrite/src",
-    "src/TrackpadCapture",
-    "src/TrackpadBridge",
-    "src/AppleGestureProbe",
+    "mod",
+    "src/TrackpadCameraControl.Gestures",
+    "bootstrap/src/TrackpadCapture",
+    "bootstrap/src/TrackpadBridge",
+    "bootstrap/src/AppleGestureProbe",
 )
 
 GCH_FIELD_RE = re.compile(r"\bGCHandle\s+_?[A-Za-z]\w*\s*;")
@@ -39,7 +40,7 @@ CREATE_CF_STRING_DECL_RE = re.compile(r"IntPtr\s+CreateCfString\s*\(")
 def find_repo_root(start: Path) -> Path:
     cur = start.resolve()
     for _ in range(8):
-        if (cur / "package.json").exists() and (cur / "rewrite").is_dir():
+        if (cur / "package.json").exists() and (cur / "mod").is_dir():
             return cur
         if cur.parent == cur:
             break

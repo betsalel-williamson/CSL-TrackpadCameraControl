@@ -1,14 +1,11 @@
 node_modules/
 docs/_build/
-rewrite/docs/_build/
 docs/superpowers/plans/
 .DS_Store
 *.userprefs
 *.csproj.user
 bin/
 obj/
-native/mac/TrackpadBridge
-native/mac/AppleGestureProbe
 .vs/
 *.dll
 *.pdb
