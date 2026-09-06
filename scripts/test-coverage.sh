@@ -9,7 +9,7 @@ export PATH="${HOME}/.dotnet:${PATH}"
 mkdir -p TestResults
 rm -f TestResults/coverage.cobertura.xml
 
-dotnet test tests/TrackpadCameraControl.Tests/TrackpadCameraControl.Tests.csproj \
+dotnet test tests/TrackpadCameraControl.Rewrite.Tests/TrackpadCameraControl.Rewrite.Tests.csproj \
   --nologo --verbosity minimal \
   -p:CollectCoverage=true \
   -p:CoverletOutput="${ROOT}/TestResults/coverage"
