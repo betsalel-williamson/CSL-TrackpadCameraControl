@@ -1,3 +1,4 @@
+using TrackpadCameraControl.Gestures;
 using TrackpadCameraControl.Rewrite;
 using Xunit;
 

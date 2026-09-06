@@ -18,10 +18,9 @@ namespace TrackpadCameraControl.Rewrite
                     || mode == LoadMode.LoadAsset
                 )
                 {
-                    GameFocusActivation.TryActivate();
                     Mod.ArmCaptureOnLevelLoaded();
-                    TuningPanelHost.EnsureCreated();
-                    TuningPanelHost.ApplyVisibility();
+                    DebugHost.EnsureCreated();
+                    DebugHost.ApplyVisibility();
                 }
             }
             catch
@@ -34,8 +33,8 @@ namespace TrackpadCameraControl.Rewrite
         {
             try
             {
-                ModOptions.FlushStore(true);
-                TuningPanelHost.Destroy();
+                FeelEditor.FlushStore(true);
+                DebugHost.Destroy();
             }
             catch
             {

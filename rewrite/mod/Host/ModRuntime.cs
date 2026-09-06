@@ -1,26 +1,28 @@
+using TrackpadCameraControl.Gestures;
+
 namespace TrackpadCameraControl.Rewrite
 {
-    /// <summary>
-    /// Lifecycle bag for mod-enabled state: settings ref, gesture pipeline, inject source, active flag.
-    /// Created in <see cref="Mod.OnEnabled"/>, cleared in <see cref="Mod.OnDisabled"/>.
-    /// </summary>
     public sealed class ModRuntime
     {
         public ModSettings Settings { get; }
         public GesturePipeline Pipeline { get; }
-        public InjectGestureSource Inject { get; internal set; }
+        public FeelEditor Editor { get; }
         public bool IsActive { get; private set; }
 
-        public ModRuntime(ModSettings settings, IGestureSource source)
+        public ModRuntime(ModSettings settings, IGestureSource source, FeelEditor editor = null)
         {
             Settings = settings ?? new ModSettings();
             IsActive = true;
-            var camera = new CameraControllerZoom();
+            var camera = new CitiesCameraAdapter();
             Pipeline = new GesturePipeline(Settings, source, camera);
-            Inject = source as InjectGestureSource;
+            Editor =
+                editor
+                ?? new FeelEditor(
+                    Settings,
+                    FeelEditor.ActiveStore ?? new SettingsStore(SettingsStore.DefaultPath())
+                );
         }
 
-        /// <summary>True while the mod is enabled in Content Manager.</summary>
         public static bool IsModActive()
         {
             return Mod.Runtime != null && Mod.Runtime.IsActive;

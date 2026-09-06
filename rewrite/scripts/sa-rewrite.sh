@@ -48,6 +48,11 @@ run_leak_pairing() {
   python3 "${SCRIPT_DIR}/native_leak_pairing.py" --repo-root "${REPO_ROOT}"
 }
 
+run_layer_import() {
+  echo "-- layer-import-lint --"
+  python3 "${SCRIPT_DIR}/layer_import_lint.py" --repo-root "${REPO_ROOT}"
+}
+
 if ! run_semgrep; then
   FAILED=1
 fi
@@ -55,6 +60,9 @@ if ! run_settings_graph; then
   FAILED=1
 fi
 if ! run_leak_pairing; then
+  FAILED=1
+fi
+if ! run_layer_import; then
   FAILED=1
 fi
 

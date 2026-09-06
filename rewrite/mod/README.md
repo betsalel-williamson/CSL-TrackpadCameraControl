@@ -1,21 +1,15 @@
 # Rewrite mod assembly
 
-`TrackpadCameraControl.Rewrite` — parallel playtest DLL (does not overwrite shipping `TrackpadCameraControl`).
+`TrackpadCameraControl.Rewrite` — CSL surface over the gesture library (`rewrite/src`).
 
 ## Layout
 
-| Folder      | Plane / role                                                  |
-| ----------- | ------------------------------------------------------------- |
-| `Host/`     | IUserMod, LoadingExtension, Pipeline, Harmony Patcher         |
-| `Capture/`  | GestureFrame contract, AppKit source/mapper, inject seam      |
-| `Policy/`   | Gates, session, **style binding table** resolve               |
-| `Apply/`    | Feel math → camera / selection (pitch clamp 0°–90°)           |
-| `Settings/` | Trimmed feel + chrome; StyleTable seed                        |
-| `Ui/`       | Options + Debug 1:1 with shipping (CAD/Contacts/Assist gated) |
+| Folder    | Role                                                      |
+| --------- | --------------------------------------------------------- |
+| `Feel/`   | Catalog, editor, settings store, feel profiles            |
+| `Ui/`     | OptionsHost, DebugHost                                    |
+| `Policy/` | Style table, Maps+ seed, resolve, session, gates          |
+| `Apply/`  | Pure FeelMath + thin Cities adapters                      |
+| `Host/`   | IUserMod, pipeline, Patcher (two Harmony patches), ModLog |
 
-## Build
-
-```bash
-dotnet build rewrite/mod/TrackpadCameraControl.Rewrite.csproj -c Release -p:EnableCitiesRefs=false
-./scripts/install-mod-local.sh --rewrite   # when Cities Managed DLLs are present
-```
+No AppKit P/Invoke here — capture lives in `TrackpadCameraControl.Gestures`.

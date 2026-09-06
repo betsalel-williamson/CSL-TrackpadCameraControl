@@ -1,39 +1,42 @@
 # Local MVP install (rewrite)
 
-Deploy the rewrite mod for A/B playtest beside the shipping build. Player-facing install for the shipping mod stays under repo-root client docs until cutover.
+Deploy the rewrite into the **same** Cities Mods folder and Content Manager name as shipping. Last install wins. Player-facing install for the shipping mod stays under repo-root client docs until cutover.
 
 ## Deploy
 
-From the repository root, build and copy into the Cities Mods folder as **`TrackpadCameraControl.Rewrite`**:
+From the repository root:
 
 `./scripts/install-mod-local.sh --rewrite`
 
-(Short form: `-r`.)
+(Short form: `-r`.) Overwrites **`Mods/TrackpadCameraControl`** — the same path as `./scripts/install-mod-local.sh` (shipping). Content Manager shows one row: **Trackpad Camera Control (macOS)**. Which tree is loaded is the Debug footer / Copy assembly identity (`TrackpadCameraControl.Rewrite` vs `TrackpadCameraControl`), not a second checkbox.
 
-| Path                                       | Role                                           |
-| ------------------------------------------ | ---------------------------------------------- |
-| `./scripts/install-mod-local.sh`           | Shipping → Mods/`TrackpadCameraControl`        |
-| `./scripts/install-mod-local.sh --rewrite` | Rewrite → Mods/`TrackpadCameraControl.Rewrite` |
+The folder must contain **`TrackpadCameraControl.dll` and `TrackpadCameraControl.Gestures.dll`**. Missing the library is a Content Manager load failure. A shipping install removes the gesture library DLL so it does not linger beside the shipping mod.
 
-Requires Cities: Skylines Managed assemblies (override with `CitiesManaged` / `CITIES_MODS` as with shipping). Until `rewrite/mod` is buildable, `--rewrite` exits with a docs-first message and does not touch the shipping Mods folder — see [Repository layout](./repository-layout.md).
+| Path                                       | Role                                                                 |
+| ------------------------------------------ | -------------------------------------------------------------------- |
+| `./scripts/install-mod-local.sh`           | Shipping → Mods/`TrackpadCameraControl` (replaces rewrite)           |
+| `./scripts/install-mod-local.sh --rewrite` | Rewrite → same folder, same Content Manager name (replaces shipping) |
 
-## A/B — enable only one mod
+Requires Cities: Skylines Managed assemblies (override with `CitiesManaged` / `CITIES_MODS` as with shipping).
 
-Content Manager must run **either** shipping **or** rewrite — not both:
+## A/B — last install wins
 
-| Enable                             | Disable                          |
-| ---------------------------------- | -------------------------------- |
-| Trackpad Camera Control (shipping) | TrackpadCameraControl.Rewrite    |
-| TrackpadCameraControl.Rewrite      | Shipping Trackpad Camera Control |
+Do **not** keep a parallel `TrackpadCameraControl.Rewrite` folder. Switch trees by reinstalling, then restart Cities (or rely on Automate reload when `AssemblyVersion` changes):
 
-Both enabled double-apply gestures, fight Harmony suppress, and invalidate parity runs. Cities Harmony stays enabled for either path.
+1. `./scripts/install-mod-local.sh --rewrite` — play rewrite; confirm Copy shows `TrackpadCameraControl.Rewrite`.
+2. `./scripts/install-mod-local.sh` — play shipping; confirm Copy shows `TrackpadCameraControl` and Gestures.dll is gone.
+
+Cities Harmony stays enabled for either path.
 
 ## In game
 
 1. Enable **Cities Harmony**.
-2. Enable **only** the rewrite mod (or only shipping for the control side).
+2. Enable **Trackpad Camera Control (macOS)** (the single local row).
 3. Load a city; keep the game focused; exercise Maps+ chords.
-4. Record results on the [QA checklist](./qa-checklist.md) parity matrix.
+4. Confirm Debug Copy assembly matches the tree you just installed.
+5. Record results on the [QA checklist](./qa-checklist.md) parity matrix.
+
+Capture remains in-process AppKit for ship-shaped builds. Do not use Contacts or bridge socket paths for rewrite parity QA unless a compile-flag experiment is explicitly under test ([Feature flags](./feature-flags.md)).
 
 Capture remains in-process AppKit for ship-shaped builds. Do not use Contacts or bridge socket paths for rewrite parity QA unless a compile-flag experiment is explicitly under test ([Feature flags](./feature-flags.md)).
 

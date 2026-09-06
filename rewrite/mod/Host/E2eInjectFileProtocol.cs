@@ -2,14 +2,11 @@ using System;
 using System.Globalization;
 using System.IO;
 using System.Text;
+using TrackpadCameraControl.Gestures;
 
 namespace TrackpadCameraControl.Rewrite
 {
-    /// <summary>
-    /// File protocol for local in-game e2e when inject mode is on.
-    /// Request: <c>e2e-inject-request</c> (UTF-8 text: pinchScaleDelta float).
-    /// Result: <c>e2e-inject-result</c> (UTF-8 text: camera size after apply).
-    /// </summary>
+    /// <summary>File protocol for local in-game e2e when inject mode is on.</summary>
     public static class E2eInjectFileProtocol
     {
         public const string RequestFileName = "e2e-inject-request";
@@ -19,8 +16,7 @@ namespace TrackpadCameraControl.Rewrite
         {
             try
             {
-                // Use a type that does not implement ICities interfaces (Mod does when HAS_CITIES).
-                return Path.GetDirectoryName(typeof(GestureFrame).Assembly.Location);
+                return Path.GetDirectoryName(typeof(FeelMath).Assembly.Location);
             }
             catch
             {
@@ -41,16 +37,16 @@ namespace TrackpadCameraControl.Rewrite
                 return;
             }
 
-            string requestPath = Path.Combine(dir, RequestFileName);
-            if (!File.Exists(requestPath))
+            string path = Path.Combine(dir, RequestFileName);
+            if (!File.Exists(path))
             {
                 return;
             }
 
             try
             {
-                string text = File.ReadAllText(requestPath, Encoding.UTF8).Trim();
-                File.Delete(requestPath);
+                string text = File.ReadAllText(path, Encoding.UTF8).Trim();
+                File.Delete(path);
                 if (
                     !float.TryParse(
                         text,
@@ -95,14 +91,11 @@ namespace TrackpadCameraControl.Rewrite
 
             try
             {
-                float size = camera.Size;
-                if (float.IsNaN(size))
-                {
-                    return;
-                }
-
-                string path = Path.Combine(dir, ResultFileName);
-                File.WriteAllText(path, size.ToString(CultureInfo.InvariantCulture), Encoding.UTF8);
+                File.WriteAllText(
+                    Path.Combine(dir, ResultFileName),
+                    camera.Size.ToString("R", CultureInfo.InvariantCulture),
+                    Encoding.UTF8
+                );
             }
             catch
             {

@@ -56,12 +56,20 @@ Use golden Maps+ fixtures (tier A), capture-session coverage per primitive (tier
 
 ## L11 — Parity vs elegance
 
-Internal architecture may be greenfield-simple. **Player-visible UI and Maps+ dynamics stay 1:1** with shipping. Refuse cleanup that changes Options/Debug order, labels, or feel math. The style table must be **seeded** so behavior matches—not merely elegant and empty.
+Internal architecture may be greenfield-simple. **Player-visible UI and Maps+ dynamics stay 1:1** with shipping: same Options/Debug order, labels, control kinds, grouping rhythm, feel-preset interactions, and Maps+ chords/outcomes. Refuse **player-visible** cleanup that changes those. The style table must be **seeded** so behavior matches—not merely elegant and empty.
+
+1:1 is [UI parity](../glossary/ui-parity.md) and dynamics parity — not source identity with the prototype. Do not keep shipping classes to “protect” L11. Freeze the contract; rewrite the internals ([ADR 0005](./adr/0005-ux-parity-not-source-parity.md)).
 
 ## L12 — Doc and code contract alignment
 
 Root `docs/` remains as-built until cutover; this tree describes the **target** that still yields parity. Do not claim a “live binding table” unless resolve consumes it (ADR 0004 — style table-driven resolve). Every config field in the settings schema names its tick consumer or is marked chrome-only, XML alias, or non-field.
 
+## L13 — Source independence
+
+The shipping mod is a **black-box oracle** for labels, layout rhythm, numeric feel defaults, and Maps+ outcomes. It is not a paste buffer. Rewrite units must have one job (catalog vs editor vs Options host vs Debug host vs pure apply vs Cities adapter). A rewrite file that is a namespace-renamed shipping file is a failed design, even if the player cannot tell.
+
+Do not copy unfinished prototype experiments (IPC, Contacts, CAD, Assist chrome, file loggers, legacy XML) into the rewrite “to tidy later.” Compile-omit or omit entirely (L6, L9).
+
 ## Authoring gate
 
-If a sentence implies remappable gestures on ship, tunable pitch, runtime feature flags, or tick-path Contacts low-pass on ship—rewrite it to match L1–L12.
+If a sentence implies remappable gestures on ship, tunable pitch, runtime feature flags, tick-path Contacts low-pass on ship, or that UI 1:1 means copying shipping C#—rewrite it to match L1–L13.

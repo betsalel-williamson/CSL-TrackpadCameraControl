@@ -10,10 +10,6 @@ namespace TrackpadCameraControl.Rewrite
     internal static class OptionsPanelNavigation
     {
 #if HAS_CITIES
-        /// <summary>
-        /// Show Options and select the Trackpad Camera Control mod page (<see cref="Mod.OptionsTitle"/>).
-        /// Returns false if the modal could not be shown.
-        /// </summary>
         public static bool OpenModOptions()
         {
             if (UIView.library == null)
@@ -32,21 +28,12 @@ namespace TrackpadCameraControl.Rewrite
                 return false;
             }
 
-            // Game API is SelectMod(string), not SetCategory(string) — SetCategory takes Category enum.
             string title = Mod.OptionsTitle;
-            if (!TrySelectMod(panel, title))
-            {
-                ModLog.Info("options SelectMod failed for: " + title);
-            }
-
+            TrySelectMod(panel, title);
             return true;
         }
 #endif
 
-        /// <summary>
-        /// Invoke game <c>OptionsMainPanel.SelectMod(string)</c> when present (fail-soft).
-        /// Kept reflection-based so unit tests can exercise it without Cities assemblies.
-        /// </summary>
         internal static bool TrySelectMod(object panel, string modName)
         {
             if (panel == null || string.IsNullOrEmpty(modName))

@@ -1,6 +1,8 @@
 # UI / product surface audit (rewrite v1)
 
-Specialist pass for Options and Debug UI parity vs shipping, prototype `#if` residue, and version chrome. Scope: `rewrite/mod/Ui/*`, `OptionsSettingsUi`, `TuningPanelHost*`, `Mod.cs` title APIs.
+**Status:** Findings from the clone experiment (closed). “Structural parity with shipping” below describes copied builders — that is the defect features ADR 0005 forbids, not a strength to preserve.
+
+Specialist pass for Options and Debug UI parity vs shipping, prototype `#if` residue, and version chrome.
 
 **Related:** features guide _Parity with shipping_, [organized product feedback](./v1-product-feedback.md) (F3, F4, F7), [v1 audit plan](./v1-audit-plan.md).
 
@@ -16,7 +18,7 @@ Specialist pass for Options and Debug UI parity vs shipping, prototype `#if` res
 - **Heavy `#if` residue from CAD / Contacts / Assist.** `TuningPanelHost.cs` and `OptionsSettingsUi.cs` each carry a dozen-plus `ENABLE_CAD_GESTURE_STYLE`, `ENABLE_CONTACTS_CAPTURE`, and `ENABLE_ASSIST_CHROME` blocks. Shipping carries the same pattern; v1 greenfield intent (F3, F4) is to **delete** gated code and files, not maintain parallel compile trees.
 - **Call sites still thread prototype parameters when gates are off.** `OptionsSettingsUi.Build` always passes button-step and low-pass arguments into `BuildOpGroup*` even though `#if` hides the controls — dead API surface and copy-paste risk when stripping modules.
 - **Schema naming vs product labels.** `AssistUiEnabled` persists under an Assist-era name while Options shows “Show debug panel”; `ShowPanel` forces `AssistUiEnabled = true` on reopen — confusing for contributors and docs (not player-visible).
-- **Mod display name diverges from shipping.** Rewrite Options/Debug titles prefix “Rewrite” (`Trackpad Camera Control Rewrite (macOS)`). Intentional for side-by-side install but breaks literal “cannot tell apart” tier C wording unless called out in the checklist.
+- **Mod display name matches shipping in Content Manager.** Options / `IUserMod.Name` is **Trackpad Camera Control (macOS)**; Debug title may still say Rewrite so a last-install-wins session can tell which tree is loaded.
 - **Broken XML doc on `Mod.GetAssemblyBuildTimestampUtcDisplay`.** Orphan “Legacy alias” summary left after `GetAssemblyVersionDisplay` removal — doc drift, not runtime bug.
 - **No automated UI tier.** No ColossalUI harness; parity depends on tier C manual A/B. Slider thumb placement workarounds (`ForceSliderUi`, `PlaceThumb`) are fragile and unproven in CI.
 

@@ -25,6 +25,7 @@ from pathlib import Path
 
 SCAN_ROOTS = (
     "rewrite/mod",
+    "rewrite/src",
     "src/TrackpadCapture",
     "src/TrackpadBridge",
     "src/AppleGestureProbe",

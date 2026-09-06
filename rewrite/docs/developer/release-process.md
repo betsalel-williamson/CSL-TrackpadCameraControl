@@ -37,7 +37,7 @@ Local install for parity QA:
 ./scripts/install-mod-local.sh --rewrite
 ```
 
-Deploy folder: `Mods/TrackpadCameraControl.Rewrite` (parallel to shipping `TrackpadCameraControl`).
+Deploy folder: `Mods/TrackpadCameraControl` (same as shipping; last install wins).
 
 ## Pre-ship checklist
 

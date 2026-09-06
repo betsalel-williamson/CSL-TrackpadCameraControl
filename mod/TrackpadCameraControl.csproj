@@ -102,6 +102,14 @@
             SkipUnchangedFiles="true"
             Condition="Exists('$(TargetDir)CitiesHarmony.API.dll')"
         />
+        <Delete
+            Files="$(ModDeployDir)/TrackpadCameraControl.Gestures.dll"
+            TreatErrorsAsWarnings="true"
+        />
+        <Delete
+            Files="$(ModDeployDir)/TrackpadCameraControl.Rewrite.dll"
+            TreatErrorsAsWarnings="true"
+        />
         <Message Importance="high" Text="Deployed → $(ModDeployDir)/$(TargetFileName)" />
     </Target>
 

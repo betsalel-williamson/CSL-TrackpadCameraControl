@@ -1,3 +1,7 @@
+using System;
+using System.IO;
+using TrackpadCameraControl.Gestures;
+
 namespace TrackpadCameraControl.Rewrite
 {
     /// <summary>Poll gesture source and apply camera ops. Safe to call every simulation frame.</summary>
@@ -9,10 +13,10 @@ namespace TrackpadCameraControl.Rewrite
         private readonly GestureSession _session = new GestureSession();
         private IGestureSource _source;
         private int _reconnectCooldown;
+        private bool _loggedUnsupportedCapture;
 
         public GesturePipeline(ModSettings settings, IGestureSource source)
-            : this(settings, source, new CameraControllerZoom(), CitiesSelectionContext.Instance)
-        { }
+            : this(settings, source, new CitiesCameraAdapter(), CitiesSelectionContext.Instance) { }
 
         public GesturePipeline(
             ModSettings settings,
@@ -29,8 +33,8 @@ namespace TrackpadCameraControl.Rewrite
         )
         {
             _settings = settings ?? new ModSettings();
-            _source = source ?? new AppleGestureSource();
-            _camera = camera ?? new CameraControllerZoom();
+            _source = source ?? CreateDefaultCaptureSource();
+            _camera = camera ?? new CitiesCameraAdapter();
             _selection = selection ?? CitiesSelectionContext.Instance;
         }
 
@@ -49,7 +53,7 @@ namespace TrackpadCameraControl.Rewrite
                 _source.Disconnect();
             }
 
-            _source = source ?? new AppleGestureSource();
+            _source = source ?? CreateDefaultCaptureSource();
         }
 
         public void Tick()
@@ -57,12 +61,6 @@ namespace TrackpadCameraControl.Rewrite
             if (_settings == null)
             {
                 return;
-            }
-
-            EnsureInjectSourceIfArmed();
-            if (!(_source is InjectGestureSource))
-            {
-                EnsureCaptureSource();
             }
 
             if (_source is InjectGestureSource inject)
@@ -79,6 +77,11 @@ namespace TrackpadCameraControl.Rewrite
 
             if (!_source.IsConnected)
             {
+                if (_source is NoopGestureSource)
+                {
+                    return;
+                }
+
                 if (_reconnectCooldown > 0)
                 {
                     _reconnectCooldown--;
@@ -88,7 +91,7 @@ namespace TrackpadCameraControl.Rewrite
                 _source.Connect();
                 if (!_source.IsConnected)
                 {
-                    _reconnectCooldown = 60; // ~1s at 60fps
+                    _reconnectCooldown = 60;
                     return;
                 }
             }
@@ -100,14 +103,6 @@ namespace TrackpadCameraControl.Rewrite
             while (safety-- > 0 && _source.TryDequeue(out GestureFrame frame))
             {
                 frame = GameModifierKeys.Enrich(frame);
-                if (
-                    frame.fingerCount <= 0
-                    || frame.phase == (int)GesturePhase.Ended
-                    || frame.phase == (int)GesturePhase.Cancelled
-                )
-                {
-                    // session reset handled inside Process on end phases
-                }
 
                 CameraOp ops = _session.Process(frame, _settings);
                 if (ops == CameraOp.None)
@@ -115,17 +110,21 @@ namespace TrackpadCameraControl.Rewrite
                     continue;
                 }
 
-                float dx = frame.centroidDeltaX;
-                float dy = frame.centroidDeltaY;
-                float pinch = frame.pinchScaleDelta;
-                float rotate = frame.rotateDelta;
-
                 if (skipApply)
                 {
                     continue;
                 }
 
-                CameraApplicator.Apply(ops, dx, dy, pinch, rotate, _settings, _camera, _selection);
+                FeelMath.Apply(
+                    ops,
+                    frame.centroidDeltaX,
+                    frame.centroidDeltaY,
+                    frame.pinchScaleDelta,
+                    frame.rotateDelta,
+                    _settings,
+                    _camera,
+                    _selection
+                );
                 applied = true;
             }
 
@@ -143,10 +142,9 @@ namespace TrackpadCameraControl.Rewrite
             }
         }
 
-        /// <summary>Re-connect capture after city load or mod auto-reload while a city is active.</summary>
         public void ArmCapture()
         {
-            if (_source == null)
+            if (_source == null || _source is NoopGestureSource)
             {
                 return;
             }
@@ -174,58 +172,68 @@ namespace TrackpadCameraControl.Rewrite
         }
 
         /// <summary>
-        /// Hot-swap to inject when the e2e flag appears while the game is already running
-        /// (smoke script arms flags after the mod may already be enabled).
+        /// True when this process can attempt AppKit capture.
+        /// Do not use <c>File.Exists</c> on the AppKit binary — on modern macOS it lives in the
+        /// dyld shared cache and the path is a broken symlink (probe returns false on Mac).
         /// </summary>
-        private void EnsureInjectSourceIfArmed()
+        public static bool IsAppKitAvailable()
         {
-            if (_source is InjectGestureSource)
-            {
-                return;
-            }
-
-            if (!Mod.IsE2eInjectEnabled())
-            {
-                return;
-            }
-
             try
             {
-                var inject = new InjectGestureSource();
-                inject.Connect();
-                SetSource(inject);
-                if (Mod.Runtime != null)
+                PlatformID platform = Environment.OSVersion.Platform;
+                if (platform == PlatformID.MacOSX)
                 {
-                    Mod.Runtime.Inject = inject;
+                    return true;
+                }
+
+                // Mono on macOS reports Unix; framework directory exists even when the binary
+                // path does not resolve on disk.
+                if (
+                    platform == PlatformID.Unix
+                    && Directory.Exists("/System/Library/Frameworks/AppKit.framework")
+                )
+                {
+                    return true;
                 }
             }
             catch
             {
-                // fail soft
+                // fall through
             }
+
+            return false;
         }
 
-        private void EnsureCaptureSource()
+        internal static IGestureSource CreateDefaultCaptureSource()
         {
-            if (_source is AppleGestureSource)
+            if (!IsAppKitAvailable())
+            {
+                return new NoopGestureSource();
+            }
+
+            var apple = new AppleGestureSource();
+            apple.ShouldCapture = InputGates.ShouldCaptureGestures;
+            apple.PreciseScrollChanged = precise =>
+            {
+                VanillaCameraSuppress.PreciseTrackpadScroll = precise;
+            };
+            return apple;
+        }
+
+        internal static IGestureSource CreateFailSoftCaptureSource()
+        {
+            return new NoopGestureSource();
+        }
+
+        internal void LogUnsupportedCaptureOnce()
+        {
+            if (_loggedUnsupportedCapture)
             {
                 return;
             }
 
-            SwapCaptureSource(new AppleGestureSource());
-        }
-
-        private void SwapCaptureSource(IGestureSource next)
-        {
-            try
-            {
-                next.Connect();
-                SetSource(next);
-            }
-            catch
-            {
-                SetSource(new AppleGestureSource());
-            }
+            _loggedUnsupportedCapture = true;
+            ModLog.Info("capture unsupported — gestures no-op (AppKit unavailable)");
         }
     }
 }

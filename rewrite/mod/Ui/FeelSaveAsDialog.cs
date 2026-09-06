@@ -16,10 +16,9 @@ namespace TrackpadCameraControl.Rewrite
         private static Action _onClosed;
         private static bool _modalPushed;
 
-        /// <summary>Show dialog; OK runs <see cref="ModOptions.SaveNamedFeelPreset"/> then closes.</summary>
-        public static void Show(ModSettings settings, Action onClosed = null)
+        public static void Show(FeelEditor editor, Action onClosed = null)
         {
-            if (settings == null)
+            if (editor == null || editor.Settings == null)
             {
                 return;
             }
@@ -33,10 +32,6 @@ namespace TrackpadCameraControl.Rewrite
                 return;
             }
 
-            // ClipCast only accepts hits under the top modal (IsChildOf). A sibling panel on
-            // UIView is invisible to mouse while Options is modal. Parent under the current
-            // modal so clicks work without a nested PushModal (nested PushModal + BringToFront
-            // parks panelsLibraryModalEffect over Options → permanent "blur" after close).
             UIComponent host = UIView.GetModalComponent();
             if (host != null)
             {
@@ -60,14 +55,12 @@ namespace TrackpadCameraControl.Rewrite
                 return;
             }
 
-            _dialog.name = "TrackpadCameraFeelSaveAsDialog";
+            _dialog.name = "TrackpadCameraRewriteFeelSaveAsDialog";
             _dialog.backgroundSprite = "MenuPanel2";
             _dialog.width = DialogWidth;
             _dialog.height = DialogHeight;
-            // Colossal UI coords use UIView size — not Unity Screen pixels (HiDPI off-screen).
             float uiW = view.fixedWidth > 1f ? view.fixedWidth : Screen.width;
             float uiH = view.fixedHeight > 1f ? view.fixedHeight : Screen.height;
-            // absolutePosition is UIView space whether parented under Options or the root view.
             _dialog.absolutePosition = new Vector3(
                 Mathf.Floor((uiW - DialogWidth) * 0.5f),
                 Mathf.Floor((uiH - DialogHeight) * 0.5f)
@@ -100,17 +93,14 @@ namespace TrackpadCameraControl.Rewrite
             _nameField.verticalAlignment = UIVerticalAlignment.Middle;
             _nameField.textColor = Color.white;
             _nameField.disabledTextColor = new Color32(128, 128, 128, 255);
-            _nameField.text = ModOptions.SuggestFeelSaveAsName(settings);
+            _nameField.text = OptionsHost.SuggestFeelSaveAsName(editor);
             _nameField.selectOnFocus = true;
             _nameField.isInteractive = true;
             _nameField.canFocus = true;
             _nameField.readOnly = false;
-            // Programmatic UITextField defaults m_BuiltinKeyNavigation=false; OnKeyPress inserts
-            // only when this is true. Template fields (Options UIHelper) get it from the prefab.
             _nameField.builtinKeyNavigation = true;
-            // Default true: a focus flicker on open would Submit → TrySave and close the dialog.
             _nameField.submitOnFocusLost = false;
-            _nameField.eventTextSubmitted += (c, t) => TrySave(settings);
+            _nameField.eventTextSubmitted += (c, t) => TrySave(editor);
 
             UIButton cancel = _dialog.AddUIComponent<UIButton>();
             StyleDialogButton(cancel, "Cancel", 12f, 76f, 90f);
@@ -125,14 +115,14 @@ namespace TrackpadCameraControl.Rewrite
             ok.eventClick += (c, e) =>
             {
                 e.Use();
-                TrySave(settings);
+                TrySave(editor);
             };
 
             _dialog.Focus();
             _nameField.Focus();
         }
 
-        private static void TrySave(ModSettings settings)
+        private static void TrySave(FeelEditor editor)
         {
             string name = _nameField != null ? _nameField.text : string.Empty;
             if (string.IsNullOrEmpty(name) || string.IsNullOrEmpty(name.Trim()))
@@ -146,7 +136,7 @@ namespace TrackpadCameraControl.Rewrite
                 return;
             }
 
-            if (!ModOptions.SaveNamedFeelPreset(settings, name))
+            if (!editor.SaveAs(name))
             {
                 return;
             }
@@ -192,9 +182,6 @@ namespace TrackpadCameraControl.Rewrite
             }
 
             _nameField = null;
-            // If we nested PushModal (Debug path), PopModal + BringToFront re-slots the
-            // library modal effect under Options. Options-only path never pushed, so Options
-            // stayed top modal and never needed this — still safe to run.
             RestoreOptionsChromeAfterClose();
 
             Action closed = _onClosed;
@@ -220,8 +207,6 @@ namespace TrackpadCameraControl.Rewrite
                     return;
                 }
 
-                // BringToFront while Options is GetModalComponent() places panelsLibraryModalEffect
-                // at zOrder = Options.zOrder - 1 (see UIView.BringToFront). Focus alone does not.
                 options.component.BringToFront();
                 UIView.SetFocus(options.component);
                 options.component.Focus();
@@ -242,7 +227,7 @@ namespace TrackpadCameraControl.Rewrite
             }
             catch
             {
-                // fail soft — Debug-only Save as has no Options to restore
+                // fail soft
             }
         }
     }

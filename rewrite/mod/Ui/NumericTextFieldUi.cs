@@ -6,27 +6,14 @@ using UnityEngine;
 
 namespace TrackpadCameraControl.Rewrite
 {
+    /// <summary>Colossal UITextField helpers for Debug numeric fields (left-aligned, sanitize, Tab/Enter).</summary>
     internal static class NumericTextFieldUi
     {
-        /// <summary>
-        /// Shared scope for Options (and any caller that omits an explicit panel scope).
-        /// </summary>
         private static readonly object DefaultTabScope = new object();
-
         private static readonly List<UIComponent> TabStops = new List<UIComponent>();
         private static readonly List<object> TabScopes = new List<object>();
-
-        /// <summary>
-        /// Prevents a second Tab advance in the same frame (keycode + char events, or focus
-        /// handoff delivering the same press to the newly focused control).
-        /// </summary>
         private static int _tabAdvanceFrame = -1;
 
-        /// <summary>
-        /// Colossal UITextField has no separate numeric widget; numericalOnly + allowFloats
-        /// filter key entry but do not normalize paste or every invalid sequence — we still
-        /// sanitize on eventTextChanged.
-        /// </summary>
         public static void ConfigureFloatField(UITextField field)
         {
             if (field == null)
@@ -36,6 +23,14 @@ namespace TrackpadCameraControl.Rewrite
 
             field.numericalOnly = true;
             field.allowFloats = true;
+            field.horizontalAlignment = UIHorizontalAlignment.Left;
+            field.verticalAlignment = UIVerticalAlignment.Middle;
+            field.padding = new RectOffset(6, 6, 3, 3);
+            field.textColor = Color.white;
+            field.disabledTextColor = new Color32(128, 128, 128, 255);
+            field.selectionBackgroundColor = new Color32(0, 105, 210, 255);
+            field.cursorBlinkTime = 0.45f;
+            field.cursorWidth = 1;
             field.eventTextChanged += (UIComponent component, string text) =>
             {
                 UITextField tf = component as UITextField;
@@ -52,18 +47,6 @@ namespace TrackpadCameraControl.Rewrite
             };
         }
 
-        /// <summary>
-        /// Colossal submits on Return only. Keypad Enter and Tab must unfocus (or advance)
-        /// so <c>submitOnFocusLost</c> / <c>eventTextSubmitted</c> can confirm the value.
-        /// Tab advances once on key <em>down</em> (not up — up would retarget the newly focused
-        /// field and skip a stop). After the last tab stop in the same scope, focus wraps.
-        /// </summary>
-        /// <param name="includeInTabOrder">
-        /// When false, Enter still confirms but Tab does not visit this field (e.g. Feel name).
-        /// </param>
-        /// <param name="tabScope">
-        /// Group for Tab cycling (Debug panel root, etc.). Null uses the shared Options scope.
-        /// </param>
         public static void WireConfirmKeys(
             UITextField field,
             bool includeInTabOrder = true,
@@ -77,9 +60,6 @@ namespace TrackpadCameraControl.Rewrite
 
             field.submitOnFocusLost = true;
             field.canFocus = true;
-            // Debug creates fields with AddUIComponent — default builtinKeyNavigation is false,
-            // which blocks Colossal digit insert. Options template fields already have it true;
-            // set explicitly so both paths type. We only Use() Tab/Enter below.
             field.builtinKeyNavigation = true;
             if (includeInTabOrder)
             {
@@ -90,9 +70,6 @@ namespace TrackpadCameraControl.Rewrite
             field.eventKeyUp += OnConfirmKeyUp;
         }
 
-        /// <summary>
-        /// Include a non-text focusable (e.g. checkbox) in the same Tab cycle as wired fields.
-        /// </summary>
         public static void WireTabStop(UIComponent component, object tabScope = null)
         {
             if (component == null)
@@ -156,7 +133,6 @@ namespace TrackpadCameraControl.Rewrite
                 return;
             }
 
-            // Swallow leftover Tab up so it cannot retarget the newly focused control.
             if (IsTabKey(p))
             {
                 p.Use();
@@ -200,14 +176,9 @@ namespace TrackpadCameraControl.Rewrite
 
         private static bool IsTabKey(UIKeyEventParameter p)
         {
-            // KeyCode only — matching character '\t' as well can fire a second event per press.
             return p.keycode == KeyCode.Tab;
         }
 
-        /// <summary>
-        /// Move focus to the next tab stop in the same scope (by tabIndex, then registration).
-        /// Wraps to the first when on the last.
-        /// </summary>
         private static void FocusNext(UIComponent from)
         {
             if (from == null)

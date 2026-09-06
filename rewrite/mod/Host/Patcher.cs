@@ -1,12 +1,11 @@
 #if HAS_CITIES
 using System;
-using System.Reflection;
-using ColossalFramework;
 using HarmonyLib;
 using UnityEngine;
 
 namespace TrackpadCameraControl.Rewrite
 {
+    /// <summary>Two Harmony patches: scroll suppress + orbit flush. No capture/UI logic.</summary>
     public static class Patcher
     {
         public const string HarmonyId = "com.betsalel.trackpadcameracontrol.rewrite";
@@ -24,6 +23,7 @@ namespace TrackpadCameraControl.Rewrite
             try
             {
                 Harmony harmony = new Harmony(HarmonyId);
+                // Only the two patch classes in this assembly (scroll suppress + orbit flush).
                 harmony.PatchAll(typeof(Patcher).Assembly);
                 patched = true;
             }
@@ -81,24 +81,6 @@ namespace TrackpadCameraControl.Rewrite
             {
                 // ignore
             }
-
-            try
-            {
-                string tmp = Environment.GetEnvironmentVariable("TMPDIR");
-                if (string.IsNullOrEmpty(tmp))
-                {
-                    tmp = System.IO.Path.GetTempPath();
-                }
-
-                System.IO.File.AppendAllText(
-                    System.IO.Path.Combine(tmp, "trackpad-camera-control-rewrite-mod.log"),
-                    line + Environment.NewLine
-                );
-            }
-            catch
-            {
-                // ignore
-            }
         }
     }
 
@@ -114,18 +96,11 @@ namespace TrackpadCameraControl.Rewrite
     [HarmonyPatch(typeof(CameraController), "HandleMouseEvents")]
     internal static class HandleMouseEventsPatch
     {
-        private static FieldInfo rotateKeyField;
-
-        public static bool Prefix(CameraController __instance)
+        public static bool Prefix()
         {
-            return InputGates.ShouldRunVanillaMouseEvents(IsCameraMouseRotateHeld(__instance));
+            return InputGates.ShouldRunVanillaMouseEvents();
         }
 
-        /// <summary>
-        /// After vanilla damp (and optional mouse seed), flush trackpad orbit pending into
-        /// m_angleVelocity before UpdateTargetPosition integrates. Runs even when Prefix skips
-        /// the original (rotate binding held).
-        /// </summary>
         public static void Postfix()
         {
             if (!InputGates.ShouldFlushPendingOrbit())
@@ -135,8 +110,7 @@ namespace TrackpadCameraControl.Rewrite
 
             try
             {
-                ICameraController camera =
-                    Mod.Runtime?.Pipeline != null ? Mod.Runtime.Pipeline.Camera : null;
+                ICameraController camera = Mod.Runtime?.Pipeline?.Camera;
                 if (camera == null)
                 {
                     return;
@@ -148,91 +122,6 @@ namespace TrackpadCameraControl.Rewrite
             {
                 // Fail soft every frame.
             }
-        }
-
-        private static bool IsCameraMouseRotateHeld(CameraController instance)
-        {
-            try
-            {
-                if (rotateKeyField == null)
-                {
-                    rotateKeyField = typeof(CameraController).GetField(
-                        "m_cameraMouseRotate",
-                        BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic
-                    );
-                }
-
-                if (rotateKeyField == null)
-                {
-                    return false;
-                }
-
-                SavedInputKey key = rotateKeyField.GetValue(instance) as SavedInputKey;
-                return key != null && key.IsPressed();
-            }
-            catch
-            {
-                return false;
-            }
-        }
-    }
-
-    [HarmonyPatch]
-    internal static class OptionsKeymappingPanelRefreshPatch
-    {
-        private static MethodBase TargetMethod()
-        {
-            Type panelType = AccessTools.TypeByName("OptionsKeymappingPanel");
-            return panelType == null ? null : AccessTools.Method(panelType, "RefreshKeyMapping");
-        }
-
-        public static void Postfix()
-        {
-            VanillaCameraKeyLabelsWatch.NotifyLabelsChangedFromGame();
-        }
-    }
-
-    [HarmonyPatch]
-    internal static class OptionsKeymappingPanelResetPatch
-    {
-        private static MethodBase TargetMethod()
-        {
-            Type panelType = AccessTools.TypeByName("OptionsKeymappingPanel");
-            return panelType == null ? null : AccessTools.Method(panelType, "ResetKeyMapping");
-        }
-
-        public static void Postfix()
-        {
-            VanillaCameraKeyLabelsWatch.NotifyLabelsChangedFromGame();
-        }
-    }
-
-    [HarmonyPatch]
-    internal static class OptionsKeymappingPanelClearPatch
-    {
-        private static MethodBase TargetMethod()
-        {
-            Type panelType = AccessTools.TypeByName("OptionsKeymappingPanel");
-            return panelType == null ? null : AccessTools.Method(panelType, "OnClearKeyMapping");
-        }
-
-        public static void Postfix()
-        {
-            VanillaCameraKeyLabelsWatch.NotifyLabelsChangedFromGame();
-        }
-    }
-
-    [HarmonyPatch(typeof(SavedInputKey), "value", MethodType.Setter)]
-    internal static class SavedInputKeyValueSetterPatch
-    {
-        public static void Postfix(SavedInputKey __instance)
-        {
-            if (!VanillaCameraKeyLabels.IsWatchedCameraKey(__instance))
-            {
-                return;
-            }
-
-            VanillaCameraKeyLabelsWatch.NotifyLabelsChangedFromGame();
         }
     }
 }

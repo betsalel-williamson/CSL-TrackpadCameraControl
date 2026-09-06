@@ -5,10 +5,10 @@ using System.Text;
 namespace TrackpadCameraControl.Rewrite
 {
     /// <summary>
-    /// Classical float text rules for mod numeric fields (optional leading minus, digits,
-    /// at most one decimal separator). Shared by options UI and debug tuning panel.
+    /// Classical float text rules for Debug numeric fields (optional leading minus, digits,
+    /// at most one decimal separator).
     /// </summary>
-    internal static class NumericFieldInput
+    public static class NumericFieldInput
     {
         /// <summary>
         /// Filters live UITextField text to an in-progress float token (may end with "." or ",").
@@ -78,7 +78,6 @@ namespace TrackpadCameraControl.Rewrite
             }
 
             int sepIndex = -1;
-            char sep = '\0';
             for (int i = start; i < trimmed.Length; i++)
             {
                 char c = trimmed[i];
@@ -90,7 +89,6 @@ namespace TrackpadCameraControl.Rewrite
                 if ((c == '.' || c == ',') && sepIndex < 0)
                 {
                     sepIndex = i;
-                    sep = c;
                     continue;
                 }
 
@@ -102,7 +100,6 @@ namespace TrackpadCameraControl.Rewrite
                 return trimmed.Length > start;
             }
 
-            // "." or "," alone after optional minus is incomplete.
             if (sepIndex == start && sepIndex == trimmed.Length - 1)
             {
                 return false;
@@ -132,13 +129,18 @@ namespace TrackpadCameraControl.Rewrite
                 return true;
             }
 
-            // Accept locale decimal separators (e.g. "1,5").
             return float.TryParse(
                 trimmed,
                 NumberStyles.Float,
                 CultureInfo.CurrentCulture,
                 out value
             );
+        }
+
+        /// <summary>Three-decimal display matching shipping Debug FormatGain.</summary>
+        public static string FormatGain(float value)
+        {
+            return FeelMath.RoundGain(value).ToString("0.000", CultureInfo.InvariantCulture);
         }
     }
 }

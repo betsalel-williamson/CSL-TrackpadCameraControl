@@ -1,46 +1,21 @@
+using TrackpadCameraControl.Gestures;
+
 namespace TrackpadCameraControl.Rewrite
 {
-    /// <summary>
-    /// Atomic trackpad contact patterns for assignment + labels.
-    /// Player UX names (Pinch / Two-finger drag); AppKit Magnify/Scroll/Rotate, Windows PTP,
-    /// and GTK pinch/swipe map here. Drag = continuous deltas; Swipe = discrete flick (catalog).
-    /// </summary>
     public enum TrackpadGesture
     {
         None = 0,
-
-        /// <summary>Continuous two-finger pan (AppKit scroll / scrollingDelta).</summary>
         TwoFingerDrag = 1,
-
-        /// <summary>Pinch zoom (AppKit Magnify / GtkGestureZoom).</summary>
         Pinch = 2,
-
-        /// <summary>Two-finger twist (AppKit Rotate / GtkGestureRotate).</summary>
         TwoFingerRotate = 3,
-
-        /// <summary>Continuous three-finger drag (CAD orbit; Win 3-finger manipulations).</summary>
         ThreeFingerDrag = 4,
-
-        /// <summary>Catalog stub — Win/GTK four-finger manipulations.</summary>
         FourFingerDrag = 5,
-
-        /// <summary>Catalog stub — AppKit discrete swipe (not continuous drag).</summary>
         TwoFingerSwipe = 6,
-
-        /// <summary>Catalog stub — discrete three-finger swipe.</summary>
         ThreeFingerSwipe = 7,
-
-        /// <summary>Catalog stub — two-finger tap.</summary>
         TwoFingerTap = 8,
-
-        /// <summary>Catalog stub — three-finger tap (Win Actions).</summary>
         ThreeFingerTap = 9,
     }
 
-    /// <summary>
-    /// Optional chord for a <see cref="TrackpadGestureBinding"/>. Aligns with
-    /// <see cref="GestureModifiers"/> flags (Option = macOS ⌥ / Alt).
-    /// </summary>
     public enum GestureModifierKey
     {
         None = 0,
@@ -50,7 +25,6 @@ namespace TrackpadCameraControl.Rewrite
         Control = 4,
     }
 
-    /// <summary>Composable activation: base gesture + optional modifier.</summary>
     public struct TrackpadGestureBinding
     {
         public TrackpadGesture Gesture;
@@ -68,7 +42,6 @@ namespace TrackpadCameraControl.Rewrite
         public bool IsNone => Gesture == TrackpadGesture.None;
     }
 
-    /// <summary>Display labels and Maps+/CAD default seed tables for gesture bindings.</summary>
     public static class TrackpadGestureCatalog
     {
         public static string ToDisplayLabel(TrackpadGesture gesture)
@@ -153,16 +126,6 @@ namespace TrackpadCameraControl.Rewrite
 
         public static TrackpadGestureBinding MapsPlusOrbit =>
             new TrackpadGestureBinding(TrackpadGesture.TwoFingerDrag, GestureModifierKey.Option);
-
-        public static void ApplyMapsPlusDefaults(ModSettings settings)
-        {
-            if (settings == null)
-            {
-                return;
-            }
-
-            settings.StyleTable = MapsPlusSeed.CreateTable();
-        }
 
         public static TrackpadGestureBinding GetBinding(ModSettings settings, CameraOp op)
         {
