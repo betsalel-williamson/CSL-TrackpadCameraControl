@@ -6,13 +6,17 @@ ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$ROOT"
 export PATH="${HOME}/.dotnet:${PATH}"
 
+TEST_CSPROJ="tests/TrackpadCameraControl.Rewrite.Tests/TrackpadCameraControl.Rewrite.Tests.csproj"
+
 mkdir -p TestResults
 rm -f TestResults/coverage.cobertura.xml
 
-dotnet build tests/TrackpadCameraControl.Rewrite.Tests/TrackpadCameraControl.Rewrite.Tests.csproj --nologo
+# Serial build avoids intermittent MSB3491 races writing AssemblyInfoInputs.cache
+# when Gestures is referenced from both the mod and the test project (SDK 10+).
+dotnet build "${TEST_CSPROJ}" --nologo -m:1 -p:UseSharedCompilation=false
 
-dotnet test tests/TrackpadCameraControl.Rewrite.Tests/TrackpadCameraControl.Rewrite.Tests.csproj \
-  --nologo --verbosity minimal \
+dotnet test "${TEST_CSPROJ}" \
+  --nologo --verbosity minimal --no-build \
   -p:CollectCoverage=true \
   -p:CoverletOutput="${ROOT}/TestResults/coverage"
 
@@ -28,12 +32,28 @@ if [[ ! -f "$COBERTURA" ]]; then
 fi
 
 dotnet tool restore >/dev/null
-dotnet tool run reportgenerator \
-  "-reports:${COBERTURA}" \
-  "-targetdir:${ROOT}/TestResults/coverage-report" \
-  "-reporttypes:TextSummary;Html" \
-  "-title:TrackpadCameraControl" \
-  >/dev/null
+if command -v reportgenerator >/dev/null 2>&1; then
+  reportgenerator \
+    "-reports:${COBERTURA}" \
+    "-targetdir:${ROOT}/TestResults/coverage-report" \
+    "-reporttypes:TextSummary;Html" \
+    "-title:TrackpadCameraControl" \
+    >/dev/null
+elif [[ -x "${HOME}/.dotnet/tools/reportgenerator" ]]; then
+  "${HOME}/.dotnet/tools/reportgenerator" \
+    "-reports:${COBERTURA}" \
+    "-targetdir:${ROOT}/TestResults/coverage-report" \
+    "-reporttypes:TextSummary;Html" \
+    "-title:TrackpadCameraControl" \
+    >/dev/null
+else
+  dotnet tool run reportgenerator \
+    "-reports:${COBERTURA}" \
+    "-targetdir:${ROOT}/TestResults/coverage-report" \
+    "-reporttypes:TextSummary;Html" \
+    "-title:TrackpadCameraControl" \
+    >/dev/null
+fi
 
 echo ""
 echo "==> coverage summary (class-level — look for piled-on helpers vs blind spots)"
