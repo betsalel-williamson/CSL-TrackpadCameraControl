@@ -25,4 +25,4 @@ The greenfield ship tree exists so internals can stay simple while players still
 - Lesson L13 (source independence) applies with L11: freeze the player-facing contract; keep internals greenfield.
 - A near-copy of a bootstrap file in `mod/` is an architecture defect even if behavior matches.
 - Allowed oracle extraction: numeric feel defaults, Maps+ seed chords, Harmony target names, AppKit event names — recorded as test/seed data, not as transplanted classes.
-- Recovery from the clone experiment follows the design spec _Rewrite from UX contract, not source clone_ (session spec under `docs/superpowers/specs/`). Do not extend quarantined clone sources as the path to v1.
+- Do not extend quarantined clone sources as the path to v1 — freeze the player-facing contract and keep internals greenfield.

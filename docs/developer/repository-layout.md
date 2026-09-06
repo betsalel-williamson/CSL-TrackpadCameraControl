@@ -38,7 +38,11 @@ Do not revive Contacts/IPC from `bootstrap/` into the gesture library. Optional 
 
 ## Native C tree
 
-The retired C TrackpadBridge helper is gone. Platform stub READMEs under `native/` only record that Windows/Linux backends are not shipped. Ship capture is managed C# in the gesture library.
+The retired C TrackpadBridge helper is gone. `native/README.md` points at the gesture library and historical bootstrap capture tools. Ship capture is managed C# in the gesture library.
+
+## Planning (not durable MDCP)
+
+Session design specs, plans, and SDD scratch live **outside** the MDCP guides — typically under local `.superpowers/` (gitignored) or the issue tracker. Do not commit planning backlogs under `docs/`. Git history keeps prior session text.
 
 ## Naming
 
