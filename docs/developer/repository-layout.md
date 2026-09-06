@@ -35,3 +35,15 @@ CSL-TrackpadCameraControl/
 | npm workspace name      | csl-trackpad-camera-control (local tooling only; not published)             |
 
 Folder and assembly stay `TrackpadCameraControl` forever. Paste-ready title, description, and SEO tags: [Workshop storefront](./workshop-storefront.md). Search keywords: trackpad, touchpad, multitouch, pinch, camera, mac, macos, macbook, Cities Skylines, orbit, pan, zoom (Mac is a backend/discoverability tag, not durable product identity).
+
+## Rewrite tree (parity remake)
+
+A parallel clean-architecture remake lives under repo-root [`rewrite/`](../../rewrite/README.md). Target MDCP contracts are under `rewrite/docs/` (`npm run docs:rewrite`). Shipping as-built docs in this `docs/` tree stay authoritative until cutover.
+
+| Path                                       | Role                                                                                                     |
+| ------------------------------------------ | -------------------------------------------------------------------------------------------------------- |
+| `rewrite/docs/`                            | Target architecture and parity contracts                                                                 |
+| `rewrite/mod/`                             | Future `TrackpadCameraControl.Rewrite` assembly (Content Manager folder `TrackpadCameraControl.Rewrite`) |
+| `./scripts/install-mod-local.sh --rewrite` | Deploy rewrite build side-by-side for A/B (stub until the rewrite csproj exists)                         |
+
+Enable only one of shipping vs Rewrite in Content Manager per play session when comparing feel.

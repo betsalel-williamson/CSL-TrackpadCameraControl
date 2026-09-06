@@ -1,0 +1,27 @@
+#if HAS_CITIES
+using ICities;
+
+namespace TrackpadCameraControl.Rewrite
+{
+    public class GestureThreading : ThreadingExtensionBase
+    {
+        public override void OnUpdate(float realTimeDelta, float simulationTimeDelta)
+        {
+            _ = realTimeDelta;
+            _ = simulationTimeDelta;
+            try
+            {
+                Mod.Runtime?.Pipeline?.Tick();
+#if HAS_CITIES
+                TuningPanelHost.ProcessPendingUiRebuild();
+                TuningPanelHost.ProcessPanelFocusVisual();
+#endif
+            }
+            catch
+            {
+                // Fail soft every frame.
+            }
+        }
+    }
+}
+#endif
