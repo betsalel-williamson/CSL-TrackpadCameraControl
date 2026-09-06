@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # CI validate: choose and run docs / csharp / native gates.
-# main (or FORCE_FULL=1 / tooling paths): all gates.
 # PRs: only gates for paths changed vs base (GITHUB_BASE_REF or origin/main).
+# FORCE_FULL=1 (or GITHUB_REF=refs/heads/main): all gates — for local/manual runs.
 #
 # Safe: never evals git-derived strings. Writes only allowlisted KEY=value to GITHUB_OUTPUT.
 set -euo pipefail
