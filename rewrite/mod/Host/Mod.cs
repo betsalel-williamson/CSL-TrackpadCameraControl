@@ -20,7 +20,7 @@ namespace TrackpadCameraControl.Rewrite
         public string Name => OptionsTitle;
 
         public string Description =>
-            "Rewrite — macOS trackpad camera: pan, pinch zoom, orbit. Windows/Linux not supported yet.";
+            "macOS trackpad camera — pan, pinch zoom, orbit. No middle mouse. Windows/Linux not supported yet.";
 
         public static string OptionsTitle
         {
@@ -29,10 +29,10 @@ namespace TrackpadCameraControl.Rewrite
                 string version = GetProductVersionDisplay();
                 if (string.IsNullOrEmpty(version))
                 {
-                    return "Trackpad Camera Control Rewrite (macOS)";
+                    return "Trackpad Camera Control (macOS)";
                 }
 
-                return "Trackpad Camera Control Rewrite (macOS) " + version;
+                return "Trackpad Camera Control (macOS) " + version;
             }
         }
 
@@ -108,11 +108,6 @@ namespace TrackpadCameraControl.Rewrite
 
         internal static string GetBuildInfoFooterDisplay()
         {
-            if (!BuildInfo.ShowDevBuildIdentity)
-            {
-                return null;
-            }
-
             string built = GetAssemblyBuildTimestampUtcDisplay();
             if (string.IsNullOrEmpty(built))
             {
@@ -124,11 +119,6 @@ namespace TrackpadCameraControl.Rewrite
 
         internal static string GetBuildInfoPanelDisplay()
         {
-            if (!BuildInfo.ShowDevBuildIdentity)
-            {
-                return null;
-            }
-
             string builtUtc = GetAssemblyBuildTimestampUtcDisplay();
             if (string.IsNullOrEmpty(builtUtc))
             {
@@ -210,29 +200,41 @@ namespace TrackpadCameraControl.Rewrite
             {
                 EnsureSettingsInternal();
                 ModSettings settings = _settingsCache;
-                ModLog.Info("mod enabled capture=AppKit");
                 IGestureSource source;
                 if (IsE2eInjectEnabled())
                 {
+                    ModLog.Info("mod enabled capture=inject");
                     source = new InjectGestureSource();
+                }
+                else if (!GesturePipeline.IsAppKitAvailable())
+                {
+                    ModLog.Info("mod enabled capture=noop (AppKit unavailable)");
+                    source = GesturePipeline.CreateFailSoftCaptureSource();
                 }
                 else
                 {
+                    ModLog.Info("mod enabled capture=AppKit");
                     source = GesturePipeline.CreateDefaultCaptureSource();
                 }
 
                 _editorCache = new FeelEditor(settings, FeelEditor.ActiveStore);
                 Runtime = new ModRuntime(settings, source, _editorCache);
+                if (source is NoopGestureSource)
+                {
+                    Runtime.Pipeline.LogUnsupportedCaptureOnce();
+                }
             }
             catch
             {
+                // Fail soft: never retry AppKit construction — use noop so enable succeeds.
                 EnsureSettingsInternal();
                 _editorCache = new FeelEditor(_settingsCache, FeelEditor.ActiveStore);
                 Runtime = new ModRuntime(
                     _settingsCache,
-                    GesturePipeline.CreateDefaultCaptureSource(),
+                    GesturePipeline.CreateFailSoftCaptureSource(),
                     _editorCache
                 );
+                Runtime.Pipeline.LogUnsupportedCaptureOnce();
             }
 
 #if HAS_CITIES

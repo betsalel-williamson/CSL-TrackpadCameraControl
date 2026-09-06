@@ -21,10 +21,10 @@ namespace TrackpadCameraControl.Rewrite
 
         public static FeelEditor Editor => _editor;
 
-        /// <summary>Same catalog descriptors as Options — one inventory, two skins.</summary>
+        /// <summary>Debug-visible descriptors (numeric + deadbands + Reset).</summary>
         public static IList<FeelControlDescriptor> BuildDescriptors()
         {
-            return OptionsHost.BuildDescriptors();
+            return OptionsHost.BuildDescriptors(FeelHostKind.Debug);
         }
 
         /// <summary>Unit-testable toolkit mapping shared with OptionsHost.</summary>

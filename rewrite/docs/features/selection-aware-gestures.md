@@ -10,7 +10,7 @@ Policy re-queries selection each tick; Capture does not decide object vs camera 
 
 | Condition                         | Gesture                      | Result                                                                                   |
 | --------------------------------- | ---------------------------- | ---------------------------------------------------------------------------------------- |
-| Relocate or new placement ghost   | Two-finger rotate            | Rotate the **ghost** — not the old-cell buffer during relocate                           |
+| Relocate or new placement ghost   | Two-finger rotate            | Rotate the **ghost** only (camera does not yaw). Place uses tool `m_angle`; relocate also updates render angles (`m_mouseAngle` / `m_cachedAngle`) so the ghost twists visibly. Do **not** mutate the old-cell building. |
 | Click-selected placed object only | Two-finger rotate            | Camera yaw (no object spin)                                                              |
 | Relocate or new placement ghost   | Option (`⌥`)+two-finger drag | Camera orbit from **current** look-at (do not re-home Target; pitch still apply-clamped) |
 | No place/relocate ghost           | Option (`⌥`)+two-finger drag | Camera orbit from **current** look-at (do not re-home Target)                            |
@@ -38,7 +38,7 @@ Base Maps+ pan / pinch zoom and orbit latch remain as in [trackpad camera](./tra
 
 Detection is best-effort against the live game tools, ordered:
 
-1. **Relocate** — object yaw updates the relocate ghost angles only. Do **not** mutate the buffer building at the old cell. Option-orbit does **not** re-home Target.
+1. **Relocate** — object yaw updates the relocate ghost angles only (`m_angle` plus relocate render angles). Do **not** mutate the buffered building at the old cell. Option-orbit does **not** re-home Target.
 2. **Placement ghost** — new place with prefab → object yaw on tool ghost (even if a selected instance is still set). Option-orbit does **not** re-home Target.
 3. **Selected instance / none** — no object yaw and **no** orbit Target re-home → Maps+ camera yaw / orbit from current look-at.
 

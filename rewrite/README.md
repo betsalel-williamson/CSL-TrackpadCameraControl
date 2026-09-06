@@ -8,6 +8,6 @@ Parallel product tree for a greenfield architecture rewrite that keeps **[UI par
 | `src/`   | Gesture library — frame, AppKit backend, inject seam                              |
 | `mod/`   | CSL mod surface — Feel, Ui, Policy, Apply, Host                                   |
 | `tests/` | Behavior oracles (tier A/B); fakes stand in for one layer each                    |
-| Install  | `./scripts/install-mod-local.sh --rewrite` → `Mods/TrackpadCameraControl.Rewrite` |
+| Install  | `./scripts/install-mod-local.sh --rewrite` → `Mods/TrackpadCameraControl` (same as shipping) |
 
 Shipping as-built docs remain under repo-root `docs/` until cutover.

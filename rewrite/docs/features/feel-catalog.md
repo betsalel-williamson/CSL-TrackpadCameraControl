@@ -12,20 +12,27 @@ Source this inventory from [settings and hot configuration](./settings-and-hot-c
 
 ## Fields (ship surface)
 
-| Section | Field id            | Player label     | Control kind                       | Notes                                                      |
-| ------- | ------------------- | ---------------- | ---------------------------------- | ---------------------------------------------------------- |
-| General | `feelPreset`        | Feel preset      | Dropdown                           | Slow / Default / Fast / New Preset / named                 |
-| General | `saveAs`            | Save as…         | Button                             | Enabled on New Preset                                      |
-| General | `deletePreset`      | Delete           | Button                             | Named user presets only                                    |
-| General | `resetFactory`      | Reset to factory | Button                             | Loads Default feel                                         |
-| General | `sensitivity`       | Sensitivity      | Slider (Options) / numeric (Debug) | Master feel scale where product exposes it                 |
-| General | `showDebugPanel`    | Show debug panel | Toggle                             | Chrome; hides reopen chip when off                         |
-| Zoom    | `zoomSensitivity`   | Sensitivity      | Slider / numeric                   | 0.1×–2× Options contract; three decimals                   |
-| Pan     | `panSensitivity`    | Sensitivity      | Slider / numeric                   | Same contract (X/Y as product surface requires)            |
-| Rotate  | `rotateSensitivity` | Sensitivity      | Slider / numeric                   | Same contract                                              |
-| Orbit   | `orbitSensitivity`  | Sensitivity      | Slider / numeric                   | Same contract; pitch clamp is apply constant — not a field |
+| Section | Field id            | Player label     | Options                        | Debug                          | Notes                                      |
+| ------- | ------------------- | ---------------- | ------------------------------ | ------------------------------ | ------------------------------------------ |
+| General | `showDebugPanel`    | Show debug panel | Toggle (**first**)             | Hidden                         | Chrome; hides reopen chip when off         |
+| General | `feelPreset`        | Feel preset      | Dropdown                       | Dropdown                       | Slow / Default / Fast / New Preset / named |
+| General | `saveAs`            | Save as…         | Button                         | Button                         | Enabled on New Preset                      |
+| General | `deletePreset`      | Delete           | Button                         | Button                         | Named user presets only                    |
+| General | `reset`             | Reset            | Hidden                         | Button (label `Reset`)         | Loads Default feel; Debug only             |
+| Zoom    | `zoomSensitivity`   | Sensitivity      | Slider                         | Numeric                        | 0.1×–2× Options contract; three decimals   |
+| Zoom    | `zoomDeadband`      | Deadband         | Hidden                         | Numeric                        | Debug only                                 |
+| Pan     | `panSensitivityX`   | Sensitivity X    | Slider                         | Numeric                        | Separate X/Y; do not lock axes             |
+| Pan     | `panSensitivityY`   | Sensitivity Y    | Slider                         | Numeric                        | Separate X/Y; do not lock axes             |
+| Pan     | `panDeadband`       | Deadband         | Hidden                         | Numeric                        | Debug only                                 |
+| Rotate  | `rotateSensitivity` | Sensitivity      | Slider                         | Numeric                        | Same Sensitivity contract                  |
+| Rotate  | `rotateDeadband`    | Deadband         | Hidden                         | Numeric                        | Debug only                                 |
+| Orbit   | `orbitYawSensitivity`   | Sensitivity yaw  | Slider                         | Numeric                        | Separate yaw/pitch                         |
+| Orbit   | `orbitPitchSensitivity` | Sensitivity pitch | Slider                       | Numeric                        | Pitch clamp is apply constant — not a field |
+| Orbit   | `orbitDeadband`     | Deadband         | Hidden                         | Numeric                        | Debug only                                 |
 
-Product UI does **not** expose Enable-per-op, Reverse, pitch min/max, CAD switcher, Contacts picker, low-pass, or Assist button steps on the ship DLL.
+**Not on the ship surface:** master General Sensitivity, Options Reset, Enable-per-op, Reverse, pitch min/max, CAD switcher, Contacts picker, low-pass, Assist button steps.
+
+**Debug footer chrome** (not catalog feel fields): Include system info checkbox, Copy button, Built (local) stamp. See [Hosts](#hosts).
 
 ## Preset state machine
 
@@ -38,13 +45,28 @@ Product UI does **not** expose Enable-per-op, Reverse, pitch min/max, CAD switch
 
 ## Hosts
 
-| Host    | Skin                                                            | Shared                |
-| ------- | --------------------------------------------------------------- | --------------------- |
-| Options | Colossal AddGroup rhythm; Sensitivity label + slider on one row | Catalog + editor      |
-| Debug   | Floating panel chrome (drag, opacity, close, gear)              | Same catalog + editor |
+| Host    | Skin                                                                                                                         | Shared           |
+| ------- | ---------------------------------------------------------------------------------------------------------------------------- | ---------------- |
+| Options | Colossal AddGroup rhythm; sliders; General = Show debug → Feel → Save as… → Delete; op description labels                    | Catalog + editor |
+| Debug   | 560px floating chrome (drag, opacity, close, gear); numeric Sensitivity + Deadband; Reset on Feel row; Copy/build footer     | Same catalog + editor |
+
+### Debug Copy footer
+
+After Orbit, Debug always shows:
+
+1. **Include system info** (persisted `IncludeSystemInfoInCopy`, default on) + **Copy**.
+2. Dimmed `Built (local): yyyy-MM-dd HH:mm:ss` (or `Built (local): ?` if stamp missing).
+
+Copy paste contract:
+
+- `TrackpadCameraControl.Rewrite: {assembly identity}`
+- `Built (UTC): …`
+- When Include is on: `--- System ---` (OS, Model), `--- Input devices ---`, `--- Assemblies ---` (Unity, ICities, CitiesHarmony.API, 0Harmony — not this mod again).
+- Off Mac, input enumeration fail-softs with `(macOS input enumeration unavailable on this host)`.
 
 ## Acceptance
 
 - A contributor can implement both hosts from this shard without opening shipping UI sources.
 - Section order and labels match [parity with shipping](./parity-with-shipping.md).
-- Catalog tests assert order and labels; hosts do not each own a field list.
+- Catalog tests assert shared inventory + per-host visibility/kind; hosts do not each own a field list.
+- Debug Copy paste identifies the rewrite tree vs shipping.

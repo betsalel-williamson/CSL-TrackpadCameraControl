@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Runtime.InteropServices;
 using TrackpadCameraControl.Rewrite;
 using Xunit;
 
@@ -21,29 +22,60 @@ namespace TrackpadCameraControl.Rewrite.Tests
         public void Catalog_FirstFields_MatchFeelCatalogShard()
         {
             var fields = FeelCatalog.AllFields();
-            Assert.Equal("feelPreset", fields[0].Id);
-            Assert.Equal("Feel preset", fields[0].Label);
-            Assert.Equal(FeelControlKind.Dropdown, fields[0].Kind);
-            Assert.Equal("showDebugPanel", fields[5].Id);
-            Assert.Equal("zoomSensitivity", fields[6].Id);
-            Assert.Equal("Zoom", fields[6].Section);
+            Assert.Equal("showDebugPanel", fields[0].Id);
+            Assert.Equal("Show debug panel", fields[0].Label);
+            Assert.True(fields[0].OptionsVisible);
+            Assert.False(fields[0].DebugVisible);
+            Assert.Equal("feelPreset", fields[1].Id);
+            Assert.Equal(FeelControlKind.Dropdown, fields[1].OptionsKind);
+            Assert.Equal("zoomSensitivity", fields[5].Id);
+            Assert.Equal("Zoom", fields[5].Section);
+            Assert.Equal(FeelControlKind.Slider, fields[5].OptionsKind);
+            Assert.Equal(FeelControlKind.Numeric, fields[5].DebugKind);
         }
 
         [Fact]
-        public void OptionsAndDebug_ShareSameDescriptorInventory()
+        public void OptionsAndDebug_ShareCatalogButFilterVisibility()
         {
-            var options = OptionsHost.BuildDescriptors();
-            var debug = DebugHost.BuildDescriptors();
-            Assert.Equal(options.Count, debug.Count);
-            for (int i = 0; i < options.Count; i++)
-            {
-                Assert.Equal(options[i].Id, debug[i].Id);
-                Assert.Equal(options[i].Section, debug[i].Section);
-                Assert.Equal(options[i].Label, debug[i].Label);
-            }
-
+            var options = OptionsHost.BuildDescriptors(FeelHostKind.Options);
+            var debug = OptionsHost.BuildDescriptors(FeelHostKind.Debug);
+            Assert.Contains(options, d => d.Id == "showDebugPanel");
+            Assert.DoesNotContain(debug, d => d.Id == "showDebugPanel");
+            Assert.Contains(debug, d => d.Id == "reset");
+            Assert.DoesNotContain(options, d => d.Id == "reset");
+            Assert.Contains(debug, d => d.Id == "zoomDeadband");
+            Assert.DoesNotContain(options, d => d.Id == "zoomDeadband");
+            Assert.Contains(options, d => d.Id == "panSensitivityX");
+            Assert.Contains(debug, d => d.Id == "panSensitivityX");
             Assert.Equal("General", options[0].Section);
             Assert.Equal("Orbit", options[options.Count - 1].Section);
+            Assert.Equal("General", debug[0].Section);
+            Assert.Equal("Orbit", debug[debug.Count - 1].Section);
+        }
+
+        [Fact]
+        public void OptionsDescriptors_UseSliders_DebugUsesNumerics()
+        {
+            FeelControlDescriptor zoomOptions = FindDesc(
+                OptionsHost.BuildDescriptors(FeelHostKind.Options),
+                "zoomSensitivity"
+            );
+            FeelControlDescriptor zoomDebug = FindDesc(
+                OptionsHost.BuildDescriptors(FeelHostKind.Debug),
+                "zoomSensitivity"
+            );
+            Assert.Equal(FeelControlKind.Slider, zoomOptions.Kind);
+            Assert.Equal(FeelControlKind.Numeric, zoomDebug.Kind);
+        }
+
+        [Fact]
+        public void Catalog_HasNoMasterSensitivityOrOptionsReset()
+        {
+            foreach (FeelCatalogField field in FeelCatalog.AllFields())
+            {
+                Assert.NotEqual("sensitivity", field.Id);
+                Assert.NotEqual("resetFactory", field.Id);
+            }
         }
 
         [Fact]
@@ -160,8 +192,6 @@ namespace TrackpadCameraControl.Rewrite.Tests
             {
                 var store = new SettingsStore(path);
                 ModSettings settings = store.LoadOrFactory();
-                // Coalesce window may skip flush right after LoadOrFactory SaveNow —
-                // force one write path and assert dirty clears.
                 store.MarkDirtyAndMaybeFlush(settings);
                 if (store.HasPendingDirty)
                 {
@@ -208,35 +238,24 @@ namespace TrackpadCameraControl.Rewrite.Tests
         {
             foreach (FeelCatalogField field in FeelCatalog.AllFields())
             {
-                FeelControlKind toolkit = FeelHostMapping.MapKind(field.Kind);
-                if (field.Kind == FeelControlKind.Slider)
+                FeelControlKind optionsToolkit = FeelHostMapping.MapKind(field.OptionsKind);
+                FeelControlKind debugToolkit = FeelHostMapping.MapKind(field.DebugKind);
+                if (field.OptionsKind == FeelControlKind.Toggle)
                 {
-                    Assert.Equal(FeelControlKind.Slider, toolkit);
+                    Assert.Equal(FeelControlKind.Checkbox, optionsToolkit);
                 }
-                else if (field.Kind == FeelControlKind.Dropdown)
+                else
                 {
-                    Assert.Equal(FeelControlKind.Dropdown, toolkit);
-                }
-                else if (field.Kind == FeelControlKind.Button)
-                {
-                    Assert.Equal(FeelControlKind.Button, toolkit);
-                }
-                else if (field.Kind == FeelControlKind.Toggle)
-                {
-                    Assert.Equal(FeelControlKind.Checkbox, toolkit);
-                }
-                else if (field.Kind == FeelControlKind.Numeric)
-                {
-                    Assert.Equal(FeelControlKind.Numeric, toolkit);
+                    Assert.Equal(field.OptionsKind, optionsToolkit);
                 }
 
-                if (
-                    field.Kind == FeelControlKind.Slider
-                    || field.Kind == FeelControlKind.Dropdown
-                    || field.Kind == FeelControlKind.Button
-                )
+                if (field.DebugKind == FeelControlKind.Toggle)
                 {
-                    Assert.NotEqual(FeelControlKind.Checkbox, toolkit);
+                    Assert.Equal(FeelControlKind.Checkbox, debugToolkit);
+                }
+                else
+                {
+                    Assert.Equal(field.DebugKind, debugToolkit);
                 }
             }
         }
@@ -281,7 +300,6 @@ namespace TrackpadCameraControl.Rewrite.Tests
 
                 Assert.True(editor.IsDirty);
                 Assert.Equal(FeelProfiles.NameNewPreset, settings.ActiveFeelPresetName);
-                // Within coalesce window after LoadOrFactory SaveNow, dirty bit stays pending.
                 Assert.True(store.HasPendingDirty);
                 store.SaveNow(settings);
                 Assert.False(store.HasPendingDirty);
@@ -364,12 +382,10 @@ namespace TrackpadCameraControl.Rewrite.Tests
                 Assert.Equal(FeelProfiles.NameFast, preset.TextValue);
 
                 FeelPanelEntry zoom = FindEntry(model, "zoomSensitivity");
-                Assert.Equal("slider", zoom.ValueKind);
+                Assert.Equal("numeric", zoom.ValueKind);
                 Assert.NotNull(zoom.NumericValue);
 
-                FeelPanelEntry showDebug = FindEntry(model, "showDebugPanel");
-                Assert.Equal("toggle", showDebug.ValueKind);
-                Assert.True(showDebug.BoolValue);
+                Assert.Throws<InvalidOperationException>(() => FindEntry(model, "showDebugPanel"));
             }
             finally
             {
@@ -404,6 +420,43 @@ namespace TrackpadCameraControl.Rewrite.Tests
             Assert.False(DebugHost.ShouldShowReopen(true, false));
         }
 
+        [Fact]
+        public void SuggestFeelSaveAsName_UsesNextNumberedNewPreset()
+        {
+            string path = Path.Combine(Path.GetTempPath(), "tcc-feel-" + Path.GetRandomFileName());
+            try
+            {
+                var store = new SettingsStore(path);
+                ModSettings settings = store.LoadOrFactory();
+                var editor = new FeelEditor(settings, store);
+                settings.ActiveFeelPresetName = FeelProfiles.NameNewPreset;
+                Assert.Equal("New Preset 1", OptionsHost.SuggestFeelSaveAsName(editor));
+            }
+            finally
+            {
+                if (File.Exists(path))
+                {
+                    File.Delete(path);
+                }
+            }
+        }
+
+        private static FeelControlDescriptor FindDesc(
+            System.Collections.Generic.IList<FeelControlDescriptor> list,
+            string id
+        )
+        {
+            for (int i = 0; i < list.Count; i++)
+            {
+                if (list[i].Id == id)
+                {
+                    return list[i];
+                }
+            }
+
+            throw new InvalidOperationException("Missing descriptor: " + id);
+        }
+
         private static FeelPanelEntry FindEntry(
             System.Collections.Generic.IList<FeelPanelEntry> model,
             string id
@@ -418,6 +471,33 @@ namespace TrackpadCameraControl.Rewrite.Tests
             }
 
             throw new InvalidOperationException("Missing panel entry: " + id);
+        }
+    }
+
+    internal static class PlatformTestFacts
+    {
+        public static bool IsMacOS => RuntimeInformation.IsOSPlatform(OSPlatform.OSX);
+    }
+
+    internal sealed class MacOsFactAttribute : FactAttribute
+    {
+        public MacOsFactAttribute()
+        {
+            if (!PlatformTestFacts.IsMacOS)
+            {
+                Skip = "macOS only";
+            }
+        }
+    }
+
+    internal sealed class SkipOnMacOsFactAttribute : FactAttribute
+    {
+        public SkipOnMacOsFactAttribute()
+        {
+            if (PlatformTestFacts.IsMacOS)
+            {
+                Skip = "Not applicable on macOS";
+            }
         }
     }
 }

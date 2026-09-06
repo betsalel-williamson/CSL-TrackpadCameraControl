@@ -1,8 +1,8 @@
 # QA checklist (rewrite parity)
 
-Side-by-side pass/fail matrix: shipping `TrackpadCameraControl` vs rewrite `TrackpadCameraControl.Rewrite`. Unit and fixture tiers cannot prove Harmony timing or hardware Option+drag — run this in Cities: Skylines after [Local MVP install](./local-mvp-install.md).
+Side-by-side pass/fail matrix: shipping vs rewrite, both installed to `Mods/TrackpadCameraControl`. Unit and fixture tiers cannot prove Harmony timing or hardware Option+drag — run this in Cities: Skylines after [Local MVP install](./local-mvp-install.md).
 
-**Session defaults:** Cities Harmony on; **only one** camera mod enabled; city loaded; game focused; Maps+ seeds; Default feel.
+**Session defaults:** Cities Harmony on; last install of shipping **or** `--rewrite` occupies the single Content Manager row; city loaded; game focused; Maps+ seeds; Default feel. Confirm the tree from Debug Copy before filling a column.
 
 Fill shipping and rewrite columns on the same machine / OS when possible. Player-visible UI must stay at [UI parity](../glossary/ui-parity.md) and Maps+ dynamics must match (L11). Source identity with shipping is not a pass (L13).
 
@@ -48,11 +48,13 @@ Check each row for **shipping** and **rewrite**. Fail the row if either side reg
 | Check                                                                            | Shipping | Rewrite |
 | -------------------------------------------------------------------------------- | -------- | ------- |
 | Options Sensitivity order / labels match (General → Zoom → Pan → Rotate → Orbit) | ☐        | ☐       |
-| Debug panel field order and labels match shipping                                | ☐        | ☐       |
+| Options General: Show debug → Feel → Save as… → Delete (no Options Reset)        | ☐        | ☐       |
+| Debug panel field order and labels match shipping (numeric + deadbands)          | ☐        | ☐       |
+| Debug: Include system info + Copy + Built stamp; paste has Rewrite asm identity  | ☐        | ☐       |
 | Slow / Default / Fast gains match; dirty edits → New Preset                      | ☐        | ☐       |
 | Sensitivity hot-applies and autosaves; Options and Debug stay in sync            | ☐        | ☐       |
 | No Pitch min/max controls; orbit pitch stops at vanilla **0°–90°**               | ☐        | ☐       |
-| Reset to factory restores Default feel; panel position preserved                 | ☐        | ☐       |
+| Debug Reset restores Default feel; panel position preserved                      | ☐        | ☐       |
 
 ### Orbit latch
 
@@ -83,11 +85,12 @@ Check each row for **shipping** and **rewrite**. Fail the row if either side reg
 
 ## Setup reminders
 
-- [ ] Only one of shipping / rewrite enabled (see [Local MVP install](./local-mvp-install.md))
+- [ ] Last install is the tree under test (see [Local MVP install](./local-mvp-install.md)); Copy assembly matches that column
 - [ ] Cities Harmony enabled
 - [ ] City loaded (not menus-only)
 - [ ] Session platform row filled
 - [ ] Cold-boot dual-cursor / Steam overlay quirks noted as external if seen — not a rewrite blocker by itself
+- [ ] Non-Mac Steam install (if available): enabling rewrite must not crash or disable the mod; gestures no-op; Options/Debug still open
 
 ## Optional flag builds (not ship parity)
 

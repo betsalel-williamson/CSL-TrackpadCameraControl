@@ -1,12 +1,12 @@
 # In-game parity checklist (tier C)
 
-Run this **after** a rewrite DLL exists that was built from the UX contract, not as a sign-off of the quarantined clone. Enable **only one** Content Manager entry per session.
+Run this **after** a rewrite DLL exists that was built from the UX contract, not as a sign-off of the quarantined clone. Shipping and rewrite share **one** Content Manager row (`TrackpadCameraControl`). Switch by reinstalling; last deploy wins.
 
-Compare shipping vs `Trackpad Camera Control (Rewrite)` on the same city save. Pass means the **player cannot tell the surfaces apart**. It does **not** mean rewrite C# matches shipping C#.
+Compare shipping vs rewrite on the same city save. Pass means the **player cannot tell the surfaces apart**. It does **not** mean rewrite C# matches shipping C#. Confirm which tree is loaded from Debug Copy (`TrackpadCameraControl` vs `TrackpadCameraControl.Rewrite`).
 
 ```bash
 ./scripts/install-mod-local.sh              # shipping → Mods/TrackpadCameraControl
-./scripts/install-mod-local.sh --rewrite    # rewrite → Mods/TrackpadCameraControl.Rewrite
+./scripts/install-mod-local.sh --rewrite    # rewrite → same folder, same Content Manager name
 # Requires CitiesManaged / ICities.dll on this machine.
 ```
 

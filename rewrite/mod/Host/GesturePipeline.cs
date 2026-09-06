@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using TrackpadCameraControl.Gestures;
 
 namespace TrackpadCameraControl.Rewrite
@@ -12,6 +13,7 @@ namespace TrackpadCameraControl.Rewrite
         private readonly GestureSession _session = new GestureSession();
         private IGestureSource _source;
         private int _reconnectCooldown;
+        private bool _loggedUnsupportedCapture;
 
         public GesturePipeline(ModSettings settings, IGestureSource source)
             : this(settings, source, new CitiesCameraAdapter(), CitiesSelectionContext.Instance) { }
@@ -75,6 +77,11 @@ namespace TrackpadCameraControl.Rewrite
 
             if (!_source.IsConnected)
             {
+                if (_source is NoopGestureSource)
+                {
+                    return;
+                }
+
                 if (_reconnectCooldown > 0)
                 {
                     _reconnectCooldown--;
@@ -137,7 +144,7 @@ namespace TrackpadCameraControl.Rewrite
 
         public void ArmCapture()
         {
-            if (_source == null)
+            if (_source == null || _source is NoopGestureSource)
             {
                 return;
             }
@@ -164,8 +171,46 @@ namespace TrackpadCameraControl.Rewrite
             ModLog.Info("gestures armed");
         }
 
+        /// <summary>
+        /// True when this process can attempt AppKit capture.
+        /// Do not use <c>File.Exists</c> on the AppKit binary — on modern macOS it lives in the
+        /// dyld shared cache and the path is a broken symlink (probe returns false on Mac).
+        /// </summary>
+        public static bool IsAppKitAvailable()
+        {
+            try
+            {
+                PlatformID platform = Environment.OSVersion.Platform;
+                if (platform == PlatformID.MacOSX)
+                {
+                    return true;
+                }
+
+                // Mono on macOS reports Unix; framework directory exists even when the binary
+                // path does not resolve on disk.
+                if (
+                    platform == PlatformID.Unix
+                    && Directory.Exists("/System/Library/Frameworks/AppKit.framework")
+                )
+                {
+                    return true;
+                }
+            }
+            catch
+            {
+                // fall through
+            }
+
+            return false;
+        }
+
         internal static IGestureSource CreateDefaultCaptureSource()
         {
+            if (!IsAppKitAvailable())
+            {
+                return new NoopGestureSource();
+            }
+
             var apple = new AppleGestureSource();
             apple.ShouldCapture = InputGates.ShouldCaptureGestures;
             apple.PreciseScrollChanged = precise =>
@@ -173,6 +218,22 @@ namespace TrackpadCameraControl.Rewrite
                 VanillaCameraSuppress.PreciseTrackpadScroll = precise;
             };
             return apple;
+        }
+
+        internal static IGestureSource CreateFailSoftCaptureSource()
+        {
+            return new NoopGestureSource();
+        }
+
+        internal void LogUnsupportedCaptureOnce()
+        {
+            if (_loggedUnsupportedCapture)
+            {
+                return;
+            }
+
+            _loggedUnsupportedCapture = true;
+            ModLog.Info("capture unsupported — gestures no-op (AppKit unavailable)");
         }
     }
 }

@@ -18,11 +18,12 @@ The rewrite tree README lives at repo path `rewrite/README.md` (outside this MDC
 
 | Surface                       | Name                                                                                                     |
 | ----------------------------- | -------------------------------------------------------------------------------------------------------- |
-| Content Manager / Mods folder | `TrackpadCameraControl.Rewrite`                                                                          |
-| Assembly / project            | `TrackpadCameraControl.Rewrite` (mod) + gesture library project                                          |
+| Content Manager / Mods folder | `TrackpadCameraControl` (same as shipping; last install wins)                                            |
+| Content Manager title         | **Trackpad Camera Control (macOS)** — same as shipping                                                   |
+| Assembly / project            | `TrackpadCameraControl.Rewrite` (mod) + gesture library; file on disk is `TrackpadCameraControl.dll`     |
 | Local install                 | Root script `./scripts/install-mod-local.sh --rewrite` (see [Local MVP install](./local-mvp-install.md)) |
 
-Shipping deploy remains `TrackpadCameraControl` under repo-root `mod/`. The rewrite DLL must never overwrite that folder.
+Rewrite and shipping share one playtest folder. `--rewrite` overwrites shipping; a shipping install overwrites rewrite. Tell them apart from Debug / Copy assembly identity, not from a second Content Manager row.
 
 ## Relation to repository root
 
@@ -31,7 +32,7 @@ Shipping deploy remains `TrackpadCameraControl` under repo-root `mod/`. The rewr
 | `docs/`                                               | As-built shipping contracts until cutover |
 | `rewrite/docs/`                                       | Target contracts (this guide)             |
 | `mod/` → Mods/`TrackpadCameraControl`                 | Shipping playtest / Share path            |
-| `rewrite/mod/` → Mods/`TrackpadCameraControl.Rewrite` | Parallel A/B playtest path                |
+| `rewrite/mod/` → Mods/`TrackpadCameraControl`         | Same folder; last `--rewrite` or shipping install wins |
 | Root `src/`, `tests/`, `scripts/`                     | Shipping tree tooling                     |
 | `rewrite/src/`, `rewrite/tests/`                      | Gesture library and rewrite gates         |
 
@@ -41,9 +42,8 @@ Root `docs/` and `rewrite/docs/` stay separate MDCP roots (`npm run docs` vs `np
 
 | Surface              | Name                          |
 | -------------------- | ----------------------------- |
-| Product display      | Trackpad Camera Control       |
-| Rewrite Mods folder  | TrackpadCameraControl.Rewrite |
-| Shipping Mods folder | TrackpadCameraControl         |
+| Product display      | Trackpad Camera Control (macOS) |
+| Mods folder (both)   | TrackpadCameraControl           |
 | GitHub repo          | CSL-TrackpadCameraControl     |
 
 Folder and assembly names stay PascalCase `TrackpadCameraControl*` forever. North-star lessons for every shard in this tree: greenfield redesign lessons; stack story: features _Under the hood_.

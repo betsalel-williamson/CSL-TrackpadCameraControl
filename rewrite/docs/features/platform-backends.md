@@ -31,7 +31,7 @@ A backend in the gesture library must:
 
 ## Windows / Linux (stubs)
 
-- Compile-time or runtime “unsupported” path.
+- Runtime **noop** `IGestureSource` when AppKit is missing (or Connect fails). Detect Mac via OS / AppKit **framework directory** — do not use `File.Exists` on the AppKit binary (dyld shared cache makes that path a broken symlink). The mod **stays enabled**: Options and Debug open; gestures no-op; vanilla mouse wheel and middle-mouse orbit remain. Do **not** crash Content Manager / city load — never retry AppKit construction in the enable catch.
 - Future: Precision Touchpad or equivalent contact streaming mapped to the same primitives.
 
 ## Acceptance

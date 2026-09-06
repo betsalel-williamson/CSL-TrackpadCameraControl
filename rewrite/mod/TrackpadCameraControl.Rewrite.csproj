@@ -1,6 +1,6 @@
 <!--
-  Rewrite DLL targets net35 (CS1 Unity Mono / mscorlib). Parallel to shipping
-  TrackpadCameraControl — deploys to Mods/TrackpadCameraControl.Rewrite.
+  Rewrite DLL targets net35 (CS1 Unity Mono / mscorlib). Deploys as
+  TrackpadCameraControl.dll into the same Mods folder as shipping (last install wins).
   Tests / CI: -p:EnableCitiesRefs=false when ICities.dll is missing.
 -->
 <Project Sdk="Microsoft.NET.Sdk">
@@ -33,7 +33,7 @@
             >$(HOME)/Library/Application Support/Colossal Order/Cities_Skylines/Addons/Mods</CitiesMods>
         <CitiesMods Condition="'$(CitiesMods)' == '' and '$(LOCALAPPDATA)' != ''"
             >$(LOCALAPPDATA)\Colossal Order\Cities_Skylines\Addons\Mods</CitiesMods>
-        <ModDeployDir>$(CitiesMods)/TrackpadCameraControl.Rewrite</ModDeployDir>
+        <ModDeployDir>$(CitiesMods)/TrackpadCameraControl</ModDeployDir>
         <DisableImplicitFrameworkReferences>false</DisableImplicitFrameworkReferences>
 
         <EnableAssistChrome Condition="'$(EnableAssistChrome)' == ''">false</EnableAssistChrome>
@@ -72,10 +72,14 @@
         Condition="'$(SkipModDeploy)' != 'true' And '$(EnableCitiesRefs)' != 'false' And Exists('$(CitiesManaged)/ICities.dll') And '$(CitiesMods)' != ''"
     >
         <MakeDir Directories="$(ModDeployDir)" />
-        <Delete Files="$(ModDeployDir)/$(TargetFileName)" TreatErrorsAsWarnings="true" />
+        <Delete Files="$(ModDeployDir)/TrackpadCameraControl.dll" TreatErrorsAsWarnings="true" />
+        <Delete
+            Files="$(ModDeployDir)/TrackpadCameraControl.Rewrite.dll"
+            TreatErrorsAsWarnings="true"
+        />
         <Copy
             SourceFiles="$(TargetPath)"
-            DestinationFolder="$(ModDeployDir)"
+            DestinationFiles="$(ModDeployDir)/TrackpadCameraControl.dll"
             OverwriteReadOnlyFiles="true"
         />
         <Copy
@@ -90,7 +94,13 @@
             SkipUnchangedFiles="true"
             Condition="Exists('$(TargetDir)CitiesHarmony.API.dll')"
         />
-        <Message Importance="high" Text="Deployed → $(ModDeployDir)/$(TargetFileName)" />
+        <Copy
+            SourceFiles="$(TargetDir)TrackpadCameraControl.Gestures.dll"
+            DestinationFolder="$(ModDeployDir)"
+            OverwriteReadOnlyFiles="true"
+            Condition="Exists('$(TargetDir)TrackpadCameraControl.Gestures.dll')"
+        />
+        <Message Importance="high" Text="Deployed → $(ModDeployDir)/TrackpadCameraControl.dll" />
     </Target>
 
     <PropertyGroup Condition="'$(EnableAssistChrome)' == 'true'">

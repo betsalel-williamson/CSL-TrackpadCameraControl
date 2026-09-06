@@ -15,19 +15,42 @@ namespace TrackpadCameraControl.Rewrite
         Checkbox,
     }
 
+    public enum FeelHostKind
+    {
+        Options,
+        Debug,
+    }
+
     public sealed class FeelCatalogField
     {
         public string Section { get; set; }
         public string Id { get; set; }
         public string Label { get; set; }
-        public FeelControlKind Kind { get; set; }
+        public FeelControlKind OptionsKind { get; set; }
+        public FeelControlKind DebugKind { get; set; }
+        public bool OptionsVisible { get; set; }
+        public bool DebugVisible { get; set; }
 
-        public FeelCatalogField(string section, string id, string label, FeelControlKind kind)
+        /// <summary>Legacy single-kind accessor for tests that map toolkit kinds.</summary>
+        public FeelControlKind Kind => OptionsVisible ? OptionsKind : DebugKind;
+
+        public FeelCatalogField(
+            string section,
+            string id,
+            string label,
+            FeelControlKind optionsKind,
+            FeelControlKind debugKind,
+            bool optionsVisible,
+            bool debugVisible
+        )
         {
             Section = section;
             Id = id;
             Label = label;
-            Kind = kind;
+            OptionsKind = optionsKind;
+            DebugKind = debugKind;
+            OptionsVisible = optionsVisible;
+            DebugVisible = debugVisible;
         }
     }
 
@@ -36,35 +59,140 @@ namespace TrackpadCameraControl.Rewrite
     {
         private static readonly FeelCatalogField[] Fields =
         {
-            new FeelCatalogField("General", "feelPreset", "Feel preset", FeelControlKind.Dropdown),
-            new FeelCatalogField("General", "saveAs", "Save as…", FeelControlKind.Button),
-            new FeelCatalogField("General", "deletePreset", "Delete", FeelControlKind.Button),
-            new FeelCatalogField(
-                "General",
-                "resetFactory",
-                "Reset to factory",
-                FeelControlKind.Button
-            ),
-            new FeelCatalogField("General", "sensitivity", "Sensitivity", FeelControlKind.Slider),
             new FeelCatalogField(
                 "General",
                 "showDebugPanel",
                 "Show debug panel",
-                FeelControlKind.Toggle
+                FeelControlKind.Toggle,
+                FeelControlKind.Toggle,
+                optionsVisible: true,
+                debugVisible: false
             ),
-            new FeelCatalogField("Zoom", "zoomSensitivity", "Sensitivity", FeelControlKind.Slider),
-            new FeelCatalogField("Pan", "panSensitivity", "Sensitivity", FeelControlKind.Slider),
+            new FeelCatalogField(
+                "General",
+                "feelPreset",
+                "Feel preset",
+                FeelControlKind.Dropdown,
+                FeelControlKind.Dropdown,
+                optionsVisible: true,
+                debugVisible: true
+            ),
+            new FeelCatalogField(
+                "General",
+                "saveAs",
+                "Save as…",
+                FeelControlKind.Button,
+                FeelControlKind.Button,
+                optionsVisible: true,
+                debugVisible: true
+            ),
+            new FeelCatalogField(
+                "General",
+                "deletePreset",
+                "Delete",
+                FeelControlKind.Button,
+                FeelControlKind.Button,
+                optionsVisible: true,
+                debugVisible: true
+            ),
+            new FeelCatalogField(
+                "General",
+                "reset",
+                "Reset",
+                FeelControlKind.Button,
+                FeelControlKind.Button,
+                optionsVisible: false,
+                debugVisible: true
+            ),
+            new FeelCatalogField(
+                "Zoom",
+                "zoomSensitivity",
+                "Sensitivity",
+                FeelControlKind.Slider,
+                FeelControlKind.Numeric,
+                optionsVisible: true,
+                debugVisible: true
+            ),
+            new FeelCatalogField(
+                "Zoom",
+                "zoomDeadband",
+                "Deadband",
+                FeelControlKind.Numeric,
+                FeelControlKind.Numeric,
+                optionsVisible: false,
+                debugVisible: true
+            ),
+            new FeelCatalogField(
+                "Pan",
+                "panSensitivityX",
+                "Sensitivity X",
+                FeelControlKind.Slider,
+                FeelControlKind.Numeric,
+                optionsVisible: true,
+                debugVisible: true
+            ),
+            new FeelCatalogField(
+                "Pan",
+                "panSensitivityY",
+                "Sensitivity Y",
+                FeelControlKind.Slider,
+                FeelControlKind.Numeric,
+                optionsVisible: true,
+                debugVisible: true
+            ),
+            new FeelCatalogField(
+                "Pan",
+                "panDeadband",
+                "Deadband",
+                FeelControlKind.Numeric,
+                FeelControlKind.Numeric,
+                optionsVisible: false,
+                debugVisible: true
+            ),
             new FeelCatalogField(
                 "Rotate",
                 "rotateSensitivity",
                 "Sensitivity",
-                FeelControlKind.Slider
+                FeelControlKind.Slider,
+                FeelControlKind.Numeric,
+                optionsVisible: true,
+                debugVisible: true
+            ),
+            new FeelCatalogField(
+                "Rotate",
+                "rotateDeadband",
+                "Deadband",
+                FeelControlKind.Numeric,
+                FeelControlKind.Numeric,
+                optionsVisible: false,
+                debugVisible: true
             ),
             new FeelCatalogField(
                 "Orbit",
-                "orbitSensitivity",
-                "Sensitivity",
-                FeelControlKind.Slider
+                "orbitYawSensitivity",
+                "Sensitivity yaw",
+                FeelControlKind.Slider,
+                FeelControlKind.Numeric,
+                optionsVisible: true,
+                debugVisible: true
+            ),
+            new FeelCatalogField(
+                "Orbit",
+                "orbitPitchSensitivity",
+                "Sensitivity pitch",
+                FeelControlKind.Slider,
+                FeelControlKind.Numeric,
+                optionsVisible: true,
+                debugVisible: true
+            ),
+            new FeelCatalogField(
+                "Orbit",
+                "orbitDeadband",
+                "Deadband",
+                FeelControlKind.Numeric,
+                FeelControlKind.Numeric,
+                optionsVisible: false,
+                debugVisible: true
             ),
         };
 
@@ -76,6 +204,26 @@ namespace TrackpadCameraControl.Rewrite
         public static string[] SectionOrder()
         {
             return new[] { "General", "Zoom", "Pan", "Rotate", "Orbit" };
+        }
+
+        public static bool IsVisibleOn(FeelCatalogField field, FeelHostKind host)
+        {
+            if (field == null)
+            {
+                return false;
+            }
+
+            return host == FeelHostKind.Options ? field.OptionsVisible : field.DebugVisible;
+        }
+
+        public static FeelControlKind KindOn(FeelCatalogField field, FeelHostKind host)
+        {
+            if (field == null)
+            {
+                return FeelControlKind.Button;
+            }
+
+            return host == FeelHostKind.Options ? field.OptionsKind : field.DebugKind;
         }
     }
 }

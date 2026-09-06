@@ -10,8 +10,8 @@ if [[ $# -gt 0 ]]; then
   case "$1" in
     -h | --help)
       echo "Usage: $0 [--rewrite|-r]"
-      echo "  Build + post-build copy into Mods (wiki Automate)."
-      echo "  --rewrite | -r  Build/deploy rewrite/mod → Mods/TrackpadCameraControl.Rewrite"
+      echo "  Build + post-build copy into Mods/TrackpadCameraControl (last install wins)."
+      echo "  --rewrite | -r  Build rewrite/mod over the same folder and Content Manager name"
       exit 0
       ;;
     --rewrite | -r)
@@ -28,18 +28,18 @@ fi
 
 MANAGED="${CitiesManaged:-${HOME}/Library/Application Support/Steam/steamapps/common/Cities_Skylines/Cities.app/Contents/Resources/Data/Managed}"
 MODS="${CITIES_MODS:-${HOME}/Library/Application Support/Colossal Order/Cities_Skylines/Addons/Mods}"
+DEST="${MODS}/TrackpadCameraControl"
+LEGACY_REWRITE_DEST="${MODS}/TrackpadCameraControl.Rewrite"
 
 if [[ "${REWRITE}" -eq 1 ]]; then
   CSPROJ="${ROOT}/rewrite/mod/TrackpadCameraControl.Rewrite.csproj"
-  DEST="${MODS}/TrackpadCameraControl.Rewrite"
   if [[ ! -f "${CSPROJ}" ]]; then
     echo "rewrite/mod is not buildable yet (missing ${CSPROJ})." >&2
-    echo "Docs-first phase: see rewrite/README.md. Deploy target will be: Mods/TrackpadCameraControl.Rewrite" >&2
+    echo "Docs-first phase: see rewrite/README.md. Deploy target will be: Mods/TrackpadCameraControl" >&2
     exit 2
   fi
 else
   CSPROJ="${ROOT}/mod/TrackpadCameraControl.csproj"
-  DEST="${MODS}/TrackpadCameraControl"
 fi
 
 if [[ ! -f "${MANAGED}/ICities.dll" ]]; then
@@ -55,11 +55,22 @@ dotnet build \
   "-p:CitiesMods=${MODS}"
 
 mkdir -p "${DEST}"
+# Prior dual-folder QA left a second Content Manager row; last-install-wins uses one folder.
+if [[ -d "${LEGACY_REWRITE_DEST}" ]]; then
+  rm -rf "${LEGACY_REWRITE_DEST}"
+  echo "Removed legacy Mods/TrackpadCameraControl.Rewrite"
+fi
 
 echo "Build finished (post-build should have deployed to ${DEST})."
 echo "Cities auto-reloads when AssemblyVersion changes — see mod-reload-during-development.md"
 if [[ "${REWRITE}" -eq 1 ]]; then
-  echo "Rewrite capture: in-process AppKit → style-table Policy → Apply (Mods/TrackpadCameraControl.Rewrite)."
+  GESTURES="${DEST}/TrackpadCameraControl.Gestures.dll"
+  if [[ ! -f "${GESTURES}" ]]; then
+    echo "Missing ${GESTURES} — Cities cannot load the rewrite IUserMod without the gesture library." >&2
+    exit 1
+  fi
+  echo "Gestures → ${GESTURES}"
+  echo "Rewrite capture: in-process AppKit → style-table Policy → Apply (Mods/TrackpadCameraControl)."
 else
   echo "Capture: in-process AppKit (default, mod DLL). Optional TrackpadBridge socket experiment in src/TrackpadBridge."
 fi

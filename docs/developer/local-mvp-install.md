@@ -25,6 +25,8 @@ chmod +x scripts/install-mod-local.sh
 
 Requires Cities: Skylines Managed assemblies (default Steam macOS path). Override with `CitiesManaged=…` or `CITIES_MODS=…`.
 
+`--rewrite` deploys into this **same** Mods folder and Content Manager name; last install wins. See `rewrite/docs/developer/local-mvp-install.md`.
+
 Restart the game after first install, or keep the game running and rebuild — post-build deploy + `AssemblyVersion` wildcards follow [Paradox Automate](https://skylines.paradoxwikis.com/Advanced_Mod_Setup#Automate) (see [mod reload during development](./mod-reload-during-development.md)). The script copies the DLL and **`PreviewImage.png`** (Content Manager / Workshop thumbnail). Capture is **in-process AppKit** inside the mod DLL — there is no companion process and no alternate Contacts playtest path.
 
 ## Capture log

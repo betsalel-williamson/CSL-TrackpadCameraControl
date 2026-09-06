@@ -45,14 +45,8 @@ namespace TrackpadCameraControl.Rewrite.Tests
         }
 
         [Fact]
-        public void GetBuildInfoFooterDisplay_IsUtcTimestampOnly_WhenDevIdentity()
+        public void GetBuildInfoFooterDisplay_IsUtcTimestampOnly()
         {
-            if (!BuildInfo.ShowDevBuildIdentity)
-            {
-                Assert.Null(Mod.GetBuildInfoFooterDisplay());
-                return;
-            }
-
             string footer = Mod.GetBuildInfoFooterDisplay();
             Assert.False(string.IsNullOrEmpty(footer));
             Assert.StartsWith("Built (UTC):", footer);
@@ -61,18 +55,27 @@ namespace TrackpadCameraControl.Rewrite.Tests
         }
 
         [Fact]
-        public void GetBuildInfoPanelDisplay_UsesLocalLabel_WhenDevIdentity()
+        public void GetBuildInfoPanelDisplay_UsesLocalLabel()
         {
-            if (!BuildInfo.ShowDevBuildIdentity)
-            {
-                Assert.Null(Mod.GetBuildInfoPanelDisplay());
-                return;
-            }
-
             string line = Mod.GetBuildInfoPanelDisplay();
             Assert.False(string.IsNullOrEmpty(line));
             Assert.StartsWith("Built (local):", line);
             Assert.DoesNotContain("asm ", line);
+        }
+
+        [Fact]
+        public void OptionsTitle_MatchesShippingProductName()
+        {
+            string title = Mod.OptionsTitle;
+            Assert.StartsWith("Trackpad Camera Control (macOS)", title);
+            Assert.DoesNotContain("Rewrite", title);
+        }
+
+        [Fact]
+        public void Description_DoesNotAdvertiseRewriteInContentManager()
+        {
+            Mod mod = new Mod();
+            Assert.DoesNotContain("Rewrite", mod.Description);
         }
 
         [Fact]
