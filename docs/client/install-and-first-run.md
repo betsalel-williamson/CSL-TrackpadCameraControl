@@ -1,58 +1,56 @@
 # Install and first run
 
-How players get the mod running. Who this is for: [Personas](./personas.md). Where maintainers announce it: `docs/developer/community-and-marketing.md`.
+How players get Trackpad Camera Control running. Who this is for: [Personas](./personas.md).
 
 ## Distribution paths
 
-| Path               | Who                           | How                                                                                     |
-| ------------------ | ----------------------------- | --------------------------------------------------------------------------------------- |
-| **Beta (current)** | Early adopters / testers      | GitHub Release source archive → build/install per `docs/developer/local-mvp-install.md` |
-| **Steam Workshop** | Most players (when published) | Subscribe in Workshop; enable in Content Manager with Cities Harmony                    |
-| **Local dev**      | Contributors                  | Same install script as beta; see developer guide                                        |
+| Path               | Who                      | How                                                                           |
+| ------------------ | ------------------------ | ----------------------------------------------------------------------------- |
+| **Beta (current)** | Early adopters / testers | GitHub Release source archive → build/install per developer local MVP install |
+| **Steam Workshop** | Most players (when live) | Subscribe; enable in Content Manager with Cities Harmony                      |
+| **Local rewrite**  | Contributors / testers   | `rewrite/docs/developer/local-mvp-install.md` with the rewrite assembly       |
 
-Until Workshop publishes, treat GitHub Release + local install as the supported player/tester path. Do not imply a Workshop item exists before it does. When published, the Workshop and Content Manager title is **Trackpad Camera Control (macOS)** — paste-ready storefront copy lives in `docs/developer/workshop-storefront.md`.
+Until Workshop publishes, treat GitHub Release + local install as the supported player/tester path. When published, the Workshop and Content Manager title is **Trackpad Camera Control (macOS)**.
 
 ## Getting started (macOS)
 
-v1 is **macOS only**. Windows and Linux can show the mod in Content Manager; trackpad gestures will not work.
+v1 is **macOS only**. Windows and Linux may show the mod in Content Manager; trackpad gestures will not work.
 
-1. Subscribe to [Cities Harmony](https://steamcommunity.com/sharedfiles/filedetails/?id=2040656402) and **enable** it.
-2. Install this mod (Workshop subscribe when published, or local DLL via the beta path above) and **enable** it in Content Manager.
+1. Subscribe to Cities Harmony and **enable** it.
+2. Install this mod and **enable** it in Content Manager.
 3. Load a city (not menus-only). Click the game window so it is focused.
 4. Two-finger drag **pans**, pinch **zooms**, two-finger twist **rotates** heading, Option (`⌥`)+two-finger drag **orbits**.
 5. Open **Options → Trackpad Camera Control** for Sensitivity and Slow / Default / Fast.
 
-Harmony must be enabled or two-finger pan may still fight vanilla scroll-zoom. [Skyve](https://steamcommunity.com/sharedfiles/filedetails/?id=2881031511) is optional (load order / compatibility helper). It is **not** required; its Mac app needs Wine and is separate from this mod.
+Cities Harmony must be enabled or two-finger pan may still fight vanilla scroll-zoom. Skyve is optional (load order helper) and **not** required.
 
 ## Requirements
 
 - Cities: Skylines I
-- [Cities Harmony](https://steamcommunity.com/sharedfiles/filedetails/?id=2040656402) subscribed and enabled — **required** for [vanilla camera suppress](../glossary/vanilla-camera-suppress.md) (without it, trackpad pan may still fight vanilla scroll-zoom)
-- Trackpad Camera Control installed via a path in the table above
-- A **supported trackpad backend** for your OS (v1 ships **macOS AppKit** only; other platforms show unsupported until a backend exists)
-- **Tested macOS versions** are listed in the developer QA checklist (`docs/developer/qa-checklist.md`, known-good table). If your Mac is not listed, try it and share your setup — Workshop comment or a GitHub issue — so we can expand the list.
+- Cities Harmony subscribed and enabled (needed for precise-trackpad scroll suppress and Option-orbit velocity flush)
+- Trackpad Camera Control installed via a path above
+- A **supported trackpad backend** (ship: **macOS AppKit** only)
 
 ## Vanilla camera while the mod is on
 
 While Trackpad Camera Control is **enabled**:
 
 - **Precise trackpad** two-finger scroll → mod [pan](../glossary/pan.md); vanilla scroll-zoom suppressed for that path
-- **Mouse wheel** (not precise) → vanilla zoom (mod does not map wheel to pan)
-- **Still on:** middle-mouse drag orbit when the rotate-camera binding is held (same as vanilla)
+- **Mouse wheel** (not precise) → vanilla [zoom](../glossary/zoom.md)
+- **Still on:** middle-mouse drag [orbit](../glossary/orbit.md) when the rotate-camera binding is held
 - **Still on:** edge pan, keyboard camera keys, gamepad / analog, free-cam / follow, one-finger tools and UI
 
 Disable the mod in Content Manager to restore full vanilla camera input. There is no Options checkbox for this.
 
-## First run (current)
+## First run (ship Maps+)
 
-Shipped capture is **AppKit** with [Maps+](../glossary/maps-plus-preset.md) gesture style. Tune [Sensitivity](../glossary/sensitivity.md) and [feel presets](./feel-presets.md) from Options or the optional [Debug panel](./debug-ui.md). There is no player capture-backend switcher. **CAD** three-finger orbit, **Contacts** capture, and Assist chrome pads are **future** directions (not troubleshot for v1) — see `docs/developer/feature-flags.md`.
+Shipped Capture is **AppKit** with Maps+ [gesture style](../glossary/gesture-style.md). Tune Sensitivity and [feel presets](./feel-presets.md) from Options (or the optional Debug panel). There is **no** player capture-backend switcher, CAD style switcher, Contacts low-pass, or Assist chrome on the ship DLL.
 
-1. Subscribe and enable **Cities Harmony**.
-2. Enable **Trackpad Camera Control** in Content Manager.
-3. Load a city or start a new game. If the **macOS arrow** and the in-game cursor fight (or Shift-Tab to Steam overlay swaps which cursor you get), that is a known Steam/Unity Mac issue — not something this mod fixes in v1. Workaround: Shift-Tab out of the overlay back to the game, or Cmd-Tab once. Details: [`docs/developer/qa-mac-boot-cursor.md`](../developer/qa-mac-boot-cursor.md).
-4. Within a few seconds of the city appearing, with the game focused, try two-finger drag (pan), pinch (zoom), two-finger rotate (yaw / rotate selection), and Option (`⌥`)+two-finger drag (orbit). Trackpad pan should not also vanilla-zoom; a real mouse wheel should still zoom. If you use a mouse, middle-click drag should still orbit the camera while trackpad gestures are active.
-5. You do not need to open the Debug panel or Options first — gestures work out of the box; the Debug panel is optional for live tuning (factory default off).
-6. Open Options → Trackpad Camera Control to adjust Sensitivity sliders or Slow / Default / Fast from the feel dropdown. Orbit pitch matches the game **0–90°**.
-7. Confirm edge pan (cursor at screen edge) and keyboard camera keys still move the camera.
+1. Enable **Cities Harmony** and **Trackpad Camera Control**.
+2. Load a city. With the game focused, try two-finger drag (pan), pinch (zoom), two-finger rotate (yaw / rotate selection), and Option (`⌥`)+two-finger drag (orbit).
+3. Trackpad pan should not also vanilla-zoom; a real mouse wheel should still zoom; middle-click drag should still orbit.
+4. You do not need Options or Debug first — gestures work out of the box.
+5. Open Options → Trackpad Camera Control to adjust Sensitivity or Slow / Default / Fast. Orbit pitch matches the game **0–90°** (not an Options field).
+6. Confirm edge pan and keyboard camera keys still move the camera.
 
-If gestures do nothing after the city has loaded and the game is focused, wait a few seconds and retry — do not open the Debug panel as a workaround. Then check OS gesture conflicts ([OS gesture conflicts](./os-gesture-conflicts.md)) and that Cities Harmony is enabled. Contributors can inspect the capture log under the process temp directory.
+If gestures do nothing after the city has loaded and the game is focused, wait a few seconds and retry. Then confirm Cities Harmony is enabled and the game window has focus.

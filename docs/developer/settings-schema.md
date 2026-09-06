@@ -1,250 +1,106 @@
 # Settings schema
 
-Logical schema for ModSettings. Field names in source may differ; this shard is the contract. Defaults belong only in the settings defaults factory — not in camera update logic.
+Minimal **live** schema for the rewrite (**schemaVersion = 1**). Every row names a tick consumer, or is marked chrome or module-gated. Ceremony fields without a consumer are forbidden (greenfield redesign lessons L1, L5, L12).
 
-Canonical UI term: **[Sensitivity](../glossary/sensitivity.md)**. Persist / code names use control-systems language (**gain**). Synonyms in older docs: drag scale, speed, scale. Product numeric fields (Sensitivity gains, button steps, deadbands, pitch limits) round to **three decimal places** (`RoundGain`); gain values must be **> 0**.
+Canonical UI term: **Sensitivity**. Persist / engineering names use **gain**. Product numeric feel values that apply must be **> 0** and round to **three** decimal places.
 
-Product-surface gates: [feature flags](./feature-flags.md). Planning: [AppleKit Maps+ feel surface design](../superpowers/specs/2026-08-29-applekit-feel-surface-design.md).
+## Classification
 
-## Identity / gesture style
+| Kind       | Meaning                                                                   |
+| ---------- | ------------------------------------------------------------------------- |
+| **tick**   | Read on the capture → policy → apply path (resolve, gates, or apply math) |
+| **chrome** | Options / Debug editor or panel chrome only — not camera math             |
+| **module** | Present only when the matching `Enable*` compile module is on             |
 
-| Field         | Type                        | Default  | Hot |
-| ------------- | --------------------------- | -------- | --- |
-| GesturePreset | enum: MapsPlus, CAD, Custom | MapsPlus | yes |
+Unknown `schemaVersion` or corrupt XML → factory defaults, save as v1. No legacy migration ladder.
 
-Schema-retained. With `EnableCadGestureStyle` off, product UI does not expose a Maps+/CAD switcher; shipped style is Maps+ (`⌥`+two-finger orbit). Gesture style is **not** a [feel preset](../glossary/feel-preset.md).
+## Live feel (tick)
 
-## Enables
+| Field                                                                                                           | Role                   | Consumer                       |
+| --------------------------------------------------------------------------------------------------------------- | ---------------------- | ------------------------------ |
+| PanEnabled / ZoomEnabled / RotateEnabled / OrbitEnabled                                                         | Per-op master switches | Policy / apply skip when false |
+| PanGainX / PanGainY / ZoomGain / RotateGain / OrbitYawGain / OrbitPitchGain                                     | Sensitivity            | Apply continuous path          |
+| SignInvertPanX / SignInvertPanY / SignInvertZoom / SignInvertRotate / SignInvertOrbitYaw / SignInvertOrbitPitch | Polarity after gain    | Apply                          |
+| MotionDeadband / PinchDeadband / RotateDeadband                                                                 | Activation thresholds  | Resolve / apply                |
 
-| Field           | Type | Default | Hot |
-| --------------- | ---- | ------- | --- |
-| AssistUiEnabled | bool | false   | yes |
-| PanEnabled      | bool | true    | yes |
-| ZoomEnabled     | bool | true    | yes |
-| RotateEnabled   | bool | true    | yes |
-| OrbitEnabled    | bool | true    | yes |
+Feel profiles (Slow / Default / Fast, Save as… / Load / Delete, **New Preset**) mutate this set only. They must not rewrite gesture style seeds (L2).
 
-Schema field `AssistUiEnabled` shows or hides the in-game **Debug** panel (feel presets + tunables). Product UI labels it Debug; the schema name stays `AssistUiEnabled`. Factory/ship default is **off** so gesture-only players keep a clean viewport; enable it from Options when you want the floating panel. Existing settings.xml that already saved `true` keeps Debug on. Legacy schema 1–2 loads without the element still default **on** via `LegacyModSettings` for migration. Assist **chrome** (pads / nudge buttons) is separate and gated by `EnableAssistChrome`.
+## Live gates (tick)
 
-## Gesture resolve mode
+| Field            | Default | Consumer                                                                            |
+| ---------------- | ------- | ----------------------------------------------------------------------------------- |
+| RequireGameFocus | true    | Gates — skip apply when unfocused                                                   |
+| IgnoreOverUi     | true    | Gates — skip mod camera when pointer over popup; menus are a stronger separate gate |
 
-| Field              | Type                                       | Default    | Hot |
-| ------------------ | ------------------------------------------ | ---------- | --- |
-| GestureResolveMode | enum: Concurrent, SessionLock, PrimaryOnly | Concurrent | yes |
+## Style seeds (tick — not free-form remaps)
 
-See [gesture resolve mode](../glossary/gesture-resolve-mode.md). PrimaryOnly priority when multiple candidates exist: Orbit > Zoom > Rotate > Pan. Schema-retained; not required on the slim product surface.
+Maps+ ships as **seed data** in a style binding table that resolve reads as the single source of truth (L1). Seeded chords for ship parity:
 
-## Orbit trigger
+| Op     | Seed gesture      | Seed modifier |
+| ------ | ----------------- | ------------- |
+| Pan    | Two-finger drag   | None          |
+| Zoom   | Pinch             | None          |
+| Rotate | Two-finger rotate | None          |
+| Orbit  | Two-finger drag   | Option        |
 
-| Field        | Type                                                | Default               | Hot |
-| ------------ | --------------------------------------------------- | --------------------- | --- |
-| OrbitTrigger | enum: ModifierPlusTwoFinger, ThreeFinger, Both, Off | ModifierPlusTwoFinger | yes |
+There is no player remap UI on ship. Do not hardcode Maps+ heuristics beside the table. Debug gesture labels derive from the in-memory style table via `TrackpadGestureCatalog.GetBinding` — not duplicate persisted gesture fields.
 
-Maps+ uses ModifierPlusTwoFinger (Option on macOS). CAD would use ThreeFinger when `EnableCadGestureStyle` is on. [Orbit latch](../glossary/orbit-latch.md) always applies when orbit engages.
+## Chrome (not tick math)
 
-## Sensitivity / gain (factory Default feel)
+| Field                           | Role                                                        |
+| ------------------------------- | ----------------------------------------------------------- |
+| AssistUiEnabled                 | Show or hide the in-game Debug panel (product label: Debug) |
+| ActiveFeelPresetName            | Feel identity in the preset dropdown                        |
+| IncludeSystemInfoInCopy         | Debug Copy includes OS / device / assembly lines            |
+| DebugPanelDismissed             | Panel closed via title-bar X                                |
+| DebugPanelPosX / DebugPanelPosY | Floating panel position                                     |
 
-Used by trackpad gestures (and Assist chrome pads when `EnableAssistChrome` is on). Options labels say **Sensitivity**; schema/XML fields use `*Gain*`.
+Options and Debug share one editor API over the same live blob (L7). Reset to factory restores feel fields; panel position stays.
 
-| Field          | Type  | Factory Default | Hot |
-| -------------- | ----- | --------------- | --- |
-| PanGainX       | float | 0.005           | yes |
-| PanGainY       | float | 0.005           | yes |
-| ZoomGain       | float | 1.00            | yes |
-| RotateGain     | float | 2.00            | yes |
-| OrbitYawGain   | float | 1.00            | yes |
-| OrbitPitchGain | float | 1.00            | yes |
+## Persist envelope
 
-**Numeric policy:** each gain must be **> 0**; parse/apply round to **three** decimals (pan/orbit after folding the former 0.01 AppKit scroll unit into defaults).
+| Element       | Role                                                        |
+| ------------- | ----------------------------------------------------------- |
+| schemaVersion | **1** — envelope version                                    |
+| current       | Full live blob (includes active feel name and chrome prefs) |
+| userPresets[] | Named feel profiles only — not gesture style                |
 
-**Product Sensitivity sliders:** UI domain **[0, 1]** maps piecewise to **0.1× / 1× / 2×** factory (UI **0.5** = Default / Debug field). High-side step ≈ **10%** of factory (`SensitivityUiStep` 0.05; `RoundGain`).
+Missing or corrupt file → factory defaults, then persist the recovered blob. One dirty bit; coalesced autosave.
 
-**Schema 2:** AppKit scroll deltas are raw; schema 1 files migrate by ×0.01 on pan/orbit gain and ÷0.01 on motion deadband (legacy element `MotionDeadzone`).
+## Module-gated fields (omit from ship DLL schema surface)
 
-**Schema 6:** `PinchDeadband` / `RotateDeadband` replace misnamed `PinchEpsilon` / `RotateEpsilon` (activation deadbands, not filter epsilon). Schema 3–5 files still load those legacy elements; save rewrites schema 6 names.
+When `EnableAssistChrome` is **off**, button-step fields must not appear as live schema ceremony or stub UI (L6, L9).
 
-**Schema 9:** Rotate feel fields rename (`YawDeadband` / `YawRotateGain` / `YawRotateStep` / `YawEnabled` / `YawFilter*` / `SignInvertYawRotate` → `RotateDeadband` / `RotateGain` / `RotateStep` / `RotateEnabled` / `RotateFilter*` / `SignInvertRotate`). Orbit axes stay `OrbitYaw*`.
+| Module               | Fields allowed only when on        | Consumer when on                           |
+| -------------------- | ---------------------------------- | ------------------------------------------ |
+| `EnableAssistChrome` | Pan/Zoom/Rotate/Orbit button steps | Assist chrome nudge path only (not × gain) |
 
-**Schema 7–8:** Per-op trackpad gesture bindings (`ZoomGesture` / `ZoomGestureModifier`, and the same for Pan / Rotate / Orbit). Schema 8 renames Rotate bindings from `YawGesture*` → `RotateGesture*` (yaw/pitch remain Orbit axes). Owned by **gesture style** (`GesturePreset` / `ApplyGesturePreset`); orthogonal to feel presets (Slow/Default/Fast). No remap UI yet. Missing elements load Maps+ factory defaults.
+Ship builds: AppKit capture only; no Assist pads/buttons.
 
-**Schema 3:** XML element names move to engineering language (`*Gain*`, `*Step*`, `MotionDeadband`, `*Filter*`, `SignInvert*`). Schema 1–2 files deserialize via the legacy shape and rewrite as schema 3.
+## Explicit non-fields
 
-**Schema 4:** Debug QoL prefs persist in `current`:
+Do **not** add these to the live blob, Options, or Debug:
 
-| Field                   | Type | Default | Hot |
-| ----------------------- | ---- | ------- | --- |
-| IncludeSystemInfoInCopy | bool | true    | no  |
-| DebugPanelDismissed     | bool | false   | no  |
+| Name                          | Why                                                              |
+| ----------------------------- | ---------------------------------------------------------------- |
+| OrbitPitchMin / OrbitPitchMax | Pitch clamp is an **apply constant** (L5).                       |
+| CaptureBackend / low-pass     | Contacts module removed from v1.                                 |
+| CAD gesture preset            | v2 docs-only; Maps+ only in v1 DLL.                              |
+| Bridge / socket enable        | IPC removed from v1.                                             |
+| Per-op gesture XML fields     | Style table is the source of truth; labels read from table rows. |
 
-**Schema 5:** Debug panel position persists in `current`:
+## Feel profile contract
 
-| Field          | Type  | Default | Hot |
-| -------------- | ----- | ------- | --- |
-| DebugPanelPosX | float | 40      | no  |
-| DebugPanelPosY | float | 60      | no  |
+| Profile                        | Contract                                                   |
+| ------------------------------ | ---------------------------------------------------------- |
+| Default / Reset to factory     | Factory gains, reverse, enables, deadbands                 |
+| Slow                           | Default gains × **0.75**; reverse unchanged                |
+| Fast                           | Default gains × **1.25**; reverse unchanged                |
+| New Preset                     | Scratch identity after dirtying a built-in or named preset |
+| Named Save as… / Load / Delete | Full feel set in `userPresets[]`                           |
 
-Reset to factory restores feel fields only — panel position is preserved.
-
-Missing elements on load get factory defaults; schema bump rewrites the envelope.
-
-## Orbit pitch limits
-
-| Field         | Type  | Factory Default | Hot |
-| ------------- | ----- | --------------- | --- |
-| OrbitPitchMin | float | 0.00            | yes |
-| OrbitPitchMax | float | 90.00           | yes |
-
-Schema-retained for presets / older XML. **Live orbit clamp matches vanilla** `CameraController` normal play: **0°–90°**. Drag uses `AddAngleVelocity` (vanilla integrates and clamps); the mod only floors further downward pitch at **0°** so free-camera **−90°** cannot be reached via our path. Button / absolute `AngleY` writes clamp to **0…90**. Fields are not exposed in Options or the Debug panel.
-
-## Button steps
-
-Used by Assist chrome nudge buttons only — product UI when `EnableAssistChrome` is on. Schema-retained while the flag is off. UI label: **button step**. Field names use `*Step*` (schema ≤2: `*ButtonScale*`). **Not** multiplied by gain / Sensitivity.
-
-| Field          | Type  | Default seed | Hot |
-| -------------- | ----- | ------------ | --- |
-| PanStepX       | float | 0.05         | yes |
-| PanStepY       | float | 0.05         | yes |
-| OrbitYawStep   | float | 2.00         | yes |
-| OrbitPitchStep | float | 2.00         | yes |
-| ZoomStep       | float | 0.05         | yes |
-| RotateStep     | float | 2.00         | yes |
-
-Exact button-step seeds may be tuned in the defaults factory; document new seeds here when they change. Button-step fields and Sensitivity gains both use three decimals (`RoundGain`).
-
-## Apply math (contract)
-
-Let `raw` be the resolved gesture delta for that axis (centroid, pinch, or rotate). Optional [low-pass](../glossary/low-pass.md) is **future** (tied to unfinished Contacts); v1 ship applies raw → gain → camera.
-
-**Sign invert:** if the matching `SignInvert*` flag is on, multiply the signed delta by `-1` after scaling. Options may still label these **Invert** / Reverse.
-
-### Continuous path (trackpad; chrome pads when flagged on)
-
-| Op     | After gain                                                       | Camera write                                                          |
-| ------ | ---------------------------------------------------------------- | --------------------------------------------------------------------- |
-| Pan    | `mx = dx * PanGainX`, `my = dy * PanGainY`, then `mx,my *= Size` | Camera-relative XZ: `target += right*mx + forward*my`                 |
-| Zoom   | `delta = pinch * ZoomGain`                                       | `Size' = Size * (1 - delta)` (clamped)                                |
-| Rotate | `delta = rotate * RotateGain`                                    | `AngleX' = AngleX + delta`                                            |
-| Orbit  | `dyaw = dx * OrbitYawGain`, `dpitch = dy * OrbitPitchGain`       | `AngleX' += dyaw`, `AngleY' += dpitch`, then clamp pitch to min / max |
-
-### Button path (chrome nudges only; `EnableAssistChrome`)
-
-Build a one-shot delta from the button step and a sign (`±1`), then apply sign invert and the same camera write as above. **Do not** multiply by gain. Skip filter (low-pass).
-
-| Op     | One-shot input before sign invert                                |
-| ------ | ---------------------------------------------------------------- |
-| Pan    | `dx = signX * PanStepX`, `dy = signY * PanStepY`                 |
-| Zoom   | `pinch = sign * ZoomStep`                                        |
-| Rotate | `rotate = sign * RotateStep`                                     |
-| Orbit  | `dx = signYaw * OrbitYawStep`, `dy = signPitch * OrbitPitchStep` |
-
-### Filter / low-pass (continuous only; future / Contacts)
-
-When a future Contacts path is validated and enabled for an op: first sample seeds state; later `smoothed += alpha * (raw - smoothed)`. Reset on touch-up. Buttons skip this stage. **v1 ship does not run this filter.**
-
-## Sign invert (polarity)
-
-| Field                | Type | Factory Default | Hot |
-| -------------------- | ---- | --------------- | --- |
-| SignInvertPanX       | bool | true            | yes |
-| SignInvertPanY       | bool | false           | yes |
-| SignInvertOrbitYaw   | bool | false           | yes |
-| SignInvertOrbitPitch | bool | false           | yes |
-| SignInvertZoom       | bool | false           | yes |
-| SignInvertRotate     | bool | false           | yes |
-
-Factory Default feel: Pan Reverse X on, Y off (playtest Maps+).
-
-## Gesture bindings (schema 7–8)
-
-Composable **gesture + optional modifier** per camera op. Source of truth for **Gesture(s):** op-heading lines. Defaults come from Maps+/CAD **gesture style** tables via `ApplyGesturePreset` (not from feel Slow/Default/Fast). No edit UI yet.
-
-**Rotate** is the product op name (Cities camera rotate). Schema fields use `RotateGesture*`. Yaw/pitch axes belong to **Orbit** (`OrbitYawGain` / `OrbitPitchGain`), not this op. Schema 8 renames former `YawGesture*` elements; load still accepts schema 7 XML.
-
-| Field                 | Type                    | Maps+ default   | Hot |
-| --------------------- | ----------------------- | --------------- | --- |
-| ZoomGesture           | enum TrackpadGesture    | Pinch           | yes |
-| ZoomGestureModifier   | enum GestureModifierKey | None            | yes |
-| PanGesture            | enum TrackpadGesture    | TwoFingerDrag   | yes |
-| PanGestureModifier    | enum GestureModifierKey | None            | yes |
-| RotateGesture         | enum TrackpadGesture    | TwoFingerRotate | yes |
-| RotateGestureModifier | enum GestureModifierKey | None            | yes |
-| OrbitGesture          | enum TrackpadGesture    | TwoFingerDrag   | yes |
-| OrbitGestureModifier  | enum GestureModifierKey | Option          | yes |
-
-CAD `ApplyGesturePreset` keeps Zoom/Pan/Rotate the same and sets Orbit to ThreeFingerDrag + None (and syncs `OrbitTrigger`). Drag = continuous deltas; Swipe/Tap enum values are catalog stubs for future ports.
-
-Feel presets (Sensitivity / deadbands) apply on top of whichever gesture style is active and must not rewrite these fields.
-
-## Thresholds
-
-| Field                 | Type  | Default seed   | Hot |
-| --------------------- | ----- | -------------- | --- |
-| MotionDeadband        | float | small positive | yes |
-| PinchDeadband         | float | small positive | yes |
-| RotateDeadband        | float | small positive | yes |
-| FingerCountHysteresis | float | small positive | yes |
-
-Schema-retained; **Debug panel** exposes MotionDeadband, PinchDeadband, and RotateDeadband per op section for QA tuning. Options product surface does not show these fields.
-
-## Per-op filter / low-pass (future / Contacts)
-
-EMA on continuous deltas after resolve, before apply — see glossary **low-pass**. Schema retains `*Filter*` fields. **v1 ship does not expose or run** this path; it was tied to unfinished Contacts. Buttons skip filter. The former single `Smoothing` field is retired.
-
-| Field               | Type      | Default | Hot |
-| ------------------- | --------- | ------- | --- |
-| PanFilterEnabled    | bool      | false   | yes |
-| PanFilterAlpha      | float 0–1 | 0.30    | yes |
-| ZoomFilterEnabled   | bool      | false   | yes |
-| ZoomFilterAlpha     | float 0–1 | 0.30    | yes |
-| RotateFilterEnabled | bool      | false   | yes |
-| RotateFilterAlpha   | float 0–1 | 0.30    | yes |
-| OrbitFilterEnabled  | bool      | false   | yes |
-| OrbitFilterAlpha    | float 0–1 | 0.30    | yes |
-
-## Gates and capture
-
-| Field            | Type                          | Default       | Hot |
-| ---------------- | ----------------------------- | ------------- | --- |
-| RequireGameFocus | bool                          | true          | yes |
-| IgnoreOverUi     | bool                          | true          | yes |
-| BridgeEnabled    | bool                          | false         | yes |
-| CaptureBackend   | enum: Contacts, AppleGestures | AppleGestures | yes |
-| DebugOverlay     | bool                          | false         | yes |
-
-`CaptureBackend` selects the in-process interpreter: **AppleGestures** (default, **shipped**) is AppKit scroll/magnify/rotate (no Accessibility). **Contacts** remains in the schema as a MultitouchSupport alternate — **unfinished / not QA’d**; product UI only if `EnableContactsCapture` is compiled on, and that is **not** a supported playtest recipe. Env `TRACKPAD_CAPTURE_BACKEND` may force a backend for experiments; do not use it for v1 launch QA.
-
-**IgnoreOverUi** (default on): when the pointer is over any active popup / HUD panel, skip mod camera ops from two-finger; leave scroll to UI. **Menu / Options open** is a separate, stronger gate (no mod camera; UI owns scroll). Precise trackpad vs mouse-wheel scroll split lives with [vanilla camera suppress](../glossary/vanilla-camera-suppress.md).
-
-## Feel presets and persist envelope
-
-Primary player model: **[feel presets](../glossary/feel-preset.md)** (sensitivities, reverse, enables, pitch limits) — not gesture-style seeds.
-
-| Profile                        | Contract                                                                                                                                                                       |
-| ------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Default / Reset to factory     | Factory Default table above (SignInvertPanX true; gain seeds; OrbitPitchMin/Max 0–90 schema seeds)                                                                             |
-| Slow                           | Default gain fields × **0.75**; reverse and pitch limits unchanged; round to three decimals (`RoundGain`)                                                                      |
-| Fast                           | Default gain fields × **1.25**; reverse and pitch limits unchanged; round to three decimals (`RoundGain`)                                                                      |
-| **New Preset**                 | Scratch identity when the player dirties an active built-in or named preset; autosave writes here; built-ins Slow / Default / Fast are never overwritten                       |
-| Named Save as… / Load / Delete | Full feel set in `userPresets[]`; after Save as…, the named preset is selected; further edits dirty back to **New Preset**; Delete removes a named profile and applies Default |
-
-| Field                | Type   | Role                                                                                              | Hot |
-| -------------------- | ------ | ------------------------------------------------------------------------------------------------- | --- |
-| ActiveFeelPresetName | string | Active feel identity in the preset dropdown (built-in name, named user preset, or **New Preset**) | yes |
-
-Live settings load and save through a versioned XML file under the Cities user-data tree (`…/TrackpadCameraControl/settings.xml`):
-
-| Element       | Role                                                     |
-| ------------- | -------------------------------------------------------- |
-| schemaVersion | Envelope version                                         |
-| current       | Full ModSettings blob (includes active feel preset name) |
-| userPresets[] | Named feel profiles for Save as… / Load / Delete         |
-
-Missing or corrupt file → factory defaults (no crash), then persist the recovered blob. **Reset to factory** restores schema defaults into `current` and writes the file.
-
-GesturePreset / CAD, CaptureBackend / Contacts, button steps, and low-pass remain in the schema for **future** / unfinished surfaces; they are not the v1 player model. Contacts was not product-validated.
-
-Options and the in-game Debug panel both bind the same fields through one apply layer; every change autosaves. Number fields edit Sensitivity (sliders) and (when experimental flags are compiled on) button steps and low-pass params. Orbit pitch min/max remain schema-only — not exposed on either product surface.
+Player “preset” language means feel profile — not gesture style (L2).
 
 ## Validation rule
 
-Camera and gesture modules must read these fields at use-time. A contributor checklist: no magic numbers for feel outside the defaults factory.
+Every live field must keep a named consumer in this shard. Adding a schema row without a tick, chrome, alias, or module rationale fails L1 / L12. Camera and gesture modules read feel at use-time — no magic feel numbers outside the defaults factory.

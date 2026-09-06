@@ -1,7 +1,9 @@
 # About this guide
 
-**Prepared for:** the personas in [Personas](./personas.md) — especially Cities: Skylines I players who use a trackpad and want map-app-like camera control without a three-button mouse.
+**Prepared for:** the personas in [Personas](./personas.md) — Cities: Skylines I players who use a trackpad and want map-app-like camera control without a three-button mouse.
 
 **Product:** Trackpad Camera Control
 
-This guide covers install, presets, Options tuning, and OS gesture conflicts. Platform-specific notes (for example macOS Mission Control) are linked where needed. Contributor setup lives in the developer guide. Release announcements and community channels live in `docs/developer/community-and-marketing.md`.
+This rewrite client guide covers install, feel presets, and Options / hot tuning for the **ship Maps+ surface**. Player-visible UI stays at [UI parity](../glossary/ui-parity.md) with shipping (look and interactions, not copied code). Unfinished modules (CAD style switcher, Contacts capture, Assist chrome) are compile-gated and omitted from the ship DLL — they are not troubleshot here.
+
+Contributor setup lives under `rewrite/docs/developer/`. Shipping as-built player docs remain under repo-root `docs/client/` until cutover — do not mix MDCP links across those roots.

@@ -1,7 +1,5 @@
 # Feel preset
 
-A saved or built-in **feel profile**: [Sensitivity](./sensitivity.md) values and other product-surface feel fields. Orbit pitch matches vanilla **0–90°**.
+Player-facing name for a **feel profile**: Sensitivity values and related feel fields (schema may also hold reverse / enables). Built-ins **Slow**, **Default**, and **Fast** are immutable. The feel **dropdown** loads on select; dirty edits move to **New Preset**; **Save as…** / **Delete** / **Reset to factory** follow the hot settings contract.
 
-Built-in profiles **Slow**, **Default**, and **Fast** are immutable. The feel **dropdown** loads a profile on select; **Save as…** stores a named user profile; **Delete** removes a named user profile (not built-ins or **New Preset**) and restores Default. Editing while a preset is active moves the active identity to **New Preset** and autosaves there. **Reset to factory** restores the Default profile.
-
-A feel preset is **not** a [gesture style](./gesture-style.md) (which fingers trigger orbit — shipped Maps+ only in v1). Switching Slow↔Default↔Fast leaves gesture bindings unchanged.
+A feel preset is **not** [gesture style](./gesture-style.md). Changing Slow ↔ Default ↔ Fast never rewrites the [style binding table](./style-binding-table.md). Orbit pitch is an [apply constant](./apply-constant.md) (**0°–90°**), not a feel field.

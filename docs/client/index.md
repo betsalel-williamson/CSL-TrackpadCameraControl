@@ -1,14 +1,10 @@
-# Client guide
+# Client guide (rewrite)
 
-How Cities: Skylines I players use **Trackpad Camera Control** on a trackpad.
+How players use Trackpad Camera Control on the rewrite ship surface. Player-visible UI stays at [UI parity](../glossary/ui-parity.md) with shipping; Maps+ dynamics match shipping chords and outcomes.
 
-- [Client guide](#table-of-contents)
+- [Client guide (rewrite)](#table-of-contents)
   - [About this guide](./about-this-guide.md)
   - [Personas](./personas.md)
   - [Install and first run](./install-and-first-run.md)
   - [Feel presets](./feel-presets.md)
-  - [Gesture style (Maps+)](./gesture-presets.md)
   - [Options and hot tuning](./options-and-hot-tuning.md)
-  - [Debug panel](./debug-ui.md)
-  - [OS gesture conflicts](./os-gesture-conflicts.md)
-    - [macOS notes](./macos-gesture-conflicts.md)

@@ -1,58 +1,47 @@
-# Local MVP install (macOS)
+# Local MVP install (rewrite)
 
-Prove gestures with the in-process capture path (mod DLL only) and a local Mods-folder install. This is the **beta / contributor deploy** path and the folder Content Manager **Share** uploads on Mac. Player-facing install: `docs/client/install-and-first-run.md`. Release and Share checklist: [Release process](./release-process.md).
+Deploy the rewrite into the **same** Cities Mods folder and Content Manager name as shipping. Last install wins. Player-facing install for the shipping mod stays under repo-root client docs until cutover.
 
-## Deploy roles
+## Deploy
 
-| Path                          | Role today                                                                        |
-| ----------------------------- | --------------------------------------------------------------------------------- |
-| This local install            | Beta testers and contributors prove the mod; Mac **Share** reads this Mods folder |
-| GitHub Release source archive | Versioned input to this install (no prebuilt Workshop item yet until Share)       |
-| Steam Workshop                | After Share — subscribe path for players                                          |
+From the repository root:
 
-## Beta from a GitHub Release
+`./scripts/install-mod-local.sh --rewrite`
 
-1. Open the latest [GitHub Release](https://github.com/betsalel-williamson/CSL-TrackpadCameraControl/releases) and download the **Source code** zip/tarball (or `git clone` and `git checkout` the release tag).
-2. Follow **Build and install the mod** below.
-3. You need your own Cities: Skylines install (Managed assemblies).
+(Short form: `-r`.) Overwrites **`Mods/TrackpadCameraControl`** — the same path as `./scripts/install-mod-local.sh` (shipping). Content Manager shows one row: **Trackpad Camera Control (macOS)**. Which tree is loaded is the Debug footer / Copy assembly identity (`TrackpadCameraControl.Rewrite` vs `TrackpadCameraControl`), not a second checkbox.
 
-## Build and install the mod
+The folder must contain **`TrackpadCameraControl.dll` and `TrackpadCameraControl.Gestures.dll`**. Missing the library is a Content Manager load failure. A shipping install removes the gesture library DLL so it does not linger beside the shipping mod.
 
-```bash
-chmod +x scripts/install-mod-local.sh
-./scripts/install-mod-local.sh
-```
+| Path                                       | Role                                                                 |
+| ------------------------------------------ | -------------------------------------------------------------------- |
+| `./scripts/install-mod-local.sh`           | Shipping → Mods/`TrackpadCameraControl` (replaces rewrite)           |
+| `./scripts/install-mod-local.sh --rewrite` | Rewrite → same folder, same Content Manager name (replaces shipping) |
 
-Requires Cities: Skylines Managed assemblies (default Steam macOS path). Override with `CitiesManaged=…` or `CITIES_MODS=…`.
+Requires Cities: Skylines Managed assemblies (override with `CitiesManaged` / `CITIES_MODS` as with shipping).
 
-`--rewrite` deploys into this **same** Mods folder and Content Manager name; last install wins. See `rewrite/docs/developer/local-mvp-install.md`.
+## A/B — last install wins
 
-Restart the game after first install, or keep the game running and rebuild — post-build deploy + `AssemblyVersion` wildcards follow [Paradox Automate](https://skylines.paradoxwikis.com/Advanced_Mod_Setup#Automate) (see [mod reload during development](./mod-reload-during-development.md)). The script copies the DLL and **`PreviewImage.png`** (Content Manager / Workshop thumbnail). Capture is **in-process AppKit** inside the mod DLL — there is no companion process and no alternate Contacts playtest path.
+Do **not** keep a parallel `TrackpadCameraControl.Rewrite` folder. Switch trees by reinstalling, then restart Cities (or rely on Automate reload when `AssemblyVersion` changes):
 
-## Capture log
+1. `./scripts/install-mod-local.sh --rewrite` — play rewrite; confirm Copy shows `TrackpadCameraControl.Rewrite`.
+2. `./scripts/install-mod-local.sh` — play shipping; confirm Copy shows `TrackpadCameraControl` and Gestures.dll is gone.
 
-Frames and start/fail lines append to a session capture log file:
-
-```bash
-tail -f "${TMPDIR:-/tmp}/trackpad-camera-control.log"
-```
-
-Override the path with `TRACKPAD_CAPTURE_LOG` when launching the game.
-
-v1 capture is **AppKit only**. A MultitouchSupport **Contacts** interpreter still exists in source behind `EnableContactsCapture`, but it is **not validated** and is **not** a supported playtest or player path — do not document or rely on `TRACKPAD_CAPTURE_BACKEND=contacts` for QA. See `docs/features/platform-backends.md` and [feature flags](./feature-flags.md).
-
-The prior native C `make` target under `native/mac/` is retired. The C# `src/TrackpadBridge` host is an optional socket experiment (`BridgeEnabled` off) — not playtest.
+Cities Harmony stays enabled for either path.
 
 ## In game
 
-1. Enable **Cities Harmony** (**required** for [vanilla camera suppress](../glossary/vanilla-camera-suppress.md) — without it, two-finger pan may still fight vanilla scroll-zoom).
-2. Enable **Trackpad Camera Control** in Content Manager.
-3. Load a city; keep the game focused; pinch and two-finger-drag on the trackpad.
+1. Enable **Cities Harmony**.
+2. Enable **Trackpad Camera Control (macOS)** (the single local row).
+3. Load a city; keep the game focused; exercise Maps+ chords.
+4. Confirm Debug Copy assembly matches the tree you just installed.
+5. Record results on the [QA checklist](./qa-checklist.md) parity matrix.
 
-If capture fails to start, the mod stays enabled and gestures do nothing (fail soft). Check the capture log. Vanilla scroll-zoom from precise trackpad may stay suppressed; middle-mouse orbit is not suppressed.
+Capture remains in-process AppKit for ship-shaped builds. Do not use Contacts or bridge socket paths for rewrite parity QA unless a compile-flag experiment is explicitly under test ([Feature flags](./feature-flags.md)).
 
-### Content Manager version warning
+Capture remains in-process AppKit for ship-shaped builds. Do not use Contacts or bridge socket paths for rewrite parity QA unless a compile-flag experiment is explicitly under test ([Feature flags](./feature-flags.md)).
 
-Cities: Skylines may show **“This mod was not made with the current game version…”**. That check only compares the mod’s **ICities** assembly reference to the game’s current `ICities.dll` — it does **not** mean the mod is broken. Rebuild/install with `./scripts/install-mod-local.sh` after game patches (it references your Steam Managed folder). Then [reload the mod](./mod-reload-during-development.md) or restart the game.
+## Related
 
-For automated inject smoke (no real pinch), see [harnesses and testing](./harnesses-and-testing.md).
+- [Harnesses and testing](./harnesses-and-testing.md)
+- [QA checklist](./qa-checklist.md)
+- [Repository layout](./repository-layout.md)

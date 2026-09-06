@@ -2,77 +2,94 @@
 
 ## End-user value
 
-Players feel map-app-like trackpad control inside Cities: Skylines I without buying a mouse, while feel stays fully tunable for experimentation. Optional Debug chrome can drive the same camera ops for tuning and pipeline validation when `EnableAssistChrome` is on.
+Players feel map-app-like trackpad control inside Cities: Skylines I without buying a mouse, while feel stays fully tunable. Optional Debug chrome can drive the same camera ops for tuning when Assist chrome is compiled on.
 
-## Context
+## Stack layers
+
+See [under the hood](./under-the-hood.md) and [ADR 0006](./adr/0006-gesture-library-vs-mod-surface.md):
+
+1. **Native OS** — trackpad event sampling
+2. **[Gesture library](../glossary/gesture-library.md)** (`rewrite/src`) — frame contract + backends
+3. **[Mod surface](../glossary/mod-surface.md)** (`rewrite/mod`) — policy, feel, UI, Cities adapters, Harmony
+
+## Planes (tick inside the CSL mod)
+
+Every tick walks Capture → Policy → Apply. Capture’s implementation lives in the gesture library; the mod wires an `IGestureSource`. No plane caches focus, menu, over-UI, selection, or camera pose across ticks — re-query each frame (state ownership).
+
+```text
+Capture (OS → primitives via library) → Policy (gates + session + style resolve) → Apply (feel math → camera / selection)
+```
+
+| Plane   | Responsibility                                                                                                                                                               |
+| ------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Capture | Platform backend fills one primitive/frame contract (honest finger count, centroid delta, pinch, rotate, modifiers). No pan/orbit/zoom decisions.                            |
+| Policy  | Input gates, orbit latch / session, and **style binding table** resolve → camera / selection **op set**.                                                                     |
+| Apply   | **Pure** feel math (Sensitivity, invert, deadzone when schema-backed) plus thin Cities adapters that write camera or place/relocate ghost. Pitch clamp is an apply constant. |
+
+Feel Options and Debug are **not** a fourth tick plane. They are two hosts over **one [feel catalog](./feel-catalog.md)** and **one editor API** (preset dirty model, Sensitivity, autosave). [UI parity](../glossary/ui-parity.md) is the player-facing contract; the hosts must not each own a copy of the product ([ADR 0005](./adr/0005-ux-parity-not-source-parity.md)).
 
 ```mermaid
 flowchart LR
   trackpad[TrackpadHardware]
-  backend[PlatformBackend]
-  source[IGestureSource]
-  session[GestureSession]
-  resolve[BindingResolver]
-  apply[CameraApplicator]
-  settings[ModSettings]
-  suppress[VanillaCameraSuppress]
+  library[GestureLibrary]
+  policy[PolicyPlane]
+  apply[ApplyPlane]
+  catalog[FeelCatalog]
+  editor[FeelEditor]
+  optionsHost[OptionsHost]
+  debugHost[DebugHost]
+  settings[HotSettings]
+  suppress[VanillaScrollSuppress]
+  orbitFlush[OrbitVelocityFlush]
   cam[CameraController]
 
-  trackpad --> backend
-  backend -->|"raw primitives"| source
-  source --> session
-  session --> resolve
-  settings -->|"hot bindings"| session
-  settings --> resolve
-  settings --> apply
-  resolve -->|"op set"| apply
+  trackpad --> library
+  library -->|"primitives"| policy
+  settings -->|"style table + feel"| policy
+  settings -->|"feel"| apply
+  catalog --> optionsHost
+  catalog --> debugHost
+  editor --> settings
+  optionsHost --> editor
+  debugHost --> editor
+  policy -->|"op set"| apply
   apply --> cam
-  suppress -.->|"gate precise trackpad scroll"| cam
+  suppress -.->|"precise trackpad scroll only"| cam
+  orbitFlush -.->|"deferred angle velocity"| cam
 ```
 
-## Components
+## Tick (contract)
 
-| Component               | Responsibility                                                                                                                                                                                             |
-| ----------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Platform backend        | Capture OS trackpad contacts / gestures; arm/connect on city load; emit raw primitives while the game is focused                                                                                           |
-| Gesture source          | Deliver primitives into the mod from in-process **AppKit** capture (v1); Contacts is unfinished future — see ADR 0001 and [platform backends](./platform-backends.md)                                      |
-| Gesture session         | Orbit latch and resolve-mode state across frames                                                                                                                                                           |
-| Binding resolver        | Map primitives + session state to a camera **op set** (pan / zoom / yaw / orbit flags)                                                                                                                     |
-| Camera applicator       | Apply each enabled op to size, target position, and angles using live settings                                                                                                                             |
-| Debug UI                | Floating Debug panel for feel tunables; optional chrome emits the same camera ops as gestures when flagged on                                                                                              |
-| CS1 mod                 | CitiesHarmony-hosted C#; resolve primitives through live settings; write camera targets                                                                                                                    |
-| Vanilla camera suppress | Harmony gate while the mod is on: skip vanilla scroll-zoom from precise trackpad; keep mouse wheel, middle-mouse orbit, edge/keyboard/gamepad. See [vanilla camera suppress](./vanilla-camera-suppress.md) |
-| ModSettings             | Single source of truth for presets, bindings, Debug UI enable, and feel; hot-applied                                                                                                                       |
-| Unsupported backends    | Same interface; report unsupported                                                                                                                                                                         |
+1. Sync input gates (menu / Options, over popup, game focus) from live game state.
+2. Connect or reconnect Capture if the mod is on and the city is ready.
+3. Capture emits the current frame into the shared primitive contract (library source).
+4. Policy updates session (orbit latch, rotate-owned contact), then resolves primitives through the **style binding table** (Maps+ seed on ship) into an op set.
+5. Apply consumes the op set with live feel; selection-aware rotate / orbit follow [selection-aware gestures](./selection-aware-gestures.md).
+6. Harmony remains **narrow**: precise-trackpad scroll suppress buffers, and deferred orbit velocity flush after vanilla damp — see [vanilla camera suppress](./vanilla-camera-suppress.md). Do not use Harmony to cache policy inputs.
 
-Platform-specific capture details (for example the first macOS backend) live in [platform backends](./platform-backends.md) and ADR 0001 — not in this high-level picture.
+## Lifecycle
 
-## Data flow
+1. **Content Manager enable** — load settings, create runtime + default Capture source from the library, apply Harmony patches (suppress + orbit flush only).
+2. **City load** — boot focus; **arm** Capture for the loaded scene (independent of Debug UI).
+3. **Simulation tick** — Capture → Policy → Apply as above.
+4. **Debug UI** — optional; opening the panel does not gate Capture readiness.
 
-1. Backend emits finger count, centroid delta, pinch scale, rotate delta, and modifier flags.
-2. Gesture session updates [orbit latch](../glossary/orbit-latch.md) and resolve-mode session state.
-3. Binding resolver maps primitives to a camera **op set** using the live binding table and session.
-4. Optional [Debug UI](./debug-ui-camera-chrome.md) emits the same camera ops from chrome controls when `EnableAssistChrome` is on.
-5. Applicator applies each op in the set to camera target position, angle, and size with settings-driven [drag scale](../glossary/drag-scale.md) / [sensitivity](../glossary/sensitivity.md), [button step](../glossary/button-step.md) for chrome nudges, invert, deadzone, pan city-bounds clamp, and optional [low-pass](../glossary/low-pass.md) (see [apply math](./settings-and-hot-configuration.md#apply-math-contract)). Selection-aware rotate / orbit: [selection-aware gestures](./selection-aware-gestures.md).
-6. While the mod is enabled, [vanilla camera suppress](./vanilla-camera-suppress.md) skips vanilla scroll-zoom from precise trackpad so that path does not fight gesture writes. Mouse wheel, middle-mouse orbit, edge pan, keyboard, and gamepad still reach the camera.
-7. One-finger pointer path is left to the game (outside Debug chrome).
+## Modules and compile gates
 
-## Lifecycle (enable → load → tick)
-
-1. **Content Manager enable** — `Mod.OnEnabled`: settings load, `ModRuntime` + default capture source, Harmony patches apply.
-2. **City load** — `LoadingExtension.OnLevelLoaded`: boot focus activation; **arm gesture capture** for the loaded scene (independent of Debug UI).
-3. **Simulation tick** — `GestureThreading.OnUpdate`: `GesturePipeline.Tick()` syncs input gates, connects capture if needed, resolves primitives, applies camera ops.
-4. **Debug UI** — optional; `TuningPanelHost.EnsureCreated()` is for the floating panel only and does not gate capture readiness.
+CAD gesture style, Contacts capture, and Assist chrome stay behind positive `Enable*` **compile** symbols (default off). When a symbol is off, that module is **omitted from the ship DLL** — no stub UI, no tick-path no-op filters, no empty objects. See [feel profiles and product flags](./adr/0003-feel-profiles-and-product-flags.md) and [settings and hot configuration](./settings-and-hot-configuration.md).
 
 ## Constraints
 
-- Prefer additive camera writes. The Harmony gate is limited to vanilla scroll-zoom from precise trackpad while the mod is on.
+- Prefer additive camera writes. Harmony is limited to precise-trackpad scroll suppress and orbit velocity flush while the mod is on.
 - Do not own zoom-limit or saved-position features.
-- Fail soft if a backend is missing or fails to start, and if Cities Harmony is missing (gestures may still apply; scroll fight may remain).
-- Interpretation stays in C# so feel changes never require restarting the backend.
+- Fail soft if Capture is missing or fails to start, and if Cities Harmony is missing (gestures may still apply; scroll fight or missing orbit flush may remain).
+- Interpretation stays in Policy/Apply so feel and style seeds never require restarting Capture.
+- One primitive/frame contract across Capture and Policy — no dual frame types or copy bridges (see [greenfield redesign lessons](./greenfield-redesign-lessons.md) L3).
+- Do not implement planes or feel UI by copying shipping sources (L13).
+- Non-overlapping imports across stack layers ([under the hood](./under-the-hood.md)).
 
 ## Open risks
 
-- OS-reserved multi-finger gestures vs a future CAD three-finger orbit (varies by platform).
-- Cities Harmony missing or failing to patch: two-finger pan may still overlap vanilla scroll-zoom.
+- OS-reserved multi-finger gestures vs a future CAD three-finger orbit (only when that module is compiled on and Capture emits honest finger counts).
+- Cities Harmony missing or failing to patch: two-finger pan may still overlap vanilla scroll-zoom; Option-orbit may not integrate.
 - Backend ABI or driver differences across OS versions.

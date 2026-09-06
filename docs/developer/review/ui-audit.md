@@ -11,7 +11,7 @@ Specialist pass for Options and Debug UI parity vs shipping, prototype `#if` res
 - **Structural parity with shipping.** `OptionsSettingsUi` and `TuningPanelHost` mirror the shipping mod layout: section order General → Zoom → Pan → Rotate → Orbit; feel preset dropdown with Save as… / Delete / Reset; sensitivity sliders on the 0.1×–2× contract; Debug numeric fields and op headings wired through `ModOptions` and `VanillaCameraKeyLabelsWatch`.
 - **Compile-gated prototype chrome is off by default.** With all `Enable*` MSBuild properties false (ship DLL), CAD style switcher, Contacts capture picker, Assist button-step fields, and low-pass rows are not compiled into either Options or Debug — matching the features guide “ship surface omits” rules for parity with shipping.
 - **Debug panel UX matches shipping patterns.** Title-bar drag, native close/Options sprites, reopen chip gated by `AssistUiEnabled` + `DebugPanelDismissed`, in-place refresh before full rebuild, tab order on product fields, build-info footer with Include system info + Copy.
-- **Version split is documented in code.** `Mod.OptionsTitle` uses product semver (`BuildInfo.ProductVersion`); `Mod.DebugPanelTitle` uses `AssemblyVersion` identity for reload QA; clipboard report leads with assembly identity and UTC build stamp — aligned with root [mod reload during development](../../../../docs/developer/mod-reload-during-development.md).
+- **Version split is documented in code.** `Mod.OptionsTitle` uses product semver (`BuildInfo.ProductVersion`); `Mod.DebugPanelTitle` uses `AssemblyVersion` identity for reload QA; clipboard report leads with assembly identity and UTC build stamp — aligned with root [mod reload during development](../local-mvp-install.md).
 
 ## Weaknesses
 

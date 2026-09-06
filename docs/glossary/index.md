@@ -1,25 +1,22 @@
-# Glossary
+# Glossary (rewrite)
 
-Shared terms for Trackpad Camera Control.
+Shared terms for the rewrite-tree contracts. Prefer condensed local entries so `rewrite/docs` MDCP compile stays closed.
 
-**Inclusion bar:** Include camera ops players meet in Options or client docs, and preset names. Omit general C# / Unity jargon unless it appears in player-facing Options. Prefer platform-neutral wording; put OS brand names in platform notes. When unsure, add a short entry.
+**Inclusion bar:** Include camera ops players meet on the ship Maps+ surface, feel/preset language, [UI parity](./ui-parity.md) vs source clone, [gesture library](./gesture-library.md) / [mod surface](./mod-surface.md) stack terms, and rewrite plane / resolve terms used in feature or client shards. Omit unfinished-module jargon unless a shard must disambiguate it from ship UI. Prefer platform-neutral wording; put OS brand names in platform notes.
 
-- [Glossary](#table-of-contents)
+- [Glossary (rewrite)](#table-of-contents)
+  - [Apply constant](./apply-constant.md)
+  - [Capture plane](./capture-plane.md)
+  - [Feel catalog](./feel-catalog.md)
+  - [Feel preset](./feel-preset.md)
+  - [Gesture library](./gesture-library.md)
+  - [Gesture style](./gesture-style.md)
+  - [Hot configuration](./hot-configuration.md)
+  - [Mod surface](./mod-surface.md)
   - [Orbit](./orbit.md)
   - [Orbit latch](./orbit-latch.md)
   - [Pan](./pan.md)
-  - [Zoom](./zoom.md)
+  - [Style binding table](./style-binding-table.md)
+  - [UI parity](./ui-parity.md)
   - [Yaw](./yaw.md)
-  - [Roll](./roll.md)
-  - [Sensitivity](./sensitivity.md)
-  - [Drag scale](./drag-scale.md)
-  - [Button step](./button-step.md)
-  - [Low-pass](./low-pass.md)
-  - [Gesture resolve mode](./gesture-resolve-mode.md)
-  - [Gesture style](./gesture-style.md)
-  - [Feel preset](./feel-preset.md)
-  - [Maps+ preset](./maps-plus-preset.md)
-  - [CAD preset](./cad-preset.md)
-  - [Hot configuration](./hot-configuration.md)
-  - [Debug UI](./debug-ui.md)
-  - [Vanilla camera suppress](./vanilla-camera-suppress.md)
+  - [Zoom](./zoom.md)

@@ -108,7 +108,7 @@ Never destroy the GitHub repository.
 
 `docs/developer/github-project-controls.md`: access model, Make targets, Actions create-PR flag, versioning vs Workshop distribution, stacks.
 
-Update: `commits-and-releases.md`, `contributor-setup.md` (forks), `repository-layout.md`.
+Update: `release-process.md`, `contributor-setup.md` (forks), `repository-layout.md`.
 
 ## Out of scope
 
