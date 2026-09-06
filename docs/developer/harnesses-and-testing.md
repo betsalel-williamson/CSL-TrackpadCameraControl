@@ -1,145 +1,67 @@
 # Harnesses and testing
 
-How contributors validate Trackpad Camera Control without (and with) Cities: Skylines.
+How contributors prove rewrite behavior without treating fakes as end-to-end truth (greenfield redesign lessons L10). Prefer behavior contracts over implementation snapshots. Fakes must mirror stack layers (features _Under the hood_): one fake stands in for one subsystem.
 
 ## Tiers
 
-| Tier                     | What it proves                                                                                  | Needs game? | Where it runs |
-| ------------------------ | ----------------------------------------------------------------------------------------------- | ----------- | ------------- |
-| **Unit** (xUnit)         | Frame layout, binding resolver, camera apply with fakes; Mac-only QA probes assert under Darwin | No          | Local + CI    |
-| **Native leak static**   | Pair native acquires with releases (GCHandle, CFString, devices, monitors)                      | No          | Local + CI    |
-| **Headless e2e**         | Gesture source → resolve → apply pipeline end-to-end with fake camera                           | No          | Local + CI    |
-| **In-game inject smoke** | Synthetic frames into the loaded mod change camera zoom                                         | Yes         | Local only    |
+| Tier                          | What it proves                                                                                                                    | Needs game? |
+| ----------------------------- | --------------------------------------------------------------------------------------------------------------------------------- | ----------- |
+| **A — Golden Maps+ fixtures** | Resolve and apply given known primitives (centroid, pinch, rotate, modifiers) match Maps+ parity seeds                            | No          |
+| **B — Capture-session**       | Backend / session fill produces honest primitives (including finger counts the style table claims)                                | No          |
+| **C — In-game**               | [UI parity](../glossary/ui-parity.md) (visual/interaction A/B), Harmony order, hardware chords, gates, suppress, selection rotate | Yes         |
 
-Real Multitouch / trackpad hardware is **not** required for CI. Hardware gestures remain a manual check on macOS with the in-process mod — follow the [QA checklist](./qa-checklist.md) after local install (see [local MVP install](./local-mvp-install.md)). During active development, prefer the [mod reload during development](./mod-reload-during-development.md) loop over a full restart when possible.
+Static analysis (settings graph, leak pairing, dead aliases, Dispose order, **layer-import lint**) is **lint**, not a substitute for tiers A–C — see [Static analysis and quality](./static-analysis-and-quality.md).
 
-To inspect Apple-classified events (scroll, magnify, rotate, swipe) without the mod, run `./scripts/apple-gesture-probe.sh` (C# `src/AppleGestureProbe`) and gesture on the probe window — see `native/mac/README.md`. No Accessibility. That probe does not emit `GestureFrame` values.
+## Fake-per-layer
 
-## Coverage blind spot (learned 2026-08-29)
+| Test kind              | Proves                                                | Fake stands in for                                                            |
+| ---------------------- | ----------------------------------------------------- | ----------------------------------------------------------------------------- |
+| Unit (library)         | Frame contract, mapper math, inject seam              | **OS only** (`FakeOsGestureSource` or raw event structs)                      |
+| Unit (mod pure)        | Style resolve, session, FeelMath, FeelEditor, catalog | **Game ports only** (`FakeCameraController`, selection port, in-memory store) |
+| Unit (UI host mapping) | Catalog → control descriptors                         | **UI toolkit port only**                                                      |
+| Integration (pipeline) | Gates → library source → resolve → FeelMath → adapter | One fake **per** external subsystem (OS stand-in + game stand-in)             |
+| In-game (tier C)       | Real OS + Unity + CSL                                 | No fakes                                                                      |
 
-Unit and headless e2e tests **construct `GestureFrame` values in memory** (or inject them). They prove resolver + applicator behavior when centroid / rotate / modifiers are already correct.
+Rules:
 
-They do **not** prove that `MacTrackpadCapture` / Multitouch sampling **fills** those fields. A pinch-only capture backend made pan / yaw / orbit look “implemented” in tests while production frames still had `centroidDelta* = 0`, `rotateDelta = 0`, and `modifiers = 0`.
+1. Name fakes after the subsystem they replace — not `FakeEverything`.
+2. Integration may use two fakes; **one type** must not implement two layers (SRP).
+3. Fakes that integrate orbit angles inside velocity-add remain forbidden as sole proof (L10).
 
-| Layer under test                         | Would catch missing pan/yaw/orbit in capture? |
-| ---------------------------------------- | --------------------------------------------- |
-| Resolver / `GestureSession` / applicator | No — frames are hand-built                    |
-| Headless inject e2e                      | No — inject bypasses Multitouch               |
-| In-game inject smoke                     | No — request protocol is pinch-only today     |
-| `MultitouchGestureSession` unit tests    | Yes — contact samples → full primitives       |
-| Manual in-process mod + in-game trackpad | Yes — end-to-end hardware path                |
+## Tier A — fixtures
 
-When adding camera ops, require a capture-session (or Multitouch→frame) test for every new primitive the mod consumes — not only pipeline tests with pre-filled frames.
+Hand-built or injected frames exercise policy resolve and apply math against a **camera-port fake only**. Use golden Maps+ cases for pan, pinch zoom, two-finger rotate, and Option+two-finger orbit (including latch and hard handoff into rotate).
 
-## Coverage blind spot (orbit velocity, 2026-08-30)
+Fixtures prove **consumption** of correct primitives — not that capture emitted them.
 
-Applicator tests must **not** treat `AddAngleVelocity` as an immediate `AngleX`/`AngleY` write. Production queues pending deltas and flushes them from a Harmony postfix on `CameraController.HandleMouseEvents` (after vanilla inertia damp, before integrate). A fake that does `AngleX +=` inside `AddAngleVelocity` will pass while Option-orbit is dead in-game.
+## Tier B — capture-session
 
-| Layer under test                                           | Would catch dead Option-orbit velocity?    |
-| ---------------------------------------------------------- | ------------------------------------------ |
-| Fake that integrates onto angles in `AddAngleVelocity`     | No — encodes the bug as success            |
-| Queue + `SimulateVanillaOrbitFrame` (damp→flush→integrate) | Yes — for the queue/flush contract         |
-| Harmony postfix / LateUpdate order                         | No — needs [in-game QA](./qa-checklist.md) |
+For every primitive the mod consumes, add session coverage from contact / AppKit samples → frame fields in the **gesture library**. Honest finger counts matter: a backend that always reports two fingers makes three-finger CAD seeds dead (L4).
 
-## Unit tests
+Tier B is required when adding camera ops or style rows that claim new primitives.
 
-From the repository root:
+## Tier C — in-game
 
-```bash
-npm test
-# or
-dotnet test tests/TrackpadCameraControl.Tests
-```
+Manual and scripted play after [Local MVP install](./local-mvp-install.md). Covers Harmony postfix timing, `HandleMouseEvents` order, Option+drag hardware, UI parity, and A/B vs shipping. Checklist: [QA checklist](./qa-checklist.md).
 
-### Coverage (line / branch / method)
+## Fake limits (blind spots)
 
-Use coverage to **see** what the suite already exercises — and whether the same surface is piled on by many tests — not to chase a percentage.
+| Fake / harness                                             | Does **not** prove                                                                 |
+| ---------------------------------------------------------- | ---------------------------------------------------------------------------------- |
+| Hand-built frames (tier A)                                 | Capture fill of centroid / rotate / modifiers / finger count                       |
+| Inject that bypasses the backend                           | Production Multitouch / AppKit sampling                                            |
+| Fake that integrates angles inside the orbit-velocity seam | Real queue → damp → flush → integrate order (encodes dead Option-orbit as success) |
+| Pinch-only inject smoke                                    | Pan / rotate / orbit hardware paths                                                |
+| High line coverage on helpers                              | Harmony timing, UI parity, or feel dynamics                                        |
 
-```bash
-npm run test:coverage
-```
+Orbit apply must queue pending deltas and flush after vanilla inertia damp. Fakes that write angles immediately in the velocity API are forbidden as sole proof.
 
-Coverlet prints a **module summary table** during the test run. The script then writes a **class-level TextSummary** and HTML under `TestResults/coverage-report/` (gitignored):
+## Language and targets
 
-```bash
-# after npm run test:coverage
-open TestResults/coverage-report/index.html   # macOS
-cat TestResults/coverage-report/Summary.txt
-```
-
-| Signal                                           | How to read it                                                                    |
-| ------------------------------------------------ | --------------------------------------------------------------------------------- |
-| Low % on a product class you care about          | Possible blind spot — add a behavior test only if a real contract is untested     |
-| Very high % on tiny helpers + many similar tests | Likely overlapping / over-specified unit tests — prefer fewer behavior cases      |
-| Capture / Harmony / UI still low                 | Expected — those need session tests or in-game QA, not more fake-frame unit tests |
-
-There is **no coverage fail gate** in CI. The csharp validate job runs CollectCoverage so PR logs include Coverlet’s module table (full HTML report is local via `npm run test:coverage`).
-
-Include filter is the mod assembly (`TrackpadCameraControl`); the test assembly is excluded.
-
-Expect tests to cover resolver rules, wire/`GestureFrame` layout assumptions, applicator behavior against a fake zoom seam, and **native-resource pairing** (unmanaged leaks) — no Cities assemblies.
-
-### macOS-only tests
-
-Darwin integration probes (IOKit / `hw.model`) use two gates so Linux CI stays green:
-
-| Gate                | Mechanism                                                               | Example                      |
-| ------------------- | ----------------------------------------------------------------------- | ---------------------------- |
-| **Skip at runtime** | `[MacOsFact]` / `[SkipOnMacOsFact]` in `PlatformTestFacts.cs`           | Off-Mac fallback message     |
-| **Omit at compile** | `Compile Remove` in `TrackpadCameraControl.Tests.csproj` when not `OSX` | `QaClipboardReport.MacOS.cs` |
-
-Pure string formatters (`FormatModelId`, device display lines) stay cross-platform in `QaClipboardReportTests.cs`.
-
-## Native leak static analysis
-
-In-process capture pins GCHandles, may create CoreFoundation objects, and registers AppKit monitors and Multitouch devices. Those are not garbage-collected. `dotnet test` includes a source scan of `mod/` and `src/` that fails when an acquire has no matching release in the same file:
-
-| Acquire                                        | Must also appear                                                                |
-| ---------------------------------------------- | ------------------------------------------------------------------------------- |
-| `GCHandle.Alloc`                               | `.Free()` at least as often; types with `GCHandle` fields must be `IDisposable` |
-| `CFStringCreateWithCString` / `CreateCfString` | `CFRelease`                                                                     |
-| `.DeviceStart(`                                | `.DeviceStop(`                                                                  |
-| `addLocalMonitorForEventsMatchingMask`         | `removeMonitor:`                                                                |
-
-A line may include `native-leak-ok:` plus a reason to skip that acquire (process-lifetime cache or ownership transferred to a caller that releases). Add that marker only with a reason; do not use it to silence a real leak.
-
-This is pairing analysis, not a runtime leak detector. It will not catch a missing `Free` on one early-return path if another path in the same file calls `Free`.
-
-## Headless e2e
-
-Same `dotnet test` invocation; headless cases live in the test project and exercise the pipeline with fake `IGestureSource` / zoom seams. CI should run `dotnet test` without downloading game DLLs.
-
-## In-game inject smoke
-
-Local-only. Assumes Cities: Skylines is running, the mod is installed and enabled, a city is loaded, and inject mode is on.
-
-Enable inject with any of:
-
-- `TRACKPAD_E2E_INJECT=1` in the environment that launched the game
-- `$TMPDIR/e2e-inject.flag`
-- `e2e-inject.flag` beside the mod DLL
-
-Kickoff (runs headless e2e first, then waits for an in-game result file):
-
-```bash
-chmod +x scripts/e2e-ingame-smoke.sh
-./scripts/e2e-ingame-smoke.sh
-```
-
-Protocol (mod directory under Addons/Mods/TrackpadCameraControl):
-
-1. Script writes `e2e-inject-request` (text float = pinchScaleDelta).
-2. Mod enqueues a pinch frame, applies zoom, writes `e2e-inject-result` (camera size).
-3. Script passes when the result file appears within `E2E_INGAME_TIMEOUT` (default 90s).
-
-This does not synthesize OS Multitouch events.
-
-## Language and BCL pin
-
-Mod-loaded DLL targets **net35** (Cities: Skylines Unity Mono / mscorlib). Shared capture library and bridge host use **netstandard2.0** / **net8** with **C# 9**. Prefer Mono-safe BCL surfaces in the mod — see [contributor setup](./contributor-setup.md) and [lint and format](./lint-and-format.md).
+Rewrite mod code targets the same Cities Mono constraints as shipping (net35-safe surfaces in the mod). The gesture library may use the same TFM when linked into the mod. Prefer Mono-safe BCL in mod assemblies.
 
 ## Related
 
-- [QA checklist (in-game)](./qa-checklist.md) — pass/fail lists after local install
-- [Local MVP install](./local-mvp-install.md) — in-process capture + local mod DLL
-- Design decisions: `docs/superpowers/specs/2026-08-29-csharp-capture-tests-design.md`
+- [QA checklist](./qa-checklist.md)
+- [Settings schema](./settings-schema.md)
+- [Feature flags](./feature-flags.md)

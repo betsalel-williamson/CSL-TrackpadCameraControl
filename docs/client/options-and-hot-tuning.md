@@ -1,25 +1,25 @@
 # Options and hot tuning
 
-You can tune Trackpad Camera Control from **two places**. They share the same live **ModSettings**: camera feel updates immediately from either surface, and every change **autosaves** — no restart, and values **survive quit**.
+You can tune Trackpad Camera Control from **two places**. They share the same live feel settings: camera feel updates immediately from either surface, and every change **autosaves** — no restart, and values **survive quit**. That is [hot configuration](../glossary/hot-configuration.md).
 
 **Debug panel** controls refresh when settings change. **Options** sliders bind when the page is built — after editing in Debug, leave and re-enter Options to see updated slider positions. Debug may show Sensitivity outside the Options **0.1×–2×** range until you move an Options slider (sliders clamp on drag only).
 
 ## Where to edit
 
-1. **In-game Debug panel** — floating window while a city is loaded (when Debug is on). Same feel and per-op tunables as Options. See [Debug panel](./debug-ui.md).
+1. **In-game Debug panel** — floating window while a city is loaded (when Debug is on). Same feel and per-op Sensitivity as Options.
 2. **Options → Trackpad Camera Control** — same tunables; the Options window title is the **mod name + version**.
 
-On the shipped surface you see Maps+/AppKit feel controls only. There is **no** capture-backend picker, low-pass UI, Assist pad chrome, or CAD / gesture-style switcher in v1 — those are **future** (Contacts and Assist chrome remain unfinished behind compile flags; see `docs/developer/feature-flags.md`).
+On the ship surface you see Maps+ / AppKit feel controls only. There is **no** capture-backend picker, low-pass UI, Assist pad chrome, or CAD / gesture-style switcher — those modules are omitted from the ship DLL when compile flags are off.
 
 ## Feel presets
 
-A **dropdown** lists built-in and named [feel presets](../glossary/feel-preset.md) and loads the profile **on select**. Dirty edits while a built-in is active move you to **New Preset** and enable **Save as…** (name dialog). **Delete** removes a named user preset and restores Default. Details: [feel presets](./feel-presets.md).
+A **dropdown** lists built-in and named [feel presets](../glossary/feel-preset.md) and loads the profile **on select**. Dirty edits while a built-in is active move you to **New Preset** and enable **Save as…**. **Delete** removes a named user preset and restores Default. Details: [feel presets](./feel-presets.md).
 
 ## Layout and per-op sections
 
 Sections appear in order **General → Zoom → Pan → Rotate → Orbit**. Rhythm uses native Colossal **AddGroup**: a short group title with the native glow underline, and controls nested in that group’s Content.
 
-For each camera op, the **title** is on its own line; the next lines state **Gesture(s):** (Maps+ bindings) and **Keymapping(s):** (live Cities Options labels). Gesture style is separate from **feel presets** (Slow/Default/Fast sensitivity): changing feel does not change which chords map to Zoom/Pan/Rotate/Orbit. Gesture and keymapping lines refresh in place when keymappings change (Debug and Options). Unbound keys still read **Keymapping(s): none**.
+For each camera op, the **title** is on its own line; the next lines state **Gesture(s):** (Maps+ bindings) and **Keymapping(s):** (live Cities Options labels). [Gesture style](../glossary/gesture-style.md) is separate from feel presets: changing feel does not change which chords map to Zoom / Pan / Rotate / Orbit. Unbound keys still read **Keymapping(s): none**.
 
 | Op     | Meaning                                             | Gesture(s) (Maps+)           | Keymapping(s) (still on)                     |
 | ------ | --------------------------------------------------- | ---------------------------- | -------------------------------------------- |
@@ -28,7 +28,7 @@ For each camera op, the **title** is on its own line; the next lines state **Ges
 | Rotate | Rotate the camera, or rotate a place/relocate ghost | Two-finger rotate            | Rotate-left / rotate-right bindings          |
 | Orbit  | Pitch + yaw around the pivot                        | Option (`⌥`)+two-finger drag | Rotate-camera mouse binding                  |
 
-Product-surface Options controls: **Sensitivity** sliders only (about **0.1×–2×** factory default). Orbit pitch follows vanilla **0–90°** (no separate Pitch min/max controls). There is no Enable-per-op or Reverse UI. Labels say **Sensitivity** (not drag scale).
+Product-surface Options controls: **Sensitivity** sliders only (about **0.1×–2×** factory default). Orbit pitch follows vanilla **0–90°** (no Pitch min/max controls). There is no Enable-per-op or Reverse UI. Labels say **Sensitivity**.
 
 With a **new place or relocate** ghost: two-finger rotate turns the **ghost**; ⌥+two-finger orbits from the **current** look-at (no Target re-home to the ghost). Without a ghost, rotate is camera yaw and ⌥+two-finger orbits from the current look-at the same way.
 

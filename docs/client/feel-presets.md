@@ -1,8 +1,8 @@
 # Feel presets
 
-A [feel preset](../glossary/feel-preset.md) stores how the camera _feels_: [Sensitivity](../glossary/sensitivity.md) values. It does **not** change [gesture style](../glossary/gesture-style.md) — shipped play stays [Maps+](../glossary/maps-plus-preset.md) (AppleKit), including Option (`⌥`)+two-finger for [orbit](../glossary/orbit.md).
+A [feel preset](../glossary/feel-preset.md) stores how the camera _feels_: Sensitivity values. It does **not** change [gesture style](../glossary/gesture-style.md) — ship play stays Maps+ (AppKit), including Option (`⌥`)+two-finger for [orbit](../glossary/orbit.md).
 
-Use the feel-preset **dropdown** in Options → Trackpad Camera Control or the in-game [Debug panel](./debug-ui.md).
+Use the feel-preset **dropdown** in Options → Trackpad Camera Control or the in-game Debug panel.
 
 ## Built-in profiles
 
@@ -32,9 +32,9 @@ Built-ins (**Slow**, **Default**, **Fast**) are **immutable** — the mod never 
 
 Selecting an entry in the dropdown **loads** that profile immediately.
 
-If you edit while a built-in (or any named preset) is active, the active identity becomes **New Preset** and the change **autosaves** there (Options and Debug dropdowns update live). **Save as…** (next to Reset on Debug; in Options General) becomes **enabled** when you are on New Preset. Click it to open a name dialog prefilled with the next free **New Preset 1**, **New Preset 2**, … (or the current named preset if you dirty a named profile). Type or edit the name, then Cancel / OK. You cannot save as Slow / Default / Fast; saving over another named preset replaces it without a confirm. Cancel leaves New Preset unsaved as a named profile. Named profiles persist with your other mod settings across quit.
+If you edit while a built-in (or any named preset) is active, the active identity becomes **New Preset** and the change **autosaves** there (Options and Debug dropdowns update live). **Save as…** becomes **enabled** when you are on New Preset. Click it to open a name dialog prefilled with the next free **New Preset 1**, **New Preset 2**, … (or the current named preset if you dirty a named profile). You cannot save as Slow / Default / Fast; saving over another named preset replaces it without a confirm. Cancel leaves New Preset unsaved as a named profile. Named profiles persist with your other mod settings across quit.
 
-**Delete** (next to Save as… on Debug and Options) is **enabled** only when the active feel is a **named user preset** you saved — not Slow / Default / Fast, and not New Preset. Click it to remove that named profile immediately (no confirm). The active feel switches to **Default**. Disabled Save as… / Delete labels show **grey** text.
+**Delete** is **enabled** only when the active feel is a **named user preset** you saved — not Slow / Default / Fast, and not New Preset. Click it to remove that named profile immediately (no confirm). The active feel switches to **Default**. Disabled Save as… / Delete labels show **grey** text.
 
 ## Reset to factory
 
@@ -42,4 +42,4 @@ Restores the Default profile above and saves it. Does not switch gesture style a
 
 ## Not a feel preset
 
-Which fingers trigger orbit is [gesture style](../glossary/gesture-style.md), not a feel preset. v1 ships Maps+ only — see [gesture presets](./gesture-presets.md).
+Which fingers trigger orbit is [gesture style](../glossary/gesture-style.md), not a feel preset. Ship DLL: Maps+ only.

@@ -1,125 +1,109 @@
-# In-game QA checklists
+# QA checklist (rewrite parity)
 
-Manual pass/fail lists for Trackpad Camera Control. Unit tests cannot prove Harmony postfix timing, `HandleMouseEvents` order, or hardware Option+drag — run these in Cities: Skylines after local install.
+Side-by-side pass/fail matrix: shipping vs rewrite, both installed to `Mods/TrackpadCameraControl`. Unit and fixture tiers cannot prove Harmony timing or hardware Option+drag — run this in Cities: Skylines after [Local MVP install](./local-mvp-install.md).
 
-**Session defaults:** Cities Harmony on, this mod enabled, city loaded, game focused, Maps+ gesture style, Default feel preset.
+**Session defaults:** Cities Harmony on; last install of shipping **or** `--rewrite` occupies the single Content Manager row; city loaded; game focused; Maps+ seeds; Default feel. Confirm the tree from Debug Copy before filling a column.
 
-Copy a section into a PR or commit note and check boxes as you go. With **Show debug panel** on, click **Copy** in the Debug footer (**Include system info** checked) to paste OS, Mac model, input device models, and loaded Unity/Harmony/game/mod assembly versions into the session platform table below. After a full pass, add a row to **Known good platforms** below (and update [Workshop storefront](./workshop-storefront.md) when the public claim changes).
+Fill shipping and rewrite columns on the same machine / OS when possible. Player-visible UI must stay at [UI parity](../glossary/ui-parity.md) and Maps+ dynamics must match (L11). Source identity with shipping is not a pass (L13).
 
-## Session platform (fill every run)
+## Session platform
 
-| Field                                                | Value                             |
-| ---------------------------------------------------- | --------------------------------- |
-| macOS version (e.g. 15.1 Sequoia)                    |                                   |
-| Mac model (e.g. MacBook Pro M2, 2023)                |                                   |
-| Trackpad                                             | Built-in / Magic Trackpad / other |
-| Chip                                                 | Apple silicon / Intel             |
-| Mod version / commit                                 |                                   |
-| Result                                               | Pass / Fail / Partial             |
-| Notes (gestures that failed, Mission Control tweaks) |                                   |
+| Field                 | Value                             |
+| --------------------- | --------------------------------- |
+| macOS version         |                                   |
+| Mac model             |                                   |
+| Trackpad              | Built-in / Magic Trackpad / other |
+| Chip                  | Apple silicon / Intel             |
+| Shipping commit / asm |                                   |
+| Rewrite commit / asm  |                                   |
+| Result                | Pass / Fail / Partial             |
+| Notes                 |                                   |
 
-AppKit APIs we use date to ~macOS 10.6; **practical support is “whatever still runs CS1 + a precise trackpad,” proven by this checklist** — not by an untested OS matrix.
+## Parity matrix
 
-## v1.0.0 pre-release record
+Check each row for **shipping** and **rewrite**. Fail the row if either side regresses or they diverge.
 
-First public macOS tag. Automated suite is recorded here; in-game boxes in the lists below are the remaining splash gate. Copy those lists into the launch PR as you check them. After a full in-game pass, replace the known-good placeholder and refresh [Workshop storefront](./workshop-storefront.md) Compatibility.
+### Maps+ chords
 
-### Session platform (this release) — machine 1
+| Check                                                                                        | Shipping | Rewrite |
+| -------------------------------------------------------------------------------------------- | -------- | ------- |
+| Two-finger drag pans; does not also vanilla-zoom                                             | ☐        | ☐       |
+| Pinch zooms                                                                                  | ☐        | ☐       |
+| Two-finger twist rotates heading (no pitch); hard-handoffs leftover orbit coast              | ☐        | ☐       |
+| Option (`⌥`)+two-finger drag orbits (yaw and pitch); twist ignored while Option owns contact | ☐        | ☐       |
+| Gestures respond within ~5 s of city load (Debug off)                                        | ☐        | ☐       |
+| Mouse wheel still vanilla-zooms                                                              | ☐        | ☐       |
 
-| Field                | Value                                                                                          |
-| -------------------- | ---------------------------------------------------------------------------------------------- |
-| macOS version        | 26.5.2 Tahoe                                                                                   |
-| Mac model            | MacBook Air M2, 2022 (Mac14,2)                                                                 |
-| Trackpad             | Built-in                                                                                       |
-| Chip                 | Apple silicon (M2)                                                                             |
-| Mod version / commit | Assembly `0.2.0` on this branch until the Changesets version PR; tree from `main` (`bcdfd1d`)  |
-| Result               | **Pass** — maintainer sessions across Round 2–3 / launch stack; automated suite recorded below |
-| Notes                | Coverlet ~47% line is expected — capture, Harmony timing, and UI stay session-tested           |
+### Gates
 
-### Session platform (this release) — machine 2
+| Check                                                                           | Shipping | Rewrite |
+| ------------------------------------------------------------------------------- | -------- | ------- |
+| Options open: two-finger scrolls Options; city does not pan/orbit from the mod  | ☐        | ☐       |
+| Pointer over Debug / popup: two-finger scrolls UI, not city camera              | ☐        | ☐       |
+| RequireGameFocus: unfocused game does not apply mod camera                      | ☐        | ☐       |
+| Debug gear opens Options on Trackpad Camera Control; Options stacks above Debug | ☐        | ☐       |
 
-Second maintainer Mac (same Steam account as machine 1). Pasted from Debug **Copy** with **Include system info**.
+### Feel
 
-| Field                | Value                                                                                                                                       |
-| -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
-| macOS version        | 26.6.2                                                                                                                                      |
-| Mac model            | Mac17,6                                                                                                                                     |
-| Trackpad             | Built-in (Apple Internal Keyboard / Trackpad)                                                                                               |
-| Chip                 | Apple silicon                                                                                                                               |
-| Mod version / commit | asm `0.2.9741.32742` · Built (UTC) `2026-09-03T01:11:24Z` · tip `docs/v1-launch-qa`                                                         |
-| Result               | **Pass** — maintainer in-game verified 2026-09-03 (gestures / gates as expected)                                                            |
-| Notes                | Also Magic Keyboard (Bluetooth) + Logitech G500s USB mouse. Unity 5.6.7f1 · ICities 1.17.0.0 · CitiesHarmony.API 2.0.0.0 · 0Harmony 2.0.1.0 |
+| Check                                                                            | Shipping | Rewrite |
+| -------------------------------------------------------------------------------- | -------- | ------- |
+| Options Sensitivity order / labels match (General → Zoom → Pan → Rotate → Orbit) | ☐        | ☐       |
+| Options General: Show debug → Feel → Save as… → Delete (no Options Reset)        | ☐        | ☐       |
+| Debug panel field order and labels match shipping (numeric + deadbands)          | ☐        | ☐       |
+| Debug: Include system info + Copy + Built stamp; paste has Rewrite asm identity  | ☐        | ☐       |
+| Slow / Default / Fast gains match; dirty edits → New Preset                      | ☐        | ☐       |
+| Sensitivity hot-applies and autosaves; Options and Debug stay in sync            | ☐        | ☐       |
+| No Pitch min/max controls; orbit pitch stops at vanilla **0°–90°**               | ☐        | ☐       |
+| Debug Reset restores Default feel; panel position preserved                      | ☐        | ☐       |
 
-### Automated suite (2026-08-31)
+### Orbit latch
 
-| Gate                          | Result                                                                                     |
-| ----------------------------- | ------------------------------------------------------------------------------------------ |
-| `npm test`                    | **206 passed**, 0 failed, 0 skipped                                                        |
-| Coverlet (mod assembly)       | Line 47.23% · Branch 46.82% · Method 54.94% — visibility only; no fail gate                |
-| In-game inject smoke          | Not run this pass (needs a loaded city + `TRACKPAD_E2E_INJECT`)                            |
-| Optional chrome / ghost flags | Not on the v1 product surface (`EnableAssistChrome` off; place/relocate covered when used) |
+| Check                                                                              | Shipping | Rewrite |
+| ---------------------------------------------------------------------------------- | -------- | ------- |
+| Release Option while fingers still down: orbit latches until lift                  | ☐        | ☐       |
+| Lift after Option-orbit: short coast then stop (middle-click-like), not a teleport | ☐        | ☐       |
+| While latched, pan / zoom / rotate do not steal the contact                        | ☐        | ☐       |
 
-[Harnesses and testing](./harnesses-and-testing.md) lists what unit / headless e2e cannot prove (Harmony postfix order, hardware Option+drag, capture filling `GestureFrame`).
+### Vanilla suppress
 
-## Known good platforms
+| Check                                                                                      | Shipping | Rewrite |
+| ------------------------------------------------------------------------------------------ | -------- | ------- |
+| Precise trackpad pan without vanilla scroll-zoom                                           | ☐        | ☐       |
+| Middle-click drag orbit still vanilla while mod on                                         | ☐        | ☐       |
+| Edge pan / keyboard camera still work                                                      | ☐        | ☐       |
+| Disable the active mod: trackpad pan fights or vanilla-zooms again; middle-click unchanged | ☐        | ☐       |
 
-Maintainer and community reports. Prefer Workshop comments or a GitHub issue titled `platform: …` so we can fold rows here.
+### Selection rotate
 
-| macOS  | Hardware                       | Chip          | Result | Source                                                           |
-| ------ | ------------------------------ | ------------- | ------ | ---------------------------------------------------------------- |
-| 26.5.2 | MacBook Air M2, 2022 (Mac14,2) | Apple silicon | Pass   | Maintainer machine 1 — v1 pre-release row above                  |
-| 26.6.2 | Mac17,6                        | Apple silicon | Pass   | Maintainer machine 2 — verified 2026-09-03; asm `0.2.9741.32742` |
+| Check                                                                                | Shipping | Rewrite |
+| ------------------------------------------------------------------------------------ | -------- | ------- |
+| Place / relocate ghost: two-finger twist rotates **ghost**, not camera yaw           | ☐        | ☐       |
+| Click-selected building only: two-finger twist yaws **camera** (no object spin)      | ☐        | ☐       |
+| Option-orbit never re-homes look-at to selection / ghost / Relocate-click / old cell | ☐        | ☐       |
+| Relocate → pan away → Option-orbit keeps current look-at                             | ☐        | ☐       |
+| Escape cancel after relocate twist does not leave the old-cell building spun         | ☐        | ☐       |
 
-## Setup
+## Setup reminders
 
-- [ ] Cities Harmony subscribed and enabled
-- [ ] Trackpad Camera Control enabled in Content Manager
+- [ ] Last install is the tree under test (see [Local MVP install](./local-mvp-install.md)); Copy assembly matches that column
+- [ ] Cities Harmony enabled
 - [ ] City loaded (not menus-only)
-- [ ] Game window focused
-- [ ] Cold boot → load city: note Mac OS vs in-game cursor. Dual cursor / Steam overlay Shift-Tab cursor swap is a **known external issue** (deferred to v2) — see [qa-mac-boot-cursor.md](./qa-mac-boot-cursor.md). Not a mod blocker for v1.
-- [ ] Fresh city load: pan, pinch, rotate, and Option-orbit work without opening Debug panel or Options
-- [ ] Debug panel **Reset** restores Default preset while panel stays open
-- [ ] Maps+ / Default feel (Options or Debug panel)
-- [ ] Session platform row filled above
+- [ ] Session platform row filled
+- [ ] Cold-boot dual-cursor / Steam overlay quirks noted as external if seen — not a rewrite blocker by itself
+- [ ] Non-Mac Steam install (if available): enabling rewrite must not crash or disable the mod; gestures no-op; Options/Debug still open
 
-## Trackpad camera
+## Optional flag builds (not ship parity)
 
-- [ ] Two-finger drag **pans**; does **not** also vanilla-zoom
-- [ ] Gestures respond within ~5 s of city load on cold boot (Debug panel off)
-- [ ] Pinch **zooms**
-- [ ] Two-finger twist **rotates** heading (no pitch; hard-handoffs leftover orbit coast)
-- [ ] Option (`⌥`)+two-finger drag **orbits** (orbit yaw **and** pitch); twist ignored while Option owns contact
-- [ ] With DefaultTool + a click-selected building: Option-orbit does **not** jump look-at to that building
-- [ ] Relocate building → two-finger **pan away** → Option-orbit does **not** jump look-at to Relocate-click / ghost / old cell
-- [ ] Release Option while fingers still down: orbit **latches** until lift
-- [ ] Lift fingers after Option-orbit: short **coast** then stop (middle-click-like), not a teleport
-- [ ] Pitch stops at **0°** looking down (not negative in normal play); top clamp **90°**
-- [ ] Mouse wheel still **vanilla-zooms**
+Run only when deliberately compiling experimental modules ([Feature flags](./feature-flags.md)). Do not count Contacts builds as ship evidence.
 
-## Vanilla still works
-
-- [ ] Edge pan moves the camera
-- [ ] Keyboard camera keys move / rotate / zoom as vanilla
-- [ ] Middle-click drag rotate still orbits when that binding is held (mod on)
-- [ ] Disable this mod in Content Manager: trackpad pan fights or vanilla-zooms again; middle-click rotate unchanged
-
-## UI gates
-
-- [ ] Options open: two-finger scrolls Options; city does not pan/orbit from the mod
-- [ ] Pointer over Debug panel (or another popup): two-finger scrolls/drags UI, not city camera
-- [ ] Debug title-bar **gear** opens Options focused on **Trackpad Camera Control** (not last-used category); Options still stacks above Debug
-
-## Optional (future flag builds — not v1 launch QA)
-
-These rows apply only if you deliberately compile experimental flags. **Contacts** is unfinished; do not treat an `EnableContactsCapture` build as launch evidence.
-
-- [ ] `EnableAssistChrome`: chrome **button** orbit steps; drag pad orbits like Option+drag
-- [ ] Place/relocate ghost: Option-orbit does **not** snap Target to ghost; two-finger twist rotates ghost
+| Check                                                                           | Notes      |
+| ------------------------------------------------------------------------------- | ---------- |
+| `EnableAssistChrome`: pads/buttons drive shared apply                           | Future     |
+| `EnableCadGestureStyle`: three-finger orbit only if capture emits honest counts | Future; L4 |
+| `EnableContactsCapture`: dedicated plan required                                | Unfinished |
 
 ## Related
 
-- [Harnesses and testing](./harnesses-and-testing.md) — what unit / e2e prove vs what they miss
-- [Local MVP install](./local-mvp-install.md) — install the mod DLL for playtest
-- [Workshop storefront](./workshop-storefront.md) — public “tested on” claim + community invite
-- [Release process](./release-process.md) — version, Share on Mac, preview, Harmony required item
-- [Vanilla camera suppress](../glossary/vanilla-camera-suppress.md) — scroll / mouse-rotate policy
+- [Harnesses and testing](./harnesses-and-testing.md)
+- [Settings schema](./settings-schema.md)
+- Features guide north star: greenfield redesign lessons (L1–L13)

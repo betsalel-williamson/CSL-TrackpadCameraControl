@@ -1,49 +1,49 @@
 # Repository layout
 
-Target layout (phase 1 has docs only; later phases fill code trees):
+Target layout for the clean-architecture rewrite under `rewrite/`. Stack layers: glossary _gesture library_ vs _mod surface_ (features ADR 0006).
 
-```text
-CSL-TrackpadCameraControl/
-  docs/                 # MDCP shards (source of truth for intent)
-  mod/                  # C# Cities: Skylines I mod (CitiesHarmony Patcher for vanilla camera suppress)
-                          # PreviewImage.png — Content Manager / Workshop thumbnail
-  src/TrackpadCapture/  # Multitouch → GestureFrame (compiled into the mod DLL; also used by optional bridge)
-  src/TrackpadCapture/  # Multitouch → GestureFrame (compiled into the mod DLL; also used by optional bridge)
-  src/TrackpadBridge/   # Optional dev socket host (TrackpadBridge); playtest uses in-process capture
-  src/AppleGestureProbe/ # Spike: C# AppKit gesture logger (macOS, not a backend)
-  tests/                # xUnit unit + headless e2e
-  native/               # Retired C helper notes / stubs (no shipping bridge)
-  shared/protocol/      # GestureFrame wire layout
-  templates/            # Copy-paste scaffolds for quick development
-  scripts/              # bootstrap-dev, install, e2e smoke helpers
-  infra/github/         # OpenTofu + Makefile for GitHub project controls
-  .changeset/           # Pending release notes (Changesets)
-  .github/workflows/    # Docs, format, commitlint, release CI
-  TrackpadCameraControl.sln
-  README.md
-  LICENSE
-  package.json          # docs + format orchestration
-```
+## Tree
+
+| Path               | Role                                                                    |
+| ------------------ | ----------------------------------------------------------------------- |
+| `rewrite/docs/`    | MDCP target contracts (this docs tree)                                  |
+| `rewrite/src/`     | Gesture library — frame, backends, inject seam (no Cities types)        |
+| `rewrite/mod/`     | CSL mod surface — Feel, Ui, Policy, Apply, Host (no AppKit P/Invoke)    |
+| `rewrite/tests/`   | Behavior fixtures, capture-session coverage, static-analysis gates      |
+| `rewrite/scripts/` | Rewrite-only helpers (optional; root scripts may also target this tree) |
+
+The rewrite tree README lives at repo path `rewrite/README.md` (outside this MDCP root — plain pointer only).
+
+## Deploy identity
+
+| Surface                       | Name                                                                                                     |
+| ----------------------------- | -------------------------------------------------------------------------------------------------------- |
+| Content Manager / Mods folder | `TrackpadCameraControl` (same as shipping; last install wins)                                            |
+| Content Manager title         | **Trackpad Camera Control (macOS)** — same as shipping                                                   |
+| Assembly / project            | `TrackpadCameraControl.Rewrite` (mod) + gesture library; file on disk is `TrackpadCameraControl.dll`     |
+| Local install                 | Root script `./scripts/install-mod-local.sh --rewrite` (see [Local MVP install](./local-mvp-install.md)) |
+
+Rewrite and shipping share one playtest folder. `--rewrite` overwrites shipping; a shipping install overwrites rewrite. Tell them apart from Debug / Copy assembly identity, not from a second Content Manager row.
+
+## Relation to repository root
+
+| Root                                                  | Rewrite                                   |
+| ----------------------------------------------------- | ----------------------------------------- |
+| `docs/`                                               | As-built shipping contracts until cutover |
+| `rewrite/docs/`                                       | Target contracts (this guide)             |
+| `mod/` → Mods/`TrackpadCameraControl`                 | Shipping playtest / Share path            |
+| `rewrite/mod/` → Mods/`TrackpadCameraControl`         | Same folder; last `--rewrite` or shipping install wins |
+| Root `src/`, `tests/`, `scripts/`                     | Shipping tree tooling                     |
+| `rewrite/src/`, `rewrite/tests/`                      | Gesture library and rewrite gates         |
+
+Root `docs/` and `rewrite/docs/` stay separate MDCP roots (`npm run docs` vs `npm run docs:rewrite`). Do not mix shard links across those roots. Do not revive shipping Contacts/IPC under root `src/TrackpadCapture` into the rewrite library.
 
 ## Naming
 
-| Surface                 | Name                                                                        |
-| ----------------------- | --------------------------------------------------------------------------- |
-| Core display name       | Trackpad Camera Control                                                     |
-| Display / Workshop (v1) | Trackpad Camera Control (macOS) — temporary tag; drop when another OS ships |
-| GitHub repo             | CSL-TrackpadCameraControl                                                   |
-| npm workspace name      | csl-trackpad-camera-control (local tooling only; not published)             |
+| Surface              | Name                          |
+| -------------------- | ----------------------------- |
+| Product display      | Trackpad Camera Control (macOS) |
+| Mods folder (both)   | TrackpadCameraControl           |
+| GitHub repo          | CSL-TrackpadCameraControl     |
 
-Folder and assembly stay `TrackpadCameraControl` forever. Paste-ready title, description, and SEO tags: [Workshop storefront](./workshop-storefront.md). Search keywords: trackpad, touchpad, multitouch, pinch, camera, mac, macos, macbook, Cities Skylines, orbit, pan, zoom (Mac is a backend/discoverability tag, not durable product identity).
-
-## Rewrite tree (parity remake)
-
-A parallel clean-architecture remake lives under repo-root [`rewrite/`](../../rewrite/README.md). Target MDCP contracts are under `rewrite/docs/` (`npm run docs:rewrite`). Shipping as-built docs in this `docs/` tree stay authoritative until cutover.
-
-| Path                                       | Role                                                                                                     |
-| ------------------------------------------ | -------------------------------------------------------------------------------------------------------- |
-| `rewrite/docs/`                            | Target architecture and parity contracts                                                                 |
-| `rewrite/mod/`                             | Future `TrackpadCameraControl.Rewrite` assembly (Content Manager folder `TrackpadCameraControl.Rewrite`) |
-| `./scripts/install-mod-local.sh --rewrite` | Deploy rewrite build side-by-side for A/B (stub until the rewrite csproj exists)                         |
-
-Enable only one of shipping vs Rewrite in Content Manager per play session when comparing feel.
+Folder and assembly names stay PascalCase `TrackpadCameraControl*` forever. North-star lessons for every shard in this tree: greenfield redesign lessons; stack story: features _Under the hood_.

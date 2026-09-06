@@ -1,65 +1,55 @@
 # State ownership
 
-Where Trackpad Camera Control keeps data, and what must stay derived from the game each frame.
+Where the rewrite keeps data, and what must stay derived from the game each frame. Aligns with the three planes and narrow Harmony rule in greenfield redesign lessons (L7–L8).
 
 ## Sources of truth
 
-| Layer                     | Owns                                  | Examples                                                                         |
-| ------------------------- | ------------------------------------- | -------------------------------------------------------------------------------- |
-| **Disk (XML)**            | Player preferences and feel presets   | Gains, `RequireGameFocus`, Assist/Debug toggles                                  |
-| **RAM cache**             | Working copy of settings + dirty flag | `ModSettingsStore` loads once, `MarkDirty` / `FlushIfNeeded` writes when changed |
-| **Game (each frame)**     | Live simulation and UI                | Focus, menus, pointer-over-UI, selection, `CameraController` pose                |
-| **Mod runtime instance**  | Async bridges and temporal filters    | Gesture queues, session latch, low-pass, pending orbit queue                     |
-| **Harmony frame buffers** | Cross-patch snapshots                 | `VanillaCameraSuppress.PreciseTrackpadScroll`, `MenuOrOverUi`                    |
+| Layer               | Owns                                               | Examples                                                                             |
+| ------------------- | -------------------------------------------------- | ------------------------------------------------------------------------------------ |
+| **Disk (XML)**      | Durable player preferences and named feel profiles | Sensitivity gains, reverse flags, op enables, gate prefs, Debug QoL                  |
+| **Live blob (RAM)** | Working copy of settings plus one dirty bit        | Load once; Options and Debug share one editor API; coalesced autosave (L7)           |
+| **Per-frame game**  | Live simulation and UI                             | Focus, menus, pointer-over-UI, selection / place / relocate, camera pose             |
+| **Session**         | Temporal gesture policy                            | Orbit latch, rotate-owned contact, pending orbit velocity queue, capture connect arm |
+| **Harmony buffers** | Cross-patch snapshots for the current frame only   | Precise trackpad scroll vs mouse wheel; menu-or-over-UI for scroll suppress          |
+
+One live blob, one dirty bit, one write amplification path — feel edits must not double-flush XML.
 
 ## Do not statically cache
 
-These must be **re-queried** from Colossal UI / Unity each tick (via [`InputGates`](../mod/InputGates.cs) or [`CitiesSelectionContext`](../mod/CitiesSelectionContext.cs)):
+Re-query from Colossal UI / Unity **each tick**. Do not mirror these in mod statics:
 
-- Game window focus (`Application.isFocused`)
+- Game window focus
 - Menu / Options open
 - Pointer over UI / popups
 - Selection, relocate, placement tool state
-- Camera position, angles, zoom (read/write through `ICameraController`, do not mirror in mod statics)
+- Camera position, angles, zoom (read and write through the camera seam only)
 
-Adding mod statics for these creates drift and bugs (e.g. unfocused input, stale menu gates).
+Static caches create drift (unfocused input, stale menu gates, wrong orbit look-at).
 
-## ModRuntime lifecycle
+## Session vs disk
 
-While the mod is enabled in Content Manager, [`ModRuntime`](../mod/ModRuntime.cs) holds:
+| Kind                                                | Storage          | Lifetime                                      |
+| --------------------------------------------------- | ---------------- | --------------------------------------------- |
+| Feel and gate prefs                                 | Disk + live blob | Across quit                                   |
+| Debug panel dismissed / position / copy-system-info | Disk + live blob | Across quit (chrome, not tick math)           |
+| Orbit latch / rotate-owned contact                  | Session only     | Until touch-up                                |
+| Pending orbit velocity                              | Session queue    | Flushed on Harmony postfix after vanilla damp |
+| Capture arm after city load                         | Session only     | Until connect succeeds or mod disables        |
+| Focus / menu / over-UI / selection / pose           | Per-frame game   | Never persisted                               |
 
-- `GesturePipeline` (capture source, session, low-pass, camera seam)
-- Reference to `ModSettings` from the store (same object Options edits)
+## Harmony buffers (not preferences)
 
-Created in `Mod.OnEnabled`, destroyed in `Mod.OnDisabled`. Harmony patches and `GestureThreading` read `Mod.Runtime` instead of scattered statics.
+Buffers exist so Harmony prefixes and the policy tick share the same frame snapshot. They are not settings and must not appear in the feel blob.
 
-## VanillaCameraSuppress (buffers only)
+| Buffer                  | Written by           | Purpose                                                                |
+| ----------------------- | -------------------- | ---------------------------------------------------------------------- |
+| Precise trackpad scroll | Capture scroll path  | Suppress vanilla zoom only for precise trackpad; keep mouse-wheel zoom |
+| Menu or over-UI         | Gates sync each tick | Leave scroll to UI; skip mod camera apply                              |
 
-Not preferences. Two flags synced for Harmony timing:
-
-| Flag                    | Written by                                       | Purpose                                               |
-| ----------------------- | ------------------------------------------------ | ----------------------------------------------------- |
-| `PreciseTrackpadScroll` | AppKit scroll callback                           | Last scroll event was precise trackpad vs mouse wheel |
-| `MenuOrOverUi`          | `InputGates.SyncFrameState()` each pipeline tick | Menu/popup open snapshot for scroll suppress policy   |
-
-Policy decisions live in [`InputGates`](../mod/InputGates.cs), not in this type.
-
-## Persisted vs session
-
-User-facing Debug QoL lives in **`ModSettings`** schema ≥4 and `settings.xml`:
-
-| Setting                     | Schema field              | Default |
-| --------------------------- | ------------------------- | ------- |
-| Include system info in Copy | `IncludeSystemInfoInCopy` | `true`  |
-| Debug panel dismissed (X)   | `DebugPanelDismissed`     | `false` |
-| Debug panel position X/Y    | `DebugPanelPosX/Y`        | 40 / 60 |
-
-Focus, menu, pointer-over-UI, selection, and camera pose remain derived each frame — not static UI fields.
-
-**Boot focus / capture arm:** on city load, `LoadingExtension` requests AppKit key-window focus and arms gesture capture connect. Neither is stored — focus and gates are re-queried each tick via `InputGates`.
+Policy decisions live in gates / policy — not inside the buffer type. Harmony stays narrow: suppress buffers and deferred orbit velocity flush only (L8).
 
 ## Related
 
 - [Settings schema](./settings-schema.md)
+- [Feature flags](./feature-flags.md)
 - [Harnesses and testing](./harnesses-and-testing.md)
-- [Vanilla camera suppress](../glossary/vanilla-camera-suppress.md)

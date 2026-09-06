@@ -1,19 +1,22 @@
-# Feature guide
+# Feature guide (rewrite)
 
-Capability design for **Trackpad Camera Control** — Cities: Skylines I trackpad camera gestures.
+Target contracts for the clean-architecture rewrite. Shipping as-built docs remain under repo-root `docs/features/` until cutover.
 
-- [Feature guide](#table-of-contents)
+- [Feature guide (rewrite)](#table-of-contents)
   - [About this guide](./about-this-guide.md)
+  - [Under the hood](./under-the-hood.md)
+  - [Feel catalog](./feel-catalog.md)
+  - [Greenfield redesign lessons](./greenfield-redesign-lessons.md)
+  - [Parity with shipping](./parity-with-shipping.md)
   - [Trackpad camera](./trackpad-camera.md)
   - [Selection-aware gestures](./selection-aware-gestures.md)
   - [Suppress vanilla camera input](./vanilla-camera-suppress.md)
   - [System architecture](./system-architecture.md)
   - [Platform backends](./platform-backends.md)
-  - [Gesture primitives](./ipc-gesture-primitives.md)
   - [Settings and hot configuration](./settings-and-hot-configuration.md)
-  - [Debug UI camera chrome](./debug-ui-camera-chrome.md)
-  - [Prior art and scope](./prior-art-and-scope.md)
   - [Architecture decision records](./adr/index.md)
-    - [ADR 0001 — OS trackpad bridge](./adr/0001-native-multitouch-bridge.md)
     - [ADR 0002 — Gesture presets as seeds](./adr/0002-gesture-presets-as-seeds.md)
     - [ADR 0003 — Feel profiles and product flags](./adr/0003-feel-profiles-and-product-flags.md)
+    - [ADR 0004 — Style table-driven resolve](./adr/0004-style-table-driven-resolve.md)
+    - [ADR 0005 — UX parity is not source parity](./adr/0005-ux-parity-not-source-parity.md)
+    - [ADR 0006 — Gesture library vs CSL mod surface](./adr/0006-gesture-library-vs-mod-surface.md)
