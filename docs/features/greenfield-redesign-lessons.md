@@ -1,6 +1,6 @@
 # Greenfield redesign lessons
 
-Lessons from reviewing the shipping as-built mod and the greenfield redesign report. They are the **north star for every shard in this `rewrite/docs` tree** and for later implementation. Root `docs/` remains the as-built guide until cutover.
+Lessons from reviewing the pre-cutover prototype (now under `bootstrap/`) and the greenfield redesign report. They are the **north star for every shard in this docs tree** and for the primary ship implementation.
 
 ## L1 — Flexibility is a tick consumer, not a field
 
@@ -8,7 +8,7 @@ A settings field is flexible only if the **tick path reads it** (resolve, apply,
 
 **Shipping failure mode:** gesture binding fields were seeded and echoed in UI copy while resolve used hardcoded Maps+ heuristics plus an orbit-trigger enum.
 
-**Rewrite rule:** a style binding table is the single source of truth for resolve. Maps+ ships as **seed data** that reproduces current chords (parity), not as parallel hardcoding beside the table.
+**Ship rule:** a style binding table is the single source of truth for resolve. Maps+ ships as **seed data** that reproduces the player chords (parity), not as parallel hardcoding beside the table.
 
 ## L2 — Feel ≠ gesture style
 
@@ -58,18 +58,18 @@ Use golden Maps+ fixtures (tier A), capture-session coverage per primitive (tier
 
 Internal architecture may be greenfield-simple. **Player-visible UI and Maps+ dynamics stay 1:1** with shipping: same Options/Debug order, labels, control kinds, grouping rhythm, feel-preset interactions, and Maps+ chords/outcomes. Refuse **player-visible** cleanup that changes those. The style table must be **seeded** so behavior matches—not merely elegant and empty.
 
-1:1 is [UI parity](../glossary/ui-parity.md) and dynamics parity — not source identity with the prototype. Do not keep shipping classes to “protect” L11. Freeze the contract; rewrite the internals ([ADR 0005](./adr/0005-ux-parity-not-source-parity.md)).
+1:1 is [UI parity](../glossary/ui-parity.md) and dynamics parity — not source identity with the historical prototype. Do not keep bootstrap classes to “protect” L11. Freeze the contract; keep internals greenfield ([ADR 0005](./adr/0005-ux-parity-not-source-parity.md)).
 
 ## L12 — Doc and code contract alignment
 
-Root `docs/` remains as-built until cutover; this tree describes the **target** that still yields parity. Do not claim a “live binding table” unless resolve consumes it (ADR 0004 — style table-driven resolve). Every config field in the settings schema names its tick consumer or is marked chrome-only, XML alias, or non-field.
+Durable shards describe the **primary ship tree as it works now**. Do not claim a “live binding table” unless resolve consumes it (ADR 0004 — style table-driven resolve). Every config field in the settings schema names its tick consumer or is marked chrome-only, XML alias, or non-field.
 
 ## L13 — Source independence
 
-The shipping mod is a **black-box oracle** for labels, layout rhythm, numeric feel defaults, and Maps+ outcomes. It is not a paste buffer. Rewrite units must have one job (catalog vs editor vs Options host vs Debug host vs pure apply vs Cities adapter). A rewrite file that is a namespace-renamed shipping file is a failed design, even if the player cannot tell.
+The historical prototype under `bootstrap/` remains a **black-box oracle** for labels, layout rhythm, numeric feel defaults, and Maps+ outcomes. It is not a paste buffer. Ship units must have one job (catalog vs editor vs Options host vs Debug host vs pure apply vs Cities adapter). A file that is a namespace-renamed bootstrap file is a failed design, even if the player cannot tell.
 
-Do not copy unfinished prototype experiments (IPC, Contacts, CAD, Assist chrome, file loggers, legacy XML) into the rewrite “to tidy later.” Compile-omit or omit entirely (L6, L9).
+Do not copy unfinished prototype experiments (IPC, Contacts, CAD, Assist chrome, file loggers, legacy XML) into the ship tree “to tidy later.” Compile-omit or omit entirely (L6, L9).
 
 ## Authoring gate
 
-If a sentence implies remappable gestures on ship, tunable pitch, runtime feature flags, tick-path Contacts low-pass on ship, or that UI 1:1 means copying shipping C#—rewrite it to match L1–L13.
+If a sentence implies remappable gestures on ship, tunable pitch, runtime feature flags, tick-path Contacts low-pass on ship, or that UI 1:1 means copying bootstrap C#—rewrite it to match L1–L13.

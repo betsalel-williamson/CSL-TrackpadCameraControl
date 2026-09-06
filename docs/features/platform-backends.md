@@ -11,7 +11,7 @@ Keep product language and Options **platform-neutral**. Isolate OS capture behin
 | Features, client Outcomes, settings schema | No required OS brand in the capability story   |
 | v1 shipping backend                        | **macOS AppKit** — only validated Capture path |
 | Windows / Linux                            | Stubs; not supported in v1                     |
-| Contacts / IPC / socket bridge             | **Removed** from rewrite v1 — not in the tree  |
+| Contacts / IPC / socket bridge             | **Removed** from v1 — not in the ship tree     |
 
 ## Backend contract
 
@@ -24,7 +24,7 @@ A backend in the gesture library must:
 
 ## macOS (v1)
 
-- **AppKit (ship):** in-process AppKit local monitor (scroll / magnify / rotate) → the same primitives, implemented under `rewrite/src`. No Accessibility. Precise scroll deltas drive pan; non-precise (mouse wheel) are not mapped to pan. This is the **only** path playtested for v1.
+- **AppKit (ship):** in-process AppKit local monitor (scroll / magnify / rotate) → the same primitives, implemented in the gesture library under `src/`. No Accessibility. Precise scroll deltas drive pan; non-precise (mouse wheel) are not mapped to pan. This is the **only** path playtested for v1.
 - **Finger count:** AppKit reports two-finger contact for scroll/magnify/rotate events on the ship path. Maps+ seed chords use two-finger rows only.
 - Maps+ orbit modifier defaults to Option (`⌥`).
 - Maintainer E2E inject (`InjectGestureSource`) is a test seam only — not a player backend.
@@ -39,4 +39,4 @@ A backend in the gesture library must:
 - High-level feature shards describe trackpads and feel presets, not “Mac-only product.”
 - README and client install state which backends ship today without rewriting the capability contract.
 - Durable docs do not treat a C helper binary or socket host as the Capture path.
-- Rewrite v1: AppKit (+ inject harness) live in the gesture library; the mod wires the source only.
+- v1: AppKit (+ inject harness) live in the gesture library; the mod wires the source only.

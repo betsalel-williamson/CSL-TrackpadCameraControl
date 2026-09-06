@@ -7,8 +7,8 @@ How players get Trackpad Camera Control running. Who this is for: [Personas](./p
 | Path               | Who                    | How                                                                                                                           |
 | ------------------ | ---------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
 | **Steam Workshop** | Most players           | [Subscribe](https://steamcommunity.com/sharedfiles/filedetails/?id=3796575080); enable in Content Manager with Cities Harmony |
-| **GitHub Release** | Contributors / testers | Source archive → build/install per developer local MVP install                                                                |
-| **Local rewrite**  | Contributors / testers | `rewrite/docs/developer/local-mvp-install.md` with the rewrite assembly                                                       |
+| **GitHub Release** | Contributors / testers | Source archive → `./scripts/install-mod-local.sh`                                                                             |
+| **Local build**    | Contributors / testers | `./scripts/install-mod-local.sh`                                                                                              |
 
 Canonical player path is the Workshop item (**Trackpad Camera Control (macOS)**). GitHub Release remains for source builds and contributors.
 

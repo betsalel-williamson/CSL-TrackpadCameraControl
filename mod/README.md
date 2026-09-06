@@ -1,6 +1,6 @@
-# Rewrite mod assembly
+# Mod assembly
 
-`TrackpadCameraControl.Rewrite` — CSL surface over the gesture library (`rewrite/src`).
+`TrackpadCameraControl.Rewrite` — CSL surface over the gesture library (`src/TrackpadCameraControl.Gestures`).
 
 ## Layout
 

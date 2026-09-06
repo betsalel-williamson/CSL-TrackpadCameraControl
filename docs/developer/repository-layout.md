@@ -1,49 +1,51 @@
 # Repository layout
 
-Target layout for the clean-architecture rewrite under `rewrite/`. Stack layers: glossary _gesture library_ vs _mod surface_ (features ADR 0006).
+Primary ship tree after the greenfield cutover. Stack layers: glossary _gesture library_ vs _mod surface_ (features ADR 0006).
 
 ## Tree
 
-| Path               | Role                                                                    |
-| ------------------ | ----------------------------------------------------------------------- |
-| `rewrite/docs/`    | MDCP target contracts (this docs tree)                                  |
-| `rewrite/src/`     | Gesture library — frame, backends, inject seam (no Cities types)        |
-| `rewrite/mod/`     | CSL mod surface — Feel, Ui, Policy, Apply, Host (no AppKit P/Invoke)    |
-| `rewrite/tests/`   | Behavior fixtures, capture-session coverage, static-analysis gates      |
-| `rewrite/scripts/` | Rewrite-only helpers (optional; root scripts may also target this tree) |
+| Path         | Role                                                                     |
+| ------------ | ------------------------------------------------------------------------ |
+| `docs/`      | MDCP contracts (this docs tree)                                          |
+| `src/`       | Gesture library — frame, AppKit backend, inject seam (no Cities types)   |
+| `mod/`       | CSL mod surface — Feel, Ui, Policy, Apply, Host (no AppKit P/Invoke)     |
+| `tests/`     | Behavior fixtures, capture-session coverage, static-analysis gates       |
+| `scripts/`   | Install, format, SA gates, CI helpers                                    |
+| `bootstrap/` | Historical pre-cutover prototype (reference / optional A/B install only) |
 
-The rewrite tree README lives at repo path `rewrite/README.md` (outside this MDCP root — plain pointer only).
+There is no separate `rewrite/` tree — that work was promoted to the paths above.
 
 ## Deploy identity
 
 | Surface                       | Name                                                                                                     |
 | ----------------------------- | -------------------------------------------------------------------------------------------------------- |
-| Content Manager / Mods folder | `TrackpadCameraControl` (same as shipping; last install wins)                                            |
-| Content Manager title         | **Trackpad Camera Control (macOS)** — same as shipping                                                   |
-| Assembly / project            | `TrackpadCameraControl.Rewrite` (mod) + gesture library; file on disk is `TrackpadCameraControl.dll`     |
-| Local install                 | Root script `./scripts/install-mod-local.sh --rewrite` (see [Local MVP install](./local-mvp-install.md)) |
+| Content Manager / Mods folder | `TrackpadCameraControl`                                                                                  |
+| Content Manager title         | **Trackpad Camera Control (macOS)**                                                                      |
+| Assembly / project            | `TrackpadCameraControl.Rewrite` (mod) + `TrackpadCameraControl.Gestures` (library); ship DLL names match |
+| Local install                 | `./scripts/install-mod-local.sh` (see [Local MVP install](./local-mvp-install.md))                       |
 
-Rewrite and shipping share one playtest folder. `--rewrite` overwrites shipping; a shipping install overwrites rewrite. Tell them apart from Debug / Copy assembly identity, not from a second Content Manager row.
+Primary and bootstrap share one playtest folder. Last install wins. Tell them apart from Debug / Copy assembly identity, not from a second Content Manager row.
 
-## Relation to repository root
+## Historical prototype
 
-| Root                                                  | Rewrite                                   |
-| ----------------------------------------------------- | ----------------------------------------- |
-| `docs/`                                               | As-built shipping contracts until cutover |
-| `rewrite/docs/`                                       | Target contracts (this guide)             |
-| `mod/` → Mods/`TrackpadCameraControl`                 | Shipping playtest / Share path            |
-| `rewrite/mod/` → Mods/`TrackpadCameraControl`         | Same folder; last `--rewrite` or shipping install wins |
-| Root `src/`, `tests/`, `scripts/`                     | Shipping tree tooling                     |
-| `rewrite/src/`, `rewrite/tests/`                      | Gesture library and rewrite gates         |
+| Path               | Role                                                             |
+| ------------------ | ---------------------------------------------------------------- |
+| `bootstrap/mod/`   | Pre-cutover monolith mod                                         |
+| `bootstrap/src/`   | Pre-cutover TrackpadCapture / TrackpadBridge / AppleGestureProbe |
+| `bootstrap/tests/` | Pre-cutover test project                                         |
 
-Root `docs/` and `rewrite/docs/` stay separate MDCP roots (`npm run docs` vs `npm run docs:rewrite`). Do not mix shard links across those roots. Do not revive shipping Contacts/IPC under root `src/TrackpadCapture` into the rewrite library.
+Do not revive Contacts/IPC from `bootstrap/` into the gesture library. Optional install: `./scripts/install-mod-local.sh --bootstrap`.
+
+## Native C tree
+
+The retired C TrackpadBridge helper is gone. Platform stub READMEs under `native/` only record that Windows/Linux backends are not shipped. Ship capture is managed C# in the gesture library.
 
 ## Naming
 
-| Surface              | Name                          |
-| -------------------- | ----------------------------- |
-| Product display      | Trackpad Camera Control (macOS) |
-| Mods folder (both)   | TrackpadCameraControl           |
-| GitHub repo          | CSL-TrackpadCameraControl     |
+| Surface         | Name                            |
+| --------------- | ------------------------------- |
+| Product display | Trackpad Camera Control (macOS) |
+| Mods folder     | TrackpadCameraControl           |
+| GitHub repo     | CSL-TrackpadCameraControl       |
 
-Folder and assembly names stay PascalCase `TrackpadCameraControl*` forever. North-star lessons for every shard in this tree: greenfield redesign lessons; stack story: features _Under the hood_.
+Folder and assembly names stay PascalCase `TrackpadCameraControl*` forever. North-star lessons: greenfield redesign lessons; stack story: features _Under the hood_.

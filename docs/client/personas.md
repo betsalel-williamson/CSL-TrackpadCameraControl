@@ -1,6 +1,6 @@
 # Personas
 
-Who this product is for on the rewrite ship surface.
+Who this product is for on the ship Maps+ surface.
 
 ## Primary — Trackpad city-builder
 
@@ -12,9 +12,9 @@ Cities: Skylines I player on a **laptop trackpad** (often macOS) who wants Maps+
 
 ## Beta tester — early adopter
 
-Willing to install from the **Steam Workshop**, a **GitHub Release**, or a local rewrite build. Comfortable with Content Manager, Cities Harmony, and reporting capture bugs.
+Willing to install from the **Steam Workshop**, a **GitHub Release**, or a local contributor build. Comfortable with Content Manager, Cities Harmony, and reporting capture bugs.
 
-**Guide home:** [Install and first run](./install-and-first-run.md). Build / copy steps: `rewrite/docs/developer/local-mvp-install.md`.
+**Guide home:** [Install and first run](./install-and-first-run.md). Contributors: `./scripts/install-mod-local.sh`.
 
 ## Future — CAD-style camera user
 
@@ -22,4 +22,4 @@ Prefers **three-finger orbit**. Not a ship audience while `EnableCadGestureStyle
 
 ## Out of scope for this guide
 
-Contributors implementing Capture / Policy / Apply or packaging — use the developer guide. Maintainers announcing releases — use the shipping community docs until cutover.
+Contributors implementing Capture / Policy / Apply or packaging — use the developer guide. Maintainers announcing releases — use the developer community / marketing guidance.

@@ -59,15 +59,14 @@
       "package.json",
       "package-lock.json",
       "skills-lock.json",
-      "rewrite/mod/**",
-      "rewrite/src/**",
-      "rewrite/tests/**",
-      "rewrite/scripts/**",
-      "rewrite/README.md",
-      "rewrite/mod/README.md",
-      "rewrite/src/README.md",
-      "rewrite/tests/README.md",
-      "rewrite/scripts/README.md"
+      "bootstrap/mod/**",
+      "bootstrap/src/**",
+      "bootstrap/tests/**",
+      "mod/README.md",
+      "src/README.md",
+      "tests/README.md",
+      "scripts/README.md",
+      "native/README.md"
     ]
   },
   "refs": {

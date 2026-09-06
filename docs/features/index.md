@@ -1,8 +1,8 @@
-# Feature guide (rewrite)
+# Feature guide
 
-Target contracts for the clean-architecture rewrite. Shipping as-built docs remain under repo-root `docs/features/` until cutover.
+Product and architecture contracts for the primary ship tree.
 
-- [Feature guide (rewrite)](#table-of-contents)
+- [Feature guide](#table-of-contents)
   - [About this guide](./about-this-guide.md)
   - [Under the hood](./under-the-hood.md)
   - [Feel catalog](./feel-catalog.md)
