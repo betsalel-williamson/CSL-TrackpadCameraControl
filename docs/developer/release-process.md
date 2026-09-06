@@ -59,7 +59,7 @@ WorkshopStagingArea/<guid>/
 
 1. `./scripts/install-mod-local.sh` — release build into live Mods (product semver).
 2. In Cities: Content Manager → Mods → **Workshop** row → **Update** → folder icon (creates/opens staging).
-3. `./scripts/stage-workshop-update.sh` — backs up the current staging package under `WorkshopStagingArea/_backups/`, then replaces staging `Content/` DLLs and root `PreviewImage.png` from the live Mods folder. Use `--install` to do step 1 first; `--staging PATH` to target a specific staging folder; `--restore` to put the newest backup back.
+3. `./scripts/stage-workshop-update.sh` — backs up current staging under `WorkshopStagingArea/_backups/`, then copies live Mods DLLs into `Content/` and `PreviewImage.png` beside it. Optional: `--install`, `--restore`.
 4. Back in Cities → **Update**, wait for **Committing changes**. Do not cancel mid-upload.
 5. Optional: temporarily move the local Mods copy out before Update if Content Manager shows duplicate rows.
 
