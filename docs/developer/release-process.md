@@ -44,7 +44,21 @@ Deploy folder: `Mods/TrackpadCameraControl` (last install wins).
 
 Do **not** Share a second item. Update [Workshop item 3796575080](https://steamcommunity.com/sharedfiles/filedetails/?id=3796575080).
 
-Official Content Manager shape (folder icon on the Update dialog):
+Patching `steamapps/workshop/content/…` only changes what the game loads locally. It does **not** upload to Steam. Content Manager can show **1.0.2** while the Workshop page stays on the old build until Update commits.
+
+### Missing **Update** button
+
+Workshop rows often hide Update (known CS1 issue). Steam launch option (exact spelling):
+
+```text
+--refreshWorkshop
+```
+
+Restart Cities, confirm **Update** on the Workshop row, finish the upload, then **remove** the launch option.
+
+Local `Addons/Mods/TrackpadCameraControl` shows **Share** (unpublished local). Do **not** Share that — it can create a duplicate Workshop item. Move/delete the local Mods folder before updating.
+
+### Staging layout
 
 ```text
 WorkshopStagingArea/<guid>/
@@ -52,18 +66,20 @@ WorkshopStagingArea/<guid>/
   Content/
     TrackpadCameraControl.dll
     TrackpadCameraControl.Gestures.dll
-    CitiesHarmony.API.dll   ← if present in the live Mods folder
+    CitiesHarmony.API.dll
 ```
 
-`PreviewImage.png` must **not** live inside `Content/` (copying the whole Mods folder into `Content/` is the usual mistake).
+`PreviewImage.png` must **not** live inside `Content/`.
 
-1. `./scripts/install-mod-local.sh` — release build into live Mods (product semver).
-2. In Cities: Content Manager → Mods → **Workshop** row → **Update** → folder icon (creates/opens staging).
-3. `./scripts/stage-workshop-update.sh` — backs up current staging under `WorkshopStagingArea/_backups/`, then copies live Mods DLLs into `Content/` and `PreviewImage.png` beside it. Optional: `--install`, `--restore`.
-4. Back in Cities → **Update**, wait for **Committing changes**. Do not cancel mid-upload.
-5. Optional: temporarily move the local Mods copy out before Update if Content Manager shows duplicate rows.
+### Steps
 
-Paste-ready title / description / tags: [Workshop storefront](./workshop-storefront.md).
+1. Quit Cities. If **Update** is missing, add Steam launch option `--refreshWorkshop` (exact spelling), then relaunch.
+2. Keep `Addons/Mods/TrackpadCameraControl` **absent** so only the Workshop row appears. Do **not** click **Share** on a local row.
+3. Stay subscribed to your own Workshop item.
+4. `./scripts/install-mod-local.sh`, then **move that Mods folder aside** again.
+5. Cities → Content Manager → Mods → Workshop row → **Update** → folder icon.
+6. `./scripts/stage-workshop-update.sh` (fills that staging package; backs up under `_backups/`).
+7. Click **Update**, wait for **Committing changes** / Workshop page. Confirm a new change note on Steam; remove `--refreshWorkshop`.
 
 ## Pre-ship checklist
 
