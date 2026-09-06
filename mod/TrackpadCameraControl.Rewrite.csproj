@@ -12,7 +12,7 @@
         <RootNamespace>TrackpadCameraControl.Rewrite</RootNamespace>
         <AssemblyName>TrackpadCameraControl.Rewrite</AssemblyName>
         <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
-        <_PackageJsonPath>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)../../package.json'))</_PackageJsonPath>
+        <_PackageJsonPath>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)../package.json'))</_PackageJsonPath>
         <_PackageJsonContent Condition="Exists('$(_PackageJsonPath)')"
             >$([System.IO.File]::ReadAllText('$(_PackageJsonPath)'))</_PackageJsonContent>
         <Version Condition="'$(_PackageJsonContent)' != ''"
