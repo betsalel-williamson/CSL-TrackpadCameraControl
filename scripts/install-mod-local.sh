@@ -5,22 +5,28 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 export PATH="${HOME}/.dotnet:${PATH}"
 
-REWRITE=0
+MODE=primary
 if [[ $# -gt 0 ]]; then
   case "$1" in
     -h | --help)
-      echo "Usage: $0 [--rewrite|-r]"
+      echo "Usage: $0 [--bootstrap|-b]"
       echo "  Build + post-build copy into Mods/TrackpadCameraControl (last install wins)."
-      echo "  --rewrite | -r  Build rewrite/mod over the same folder and Content Manager name"
+      echo "  (default)         Build primary mod/ tree (post-cutover rewrite)"
+      echo "  --bootstrap | -b  Build historical prototype under bootstrap/"
+      echo "  --rewrite | -r    Alias for default (kept for older docs/scripts)"
       exit 0
       ;;
+    --bootstrap | -b)
+      MODE=bootstrap
+      shift
+      ;;
     --rewrite | -r)
-      REWRITE=1
+      MODE=primary
       shift
       ;;
     *)
       echo "Unknown option: $1" >&2
-      echo "Usage: $0 [--rewrite|-r]" >&2
+      echo "Usage: $0 [--bootstrap|-b]" >&2
       exit 1
       ;;
   esac
@@ -31,15 +37,15 @@ MODS="${CITIES_MODS:-${HOME}/Library/Application Support/Colossal Order/Cities_S
 DEST="${MODS}/TrackpadCameraControl"
 LEGACY_REWRITE_DEST="${MODS}/TrackpadCameraControl.Rewrite"
 
-if [[ "${REWRITE}" -eq 1 ]]; then
-  CSPROJ="${ROOT}/rewrite/mod/TrackpadCameraControl.Rewrite.csproj"
-  if [[ ! -f "${CSPROJ}" ]]; then
-    echo "rewrite/mod is not buildable yet (missing ${CSPROJ})." >&2
-    echo "Docs-first phase: see rewrite/README.md. Deploy target will be: Mods/TrackpadCameraControl" >&2
-    exit 2
-  fi
+if [[ "${MODE}" == "bootstrap" ]]; then
+  CSPROJ="${ROOT}/bootstrap/mod/TrackpadCameraControl.csproj"
 else
-  CSPROJ="${ROOT}/mod/TrackpadCameraControl.csproj"
+  CSPROJ="${ROOT}/mod/TrackpadCameraControl.Rewrite.csproj"
+fi
+
+if [[ ! -f "${CSPROJ}" ]]; then
+  echo "Missing project: ${CSPROJ}" >&2
+  exit 2
 fi
 
 if [[ ! -f "${MANAGED}/ICities.dll" ]]; then
@@ -62,24 +68,21 @@ if [[ -d "${LEGACY_REWRITE_DEST}" ]]; then
 fi
 
 echo "Build finished (post-build should have deployed to ${DEST})."
-echo "Cities auto-reloads when AssemblyVersion changes — see mod-reload-during-development.md"
-if [[ "${REWRITE}" -eq 1 ]]; then
+echo "Cities auto-reloads when AssemblyVersion changes — see docs/developer/local-mvp-install.md"
+if [[ "${MODE}" == "primary" ]]; then
   GESTURES="${DEST}/TrackpadCameraControl.Gestures.dll"
   if [[ ! -f "${GESTURES}" ]]; then
-    echo "Missing ${GESTURES} — Cities cannot load the rewrite IUserMod without the gesture library." >&2
+    echo "Missing ${GESTURES} — Cities cannot load the IUserMod without the gesture library." >&2
     exit 1
   fi
   echo "Gestures → ${GESTURES}"
-  echo "Rewrite capture: in-process AppKit → style-table Policy → Apply (Mods/TrackpadCameraControl)."
+  echo "Capture: in-process AppKit → style-table Policy → Apply (Mods/TrackpadCameraControl)."
+  echo "Inspect: tail -f \"\${TMPDIR:-/tmp}/trackpad-camera-control-rewrite.log\""
 else
-  echo "Capture: in-process AppKit (default, mod DLL). Optional TrackpadBridge socket experiment in src/TrackpadBridge."
+  echo "Capture: bootstrap prototype (in-process AppKit). Optional TrackpadBridge under bootstrap/src/TrackpadBridge."
+  echo "Inspect: tail -f \"\${TMPDIR:-/tmp}/trackpad-camera-control.log\""
 fi
 echo "Debug panel footer: Built (UTC) + asm identity confirm the loaded build."
 if [[ -f "${DEST}/PreviewImage.png" ]]; then
   echo "Preview → ${DEST}/PreviewImage.png"
-fi
-if [[ "${REWRITE}" -eq 1 ]]; then
-  echo "Inspect: tail -f \"\${TMPDIR:-/tmp}/trackpad-camera-control-rewrite.log\""
-else
-  echo "Inspect: tail -f \"\${TMPDIR:-/tmp}/trackpad-camera-control.log\""
 fi
