@@ -50,6 +50,25 @@ The existing `GestureFrame` (48 bytes, `shared/protocol/gesture_frame.h`) alread
 - **Honest finger count** (lesson L4): gesture events carry a real count; scroll does not. Report 2 for scroll-derived pan and say so, exactly as the AppKit ship path does. Never infer a count libinput did not give us.
 - **Fail soft.** No X display, no `libXi`, no XI 2.4, or no gesture-capable device → noop source, mod stays enabled, Options and Debug open, vanilla wheel and middle-mouse orbit keep working.
 
+## The recognizer is libinput, not us
+
+This is the load-bearing property of the Linux design: **no layer we own ever converts contacts into frames.** libinput is the peer of AppKit's `magnify` / `rotate` / `scroll` — it owns contact tracking, palm and thumb detection, jitter filtering, finger-count hysteresis, and pinch-vs-swipe disambiguation, and it hands out begin/update/end gestures with `scale`, `delta_angle`, `dx/dy`, and a finger count. An `IGestureSource` that reads XI 2.4 is a mapper, the same size and risk as `AppleGestureMapper`.
+
+Raw contacts are therefore not a Linux design option we are declining for taste; consuming them would mean re-implementing libinput inside a Workshop mod.
+
+## Where the QA cost actually lands
+
+It does not disappear — it moves from _implementing_ a recognizer to _disagreeing_ with one. libinput's classifier is not AppKit's, and each difference below is a playtest item, not a code item.
+
+| Difference                                                                                                                                                                                                                    | Consequence for feel                                                                                                                                                                             |
+| ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **Scroll first, pinch corrected.** libinput posts two-finger scroll immediately and only reclassifies to pinch inside a 300 ms window ("we may confuse a pinch for a scroll initially, allow ourselves to correct our guess") | A pinch can arrive as pan for up to 300 ms and then become zoom. Resolve needs a policy: suppress the latch until the window closes, or cancel the pan retroactively. AppKit never produces this |
+| **Pinch entry threshold.** Both touches must move >= 1.5 mm in non-identical directions before pinch is allowed                                                                                                               | Slow or small pinches register as pan. A Slow feel preset cannot compensate for a gesture that was never classified                                                                              |
+| **No dedicated rotate.** Rotation exists only as the pinch gesture's `delta_angle`                                                                                                                                            | Rotate-without-zoom must be teased out of a gesture whose entry condition is a distance change                                                                                                   |
+| **Geometry is assumed when absent.** `scale` is a distance ratio and so resolution-free, but `angle` is `atan2` over resolution-normalized coordinates. With no declared resolution libinput assumes 69x50 mm                 | On a 19200x10800 virtual pad that is 278 units/mm in x against 216 in y — anisotropic, so a circular two-finger rotation reads as elliptical and every mm threshold applies to a fictional pad   |
+
+Mitigation order: declare real axis resolution on any virtual pad first (it is the one item that silently skews everything else), then write the scroll-to-pinch correction policy, then tune feel.
+
 ## Known hazards
 
 | Hazard                                                            | Consequence                                                                                                                                                  |

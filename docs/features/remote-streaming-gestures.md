@@ -30,18 +30,23 @@ So the host-side work is **wiring, not invention**: one more device plus a routi
 
 ```mermaid
 flowchart LR
-  pad[ClientTrackpadContacts] --> client[MoonlightPassthroughMode]
-  client --> wire[TouchPacketsPlusDeviceKind]
-  wire --> host[SunshineVirtualTrackpad]
+  pad[ClientTrackpad] --> rec[ClientOsRecognizer]
+  rec --> client[MoonlightPassthroughMode]
+  client --> wire[GestureFramePackets]
+  wire --> synth[SunshineFrameToContacts]
+  synth --> host[SunshineVirtualTrackpad]
   host --> li[libinputGestureStack]
   li --> xi[XI24GestureEvents]
   xi --> mod[TrackpadCameraControl]
-  mouse[ClientMouse] --> wire
-  wire --> vmouse[SunshineVirtualMouse]
+  mouse[ClientMouse] --> vmouse[SunshineVirtualMouse]
   vmouse --> vanilla[VanillaCameraPaths]
 ```
 
-Contacts, not semantics, are the right wire payload: the host has to land on a uinput device either way, because Linux has **no** semantic gesture-injection API. A semantic frame would have to be re-synthesized into two moving contacts host-side and then re-interpreted by libinput — double filtering for no gain, _except_ where the client cannot produce contacts at all, which is the iPadOS row under Edge cases.
+**Send the frame, not the contacts.** The client already has a recognized gesture — AppKit `magnify` / `rotate` / `scroll` on macOS, UIKit recognizers on iPadOS, libinput gestures on a Linux client — and that recognition is the UX we ship. Forwarding contacts instead throws it away and asks libinput to re-derive it from a synthetic pad, which is how a known-good frame turns back into a tuning project.
+
+The host can have both. libinput computes `scale = distance / initial_distance` and `angle = atan2(dy, dx)` over the two gesture touches, so two contacts placed at `center +/- (r0 * scale / 2) * (cos A, sin A)` are the **analytic inverse** of a frame: libinput recovers the same scale and angle delta, to device-unit quantization. A Sunshine-side synthesizer therefore turns a frame back into a real touchpad event stream with no heuristics, and — the part that matters for feel — it can place the contacts so libinput enters `PINCH` immediately instead of walking its scroll-then-correct path.
+
+Raw contact passthrough stays worth having, because it serves every multitouch app rather than this one and is the easier upstream ask, but it is the complement, not the primary.
 
 ## Work shards
 
@@ -55,7 +60,9 @@ Contacts, not semantics, are the right wire payload: the host has to land on a u
 | **S6 Mod**            | us                       | [Linux gesture backend](./linux-gesture-backend.md). Nothing streaming-specific                                                                                                                             |
 | **S7 Fallback**       | Moonlight / Sunshine     | Clients that only get semantic gestures (iPadOS) send a gesture frame; Sunshine synthesizes contacts onto the same virtual trackpad                                                                         |
 
-S1 + S6 alone are demonstrable: a Sunshine-side switch that feeds existing touch packets to a trackpad device needs **no** protocol change and no client change for a touchscreen client, which makes it the right spike before asking upstream for S3.
+**Settle the fidelity question before writing any of it.** The decisive experiment needs no client, no protocol change, and no fork: a local harness that creates a uinput trackpad, replays recorded frames through the S4 synthesis, and reads back what libinput reports. Frames in, frames out, compared. Our existing session capture logs (`TRACKPAD_CAPTURE_LOG`) are already the corpus — real macOS gestures from real playtests — which makes this a regression test rather than a one-off spike.
+
+If round-tripping holds, S3-S6 are worth asking upstream for. If it does not, that is the cheapest possible place to learn it.
 
 ## What the mod must not do
 
@@ -77,4 +84,4 @@ S1 + S6 alone are demonstrable: a Sunshine-side switch that feeds existing touch
 
 - A Linux host streaming to a macOS Moonlight client pans, zooms, and rotates the CS1 camera from the client trackpad, with wheel zoom and middle-mouse orbit still vanilla from a plugged-in mouse.
 - The mod ships exactly one Linux `IGestureSource`, with no streaming branch in resolve, settings, or Options.
-- Upstream asks are filed as small, separable changes (S1-S5), each useful to Sunshine/Moonlight users who have never heard of this mod.
+- Frame round-trip fidelity is proven by the replay harness against real capture logs before any upstream ask is filed, and each ask (S1-S6) stands alone.
