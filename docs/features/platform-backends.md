@@ -6,12 +6,13 @@ Keep product language and Options **platform-neutral**. Isolate OS capture behin
 
 ## Policy
 
-| Layer                                      | Stance                                         |
-| ------------------------------------------ | ---------------------------------------------- |
-| Features, client Outcomes, settings schema | No required OS brand in the capability story   |
-| v1 shipping backend                        | **macOS AppKit** — only validated Capture path |
-| Windows / Linux                            | Stubs; not supported in v1                     |
-| Contacts / IPC / socket bridge             | **Removed** from v1 — not in the ship tree     |
+| Layer                                      | Stance                                                                |
+| ------------------------------------------ | --------------------------------------------------------------------- |
+| Features, client Outcomes, settings schema | No required OS brand in the capability story                          |
+| v1 shipping backend                        | **macOS AppKit** — only validated Capture path                        |
+| Windows / Linux                            | Stubs; not supported in v1                                            |
+| Linux design target                        | XI 2.4 gestures — [Linux gesture backend](./linux-gesture-backend.md) |
+| Contacts / IPC / socket bridge             | **Removed** from v1 — not in the ship tree                            |
 
 ## Backend contract
 
@@ -32,7 +33,7 @@ A backend in the gesture library must:
 ## Windows / Linux (stubs)
 
 - Runtime **noop** `IGestureSource` when AppKit is missing (or Connect fails). Detect Mac via OS / AppKit **framework directory** — do not use `File.Exists` on the AppKit binary (dyld shared cache makes that path a broken symlink). The mod **stays enabled**: Options and Debug open; gestures no-op; vanilla mouse wheel and middle-mouse orbit remain. Do **not** crash Content Manager / city load — never retry AppKit construction in the enable catch.
-- Future: Precision Touchpad or equivalent contact streaming mapped to the same primitives.
+- Future: Precision Touchpad or equivalent contact streaming mapped to the same primitives. The Linux design is specified in [Linux gesture backend](./linux-gesture-backend.md); streamed sessions reuse it unchanged ([remote streaming gestures](./remote-streaming-gestures.md)).
 
 ## Acceptance
 

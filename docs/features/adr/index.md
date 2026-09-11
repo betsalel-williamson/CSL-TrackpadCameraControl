@@ -8,3 +8,4 @@ Accepted decisions for the primary ship tree.
 - [ADR 0004 — Style table-driven resolve](./0004-style-table-driven-resolve.md)
 - [ADR 0005 — UX parity is not source parity](./0005-ux-parity-not-source-parity.md)
 - [ADR 0006 — Gesture library vs CSL mod surface](./0006-gesture-library-vs-mod-surface.md)
+- [ADR 0007 — Linux capture via XI 2.4, streaming via a host trackpad](./0007-linux-capture-and-streaming.md) (proposed)

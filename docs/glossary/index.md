@@ -14,6 +14,7 @@ Shared terms for product and architecture contracts. Prefer condensed local entr
   - [Gesture library](./gesture-library.md)
   - [Gesture style](./gesture-style.md)
   - [Hot configuration](./hot-configuration.md)
+  - [Indirect touch device](./indirect-touch-device.md)
   - [Mod surface](./mod-surface.md)
   - [Orbit](./orbit.md)
   - [Orbit latch](./orbit-latch.md)

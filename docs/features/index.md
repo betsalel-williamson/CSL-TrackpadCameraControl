@@ -13,6 +13,8 @@ Product and architecture contracts for the primary ship tree.
   - [Suppress vanilla camera input](./vanilla-camera-suppress.md)
   - [System architecture](./system-architecture.md)
   - [Platform backends](./platform-backends.md)
+  - [Linux gesture backend](./linux-gesture-backend.md)
+  - [Remote streaming gestures (Sunshine / Moonlight)](./remote-streaming-gestures.md)
   - [Settings and hot configuration](./settings-and-hot-configuration.md)
   - [Architecture decision records](./adr/index.md)
     - [ADR 0002 — Gesture presets as seeds](./adr/0002-gesture-presets-as-seeds.md)
@@ -20,3 +22,4 @@ Product and architecture contracts for the primary ship tree.
     - [ADR 0004 — Style table-driven resolve](./adr/0004-style-table-driven-resolve.md)
     - [ADR 0005 — UX parity is not source parity](./adr/0005-ux-parity-not-source-parity.md)
     - [ADR 0006 — Gesture library vs CSL mod surface](./adr/0006-gesture-library-vs-mod-surface.md)
+    - [ADR 0007 — Linux capture via XI 2.4, streaming via a host trackpad](./adr/0007-linux-capture-and-streaming.md)
