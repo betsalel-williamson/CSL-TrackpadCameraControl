@@ -7,8 +7,8 @@ namespace TrackpadCameraControl.Rewrite
     /// Option+two-finger orbit.
     /// </summary>
     /// <remarks>
-    /// Each <see cref="StyleBindingRow"/> is built positionally, so the column order
-    /// is a convention fixed by the <see cref="StyleBindingRow"/> constructor:
+    /// Rows pass every <see cref="StyleBindingRow"/> constructor argument by name so the
+    /// compiler checks each value against its parameter. The columns mean:
     /// <list type="number">
     ///   <item><c>op</c> — the <see cref="CameraOp"/> this row drives when it matches.</item>
     ///   <item><c>primitive</c> — the <see cref="StylePrimitive"/> gesture signal that
@@ -35,40 +35,40 @@ namespace TrackpadCameraControl.Rewrite
                 {
                     // Pinch with exactly two fingers zooms, regardless of modifiers.
                     new StyleBindingRow(
-                        CameraOp.Zoom, // op
-                        StylePrimitive.Pinch, // primitive
-                        2, // minFingerCount
-                        2, // maxFingerCount
-                        GestureModifiers.None, // requiredModifiers
-                        GestureModifiers.None // forbiddenModifiers
+                        op: CameraOp.Zoom,
+                        primitive: StylePrimitive.Pinch,
+                        minFingerCount: 2,
+                        maxFingerCount: 2,
+                        requiredModifiers: GestureModifiers.None,
+                        forbiddenModifiers: GestureModifiers.None
                     ),
                     // Two-finger twist rotates, regardless of modifiers.
                     new StyleBindingRow(
-                        CameraOp.Rotate, // op
-                        StylePrimitive.Rotate, // primitive
-                        2, // minFingerCount
-                        2, // maxFingerCount
-                        GestureModifiers.None, // requiredModifiers
-                        GestureModifiers.None // forbiddenModifiers
+                        op: CameraOp.Rotate,
+                        primitive: StylePrimitive.Rotate,
+                        minFingerCount: 2,
+                        maxFingerCount: 2,
+                        requiredModifiers: GestureModifiers.None,
+                        forbiddenModifiers: GestureModifiers.None
                     ),
                     // Option held + two-finger drag orbits.
                     new StyleBindingRow(
-                        CameraOp.Orbit, // op
-                        StylePrimitive.CentroidMotion, // primitive
-                        2, // minFingerCount
-                        2, // maxFingerCount
-                        GestureModifiers.Option, // requiredModifiers
-                        GestureModifiers.None // forbiddenModifiers
+                        op: CameraOp.Orbit,
+                        primitive: StylePrimitive.CentroidMotion,
+                        minFingerCount: 2,
+                        maxFingerCount: 2,
+                        requiredModifiers: GestureModifiers.Option,
+                        forbiddenModifiers: GestureModifiers.None
                     ),
                     // Plain two-finger drag pans; Option is forbidden so it does not
                     // overlap with the orbit row above.
                     new StyleBindingRow(
-                        CameraOp.Pan, // op
-                        StylePrimitive.CentroidMotion, // primitive
-                        2, // minFingerCount
-                        2, // maxFingerCount
-                        GestureModifiers.None, // requiredModifiers
-                        GestureModifiers.Option // forbiddenModifiers
+                        op: CameraOp.Pan,
+                        primitive: StylePrimitive.CentroidMotion,
+                        minFingerCount: 2,
+                        maxFingerCount: 2,
+                        requiredModifiers: GestureModifiers.None,
+                        forbiddenModifiers: GestureModifiers.Option
                     ),
                 }
             );
